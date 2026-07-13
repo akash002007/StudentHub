@@ -146,3 +146,94 @@ export const mockConversations: Conversation[] = [
     }
   }
 ];
+
+export const mockMessageHistory: Record<string, Message[]> = {
+  'c1': [
+    {
+      id: 'm1_0',
+      conversationId: 'c1',
+      senderId: 'u2',
+      content: 'Hi Jane, we loved your recent project on GitHub.',
+      type: 'text',
+      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
+      status: 'read'
+    },
+    {
+      id: 'm1_1',
+      conversationId: 'c1',
+      senderId: 'me',
+      content: 'Thank you Sarah! I really enjoyed building it.',
+      type: 'text',
+      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 23).toISOString(),
+      status: 'read'
+    },
+    {
+      id: 'm1',
+      conversationId: 'c1',
+      senderId: 'u2',
+      content: 'We would love to schedule an interview with you next week.',
+      type: 'text',
+      timestamp: new Date(Date.now() - 1000 * 60 * 5).toISOString(),
+      status: 'delivered'
+    }
+  ],
+  'c2': [
+    {
+      id: 'm2_0',
+      conversationId: 'c2',
+      senderId: 'me',
+      content: 'Hi David, could you review my updated resume?',
+      type: 'text',
+      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString(),
+      status: 'read'
+    },
+    {
+      id: 'm2_1',
+      conversationId: 'c2',
+      senderId: 'me',
+      content: 'resume_v2.pdf',
+      type: 'resume',
+      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 48 + 1000).toISOString(),
+      status: 'read',
+      metadata: { fileSize: '1.2MB' }
+    },
+    {
+      id: 'm2_2',
+      conversationId: 'c2',
+      senderId: 'u3',
+      content: 'Looks solid! Maybe highlight your React experience more.',
+      type: 'text',
+      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 25).toISOString(),
+      status: 'read'
+    },
+    {
+      id: 'm2',
+      conversationId: 'c2',
+      senderId: 'me',
+      content: 'Thanks for the resume review, David!',
+      type: 'text',
+      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
+      status: 'read'
+    }
+  ],
+  'c3': [
+    {
+      id: 'm3_0',
+      conversationId: 'c3',
+      senderId: 'me',
+      content: 'Hey Alex, are we still meeting for the hackathon planning?',
+      type: 'text',
+      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 50).toISOString(),
+      status: 'read'
+    },
+    {
+      id: 'm3',
+      conversationId: 'c3',
+      senderId: 'u1',
+      content: 'Did you check out the new Next.js features?',
+      type: 'text',
+      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString(),
+      status: 'read'
+    }
+  ]
+};

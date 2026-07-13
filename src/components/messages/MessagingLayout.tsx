@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { ConversationSidebar } from "./ConversationSidebar";
 import { ConversationView } from "./ConversationView";
 import { ContextPanel } from "./ContextPanel";
-import { mockConversations } from "@/data/mockMessages";
+import { mockConversations, mockMessageHistory, Message, Conversation } from "@/data/mockMessages";
 import { AmbientBackground } from "@/components/ui/AmbientBackground";
 
 export function MessagingLayout() {
@@ -12,6 +12,9 @@ export function MessagingLayout() {
   const [isContextOpen, setIsContextOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
   const [isTablet, setIsTablet] = useState(false);
+
+  const [conversations, setConversations] = useState<Conversation[]>(mockConversations);
+  const [messageHistory, setMessageHistory] = useState<Record<string, Message[]>>(mockMessageHistory);
 
   // Responsive logic
   useEffect(() => {
@@ -32,8 +35,41 @@ export function MessagingLayout() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const selectedConversation = mockConversations.find(c => c.id === selectedConversationId);
+  const selectedConversation = conversations.find(c => c.id === selectedConversationId);
   const participant = selectedConversation?.participants[0];
+
+  const handleSendMessage = (conversationId: string, content: string, type: Message['type'] = 'text', metadata?: any) => {
+    const newMessage: Message = {
+      id: `m_${Date.now()}`,
+      conversationId,
+      senderId: 'me',
+      content,
+      type,
+      timestamp: new Date().toISOString(),
+      status: 'sent',
+      metadata
+    };
+
+    setMessageHistory(prev => ({
+      ...prev,
+      [conversationId]: [...(prev[conversationId] || []), newMessage]
+    }));
+
+    setConversations(prev => {
+      const updated = prev.map(conv => {
+        if (conv.id === conversationId) {
+          return {
+            ...conv,
+            lastMessage: newMessage,
+            updatedAt: newMessage.timestamp
+          };
+        }
+        return conv;
+      });
+      // Sort conversations so newest is on top (optional but good for UX)
+      return updated.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+    });
+  };
 
   const handleSelectConversation = (id: string) => {
     setSelectedConversationId(id);
@@ -54,6 +90,7 @@ export function MessagingLayout() {
         {/* Sidebar Panel */}
         {(!isMobile || !selectedConversationId) && (
           <ConversationSidebar 
+            conversations={conversations}
             selectedConversationId={selectedConversationId}
             onSelectConversation={handleSelectConversation}
           />
@@ -63,6 +100,8 @@ export function MessagingLayout() {
         {(!isMobile || selectedConversationId) && (
           <ConversationView 
             conversation={selectedConversation}
+            messages={selectedConversationId ? messageHistory[selectedConversationId] || [] : []}
+            onSendMessage={handleSendMessage}
             isContextOpen={isContextOpen}
             onToggleContext={() => setIsContextOpen(!isContextOpen)}
             onBack={isMobile ? handleBack : undefined}
