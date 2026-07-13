@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { motion } from "framer-motion";
 import { ConversationSidebar } from "./ConversationSidebar";
 import { ConversationView } from "./ConversationView";
 import { ContextPanel } from "./ContextPanel";
 import { mockConversations, mockMessageHistory, Message, Conversation } from "@/data/mockMessages";
-import { AmbientBackground } from "@/components/ui/AmbientBackground";
 
 export function MessagingLayout() {
   const [selectedConversationId, setSelectedConversationId] = useState<string | undefined>(undefined);
@@ -82,9 +82,51 @@ export function MessagingLayout() {
     setSelectedConversationId(undefined);
   };
 
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!videoRef.current) return;
+      if (document.hidden) {
+        videoRef.current.pause();
+      } else {
+        if (videoRef.current.paused) {
+          videoRef.current.play().catch(() => {});
+        }
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, []);
+
   return (
-    <div className="flex h-full w-full bg-black text-white overflow-hidden">
-      <AmbientBackground />
+    <div className="flex h-full w-full bg-black text-white overflow-hidden relative">
+      {/* Background Video with Focus Mode Transition */}
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden bg-black">
+        <motion.div
+          animate={{
+            opacity: selectedConversationId ? 0.04 : 0.15,
+            filter: selectedConversationId 
+              ? 'blur(140px) brightness(0.55) saturate(0.2)' 
+              : 'blur(40px) brightness(1) saturate(1)',
+            scale: selectedConversationId ? 1.05 : 1.00
+          }}
+          transition={{ duration: 0.5, ease: "easeInOut" }}
+          className="w-full h-full origin-center"
+        >
+          <video 
+            ref={videoRef}
+            autoPlay 
+            loop 
+            muted 
+            playsInline
+            preload="metadata"
+            className="w-full h-full object-cover"
+          >
+            <source src="/assets/discover_section_video.mp4" type="video/mp4" />
+          </video>
+        </motion.div>
+      </div>
       
       <div className="relative z-10 flex w-full h-full max-w-[1600px] mx-auto border-x border-white/10 shadow-2xl bg-black/40 backdrop-blur-xl">
         {/* Sidebar Panel */}

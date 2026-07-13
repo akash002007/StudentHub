@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
-import { AmbientBackground } from "@/components/ui/AmbientBackground";
+import React, { useState, useEffect, useRef } from "react";
 import { DiscoverHero } from "./DiscoverHero";
 import { RecommendationGrid } from "./RecommendationGrid";
 import { CommunityCarousel } from "./CommunityCarousel";
@@ -10,12 +9,40 @@ import { EventList } from "./EventList";
 export function DiscoverLayout() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState("all");
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!videoRef.current) return;
+      if (document.hidden) {
+        videoRef.current.pause();
+      } else {
+        if (videoRef.current.paused) {
+          videoRef.current.play().catch(() => {});
+        }
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, []);
 
   return (
     <div className="relative min-h-screen w-full overflow-hidden bg-black flex flex-col pt-16">
-      {/* 3D Liquid Art Background */}
-      <div className="absolute inset-0 z-0">
-        <AmbientBackground />
+      {/* Background Video */}
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        <video 
+          ref={videoRef}
+          autoPlay 
+          loop 
+          muted 
+          playsInline
+          preload="metadata"
+          className="w-full h-full object-cover opacity-30"
+        >
+          <source src="/assets/discover_section_video.mp4" type="video/mp4" />
+        </video>
+        {/* Subtle Scrim for readability */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/60 to-black/90" />
       </div>
 
       {/* Main Scrollable Content */}
