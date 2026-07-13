@@ -186,6 +186,7 @@ function ConversationItem({
         onClick={onClick}
         whileTap={{ scale: 0.98 }}
         aria-selected={isSelected}
+        data-cursor-priority="2"
         className={cn(
           "w-full flex items-start gap-3 p-3 rounded-2xl text-left transition-all duration-300 relative overflow-hidden group border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50",
           isSelected 

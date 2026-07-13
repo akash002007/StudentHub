@@ -208,6 +208,7 @@ export function ConversationView({
             type="submit"
             disabled={!inputText.trim()}
             className="w-8 h-8 rounded-full bg-white text-black flex items-center justify-center hover:scale-105 active:scale-95 disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed transition-all"
+            data-cursor-priority="1"
           >
             <Send size={14} className="ml-0.5" />
           </button>

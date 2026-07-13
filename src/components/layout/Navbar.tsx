@@ -11,7 +11,7 @@ import { AnimatedLogo } from "@/components/ui/AnimatedLogo";
 import { usePathname } from "next/navigation";
 
 const navLinks = [
-  { name: "Discover", href: "#coming-soon" },
+  { name: "Discover", href: "/discover" },
   { name: "Community", href: "#coming-soon" },
   { name: "Networking", href: "/messages" },
   { name: "Alumni", href: "#coming-soon" },
@@ -104,6 +104,7 @@ export function Navbar() {
                 key={link.name}
                 href={link.href}
                 className="relative group block"
+                data-cursor-priority="2"
               >
                 <motion.span
                   animate={{ color: isActive ? (isLight ? "#000" : "#fff") : (isLight ? "#52525B" : "#A1A1AA") }}
@@ -136,7 +137,7 @@ export function Navbar() {
             </motion.span>
           </Link>
           <div className="relative group">
-            <Button variant="primary" className="h-10 px-6 rounded-full text-xs tracking-wider">
+            <Button variant="primary" className="h-10 px-6 rounded-full text-xs tracking-wider" data-cursor-priority="1">
               <Sparkles className="w-4 h-4" />
               Join Access
             </Button>
