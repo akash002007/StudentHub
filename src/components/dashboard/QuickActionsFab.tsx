@@ -14,22 +14,29 @@ import {
   Bot,
   Send,
   CheckCircle,
+  PlusCircle,
+  Search,
+  BarChart3,
+  MessageSquare,
+  GitPullRequest,
 } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
+import { useAuth } from "@/context/AuthContext";
 import { useData } from "@/context/DataContext";
 import { useToast } from "@/context/ToastContext";
 
 export function QuickActionsFab() {
   const router = useRouter();
+  const { role } = useAuth();
   const { addProject } = useData();
   const { success } = useToast();
 
   const [isOpen, setIsOpen] = useState(false);
 
-  // Modals state triggered by FAB actions
+  // Student Modals state triggered by FAB actions
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
   const [isResumeModalOpen, setIsResumeModalOpen] = useState(false);
@@ -54,7 +61,7 @@ export function QuickActionsFab() {
   const [isUploadingResume, setIsUploadingResume] = useState(false);
   const [resumeUploaded, setResumeUploaded] = useState(false);
 
-  const actions = [
+  const studentActions = [
     {
       id: "ai",
       label: "Ask StudentHub AI",
@@ -106,6 +113,61 @@ export function QuickActionsFab() {
       },
     },
   ];
+
+  const recruiterActions = [
+    {
+      id: "post_internship",
+      label: "Post Internship",
+      icon: PlusCircle,
+      color: "from-purple-600 to-indigo-600",
+      onClick: () => {
+        setIsOpen(false);
+        router.push("/dashboard/recruiter/post-internship");
+      },
+    },
+    {
+      id: "review_applications",
+      label: "Review Applications",
+      icon: GitPullRequest,
+      color: "from-blue-600 to-cyan-600",
+      onClick: () => {
+        setIsOpen(false);
+        router.push("/dashboard/recruiter/applications");
+      },
+    },
+    {
+      id: "find_students",
+      label: "Find Students",
+      icon: Search,
+      color: "from-emerald-600 to-teal-600",
+      onClick: () => {
+        setIsOpen(false);
+        router.push("/dashboard/recruiter/students");
+      },
+    },
+    {
+      id: "view_analytics",
+      label: "View Analytics",
+      icon: BarChart3,
+      color: "from-amber-600 to-orange-600",
+      onClick: () => {
+        setIsOpen(false);
+        router.push("/dashboard/recruiter/analytics");
+      },
+    },
+    {
+      id: "message_candidates",
+      label: "Message Candidates",
+      icon: MessageSquare,
+      color: "from-fuchsia-600 to-rose-600",
+      onClick: () => {
+        setIsOpen(false);
+        router.push("/dashboard/recruiter/messages");
+      },
+    },
+  ];
+
+  const actions = role === "recruiter" ? recruiterActions : studentActions;
 
   const handleSendAiPrompt = (e: React.FormEvent) => {
     e.preventDefault();
@@ -218,6 +280,8 @@ export function QuickActionsFab() {
           className={`pointer-events-auto w-13 h-13 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center text-white shadow-2xl transition-colors duration-300 border border-white/20 ${
             isOpen
               ? "bg-zinc-900 dark:bg-zinc-800 rotate-90"
+              : role === "recruiter"
+              ? "bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 shadow-blue-600/30"
               : "bg-gradient-to-tr from-purple-600 via-indigo-600 to-blue-600 shadow-purple-600/30"
           }`}
           aria-label={isOpen ? "Close quick actions" : "Open quick actions"}
@@ -230,7 +294,7 @@ export function QuickActionsFab() {
         </motion.button>
       </div>
 
-      {/* AI Assistant Modal */}
+      {/* AI Assistant Modal (Student Only) */}
       <Modal
         isOpen={isAiModalOpen}
         onClose={() => setIsAiModalOpen(false)}
@@ -292,7 +356,7 @@ export function QuickActionsFab() {
         </div>
       </Modal>
 
-      {/* Add Project Modal */}
+      {/* Add Project Modal (Student Only) */}
       <Modal
         isOpen={isProjectModalOpen}
         onClose={() => setIsProjectModalOpen(false)}
@@ -366,7 +430,7 @@ export function QuickActionsFab() {
         </form>
       </Modal>
 
-      {/* Upload Resume Modal */}
+      {/* Upload Resume Modal (Student Only) */}
       <Modal
         isOpen={isResumeModalOpen}
         onClose={() => setIsResumeModalOpen(false)}

@@ -34,6 +34,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useData } from "@/context/DataContext";
 import { useToast } from "@/context/ToastContext";
 import { Project, StudentProfile } from "@/types";
+import { RoleGuard } from "@/components/dashboard/RoleGuard";
 
 export default function ProfilePage() {
   const { user, updateStudentProfile } = useAuth();
@@ -156,7 +157,8 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="space-y-8">
+    <RoleGuard allowedRole="student">
+      <div className="space-y-8">
       {/* Profile Banner & Header Card */}
       <div className="rounded-3xl border border-border bg-card overflow-hidden shadow-sm">
         {/* Decorative Top Gradient Banner */}
@@ -694,5 +696,6 @@ export default function ProfilePage() {
         </form>
       </Modal>
     </div>
+    </RoleGuard>
   );
 }

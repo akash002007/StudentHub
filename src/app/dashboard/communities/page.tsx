@@ -25,6 +25,7 @@ import { Button } from "@/components/ui/Button";
 import { Avatar } from "@/components/ui/Avatar";
 import { Modal } from "@/components/ui/Modal";
 import { Input } from "@/components/ui/Input";
+import { RoleGuard } from "@/components/dashboard/RoleGuard";
 import { useData } from "@/context/DataContext";
 import { Community } from "@/types";
 
@@ -105,7 +106,8 @@ export default function CommunitiesPage() {
   };
 
   return (
-    <div className="space-y-8">
+    <RoleGuard allowedRole="student">
+      <div className="space-y-8">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -384,5 +386,6 @@ export default function CommunitiesPage() {
         </form>
       </Modal>
     </div>
+    </RoleGuard>
   );
 }

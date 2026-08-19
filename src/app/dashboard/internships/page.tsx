@@ -22,6 +22,7 @@ import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { Tabs } from "@/components/ui/Tabs";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { RoleGuard } from "@/components/dashboard/RoleGuard";
 import { useData } from "@/context/DataContext";
 import { useToast } from "@/context/ToastContext";
 import { Internship } from "@/types";
@@ -100,7 +101,8 @@ export default function InternshipsPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <RoleGuard allowedRole="student">
+      <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -439,5 +441,6 @@ export default function InternshipsPage() {
         )}
       </Modal>
     </div>
+    </RoleGuard>
   );
 }

@@ -21,6 +21,7 @@ import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
+import { RoleGuard } from "@/components/dashboard/RoleGuard";
 import { useData } from "@/context/DataContext";
 import { ApplicationStatus, Application } from "@/types";
 import { getStatusBadgeStyle } from "@/lib/utils";
@@ -48,7 +49,8 @@ export default function ApplicationsPage() {
   );
 
   return (
-    <div className="space-y-6">
+    <RoleGuard allowedRole="student">
+      <div className="space-y-6">
       {/* Header & Controls */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>

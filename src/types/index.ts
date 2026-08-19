@@ -212,3 +212,114 @@ export interface ConnectedAccount {
   username?: string;
   metric?: string;
 }
+
+export type RecruiterInternshipStatus = 'Active' | 'Paused' | 'Closed';
+
+export interface RecruiterInternship {
+  id: string;
+  title: string;
+  department: string;
+  location: string;
+  workType: 'Remote' | 'Hybrid' | 'Onsite';
+  internshipType: string;
+  stipend: string;
+  duration: string;
+  deadline: string;
+  postedDate: string;
+  status: RecruiterInternshipStatus;
+  applicationsCount: number;
+  shortlistedCount: number;
+  viewsCount: number;
+  openingsCount: number;
+  description: string;
+  responsibilities: string[];
+  requiredSkills: string[];
+  degreeRequirements: string;
+  branchRequirements: string;
+  minCgpa: string;
+  gradYearRequirements: number[];
+  experienceRequirements?: string;
+}
+
+export interface RecruiterApplicant {
+  id: string;
+  internshipId: string;
+  internshipTitle: string;
+  studentId: string;
+  studentName: string;
+  studentAvatar: string;
+  university: string;
+  degree: string;
+  branch: string;
+  graduationYear: number;
+  cgpa: string;
+  location: string;
+  skills: string[];
+  appliedDate: string;
+  status: ApplicationStatus;
+  matchScore: number;
+  resumeUrl: string;
+  portfolioUrl?: string;
+  githubUrl?: string;
+  linkedinUrl?: string;
+  bio: string;
+  projects: Project[];
+  certifications: Certification[];
+  notes?: string;
+}
+
+export interface RecruiterStudentCandidate {
+  id: string;
+  name: string;
+  avatar: string;
+  university: string;
+  degree: string;
+  branch: string;
+  graduationYear: number;
+  cgpa: string;
+  location: string;
+  skills: string[];
+  profileCompletion: number;
+  status: string;
+  bio: string;
+  isShortlisted: boolean;
+  projects: Project[];
+  certifications: Certification[];
+  resumeUrl?: string;
+  githubUrl?: string;
+  linkedinUrl?: string;
+  portfolioUrl?: string;
+}
+
+export interface CompanyInfo {
+  id: string;
+  name: string;
+  logo: string;
+  bannerImage?: string;
+  industry: string;
+  website: string;
+  location: string;
+  companySize: string;
+  foundedYear: number;
+  tagline: string;
+  description: string;
+  about: string;
+  perks: string[];
+  techStack: string[];
+  socialLinks: {
+    linkedin?: string;
+    twitter?: string;
+    github?: string;
+  };
+}
+
+export interface RecruiterNotificationItem {
+  id: string;
+  type: 'application' | 'interview' | 'internship' | 'message' | 'system';
+  title: string;
+  description: string;
+  timestamp: string;
+  isRead: boolean;
+  actionUrl?: string;
+}
+

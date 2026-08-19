@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   Sparkles,
   TrendingUp,
@@ -27,6 +28,7 @@ import { useData } from "@/context/DataContext";
 import { getTimeAwareGreeting, getStatusBadgeStyle } from "@/lib/utils";
 
 export default function DashboardHomePage() {
+  const router = useRouter();
   const { user, role } = useAuth();
   const {
     internships,
@@ -40,8 +42,18 @@ export default function DashboardHomePage() {
   const [greeting, setGreeting] = useState("Good morning");
 
   useEffect(() => {
+    if (role === "recruiter") {
+      router.replace("/dashboard/recruiter");
+    }
+  }, [role, router]);
+
+  useEffect(() => {
     setGreeting(getTimeAwareGreeting(new Date()));
   }, []);
+
+  if (role === "recruiter") {
+    return null;
+  }
 
   const recommendedInternships = internships.slice(0, 3);
   const activeApplications = applications.slice(0, 4);
@@ -55,7 +67,7 @@ export default function DashboardHomePage() {
             <div className="flex items-center gap-2">
               <Badge variant="gradient" size="sm" className="font-semibold">
                 <Sparkles className="w-3 h-3 text-purple-600 dark:text-purple-400" />
-                {role === "student" ? "Candidate Hub" : "Recruiter Command"}
+                Candidate Hub
               </Badge>
               <span className="text-xs text-muted-foreground">
                 {new Date().toLocaleDateString("en-US", {
@@ -73,9 +85,7 @@ export default function DashboardHomePage() {
               !
             </h1>
             <p className="text-xs sm:text-sm text-muted-foreground max-w-xl leading-relaxed">
-              {role === "student"
-                ? "You have 2 interview rounds scheduled this week and 4 high-match internships waiting for your review."
-                : "You have 14 new student applicants matching Stripe's Summer 2026 SWE cohort criteria."}
+              You have 2 interview rounds scheduled this week and 4 high-match internships waiting for your review.
             </p>
           </div>
 

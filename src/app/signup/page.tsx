@@ -48,7 +48,11 @@ export default function SignupPage() {
     setTimeout(() => {
       login(email, role, name);
       success(`Account created! Welcome to StudentHub, ${name}!`);
-      router.push("/dashboard");
+      if (role === "recruiter") {
+        router.push("/dashboard/recruiter");
+      } else {
+        router.push("/dashboard");
+      }
     }, 600);
   };
 

@@ -53,7 +53,11 @@ export default function LoginPage() {
     setTimeout(() => {
       login(email, role);
       success(`Welcome back! Logged in as ${role === "student" ? "Alex Rivera (Student)" : "Sarah Chen (Recruiter)"}`);
-      router.push("/dashboard");
+      if (role === "recruiter") {
+        router.push("/dashboard/recruiter");
+      } else {
+        router.push("/dashboard");
+      }
     }, 600);
   };
 

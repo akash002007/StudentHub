@@ -17,6 +17,11 @@ import {
   ChevronRight,
   Shield,
   GraduationCap,
+  PlusCircle,
+  BarChart3,
+  Building2,
+  Search,
+  UserCheck,
 } from "lucide-react";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
@@ -29,14 +34,36 @@ export function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const { user, role, logout, switchRole } = useAuth();
-  const { unreadNotificationsCount, applications, conversations } = useData();
+  const {
+    unreadNotificationsCount,
+    applications,
+    conversations,
+    recruiterInternships,
+    recruiterApplicants,
+    recruiterConversations,
+    unreadRecruiterNotificationsCount,
+    recruiterStudents,
+  } = useData();
 
+  // Student metrics
   const unreadMessagesCount = conversations.filter((c) => c.lastMessage.isUnread).length;
   const activeApplicationsCount = applications.filter(
     (a) => a.status !== "Rejected" && a.status !== "Selected"
   ).length;
 
-  const navItems = [
+  // Recruiter metrics
+  const unreadRecruiterMessagesCount = recruiterConversations.filter(
+    (c) => c.lastMessage.isUnread
+  ).length;
+  const pendingApplicantsCount = recruiterApplicants.filter(
+    (a) => a.status === "Applied" || a.status === "Under Review"
+  ).length;
+  const activeRecruiterListingsCount = recruiterInternships.filter(
+    (i) => i.status === "Active"
+  ).length;
+  const shortlistedStudentsCount = recruiterStudents.filter((s) => s.isShortlisted).length;
+
+  const studentNavItems = [
     {
       label: "Dashboard",
       href: "/dashboard",
@@ -92,17 +119,93 @@ export function Sidebar() {
     },
   ];
 
+  const recruiterNavItems = [
+    {
+      label: "Dashboard",
+      href: "/dashboard/recruiter",
+      icon: LayoutDashboard,
+      badge: null,
+    },
+    {
+      label: "Post Internship",
+      href: "/dashboard/recruiter/post-internship",
+      icon: PlusCircle,
+      badge: "New",
+      badgeVariant: "purple" as const,
+    },
+    {
+      label: "Internships",
+      href: "/dashboard/recruiter/internships",
+      icon: Briefcase,
+      badge: activeRecruiterListingsCount > 0 ? `${activeRecruiterListingsCount} Active` : null,
+      badgeVariant: "blue" as const,
+    },
+    {
+      label: "Applications",
+      href: "/dashboard/recruiter/applications",
+      icon: GitPullRequest,
+      badge: pendingApplicantsCount > 0 ? `${pendingApplicantsCount} Pending` : null,
+      badgeVariant: "emerald" as const,
+    },
+    {
+      label: "Find Students",
+      href: "/dashboard/recruiter/students",
+      icon: Search,
+      badge: shortlistedStudentsCount > 0 ? `${shortlistedStudentsCount} Saved` : null,
+      badgeVariant: "lavender" as const,
+    },
+    {
+      label: "Messages",
+      href: "/dashboard/recruiter/messages",
+      icon: Send,
+      badge: unreadRecruiterMessagesCount > 0 ? unreadRecruiterMessagesCount : null,
+      badgeVariant: "emerald" as const,
+    },
+    {
+      label: "Analytics",
+      href: "/dashboard/recruiter/analytics",
+      icon: BarChart3,
+      badge: null,
+    },
+    {
+      label: "Company Profile",
+      href: "/dashboard/recruiter/company",
+      icon: Building2,
+      badge: null,
+    },
+    {
+      label: "Notifications",
+      href: "/dashboard/recruiter/notifications",
+      icon: Bell,
+      badge: unreadRecruiterNotificationsCount > 0 ? unreadRecruiterNotificationsCount : null,
+      badgeVariant: "rose" as const,
+    },
+  ];
+
+  const navItems = role === "recruiter" ? recruiterNavItems : studentNavItems;
+  const brandHref = role === "recruiter" ? "/dashboard/recruiter" : "/dashboard";
+
   const handleLogout = () => {
     logout();
     router.push("/login");
   };
 
+  const handleRoleSwitch = () => {
+    const nextRole = role === "student" ? "recruiter" : "student";
+    switchRole(nextRole);
+    if (nextRole === "recruiter") {
+      router.push("/dashboard/recruiter");
+    } else {
+      router.push("/dashboard");
+    }
+  };
+
   return (
-    <aside className="hidden lg:flex w-64 xl:w-72 flex-col justify-between border-r border-border bg-card/60 backdrop-blur-xl p-4 h-screen sticky top-0 shrink-0 select-none">
-      <div className="space-y-6">
+    <aside className="hidden lg:flex w-64 xl:w-72 flex-col justify-between border-r border-border bg-card/60 backdrop-blur-xl p-4 h-screen sticky top-0 shrink-0 select-none overflow-y-auto">
+      <div className="space-y-5">
         {/* Brand Header */}
         <div className="flex items-center justify-between px-2 pt-2">
-          <Link href="/dashboard" className="flex items-center gap-2.5 group">
+          <Link href={brandHref} className="flex items-center gap-2.5 group">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-600 via-indigo-600 to-blue-600 flex items-center justify-center text-white shadow-md shadow-purple-500/20 group-hover:scale-105 transition-transform">
               <Sparkles className="w-5 h-5" />
             </div>
@@ -132,6 +235,8 @@ export function Sidebar() {
             const isActive =
               item.href === "/dashboard"
                 ? pathname === "/dashboard"
+                : item.href === "/dashboard/recruiter"
+                ? pathname === "/dashboard/recruiter"
                 : pathname.startsWith(item.href);
             const Icon = item.icon;
 
@@ -140,7 +245,7 @@ export function Sidebar() {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 group",
+                  "flex items-center justify-between px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all duration-150 group",
                   isActive
                     ? "bg-purple-500/10 text-purple-600 dark:text-purple-400 font-semibold border border-purple-500/20 shadow-xs"
                     : "text-muted-foreground hover:text-foreground hover:bg-muted/80"
@@ -170,25 +275,25 @@ export function Sidebar() {
       </div>
 
       {/* Footer Profile & Logout Area */}
-      <div className="pt-4 border-t border-border/60 space-y-3">
+      <div className="pt-3 border-t border-border/60 space-y-2.5">
         {/* User Card */}
         <Link
-          href="/dashboard/profile"
-          className="flex items-center justify-between p-2.5 rounded-xl hover:bg-muted transition-colors group"
+          href={role === "recruiter" ? "/dashboard/recruiter/company" : "/dashboard/profile"}
+          className="flex items-center justify-between p-2 rounded-xl hover:bg-muted transition-colors group"
         >
-          <div className="flex items-center gap-3 overflow-hidden">
+          <div className="flex items-center gap-2.5 overflow-hidden">
             <Avatar
               src={user?.avatar}
-              name={user?.name || "Student"}
+              name={user?.name || (role === "recruiter" ? "Sarah Chen" : "Alex Rivera")}
               size="md"
               isOnline={true}
             />
             <div className="overflow-hidden text-left">
               <div className="text-xs font-bold text-foreground truncate group-hover:text-purple-600 transition-colors">
-                {user?.name || "Alex Rivera"}
+                {user?.name || (role === "recruiter" ? "Sarah Chen" : "Alex Rivera")}
               </div>
               <div className="text-[11px] text-muted-foreground truncate">
-                {role === "recruiter" ? "Stripe Recruiter" : "Stanford '26"}
+                {role === "recruiter" ? "Stripe University Talent" : "Stanford CS '26"}
               </div>
             </div>
           </div>
@@ -198,7 +303,7 @@ export function Sidebar() {
         {/* Quick Role Switch & Logout */}
         <div className="flex items-center gap-2">
           <button
-            onClick={() => switchRole(role === "student" ? "recruiter" : "student")}
+            onClick={handleRoleSwitch}
             className="flex-1 py-1.5 px-2 rounded-lg bg-muted text-[11px] font-semibold text-muted-foreground hover:text-foreground hover:bg-muted/80 transition-colors text-center border border-border/50"
             title="Switch demo preview perspective"
           >
