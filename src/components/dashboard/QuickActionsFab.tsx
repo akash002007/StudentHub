@@ -27,6 +27,7 @@ import { Badge } from "@/components/ui/Badge";
 import { useAuth } from "@/context/AuthContext";
 import { useData } from "@/context/DataContext";
 import { useToast } from "@/context/ToastContext";
+import { ProjectType } from "@/types";
 
 export function QuickActionsFab() {
   const router = useRouter();
@@ -46,7 +47,7 @@ export function QuickActionsFab() {
   const [aiMessages, setAiMessages] = useState<Array<{ role: "user" | "ai"; text: string }>>([
     {
       role: "ai",
-      text: "Hi Alex! I'm your StudentHub Career Advisor. Ask me anything about interview prep, resume tailoring, or finding the right engineering internships.",
+      text: "Hi Alex! I'm your StudentHub Career Advisor. Ask me anything about interview prep, resume tailoring, or finding the right internship and career opportunities across your field.",
     },
   ]);
   const [isAiTyping, setIsAiTyping] = useState(false);
@@ -55,7 +56,7 @@ export function QuickActionsFab() {
   const [newProjectTitle, setNewProjectTitle] = useState("");
   const [newProjectDesc, setNewProjectDesc] = useState("");
   const [newProjectTech, setNewProjectTech] = useState("");
-  const [newProjectType, setNewProjectType] = useState<"Personal" | "Hackathon" | "Capstone">("Personal");
+  const [newProjectType, setNewProjectType] = useState<ProjectType>("Personal");
 
   // Resume Modal State
   const [isUploadingResume, setIsUploadingResume] = useState(false);
@@ -360,13 +361,13 @@ export function QuickActionsFab() {
       <Modal
         isOpen={isProjectModalOpen}
         onClose={() => setIsProjectModalOpen(false)}
-        title="Add Proof-of-Work Project"
-        description="Spotlight a technical project, hackathon demo, or capstone to showcase to recruiters."
+        title="Add Proof-of-Work &amp; Project"
+        description="Spotlight practical work, case studies, research, or prototypes to showcase to recruiters."
       >
-        <form onSubmit={handleCreateProject} className="space-y-4">
+        <form onSubmit={handleCreateProject} className="space-y-4 max-h-[75vh] overflow-y-auto pr-1">
           <Input
             label="Project Title"
-            placeholder="e.g. Real-Time Distributed Cache"
+            placeholder="e.g. Real-Time Distributed Cache / M&A Valuation Model / CRISPR Study"
             value={newProjectTitle}
             onChange={(e) => setNewProjectTitle(e.target.value)}
             required
@@ -376,16 +377,35 @@ export function QuickActionsFab() {
             <label className="block text-xs font-semibold text-foreground/80 tracking-wide uppercase mb-1.5">
               Project Type
             </label>
-            <div className="grid grid-cols-3 gap-2">
-              {(["Personal", "Hackathon", "Capstone"] as const).map((type) => (
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 max-h-36 overflow-y-auto p-1 border border-border/60 rounded-xl bg-muted/30">
+              {(
+                [
+                  "Personal",
+                  "Hackathon",
+                  "Capstone",
+                  "Open Source",
+                  "Business Project",
+                  "Research Project",
+                  "Healthcare Project",
+                  "Clinical Experience",
+                  "Design Project",
+                  "Marketing Project",
+                  "Case Study",
+                  "Academic Project",
+                  "Creative Work",
+                  "Leadership",
+                  "Volunteer Work",
+                  "Other",
+                ] as const
+              ).map((type) => (
                 <button
                   key={type}
                   type="button"
                   onClick={() => setNewProjectType(type)}
-                  className={`py-2 rounded-xl text-xs font-medium border transition-colors ${
+                  className={`py-1.5 px-2 rounded-lg text-[11px] font-medium border text-center transition-colors ${
                     newProjectType === type
                       ? "bg-purple-500/10 border-purple-500 text-purple-600 dark:text-purple-400 font-semibold"
-                      : "border-border text-muted-foreground hover:bg-muted"
+                      : "border-border/60 text-muted-foreground hover:bg-muted"
                   }`}
                 >
                   {type}
@@ -395,8 +415,8 @@ export function QuickActionsFab() {
           </div>
 
           <Input
-            label="Technologies Used (comma-separated)"
-            placeholder="React, TypeScript, Rust, WebSockets"
+            label="Tools, Methodologies or Technologies (comma-separated)"
+            placeholder="e.g. React, TypeScript OR Financial Modeling, DCF OR PCR, Western Blot OR Figma, Typography"
             value={newProjectTech}
             onChange={(e) => setNewProjectTech(e.target.value)}
           />
@@ -409,7 +429,7 @@ export function QuickActionsFab() {
               rows={3}
               value={newProjectDesc}
               onChange={(e) => setNewProjectDesc(e.target.value)}
-              placeholder="What did you build, what problem did it solve, and what were the performance achievements?"
+              placeholder="What did you build/investigate, what problem did it solve, and what were the demonstrated outcomes?"
               className="w-full p-3 rounded-xl bg-card border border-border text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20"
             />
           </div>

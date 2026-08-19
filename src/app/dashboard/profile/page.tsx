@@ -33,13 +33,19 @@ import { Input } from "@/components/ui/Input";
 import { useAuth } from "@/context/AuthContext";
 import { useData } from "@/context/DataContext";
 import { useToast } from "@/context/ToastContext";
-import { Project, StudentProfile } from "@/types";
+import { Project, ProjectType, StudentProfile } from "@/types";
 import { RoleGuard } from "@/components/dashboard/RoleGuard";
+import {
+  ACADEMIC_HIERARCHY,
+  getProgramsForStream,
+  getSpecializationsForProgram,
+  isValidAcademicCombination,
+} from "@/data/academic-hierarchy";
 
 export default function ProfilePage() {
   const { user, updateStudentProfile } = useAuth();
   const { projects, addProject, removeProject } = useData();
-  const { success, info } = useToast();
+  const { success, info, error } = useToast();
 
   const student = user as StudentProfile;
 
@@ -53,6 +59,136 @@ export default function ProfilePage() {
   );
   const [editBio, setEditBio] = useState(student?.bio || "");
   const [editLocation, setEditLocation] = useState(student?.location || "San Francisco, CA");
+  const [editUniversity, setEditUniversity] = useState(student?.university || "Stanford University");
+  const [editAcademicStream, setEditAcademicStream] = useState<string>(
+    student?.academicStream || "Engineering & Technology"
+  );
+  const [editDegree, setEditDegree] = useState<string>(student?.degree || "B.S. in Computer Science");
+  const [editSpecialization, setEditSpecialization] = useState<string>(
+    student?.specialization || student?.branch || "Systems & Artificial Intelligence"
+  );
+  const [editGradYear, setEditGradYear] = useState<number>(student?.graduationYear || 2026);
+  const [editCgpa, setEditCgpa] = useState<string>(student?.cgpa || "3.92 / 4.0");
+  const [editYearOfStudy, setEditYearOfStudy] = useState<string>(student?.yearOfStudy || "Junior (3rd Year)");
+  const [customStream, setCustomStream] = useState("");
+  const [customDegree, setCustomDegree] = useState("");
+  const [customSpecialization, setCustomSpecialization] = useState("");
+
+  const handleOpenEditModal = () => {
+    setEditName(student?.name || "Alex Rivera");
+    setEditHeadline(student?.headline || "Computer Science Junior @ Stanford");
+    setEditBio(student?.bio || "");
+    setEditLocation(student?.location || "San Francisco, CA");
+    setEditUniversity(student?.university || "Stanford University");
+    setEditGradYear(student?.graduationYear || 2026);
+    setEditCgpa(student?.cgpa || "3.92 / 4.0");
+    setEditYearOfStudy(student?.yearOfStudy || "Junior (3rd Year)");
+
+    // 1. Resolve Academic Stream
+    const rawStream = student?.academicStream || "Engineering & Technology";
+    const foundStream = ACADEMIC_HIERARCHY.find(
+      (s) => s.name.toLowerCase() === rawStream.toLowerCase()
+    );
+
+    let streamToSet = "Engineering & Technology";
+    let customStreamVal = "";
+
+    if (foundStream) {
+      streamToSet = foundStream.name;
+    } else if (rawStream) {
+      streamToSet = "Other";
+      customStreamVal = rawStream;
+    }
+
+    setEditAcademicStream(streamToSet);
+    setCustomStream(customStreamVal);
+
+    // 2. Resolve Degree / Program within Stream
+    const availablePrograms = getProgramsForStream(streamToSet);
+    const rawDegree = student?.degree || "";
+    const foundProgram = availablePrograms.find(
+      (p) => p.name.toLowerCase() === rawDegree.toLowerCase()
+    );
+
+    let degreeToSet = availablePrograms[0]?.name || "Other";
+    let customDegreeVal = "";
+
+    if (foundProgram) {
+      degreeToSet = foundProgram.name;
+    } else if (rawDegree) {
+      degreeToSet = "Other";
+      customDegreeVal = rawDegree;
+    }
+
+    setEditDegree(degreeToSet);
+    setCustomDegree(customDegreeVal);
+
+    // 3. Resolve Specialization within Program
+    const availableSpecs = getSpecializationsForProgram(streamToSet, degreeToSet);
+    const rawSpec = student?.specialization || student?.branch || "";
+    const foundSpec = availableSpecs.find(
+      (s) => s.toLowerCase() === rawSpec.toLowerCase()
+    );
+
+    let specToSet = availableSpecs[0] || "Other";
+    let customSpecVal = "";
+
+    if (foundSpec) {
+      specToSet = foundSpec;
+    } else if (rawSpec) {
+      specToSet = "Other";
+      customSpecVal = rawSpec;
+    }
+
+    setEditSpecialization(specToSet);
+    setCustomSpecialization(customSpecVal);
+
+    setIsEditProfileOpen(true);
+  };
+
+  const handleStreamChange = (newStream: string) => {
+    setEditAcademicStream(newStream);
+    if (newStream === "Other") {
+      setCustomStream("");
+      setEditDegree("Other");
+      setCustomDegree("");
+      setEditSpecialization("Other");
+      setCustomSpecialization("");
+    } else {
+      setCustomStream("");
+      const progs = getProgramsForStream(newStream);
+      const firstProg = progs[0]?.name || "Other";
+      setEditDegree(firstProg);
+      setCustomDegree("");
+
+      const specs = getSpecializationsForProgram(newStream, firstProg);
+      const firstSpec = specs[0] || "Other";
+      setEditSpecialization(firstSpec);
+      setCustomSpecialization("");
+    }
+  };
+
+  const handleDegreeChange = (newDegree: string) => {
+    setEditDegree(newDegree);
+    if (newDegree === "Other") {
+      setCustomDegree("");
+      setEditSpecialization("Other");
+      setCustomSpecialization("");
+    } else {
+      setCustomDegree("");
+      const specs = getSpecializationsForProgram(editAcademicStream, newDegree);
+      const firstSpec = specs[0] || "Other";
+      setEditSpecialization(firstSpec);
+      setCustomSpecialization("");
+    }
+  };
+
+  const handleSpecializationChange = (newSpec: string) => {
+    setEditSpecialization(newSpec);
+    if (newSpec !== "Other") {
+      setCustomSpecialization("");
+    }
+  };
 
   // Skills Editing
   const [skillsList, setSkillsList] = useState<string[]>(
@@ -75,8 +211,9 @@ export default function ProfilePage() {
   const [newTitle, setNewTitle] = useState("");
   const [newDesc, setNewDesc] = useState("");
   const [newTech, setNewTech] = useState("");
-  const [newType, setNewType] = useState<"Personal" | "Hackathon" | "Capstone">("Personal");
+  const [newType, setNewType] = useState<ProjectType>("Personal");
   const [newLiveUrl, setNewLiveUrl] = useState("");
+  const [newDocumentUrl, setNewDocumentUrl] = useState("");
   const [newGithubUrl, setNewGithubUrl] = useState("");
 
   // Resume State
@@ -99,11 +236,54 @@ export default function ProfilePage() {
 
   const handleSaveProfile = (e: React.FormEvent) => {
     e.preventDefault();
+
+    const finalStream =
+      editAcademicStream === "Other"
+        ? customStream.trim() || "Other"
+        : editAcademicStream;
+
+    const finalDegree =
+      editDegree === "Other"
+        ? customDegree.trim() || "Other"
+        : editDegree;
+
+    const finalSpecialization =
+      editSpecialization === "Other"
+        ? customSpecialization.trim() || "Other"
+        : editSpecialization;
+
+    if (editAcademicStream === "Other" && !customStream.trim()) {
+      error("Please specify your custom academic stream.");
+      return;
+    }
+    if (editDegree === "Other" && !customDegree.trim()) {
+      error("Please specify your custom degree / program.");
+      return;
+    }
+    if (editSpecialization === "Other" && !customSpecialization.trim()) {
+      error("Please specify your custom specialization / branch.");
+      return;
+    }
+
+    const validation = isValidAcademicCombination(finalStream, finalDegree, finalSpecialization);
+    if (!validation.isValid) {
+      error(validation.reason || "Invalid academic hierarchy combination.");
+      return;
+    }
+
     updateStudentProfile({
       name: editName,
       headline: editHeadline,
       bio: editBio,
       location: editLocation,
+      university: editUniversity,
+      academicStream: finalStream,
+      degree: finalDegree,
+      branch: finalSpecialization,
+      specialization: finalSpecialization,
+      graduationYear: Number(editGradYear) || 2026,
+      cgpa: editCgpa,
+      yearOfStudy: editYearOfStudy,
       skills: skillsList,
     });
     setIsEditProfileOpen(false);
@@ -123,6 +303,15 @@ export default function ProfilePage() {
     }
   };
 
+  const handleAddSkillDirect = (skillName: string) => {
+    if (!skillsList.includes(skillName)) {
+      const updated = [...skillsList, skillName];
+      setSkillsList(updated);
+      updateStudentProfile({ skills: updated });
+      success(`Added "${skillName}" to your skills`);
+    }
+  };
+
   const handleRemoveSkill = (skillToRemove: string) => {
     const updated = skillsList.filter((s) => s !== skillToRemove);
     setSkillsList(updated);
@@ -136,14 +325,19 @@ export default function ProfilePage() {
 
     addProject({
       title: newTitle.trim(),
-      description: newDesc.trim() || "Modern full-stack technical project.",
+      description: newDesc.trim() || "Proof-of-work project demonstrating domain methodology and outcomes.",
       technologies: newTech
+        .split(",")
+        .map((t) => t.trim())
+        .filter(Boolean),
+      tools: newTech
         .split(",")
         .map((t) => t.trim())
         .filter(Boolean),
       date: "Feb 2026",
       type: newType,
       liveUrl: newLiveUrl.trim() || undefined,
+      documentUrl: newDocumentUrl.trim() || undefined,
       githubUrl: newGithubUrl.trim() || undefined,
       featured: true,
     });
@@ -153,6 +347,7 @@ export default function ProfilePage() {
     setNewDesc("");
     setNewTech("");
     setNewLiveUrl("");
+    setNewDocumentUrl("");
     setNewGithubUrl("");
   };
 
@@ -209,7 +404,7 @@ export default function ProfilePage() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setIsEditProfileOpen(true)}
+              onClick={handleOpenEditModal}
               leftIcon={<Edit3 className="w-4 h-4" />}
             >
               Edit Profile
@@ -237,17 +432,42 @@ export default function ProfilePage() {
             </Card>
 
             <Card className="p-6 border-border/80 bg-card space-y-4">
-              <h3 className="font-bold text-sm uppercase tracking-wider text-muted-foreground">
-                Academic Background
-              </h3>
+              <div className="flex items-center justify-between">
+                <h3 className="font-bold text-sm uppercase tracking-wider text-muted-foreground">
+                  Academic Background
+                </h3>
+                {student?.academicStream && (
+                  <Badge variant="purple" size="sm">
+                    {student.academicStream}
+                  </Badge>
+                )}
+              </div>
               <div className="space-y-3 text-xs sm:text-sm">
-                <div className="p-3.5 rounded-xl bg-muted/40 border border-border/60 flex items-start justify-between">
-                  <div className="space-y-1">
-                    <div className="font-bold text-foreground">Stanford University</div>
-                    <div className="text-muted-foreground">B.S. in Computer Science (Systems &amp; AI)</div>
-                    <div className="text-[11px] text-muted-foreground">Expected Graduation: May 2026 • Cumulative GPA: 3.92</div>
+                <div className="p-4 rounded-xl bg-muted/40 border border-border/60 flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                  <div className="space-y-1.5">
+                    <div className="font-bold text-base text-foreground flex items-center gap-2">
+                      <GraduationCap className="w-4 h-4 text-purple-600 dark:text-purple-400 shrink-0" />
+                      <span>{student?.university || "Stanford University"}</span>
+                    </div>
+                    <div className="text-sm font-semibold text-purple-600 dark:text-purple-400">
+                      {student?.degree || "B.S. in Computer Science"}{" "}
+                      {(student?.specialization || student?.branch) && (
+                        <span className="text-muted-foreground font-normal">
+                          • {student?.specialization || student?.branch}
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-xs text-muted-foreground flex flex-wrap items-center gap-2 pt-0.5">
+                      <span>{student?.yearOfStudy || "Junior (3rd Year)"}</span>
+                      <span>•</span>
+                      <span>Graduation: {student?.graduationYear || 2026}</span>
+                      <span>•</span>
+                      <span className="font-semibold text-foreground">CGPA: {student?.cgpa || "3.92 / 4.0"}</span>
+                    </div>
                   </div>
-                  <Badge variant="purple" size="sm">Junior</Badge>
+                  <Badge variant="secondary" size="sm" className="self-start sm:self-auto">
+                    {student?.academicLevel || "Undergraduate"}
+                  </Badge>
                 </div>
               </div>
             </Card>
@@ -259,7 +479,7 @@ export default function ProfilePage() {
             <Card className="p-6 border-border/80 bg-card space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="font-bold text-sm uppercase tracking-wider text-muted-foreground">
-                  Technical Skills
+                  Core &amp; Specialized Skills
                 </h3>
                 <span className="text-xs text-muted-foreground">Press enter to add</span>
               </div>
@@ -270,9 +490,41 @@ export default function ProfilePage() {
                 value={newSkillInput}
                 onChange={(e) => setNewSkillInput(e.target.value)}
                 onKeyDown={handleAddSkill}
-                placeholder="Type a skill and press Enter..."
+                placeholder="Add any skill (e.g. Financial Modeling, PCR, Figma, Python)..."
                 className="w-full h-9 px-3 rounded-xl bg-muted border border-border text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-purple-500"
               />
+
+              {/* Quick skill suggestions */}
+              <div className="space-y-1.5 pt-0.5">
+                <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+                  Suggested Additions:
+                </span>
+                <div className="flex flex-wrap gap-1">
+                  {[
+                    "Financial Modeling",
+                    "Clinical Protocols",
+                    "Figma",
+                    "PCR & Bio-Analytics",
+                    "Legal Research",
+                    "Brand Strategy",
+                    "System Design",
+                    "Statistical Analysis",
+                  ]
+                    .filter((s) => !skillsList.includes(s))
+                    .slice(0, 4)
+                    .map((suggestion) => (
+                      <button
+                        key={suggestion}
+                        type="button"
+                        onClick={() => handleAddSkillDirect(suggestion)}
+                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 dark:text-purple-400 text-[11px] font-medium border border-purple-500/20 transition-colors"
+                      >
+                        <Plus className="w-2.5 h-2.5" />
+                        <span>{suggestion}</span>
+                      </button>
+                    ))}
+                </div>
+              </div>
 
               <div className="flex flex-wrap gap-1.5 pt-1">
                 {skillsList.map((skill) => (
@@ -292,33 +544,44 @@ export default function ProfilePage() {
               </div>
             </Card>
 
-            {/* Coding Profiles Card */}
+            {/* External Profiles Card */}
             <Card className="p-6 border-border/80 bg-card space-y-3">
               <h3 className="font-bold text-sm uppercase tracking-wider text-muted-foreground">
                 Profiles &amp; Portfolios
               </h3>
               <div className="space-y-2 text-xs">
-                <div className="p-2.5 rounded-xl bg-muted/40 border border-border/60 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Github className="w-4 h-4 text-foreground" />
-                    <span className="font-medium">github.com/alexrivera</span>
+                {student?.socialLinks?.github && (
+                  <div className="p-2.5 rounded-xl bg-muted/40 border border-border/60 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Github className="w-4 h-4 text-foreground" />
+                      <span className="font-medium">{student.socialLinks.github.replace("https://", "")}</span>
+                    </div>
+                    <Badge variant="secondary" size="sm">GitHub</Badge>
                   </div>
-                  <Badge variant="secondary" size="sm">Placeholder</Badge>
-                </div>
-                <div className="p-2.5 rounded-xl bg-muted/40 border border-border/60 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Linkedin className="w-4 h-4 text-blue-500" />
-                    <span className="font-medium">linkedin.com/in/alexrivera-tech</span>
+                )}
+                {student?.socialLinks?.linkedin && (
+                  <div className="p-2.5 rounded-xl bg-muted/40 border border-border/60 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Linkedin className="w-4 h-4 text-blue-500" />
+                      <span className="font-medium">{student.socialLinks.linkedin.replace("https://", "")}</span>
+                    </div>
+                    <Badge variant="secondary" size="sm">LinkedIn</Badge>
                   </div>
-                  <Badge variant="secondary" size="sm">Placeholder</Badge>
-                </div>
-                <div className="p-2.5 rounded-xl bg-muted/40 border border-border/60 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Globe className="w-4 h-4 text-purple-500" />
-                    <span className="font-medium">alexrivera.dev</span>
+                )}
+                {student?.socialLinks?.portfolio && (
+                  <div className="p-2.5 rounded-xl bg-muted/40 border border-border/60 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Globe className="w-4 h-4 text-purple-500" />
+                      <span className="font-medium">{student.socialLinks.portfolio.replace("https://", "")}</span>
+                    </div>
+                    <Badge variant="emerald" size="sm">Portfolio</Badge>
                   </div>
-                  <Badge variant="emerald" size="sm">Live</Badge>
-                </div>
+                )}
+                {(!student?.socialLinks || Object.keys(student.socialLinks).length === 0) && (
+                  <p className="text-xs text-muted-foreground italic">
+                    No external profiles added yet. Edit profile to link your portfolio or professional pages.
+                  </p>
+                )}
               </div>
             </Card>
           </div>
@@ -330,9 +593,9 @@ export default function ProfilePage() {
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-bold text-foreground">Proof-of-Work Projects</h2>
+              <h2 className="text-lg font-bold text-foreground">Proof-of-Work &amp; Projects</h2>
               <p className="text-xs text-muted-foreground">
-                Demonstrated technical craft with live demos and architecture notes.
+                Demonstrated practical work across technical prototypes, business cases, clinical research, design portfolios, and leadership.
               </p>
             </div>
             <Button
@@ -376,7 +639,7 @@ export default function ProfilePage() {
                   </p>
 
                   <div className="flex flex-wrap gap-1.5 pt-1">
-                    {proj.technologies.map((t) => (
+                    {(proj.technologies || proj.tools || []).map((t) => (
                       <span
                         key={t}
                         className="px-2 py-0.5 rounded-md bg-muted text-[11px] font-medium text-foreground/80 border border-border/40"
@@ -390,12 +653,36 @@ export default function ProfilePage() {
                 <div className="pt-4 border-t border-border/60 flex items-center justify-between text-xs text-muted-foreground">
                   <span>{proj.date}</span>
                   <div className="flex items-center gap-3">
-                    <span className="flex items-center gap-1 hover:text-foreground cursor-pointer">
-                      <Github className="w-3.5 h-3.5" /> Repository
-                    </span>
-                    <span className="flex items-center gap-1 text-purple-600 dark:text-purple-400 font-semibold cursor-pointer">
-                      <ExternalLink className="w-3.5 h-3.5" /> Live Demo
-                    </span>
+                    {proj.documentUrl && (
+                      <a
+                        href={proj.documentUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex items-center gap-1 text-purple-600 dark:text-purple-400 font-semibold hover:underline"
+                      >
+                        <FileText className="w-3.5 h-3.5" /> Report / Doc
+                      </a>
+                    )}
+                    {proj.liveUrl && (
+                      <a
+                        href={proj.liveUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex items-center gap-1 text-purple-600 dark:text-purple-400 font-semibold hover:underline"
+                      >
+                        <ExternalLink className="w-3.5 h-3.5" /> Live Demo
+                      </a>
+                    )}
+                    {proj.githubUrl && (
+                      <a
+                        href={proj.githubUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex items-center gap-1 hover:text-foreground"
+                      >
+                        <Github className="w-3.5 h-3.5" /> Code
+                      </a>
+                    )}
                   </div>
                 </div>
               </Card>
@@ -508,7 +795,7 @@ export default function ProfilePage() {
           <div>
             <h2 className="text-lg font-bold text-foreground">Verified Certifications</h2>
             <p className="text-xs text-muted-foreground">
-              Official credentials issued by industry organizations.
+              Official credentials issued by industry organizations and academic institutions.
             </p>
           </div>
 
@@ -567,26 +854,146 @@ export default function ProfilePage() {
         isOpen={isEditProfileOpen}
         onClose={() => setIsEditProfileOpen(false)}
         title="Edit Student Profile"
-        description="Update your public headline, location, and bio."
+        description="Update your academic credentials, specialization, public headline, and bio."
+        maxWidth="xl"
       >
-        <form onSubmit={handleSaveProfile} className="space-y-4">
-          <Input
-            label="Full Name"
-            value={editName}
-            onChange={(e) => setEditName(e.target.value)}
-            required
-          />
-          <Input
-            label="Headline"
-            value={editHeadline}
-            onChange={(e) => setEditHeadline(e.target.value)}
-            required
-          />
+        <form onSubmit={handleSaveProfile} className="space-y-4 max-h-[75vh] overflow-y-auto pr-1">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Input
+              label="Full Name"
+              value={editName}
+              onChange={(e) => setEditName(e.target.value)}
+              required
+            />
+            <Input
+              label="Headline"
+              placeholder="e.g. Biotechnology Junior @ Johns Hopkins"
+              value={editHeadline}
+              onChange={(e) => setEditHeadline(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Input
+              label="University / Institution"
+              placeholder="e.g. Stanford University"
+              value={editUniversity}
+              onChange={(e) => setEditUniversity(e.target.value)}
+              required
+            />
+            <div>
+              <label className="block text-xs font-semibold text-foreground/80 tracking-wide uppercase mb-1.5">
+                Academic Stream
+              </label>
+              <select
+                value={editAcademicStream}
+                onChange={(e) => handleStreamChange(e.target.value)}
+                className="w-full h-10 px-3 rounded-xl bg-card dark:bg-[#161924] border border-border dark:border-[#2a3042] text-xs text-foreground dark:text-slate-100 focus:outline-none focus:border-purple-500 dark:focus:border-purple-400 font-medium cursor-pointer transition-colors"
+              >
+                {ACADEMIC_HIERARCHY.map((st) => (
+                  <option key={st.id} value={st.name} className="bg-card text-foreground dark:bg-[#161924] dark:text-slate-100">
+                    {st.name}
+                  </option>
+                ))}
+              </select>
+              {editAcademicStream === "Other" && (
+                <input
+                  type="text"
+                  placeholder="Enter custom academic stream..."
+                  value={customStream}
+                  onChange={(e) => setCustomStream(e.target.value)}
+                  className="w-full mt-2 h-9 px-3 rounded-xl bg-card dark:bg-[#161924] border border-border dark:border-[#2a3042] text-xs text-foreground dark:text-slate-100 placeholder:text-muted-foreground/60 dark:placeholder:text-slate-400/75 focus:outline-none focus:border-purple-500"
+                  required
+                />
+              )}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-semibold text-foreground/80 tracking-wide uppercase mb-1.5">
+                Degree / Program
+              </label>
+              <select
+                value={editDegree}
+                onChange={(e) => handleDegreeChange(e.target.value)}
+                className="w-full h-10 px-3 rounded-xl bg-card dark:bg-[#161924] border border-border dark:border-[#2a3042] text-xs text-foreground dark:text-slate-100 focus:outline-none focus:border-purple-500 dark:focus:border-purple-400 font-medium cursor-pointer transition-colors"
+              >
+                {getProgramsForStream(editAcademicStream).map((deg) => (
+                  <option key={deg.id} value={deg.name} className="bg-card text-foreground dark:bg-[#161924] dark:text-slate-100">
+                    {deg.name}
+                  </option>
+                ))}
+              </select>
+              {editDegree === "Other" && (
+                <input
+                  type="text"
+                  placeholder="Enter custom degree..."
+                  value={customDegree}
+                  onChange={(e) => setCustomDegree(e.target.value)}
+                  className="w-full mt-2 h-9 px-3 rounded-xl bg-card dark:bg-[#161924] border border-border dark:border-[#2a3042] text-xs text-foreground dark:text-slate-100 placeholder:text-muted-foreground/60 dark:placeholder:text-slate-400/75 focus:outline-none focus:border-purple-500"
+                  required
+                />
+              )}
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-foreground/80 tracking-wide uppercase mb-1.5">
+                Specialization / Branch / Field
+              </label>
+              <select
+                value={editSpecialization}
+                onChange={(e) => handleSpecializationChange(e.target.value)}
+                className="w-full h-10 px-3 rounded-xl bg-card dark:bg-[#161924] border border-border dark:border-[#2a3042] text-xs text-foreground dark:text-slate-100 focus:outline-none focus:border-purple-500 dark:focus:border-purple-400 font-medium cursor-pointer transition-colors"
+              >
+                {getSpecializationsForProgram(editAcademicStream, editDegree).map((spec) => (
+                  <option key={spec} value={spec} className="bg-card text-foreground dark:bg-[#161924] dark:text-slate-100">
+                    {spec}
+                  </option>
+                ))}
+              </select>
+              {editSpecialization === "Other" && (
+                <input
+                  type="text"
+                  placeholder="Enter custom specialization/branch..."
+                  value={customSpecialization}
+                  onChange={(e) => setCustomSpecialization(e.target.value)}
+                  className="w-full mt-2 h-9 px-3 rounded-xl bg-card border border-border text-xs text-foreground focus:outline-none focus:border-purple-500"
+                  required
+                />
+              )}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <Input
+              label="Year of Study"
+              placeholder="e.g. Junior (3rd Year)"
+              value={editYearOfStudy}
+              onChange={(e) => setEditYearOfStudy(e.target.value)}
+            />
+            <Input
+              label="Graduation Year"
+              type="number"
+              value={editGradYear}
+              onChange={(e) => setEditGradYear(Number(e.target.value))}
+              required
+            />
+            <Input
+              label="CGPA / Score"
+              placeholder="e.g. 3.92 / 4.0 or 9.4 / 10"
+              value={editCgpa}
+              onChange={(e) => setEditCgpa(e.target.value)}
+            />
+          </div>
+
           <Input
             label="Location"
             value={editLocation}
             onChange={(e) => setEditLocation(e.target.value)}
           />
+
           <div>
             <label className="block text-xs font-semibold text-foreground/80 tracking-wide uppercase mb-1.5">
               Bio
@@ -598,6 +1005,7 @@ export default function ProfilePage() {
               className="w-full p-3 rounded-xl bg-card border border-border text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20"
             />
           </div>
+
           <div className="flex justify-end gap-2 pt-2">
             <Button
               type="button"
@@ -618,31 +1026,52 @@ export default function ProfilePage() {
       <Modal
         isOpen={isAddProjectOpen}
         onClose={() => setIsAddProjectOpen(false)}
-        title="Add Proof-of-Work Project"
-        description="Showcase your technical projects, hackathon prototypes, or capstone demos."
+        title="Add Proof-of-Work &amp; Project"
+        description="Showcase practical case studies, research papers, software, clinical initiatives, or creative portfolios."
+        maxWidth="xl"
       >
-        <form onSubmit={handleCreateProject} className="space-y-4">
+        <form onSubmit={handleCreateProject} className="space-y-4 max-h-[75vh] overflow-y-auto pr-1">
           <Input
-            label="Project Title"
-            placeholder="e.g. Real-Time Distributed Cache"
+            label="Project / Work Title"
+            placeholder="e.g. M&A Strategic Valuation / CRISPR Analysis / PulseFlow"
             value={newTitle}
             onChange={(e) => setNewTitle(e.target.value)}
             required
           />
+
           <div>
             <label className="block text-xs font-semibold text-foreground/80 tracking-wide uppercase mb-1.5">
               Project Type
             </label>
-            <div className="grid grid-cols-3 gap-2">
-              {(["Personal", "Hackathon", "Capstone"] as const).map((type) => (
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 max-h-40 overflow-y-auto p-1 border border-border/60 rounded-xl bg-muted/30">
+              {(
+                [
+                  "Personal",
+                  "Hackathon",
+                  "Capstone",
+                  "Open Source",
+                  "Business Project",
+                  "Research Project",
+                  "Healthcare Project",
+                  "Clinical Experience",
+                  "Design Project",
+                  "Marketing Project",
+                  "Case Study",
+                  "Academic Project",
+                  "Creative Work",
+                  "Leadership",
+                  "Volunteer Work",
+                  "Other",
+                ] as const
+              ).map((type) => (
                 <button
                   key={type}
                   type="button"
                   onClick={() => setNewType(type)}
-                  className={`py-2 rounded-xl text-xs font-medium border transition-colors ${
+                  className={`py-1.5 px-2 rounded-lg text-[11px] font-medium border text-center transition-colors ${
                     newType === type
                       ? "bg-purple-500/10 border-purple-500 text-purple-600 dark:text-purple-400 font-semibold"
-                      : "border-border text-muted-foreground hover:bg-muted"
+                      : "border-border/60 text-muted-foreground hover:bg-muted"
                   }`}
                 >
                   {type}
@@ -650,36 +1079,49 @@ export default function ProfilePage() {
               ))}
             </div>
           </div>
+
           <Input
-            label="Technologies Used"
-            placeholder="React, TypeScript, WebSockets, Node.js"
+            label="Tools, Methodologies or Technologies"
+            placeholder="e.g. Financial Modeling, DCF, Excel OR PCR, Western Blot OR React, Node.js OR Figma, Typography"
             value={newTech}
             onChange={(e) => setNewTech(e.target.value)}
           />
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <Input
+              label="Live Demo / Deliverable URL (Optional)"
+              placeholder="https://mywork.com or demo link"
+              value={newLiveUrl}
+              onChange={(e) => setNewLiveUrl(e.target.value)}
+            />
+            <Input
+              label="Report / Publication / Document URL (Optional)"
+              placeholder="https://researchgate.net or PDF doc"
+              value={newDocumentUrl}
+              onChange={(e) => setNewDocumentUrl(e.target.value)}
+            />
+          </div>
+
           <Input
-            label="Live Demo Link (Optional)"
-            placeholder="https://myproject.app"
-            value={newLiveUrl}
-            onChange={(e) => setNewLiveUrl(e.target.value)}
-          />
-          <Input
-            label="GitHub Repository Link (Placeholder)"
-            placeholder="https://github.com/username/project"
+            label="Repository / Artifact Link (Optional)"
+            placeholder="https://github.com/username/project (Optional for all)"
             value={newGithubUrl}
             onChange={(e) => setNewGithubUrl(e.target.value)}
           />
+
           <div>
             <label className="block text-xs font-semibold text-foreground/80 tracking-wide uppercase mb-1.5">
-              Description
+              Description / Abstract
             </label>
             <textarea
               rows={3}
               value={newDesc}
               onChange={(e) => setNewDesc(e.target.value)}
-              placeholder="What did you engineer and what problem does it solve?"
+              placeholder="Summarize the core problem, methodology applied, and demonstrated outcomes."
               className="w-full p-3 rounded-xl bg-card border border-border text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20"
             />
           </div>
+
           <div className="flex justify-end gap-2 pt-2">
             <Button
               type="button"

@@ -16,15 +16,15 @@ export function Search({
 }: SearchProps) {
   return (
     <div className={cn("relative flex items-center w-full", className)}>
-      <SearchIcon className="absolute left-3.5 w-4 h-4 text-muted-foreground pointer-events-none" />
+      <SearchIcon className="absolute left-3.5 w-4 h-4 text-muted-foreground dark:text-slate-400 pointer-events-none" />
       <input
         type="text"
         value={value}
         onChange={onChange}
         placeholder={placeholder}
         className={cn(
-          "w-full h-10 pl-10 pr-9 bg-card border border-border rounded-xl text-sm text-foreground placeholder:text-muted-foreground/60 transition-all duration-200",
-          "focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20"
+          "w-full h-10 pl-10 pr-9 bg-card dark:bg-[#161924] border border-border dark:border-[#2a3042] rounded-xl text-sm text-foreground dark:text-slate-100 placeholder:text-muted-foreground/60 dark:placeholder:text-slate-400/75 transition-all duration-200",
+          "hover:border-purple-500/40 dark:hover:border-[#3d465e] focus:outline-none focus:border-purple-500 dark:focus:border-purple-400 focus:ring-2 focus:ring-purple-500/20 dark:focus:ring-purple-500/30"
         )}
         {...props}
       />
@@ -32,7 +32,7 @@ export function Search({
         <button
           type="button"
           onClick={onClear}
-          className="absolute right-3 p-1 rounded-md text-muted-foreground hover:text-foreground transition-colors"
+          className="absolute right-3 p-1 rounded-md text-muted-foreground dark:text-slate-400 hover:text-foreground dark:hover:text-slate-100 transition-colors"
           aria-label="Clear search"
         >
           <X className="w-3.5 h-3.5" />

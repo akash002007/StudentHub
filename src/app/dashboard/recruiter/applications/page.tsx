@@ -23,6 +23,7 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Input } from "@/components/ui/Input";
+import { Select } from "@/components/ui/Select";
 import { Avatar } from "@/components/ui/Avatar";
 import { RoleGuard } from "@/components/dashboard/RoleGuard";
 import { CandidateProfileModal, CandidateModalData } from "@/components/dashboard/CandidateProfileModal";
@@ -186,10 +187,9 @@ export default function RecruiterApplicationsPage() {
             </div>
 
             <div>
-              <select
+              <Select
                 value={selectedRoleFilter}
                 onChange={(e) => setSelectedRoleFilter(e.target.value)}
-                className="w-full h-10 px-3.5 rounded-xl bg-muted/40 border border-border text-xs text-foreground focus:outline-none focus:border-purple-500"
               >
                 <option value="all">All Internship Roles</option>
                 {recruiterInternships.map((intern) => (
@@ -197,14 +197,13 @@ export default function RecruiterApplicationsPage() {
                     {intern.title}
                   </option>
                 ))}
-              </select>
+              </Select>
             </div>
 
             <div>
-              <select
+              <Select
                 value={selectedStatusFilter}
                 onChange={(e) => setSelectedStatusFilter(e.target.value)}
-                className="w-full h-10 px-3.5 rounded-xl bg-muted/40 border border-border text-xs text-foreground focus:outline-none focus:border-purple-500"
               >
                 <option value="all">All Pipeline Stages</option>
                 {statuses.map((st) => (
@@ -212,7 +211,7 @@ export default function RecruiterApplicationsPage() {
                     {st}
                   </option>
                 ))}
-              </select>
+              </Select>
             </div>
           </div>
 
@@ -305,10 +304,14 @@ export default function RecruiterApplicationsPage() {
                           onChange={(e) =>
                             updateApplicantStatus(applicant.id, e.target.value as ApplicationStatus)
                           }
-                          className="h-8 px-2.5 rounded-lg bg-muted border border-border text-xs font-semibold text-foreground focus:outline-none focus:border-purple-500"
+                          className="h-8 px-2.5 rounded-lg bg-card dark:bg-[#161924] border border-border dark:border-[#2a3042] text-xs font-semibold text-foreground dark:text-slate-100 focus:outline-none focus:border-purple-500 hover:border-purple-500/40 cursor-pointer transition-colors"
                         >
                           {statuses.map((st) => (
-                            <option key={st} value={st}>
+                            <option
+                              key={st}
+                              value={st}
+                              className="bg-card text-foreground dark:bg-[#161924] dark:text-slate-100"
+                            >
                               {st}
                             </option>
                           ))}

@@ -22,6 +22,7 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Input } from "@/components/ui/Input";
+import { Select } from "@/components/ui/Select";
 import { Avatar } from "@/components/ui/Avatar";
 import { RoleGuard } from "@/components/dashboard/RoleGuard";
 import { CandidateProfileModal, CandidateModalData } from "@/components/dashboard/CandidateProfileModal";
@@ -37,6 +38,7 @@ export default function RecruiterFindStudentsPage() {
   } = useData();
 
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedStream, setSelectedStream] = useState<string>("all");
   const [selectedUniversity, setSelectedUniversity] = useState<string>("all");
   const [selectedSkill, setSelectedSkill] = useState<string>("all");
   const [selectedGradYear, setSelectedGradYear] = useState<string>("all");
@@ -55,12 +57,21 @@ export default function RecruiterFindStudentsPage() {
     new Set(recruiterStudents.map((s) => s.university))
   ).sort();
 
+  const allStreams = Array.from(
+    new Set(recruiterStudents.map((s) => s.academicStream).filter(Boolean) as string[])
+  ).sort();
+
   const filteredStudents = recruiterStudents.filter((student) => {
     const matchesSearch =
       student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       student.university.toLowerCase().includes(searchQuery.toLowerCase()) ||
       student.skills.some((s) => s.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (student.specialization && student.specialization.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (student.academicStream && student.academicStream.toLowerCase().includes(searchQuery.toLowerCase())) ||
       student.bio.toLowerCase().includes(searchQuery.toLowerCase());
+
+    const matchesStream =
+      selectedStream === "all" || student.academicStream === selectedStream;
 
     const matchesUniversity =
       selectedUniversity === "all" || student.university === selectedUniversity;
@@ -79,6 +90,7 @@ export default function RecruiterFindStudentsPage() {
 
     return (
       matchesSearch &&
+      matchesStream &&
       matchesUniversity &&
       matchesSkill &&
       matchesGradYear &&
@@ -95,6 +107,8 @@ export default function RecruiterFindStudentsPage() {
       university: student.university,
       degree: student.degree,
       branch: student.branch,
+      academicStream: student.academicStream,
+      specialization: student.specialization,
       graduationYear: student.graduationYear,
       cgpa: student.cgpa,
       location: student.location,
@@ -104,6 +118,9 @@ export default function RecruiterFindStudentsPage() {
       portfolioUrl: student.portfolioUrl,
       githubUrl: student.githubUrl,
       linkedinUrl: student.linkedinUrl,
+      behanceUrl: student.behanceUrl,
+      researchGateUrl: student.researchGateUrl,
+      ssrnUrl: student.ssrnUrl,
       projects: student.projects,
       certifications: student.certifications,
     });
@@ -123,6 +140,7 @@ export default function RecruiterFindStudentsPage() {
 
   const resetFilters = () => {
     setSearchQuery("");
+    setSelectedStream("all");
     setSelectedUniversity("all");
     setSelectedSkill("all");
     setSelectedGradYear("all");
@@ -164,10 +182,10 @@ export default function RecruiterFindStudentsPage() {
 
         {/* Filter Panel */}
         <div className="p-5 rounded-2xl bg-card border border-border space-y-4 shadow-xs">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
             <div>
               <Input
-                placeholder="Search by student name or keywords..."
+                placeholder="Search by name or skills..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 leftIcon={<Search className="w-4 h-4" />}
@@ -175,46 +193,57 @@ export default function RecruiterFindStudentsPage() {
             </div>
 
             <div>
-              <select
+              <Select
+                value={selectedStream}
+                onChange={(e) => setSelectedStream(e.target.value)}
+              >
+                <option value="all">All Academic Streams</option>
+                {allStreams.map((st) => (
+                  <option key={st} value={st}>
+                    {st}
+                  </option>
+                ))}
+              </Select>
+            </div>
+
+            <div>
+              <Select
                 value={selectedUniversity}
                 onChange={(e) => setSelectedUniversity(e.target.value)}
-                className="w-full h-10 px-3.5 rounded-xl bg-muted/40 border border-border text-xs text-foreground focus:outline-none focus:border-purple-500"
               >
-                <option value="all">All Universities &amp; Colleges</option>
+                <option value="all">All Universities</option>
                 {allUniversities.map((u) => (
                   <option key={u} value={u}>
                     {u}
                   </option>
                 ))}
-              </select>
+              </Select>
             </div>
 
             <div>
-              <select
+              <Select
                 value={selectedSkill}
                 onChange={(e) => setSelectedSkill(e.target.value)}
-                className="w-full h-10 px-3.5 rounded-xl bg-muted/40 border border-border text-xs text-foreground focus:outline-none focus:border-purple-500"
               >
-                <option value="all">All Technical Skills</option>
+                <option value="all">All Skills &amp; Stacks</option>
                 {allSkills.map((s) => (
                   <option key={s} value={s}>
                     {s}
                   </option>
                 ))}
-              </select>
+              </Select>
             </div>
 
             <div>
-              <select
+              <Select
                 value={minCgpaFilter}
                 onChange={(e) => setMinCgpaFilter(e.target.value)}
-                className="w-full h-10 px-3.5 rounded-xl bg-muted/40 border border-border text-xs text-foreground focus:outline-none focus:border-purple-500"
               >
-                <option value="all">Any Cumulative GPA</option>
+                <option value="all">Any GPA / Score</option>
                 <option value="3.5">GPA 3.5+</option>
                 <option value="3.8">GPA 3.8+ (High Honors)</option>
                 <option value="3.9">GPA 3.9+ (Top 5%)</option>
-              </select>
+              </Select>
             </div>
           </div>
 
@@ -223,7 +252,8 @@ export default function RecruiterFindStudentsPage() {
               <span>Showing {filteredStudents.length} candidate profiles</span>
             </div>
 
-            {(selectedUniversity !== "all" ||
+            {(selectedStream !== "all" ||
+              selectedUniversity !== "all" ||
               selectedSkill !== "all" ||
               minCgpaFilter !== "all" ||
               searchQuery ||
@@ -285,15 +315,23 @@ export default function RecruiterFindStudentsPage() {
                   </button>
                 </div>
 
-                {/* Status & GPA pill */}
-                <div className="flex items-center justify-between text-xs p-2 rounded-xl bg-muted/40 border border-border/50">
-                  <span className="font-semibold text-foreground/80 text-[11px]">
-                    {student.status}
+                {/* Stream & GPA pill */}
+                <div className="flex items-center justify-between text-xs p-2 rounded-xl bg-muted/40 border border-border/50 gap-2">
+                  <span className="font-semibold text-purple-600 dark:text-purple-400 text-[11px] truncate">
+                    {student.academicStream || student.status}
                   </span>
-                  <span className="font-bold text-emerald-600 dark:text-emerald-400">
+                  <span className="font-bold text-emerald-600 dark:text-emerald-400 shrink-0">
                     CGPA {student.cgpa}
                   </span>
                 </div>
+
+                {/* Specialization / Major */}
+                {(student.specialization || student.branch) && (
+                  <div className="text-[11px] text-muted-foreground flex items-center gap-1">
+                    <span className="font-medium text-foreground">Major:</span>
+                    <span>{student.specialization || student.branch}</span>
+                  </div>
+                )}
 
                 {/* Bio */}
                 <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">

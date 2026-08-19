@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
-  Briefcase,
   Sparkles,
   ArrowRight,
   ArrowLeft,
@@ -12,68 +11,136 @@ import {
   Building2,
   DollarSign,
   Calendar,
-  Layers,
-  GraduationCap,
   Plus,
   X,
   Eye,
+  AlertCircle,
 } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Badge } from "@/components/ui/Badge";
+import { MultiSelect } from "@/components/ui/MultiSelect";
 import { RoleGuard } from "@/components/dashboard/RoleGuard";
 import { useData } from "@/context/DataContext";
 import { useAuth } from "@/context/AuthContext";
+import { useToast } from "@/context/ToastContext";
+import {
+  getAllUniqueDegrees,
+  getBranchesForDegrees,
+} from "@/data/academic-hierarchy";
 
 export default function PostInternshipPage() {
   const router = useRouter();
   const { recruiterCompany, addRecruiterInternship } = useData();
   const { user } = useAuth();
+  const { success, error: toastError } = useToast();
 
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
-  // Form State
+  // ==========================================
+  // Step 1: Basic Information State
+  // ==========================================
   const [title, setTitle] = useState("");
-  const [department, setDepartment] = useState("Engineering");
+  const [department, setDepartment] = useState("Engineering & Software");
   const [description, setDescription] = useState("");
   const [location, setLocation] = useState("San Francisco, CA / Hybrid");
   const [workType, setWorkType] = useState<"Remote" | "Hybrid" | "Onsite">("Hybrid");
   const [internshipType, setInternshipType] = useState("Summer 2026");
 
-  // Step 2 Requirements
+  // ==========================================
+  // Step 2: Candidate Requirements State
+  // ==========================================
   const [skillInput, setSkillInput] = useState("");
   const [requiredSkills, setRequiredSkills] = useState<string[]>([
     "TypeScript",
     "React",
     "Node.js",
   ]);
-  const [degreeRequirements, setDegreeRequirements] = useState(
-    "B.S., B.E., or M.S. in Computer Science or related STEM field"
-  );
-  const [branchRequirements, setBranchRequirements] = useState(
-    "Computer Science, Software Engineering, Electrical Engineering"
-  );
-  const [minCgpa, setMinCgpa] = useState("3.4");
+
+  const [selectedDegrees, setSelectedDegrees] = useState<string[]>([
+    "B.Tech",
+    "B.E.",
+    "B.S. in Computer Science",
+  ]);
+
+  const [selectedBranches, setSelectedBranches] = useState<string[]>([
+    "Computer Science & Engineering",
+    "Information Technology",
+    "Artificial Intelligence & Machine Learning",
+  ]);
+
+  const [minCgpa, setMinCgpa] = useState("");
   const [gradYears, setGradYears] = useState<number[]>([2026, 2027]);
   const [experienceRequirements, setExperienceRequirements] = useState(
-    "Demonstrated proof-of-work projects, open source contributions, or hackathon achievements"
+    "Demonstrated proof-of-work projects, open source contributions, or portfolio work"
   );
   const [responsibilitiesText, setResponsibilitiesText] = useState(
-    "Design and build scalable services with modern software best practices.\nCollaborate with product designers and senior engineers.\nParticipate in code reviews, automated testing, and production deployment."
+    "Design and build scalable features with industry best practices.\nCollaborate with cross-functional teams and product managers.\nParticipate in peer reviews, quality checks, and production releases."
   );
 
-  // Step 3 Compensation & Timeline
+  // ==========================================
+  // Step 3: Compensation & Timeline State
+  // ==========================================
   const [stipend, setStipend] = useState("$55 / hr ($9,400/mo)");
   const [duration, setDuration] = useState("12 Weeks (May - Aug 2026)");
   const [deadline, setDeadline] = useState("Apr 15, 2026");
   const [openingsCount, setOpeningsCount] = useState(3);
 
+  // ==========================================
+  // Academic Data & Dynamic Branch Options
+  // ==========================================
+  const allAvailableDegrees = getAllUniqueDegrees();
+  const availableBranchesForSelectedDegrees = getBranchesForDegrees(selectedDegrees);
+
+  const handleDegreesChange = (newDegrees: string[]) => {
+    setSelectedDegrees(newDegrees);
+
+    if (errors.selectedDegrees && newDegrees.length > 0) {
+      setErrors((prev) => {
+        const copy = { ...prev };
+        delete copy.selectedDegrees;
+        return copy;
+      });
+    }
+
+    // Context-aware auto-pruning: Keep only branches valid under the new degrees
+    const validBranches = getBranchesForDegrees(newDegrees);
+    const validBranchSet = new Set(validBranches.map((b) => b.toLowerCase()));
+
+    setSelectedBranches((prev) =>
+      prev.filter((branch) => {
+        if (branch === "Other") return validBranchSet.has("other");
+        return validBranchSet.has(branch.toLowerCase());
+      })
+    );
+  };
+
+  const handleBranchesChange = (newBranches: string[]) => {
+    setSelectedBranches(newBranches);
+    if (errors.selectedBranches && newBranches.length > 0) {
+      setErrors((prev) => {
+        const copy = { ...prev };
+        delete copy.selectedBranches;
+        return copy;
+      });
+    }
+  };
+
   const handleAddSkill = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!skillInput.trim()) return;
     if (!requiredSkills.includes(skillInput.trim())) {
-      setRequiredSkills([...requiredSkills, skillInput.trim()]);
+      const updated = [...requiredSkills, skillInput.trim()];
+      setRequiredSkills(updated);
+      if (errors.requiredSkills) {
+        setErrors((prev) => {
+          const copy = { ...prev };
+          delete copy.requiredSkills;
+          return copy;
+        });
+      }
     }
     setSkillInput("");
   };
@@ -83,43 +150,230 @@ export default function PostInternshipPage() {
   };
 
   const toggleGradYear = (year: number) => {
+    let updated: number[];
     if (gradYears.includes(year)) {
       if (gradYears.length > 1) {
-        setGradYears(gradYears.filter((y) => y !== year));
+        updated = gradYears.filter((y) => y !== year);
+      } else {
+        updated = gradYears;
       }
     } else {
-      setGradYears([...gradYears, year].sort());
+      updated = [...gradYears, year].sort();
+    }
+    setGradYears(updated);
+    if (errors.gradYears && updated.length > 0) {
+      setErrors((prev) => {
+        const copy = { ...prev };
+        delete copy.gradYears;
+        return copy;
+      });
     }
   };
 
+  // ==========================================
+  // Validation Logic per Step
+  // ==========================================
+  const validateStep1 = (): boolean => {
+    const newErrors: { [key: string]: string } = {};
+
+    if (!title.trim()) {
+      newErrors.title = "Internship / Job title is required.";
+    }
+    if (!department.trim()) {
+      newErrors.department = "Department / Org is required.";
+    }
+    if (!location.trim()) {
+      newErrors.location = "Primary location is required.";
+    }
+    if (!description.trim()) {
+      newErrors.description = "Role overview and mission description is required.";
+    } else if (description.trim().length < 15) {
+      newErrors.description = "Role overview must be at least 15 characters.";
+    }
+
+    setErrors((prev) => ({ ...prev, ...newErrors }));
+    if (Object.keys(newErrors).length > 0) {
+      toastError("Please complete all required fields in Step 1.");
+      return false;
+    }
+    return true;
+  };
+
+  const validateStep2 = (): boolean => {
+    const newErrors: { [key: string]: string } = {};
+
+    if (requiredSkills.length === 0) {
+      newErrors.requiredSkills = "Please add at least one required/preferred skill.";
+    }
+    if (selectedDegrees.length === 0) {
+      newErrors.selectedDegrees = "Please select at least one eligible degree level.";
+    }
+    if (selectedBranches.length === 0) {
+      newErrors.selectedBranches = "Please select at least one eligible branch/major.";
+    }
+    if (gradYears.length === 0) {
+      newErrors.gradYears = "Please select at least one graduation cohort year.";
+    }
+    if (!responsibilitiesText.trim()) {
+      newErrors.responsibilitiesText = "Core responsibilities are required (at least one line).";
+    }
+
+    setErrors((prev) => ({ ...prev, ...newErrors }));
+    if (Object.keys(newErrors).length > 0) {
+      toastError("Please complete all required candidate requirements in Step 2.");
+      return false;
+    }
+    return true;
+  };
+
+  const validateStep3 = (): boolean => {
+    const newErrors: { [key: string]: string } = {};
+
+    if (!stipend.trim()) {
+      newErrors.stipend = "Stipend amount or rate is required.";
+    }
+    if (!duration.trim()) {
+      newErrors.duration = "Internship duration is required.";
+    }
+    if (!deadline.trim()) {
+      newErrors.deadline = "Application deadline is required.";
+    }
+    if (!openingsCount || openingsCount < 1) {
+      newErrors.openingsCount = "Number of openings must be at least 1.";
+    }
+
+    setErrors((prev) => ({ ...prev, ...newErrors }));
+    if (Object.keys(newErrors).length > 0) {
+      toastError("Please complete all required compensation & timeline fields in Step 3.");
+      return false;
+    }
+    return true;
+  };
+
+  const handleProceedFromStep1 = () => {
+    if (validateStep1()) {
+      setErrors({});
+      setStep(2);
+    }
+  };
+
+  const handleProceedFromStep2 = () => {
+    if (validateStep2()) {
+      setErrors({});
+      setStep(3);
+    }
+  };
+
+  const handleProceedFromStep3 = () => {
+    if (validateStep3()) {
+      setErrors({});
+      setStep(4);
+    }
+  };
+
+  const handleStepTabClick = (targetStep: 1 | 2 | 3 | 4) => {
+    if (targetStep <= step) {
+      setStep(targetStep);
+      return;
+    }
+
+    if (step === 1) {
+      if (!validateStep1()) return;
+      if (targetStep === 2) {
+        setStep(2);
+        return;
+      }
+      if (targetStep === 3) {
+        if (!validateStep2()) {
+          setStep(2);
+          return;
+        }
+        setStep(3);
+        return;
+      }
+      if (targetStep === 4) {
+        if (!validateStep2()) {
+          setStep(2);
+          return;
+        }
+        if (!validateStep3()) {
+          setStep(3);
+          return;
+        }
+        setStep(4);
+        return;
+      }
+    }
+
+    if (step === 2) {
+      if (!validateStep2()) return;
+      if (targetStep === 3) {
+        setStep(3);
+        return;
+      }
+      if (targetStep === 4) {
+        if (!validateStep3()) {
+          setStep(3);
+          return;
+        }
+        setStep(4);
+        return;
+      }
+    }
+
+    if (step === 3) {
+      if (!validateStep3()) return;
+      setStep(4);
+    }
+  };
+
+  // ==========================================
+  // Publish Submission
+  // ==========================================
   const handlePublish = () => {
+    if (!validateStep1() || !validateStep2() || !validateStep3()) {
+      toastError("Please verify all steps. Incomplete data cannot be submitted.");
+      return;
+    }
+
     const responsibilities = responsibilitiesText
       .split("\n")
       .map((r) => r.trim())
       .filter(Boolean);
 
+    const degreeRequirementsFormatted =
+      selectedDegrees.length > 0
+        ? selectedDegrees.join(", ")
+        : "All Degree Programs";
+
+    const branchRequirementsFormatted =
+      selectedBranches.length > 0
+        ? selectedBranches.join(", ")
+        : "All Eligible Majors";
+
     addRecruiterInternship({
-      title: title.trim() || "Software Engineering Intern",
+      title: title.trim(),
       department,
-      location,
+      location: location.trim(),
       workType,
       internshipType,
-      stipend,
-      duration,
-      deadline,
+      stipend: stipend.trim(),
+      duration: duration.trim(),
+      deadline: deadline.trim(),
       openingsCount,
-      description:
-        description.trim() ||
-        `Exciting student internship role at ${recruiterCompany.name} focusing on high-impact projects.`,
+      description: description.trim(),
       responsibilities,
       requiredSkills,
-      degreeRequirements,
-      branchRequirements,
-      minCgpa,
+      degreeRequirements: degreeRequirementsFormatted,
+      branchRequirements: branchRequirementsFormatted,
+      degreeLevels: selectedDegrees,
+      eligibleBranches: selectedBranches,
+      minCgpa: minCgpa.trim() || "None",
       gradYearRequirements: gradYears,
-      experienceRequirements,
+      experienceRequirements: experienceRequirements.trim(),
     });
 
+    success("Internship role published successfully!");
     router.push("/dashboard/recruiter/internships");
   };
 
@@ -137,7 +391,7 @@ export default function PostInternshipPage() {
               Create &amp; Post Internship
             </h1>
             <p className="text-xs text-muted-foreground">
-              Define the requirements, compensation, and target student qualifications.
+              Define the requirements, eligible degree levels, compensation, and target student qualifications.
             </p>
           </div>
           <Link href="/dashboard/recruiter/internships">
@@ -150,25 +404,28 @@ export default function PostInternshipPage() {
         {/* Step Progress Indicators */}
         <div className="grid grid-cols-4 gap-2">
           {[
-            { num: 1, label: "Basic Info" },
-            { num: 2, label: "Requirements" },
-            { num: 3, label: "Compensation" },
-            { num: 4, label: "Review & Post" },
+            { num: 1 as const, label: "Basic Info" },
+            { num: 2 as const, label: "Requirements" },
+            { num: 3 as const, label: "Compensation" },
+            { num: 4 as const, label: "Review & Post" },
           ].map((s) => (
             <button
               key={s.num}
               type="button"
-              onClick={() => setStep(s.num as any)}
+              onClick={() => handleStepTabClick(s.num)}
               className={`p-3 rounded-xl border text-left transition-all ${
                 step === s.num
                   ? "bg-purple-500/10 border-purple-500 text-purple-600 dark:text-purple-400 shadow-xs"
                   : step > s.num
-                  ? "bg-card border-border/80 text-foreground"
-                  : "bg-muted/40 border-border/40 text-muted-foreground"
+                  ? "bg-card border-border/80 text-foreground hover:border-purple-500/40"
+                  : "bg-muted/40 border-border/40 text-muted-foreground hover:border-border"
               }`}
             >
-              <div className="text-[10px] font-bold uppercase tracking-wider">Step {s.num}</div>
-              <div className="text-xs font-semibold truncate">{s.label}</div>
+              <div className="text-[10px] font-bold uppercase tracking-wider flex items-center justify-between">
+                <span>Step {s.num}</span>
+                {step > s.num && <CheckCircle2 className="w-3 h-3 text-emerald-500" />}
+              </div>
+              <div className="text-xs font-semibold truncate mt-0.5">{s.label}</div>
             </button>
           ))}
         </div>
@@ -188,10 +445,20 @@ export default function PostInternshipPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="sm:col-span-2">
                   <Input
-                    label="Internship Title"
-                    placeholder="e.g. Backend Platform Engineer Intern"
+                    label="Internship / Job Title *"
+                    placeholder="e.g. Backend Platform Engineer Intern / Financial Analyst Intern"
                     value={title}
-                    onChange={(e) => setTitle(e.target.value)}
+                    onChange={(e) => {
+                      setTitle(e.target.value);
+                      if (errors.title && e.target.value.trim()) {
+                        setErrors((prev) => {
+                          const copy = { ...prev };
+                          delete copy.title;
+                          return copy;
+                        });
+                      }
+                    }}
+                    error={errors.title}
                     required
                   />
                 </div>
@@ -208,25 +475,46 @@ export default function PostInternshipPage() {
 
                 <div>
                   <label className="block text-xs font-semibold text-foreground/80 tracking-wide uppercase mb-1.5">
-                    Department / Org
+                    Department / Org *
                   </label>
                   <select
                     value={department}
-                    onChange={(e) => setDepartment(e.target.value)}
-                    className="w-full h-10 px-3.5 rounded-xl bg-card border border-border text-xs text-foreground focus:outline-none focus:border-purple-500"
+                    onChange={(e) => {
+                      setDepartment(e.target.value);
+                      if (errors.department) {
+                        setErrors((prev) => {
+                          const copy = { ...prev };
+                          delete copy.department;
+                          return copy;
+                        });
+                      }
+                    }}
+                    className={`w-full h-10 px-3.5 rounded-xl bg-card dark:bg-[#161924] border text-xs text-foreground dark:text-slate-100 focus:outline-none focus:border-purple-500 dark:focus:border-purple-400 ${
+                      errors.department ? "border-rose-500 dark:border-rose-500" : "border-border dark:border-[#2a3042]"
+                    }`}
                   >
-                    <option value="Engineering">Engineering</option>
-                    <option value="Product Engineering">Product Engineering</option>
-                    <option value="AI & Risk Engineering">AI &amp; Risk Engineering</option>
-                    <option value="Design & UX">Design &amp; UX</option>
-                    <option value="Data Science">Data Science</option>
-                    <option value="Security & Infrastructure">Security &amp; Infrastructure</option>
+                    <option value="Engineering & Software" className="bg-card text-foreground dark:bg-[#161924] dark:text-slate-100">Engineering &amp; Software</option>
+                    <option value="Product Engineering" className="bg-card text-foreground dark:bg-[#161924] dark:text-slate-100">Product Engineering</option>
+                    <option value="AI & Machine Learning" className="bg-card text-foreground dark:bg-[#161924] dark:text-slate-100">AI &amp; Machine Learning</option>
+                    <option value="Data Science & Analytics" className="bg-card text-foreground dark:bg-[#161924] dark:text-slate-100">Data Science &amp; Analytics</option>
+                    <option value="Finance, Accounting & Investment" className="bg-card text-foreground dark:bg-[#161924] dark:text-slate-100">Finance, Accounting &amp; Investment</option>
+                    <option value="Marketing & Growth Strategy" className="bg-card text-foreground dark:bg-[#161924] dark:text-slate-100">Marketing &amp; Growth Strategy</option>
+                    <option value="Healthcare & Clinical Operations" className="bg-card text-foreground dark:bg-[#161924] dark:text-slate-100">Healthcare &amp; Clinical Operations</option>
+                    <option value="Biotechnology & Life Sciences" className="bg-card text-foreground dark:bg-[#161924] dark:text-slate-100">Biotechnology &amp; Life Sciences</option>
+                    <option value="Legal, Compliance & Policy" className="bg-card text-foreground dark:bg-[#161924] dark:text-slate-100">Legal, Compliance &amp; Policy</option>
+                    <option value="Design, Architecture & Creative" className="bg-card text-foreground dark:bg-[#161924] dark:text-slate-100">Design, Architecture &amp; Creative</option>
+                    <option value="Operations & Management" className="bg-card text-foreground dark:bg-[#161924] dark:text-slate-100">Operations &amp; Management</option>
+                    <option value="Security & Infrastructure" className="bg-card text-foreground dark:bg-[#161924] dark:text-slate-100">Security &amp; Infrastructure</option>
+                    <option value="Other" className="bg-card text-foreground dark:bg-[#161924] dark:text-slate-100">Other</option>
                   </select>
+                  {errors.department && (
+                    <p className="text-xs text-rose-500 font-medium mt-1">{errors.department}</p>
+                  )}
                 </div>
 
                 <div>
                   <label className="block text-xs font-semibold text-foreground/80 tracking-wide uppercase mb-1.5">
-                    Work Location Format
+                    Work Location Format *
                   </label>
                   <div className="grid grid-cols-3 gap-2">
                     {(["Remote", "Hybrid", "Onsite"] as const).map((w) => (
@@ -248,16 +536,27 @@ export default function PostInternshipPage() {
 
                 <div>
                   <Input
-                    label="Primary Location"
-                    placeholder="e.g. San Francisco, CA / Seattle, WA"
+                    label="Primary Location *"
+                    placeholder="e.g. San Francisco, CA / Seattle, WA / New York, NY"
                     value={location}
-                    onChange={(e) => setLocation(e.target.value)}
+                    onChange={(e) => {
+                      setLocation(e.target.value);
+                      if (errors.location && e.target.value.trim()) {
+                        setErrors((prev) => {
+                          const copy = { ...prev };
+                          delete copy.location;
+                          return copy;
+                        });
+                      }
+                    }}
+                    error={errors.location}
+                    required
                   />
                 </div>
 
                 <div className="sm:col-span-2">
                   <label className="block text-xs font-semibold text-foreground/80 tracking-wide uppercase mb-1.5">
-                    Internship Cohort / Type
+                    Internship Cohort / Type *
                   </label>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                     {["Summer 2026", "Fall 2025", "Winter 2026", "Year-round"].map((type) => (
@@ -279,15 +578,29 @@ export default function PostInternshipPage() {
 
                 <div className="sm:col-span-2">
                   <label className="block text-xs font-semibold text-foreground/80 tracking-wide uppercase mb-1.5">
-                    Role Overview &amp; Mission
+                    Role Overview &amp; Mission *
                   </label>
                   <textarea
                     rows={4}
                     value={description}
-                    onChange={(e) => setDescription(e.target.value)}
+                    onChange={(e) => {
+                      setDescription(e.target.value);
+                      if (errors.description && e.target.value.trim().length >= 15) {
+                        setErrors((prev) => {
+                          const copy = { ...prev };
+                          delete copy.description;
+                          return copy;
+                        });
+                      }
+                    }}
                     placeholder="Describe the team mission, core problems to solve, and what makes this internship exciting..."
-                    className="w-full p-3 rounded-xl bg-card border border-border text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20"
+                    className={`w-full p-3 rounded-xl bg-card border text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 ${
+                      errors.description ? "border-rose-500 focus:border-rose-500" : "border-border"
+                    }`}
                   />
+                  {errors.description && (
+                    <p className="text-xs text-rose-500 font-medium mt-1">{errors.description}</p>
+                  )}
                 </div>
               </div>
 
@@ -295,7 +608,7 @@ export default function PostInternshipPage() {
                 <Button
                   type="button"
                   variant="gradient"
-                  onClick={() => setStep(2)}
+                  onClick={handleProceedFromStep1}
                   rightIcon={<ArrowRight className="w-4 h-4" />}
                 >
                   Continue to Requirements
@@ -310,18 +623,18 @@ export default function PostInternshipPage() {
               <div className="border-b border-border/60 pb-3">
                 <h2 className="text-base font-bold text-foreground">2. Candidate Requirements</h2>
                 <p className="text-xs text-muted-foreground">
-                  Specify target skills, degrees, major, minimum GPA, and graduation cohort.
+                  Specify target skills, eligible degree levels, context-aware branches, and cohort details.
                 </p>
               </div>
 
               {/* Skills input */}
               <div className="space-y-2">
                 <label className="block text-xs font-semibold text-foreground/80 tracking-wide uppercase">
-                  Required &amp; Preferred Skills
+                  Required &amp; Preferred Skills *
                 </label>
                 <div className="flex gap-2">
                   <Input
-                    placeholder="Type a skill and press Add (e.g. Go, Rust, React, PyTorch)"
+                    placeholder="Type a skill and press Add (e.g. TypeScript, React, Python, Financial Modeling, DCF)"
                     value={skillInput}
                     onChange={(e) => setSkillInput(e.target.value)}
                     onKeyDown={(e) => {
@@ -337,6 +650,10 @@ export default function PostInternshipPage() {
                   </Button>
                 </div>
 
+                {errors.requiredSkills && (
+                  <p className="text-xs text-rose-500 font-medium">{errors.requiredSkills}</p>
+                )}
+
                 <div className="flex flex-wrap gap-1.5 pt-1">
                   {requiredSkills.map((s) => (
                     <span
@@ -348,45 +665,71 @@ export default function PostInternshipPage() {
                         type="button"
                         onClick={() => handleRemoveSkill(s)}
                         className="hover:text-rose-500"
+                        title="Remove skill"
                       >
                         <X className="w-3 h-3" />
                       </button>
                     </span>
                   ))}
+                  {requiredSkills.length === 0 && (
+                    <span className="text-xs text-muted-foreground italic">No skills added yet.</span>
+                  )}
                 </div>
               </div>
 
+              {/* Multi-Select Degree Level & Dependent Branches */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <Input
-                    label="Degree Level"
-                    placeholder="e.g. B.S., B.E., or M.S. in Computer Science"
-                    value={degreeRequirements}
-                    onChange={(e) => setDegreeRequirements(e.target.value)}
+                  <MultiSelect
+                    label="Degree Level * (Multi-Select)"
+                    placeholder="Select degree levels..."
+                    searchPlaceholder="Search degree programs (e.g. B.Tech, B.Sc, MBA, MBBS)..."
+                    options={allAvailableDegrees}
+                    value={selectedDegrees}
+                    onChange={handleDegreesChange}
+                    error={errors.selectedDegrees}
+                    helperText="Select all degrees eligible for this role."
                   />
                 </div>
 
                 <div>
-                  <Input
-                    label="Eligible Branches / Majors"
-                    placeholder="e.g. Computer Science, AI, EE"
-                    value={branchRequirements}
-                    onChange={(e) => setBranchRequirements(e.target.value)}
+                  <MultiSelect
+                    label="Eligible Branches / Majors * (Multi-Select)"
+                    placeholder={
+                      selectedDegrees.length === 0
+                        ? "Select degrees first..."
+                        : "Select eligible branches..."
+                    }
+                    searchPlaceholder="Search branches / majors..."
+                    options={availableBranchesForSelectedDegrees}
+                    value={selectedBranches}
+                    onChange={handleBranchesChange}
+                    disabled={selectedDegrees.length === 0}
+                    error={errors.selectedBranches}
+                    helperText={
+                      selectedDegrees.length === 0
+                        ? "Choose degree levels above to view relevant branches."
+                        : `Showing branches for: ${selectedDegrees.slice(0, 3).join(", ")}${
+                            selectedDegrees.length > 3 ? ` +${selectedDegrees.length - 3} more` : ""
+                          }`
+                    }
+                    emptyMessage="No matching branches for the selected degrees."
                   />
                 </div>
 
                 <div>
                   <Input
                     label="Minimum CGPA (Optional)"
-                    placeholder="e.g. 3.4"
+                    placeholder="e.g. 3.4 / 4.0 or leave blank"
                     value={minCgpa}
                     onChange={(e) => setMinCgpa(e.target.value)}
+                    helperText="Optional criterion. Leave blank if not required."
                   />
                 </div>
 
                 <div>
                   <label className="block text-xs font-semibold text-foreground/80 tracking-wide uppercase mb-1.5">
-                    Graduation Year Cohort
+                    Graduation Year Cohort *
                   </label>
                   <div className="flex gap-2">
                     {[2025, 2026, 2027, 2028].map((year) => (
@@ -404,28 +747,46 @@ export default function PostInternshipPage() {
                       </button>
                     ))}
                   </div>
+                  {errors.gradYears && (
+                    <p className="text-xs text-rose-500 font-medium mt-1">{errors.gradYears}</p>
+                  )}
                 </div>
 
                 <div className="sm:col-span-2">
                   <Input
                     label="Experience &amp; Portfolio Criteria"
-                    placeholder="e.g. Prior internship or high-quality GitHub open source work"
+                    placeholder="e.g. Prior internship, live project demos, research papers, or portfolio work"
                     value={experienceRequirements}
                     onChange={(e) => setExperienceRequirements(e.target.value)}
+                    helperText="Optional details on past work, portfolio, or publications expected."
                   />
                 </div>
 
                 <div className="sm:col-span-2">
                   <label className="block text-xs font-semibold text-foreground/80 tracking-wide uppercase mb-1.5">
-                    Core Responsibilities (One per line)
+                    Core Responsibilities * (One per line)
                   </label>
                   <textarea
                     rows={4}
                     value={responsibilitiesText}
-                    onChange={(e) => setResponsibilitiesText(e.target.value)}
+                    onChange={(e) => {
+                      setResponsibilitiesText(e.target.value);
+                      if (errors.responsibilitiesText && e.target.value.trim()) {
+                        setErrors((prev) => {
+                          const copy = { ...prev };
+                          delete copy.responsibilitiesText;
+                          return copy;
+                        });
+                      }
+                    }}
                     placeholder="Enter key daily responsibilities..."
-                    className="w-full p-3 rounded-xl bg-card border border-border text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 font-sans"
+                    className={`w-full p-3 rounded-xl bg-card border text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 font-sans ${
+                      errors.responsibilitiesText ? "border-rose-500 focus:border-rose-500" : "border-border"
+                    }`}
                   />
+                  {errors.responsibilitiesText && (
+                    <p className="text-xs text-rose-500 font-medium mt-1">{errors.responsibilitiesText}</p>
+                  )}
                 </div>
               </div>
 
@@ -433,7 +794,10 @@ export default function PostInternshipPage() {
                 <Button
                   type="button"
                   variant="ghost"
-                  onClick={() => setStep(1)}
+                  onClick={() => {
+                    setErrors({});
+                    setStep(1);
+                  }}
                   leftIcon={<ArrowLeft className="w-4 h-4" />}
                 >
                   Back
@@ -441,7 +805,7 @@ export default function PostInternshipPage() {
                 <Button
                   type="button"
                   variant="gradient"
-                  onClick={() => setStep(3)}
+                  onClick={handleProceedFromStep2}
                   rightIcon={<ArrowRight className="w-4 h-4" />}
                 >
                   Continue to Compensation
@@ -463,41 +827,86 @@ export default function PostInternshipPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Input
-                    label="Hourly / Monthly Stipend"
-                    placeholder="e.g. $55 / hr ($9,400/mo)"
+                    label="Hourly / Monthly Stipend *"
+                    placeholder="e.g. $55 / hr ($9,400/mo) or ₹45,000 / mo"
                     value={stipend}
-                    onChange={(e) => setStipend(e.target.value)}
+                    onChange={(e) => {
+                      setStipend(e.target.value);
+                      if (errors.stipend && e.target.value.trim()) {
+                        setErrors((prev) => {
+                          const copy = { ...prev };
+                          delete copy.stipend;
+                          return copy;
+                        });
+                      }
+                    }}
+                    error={errors.stipend}
                     leftIcon={<DollarSign className="w-4 h-4" />}
+                    required
                   />
                 </div>
 
                 <div>
                   <Input
-                    label="Internship Duration"
+                    label="Internship Duration *"
                     placeholder="e.g. 12 Weeks (May - Aug 2026)"
                     value={duration}
-                    onChange={(e) => setDuration(e.target.value)}
+                    onChange={(e) => {
+                      setDuration(e.target.value);
+                      if (errors.duration && e.target.value.trim()) {
+                        setErrors((prev) => {
+                          const copy = { ...prev };
+                          delete copy.duration;
+                          return copy;
+                        });
+                      }
+                    }}
+                    error={errors.duration}
+                    required
                   />
                 </div>
 
                 <div>
                   <Input
-                    label="Application Deadline"
+                    label="Application Deadline *"
                     placeholder="e.g. Apr 15, 2026"
                     value={deadline}
-                    onChange={(e) => setDeadline(e.target.value)}
+                    onChange={(e) => {
+                      setDeadline(e.target.value);
+                      if (errors.deadline && e.target.value.trim()) {
+                        setErrors((prev) => {
+                          const copy = { ...prev };
+                          delete copy.deadline;
+                          return copy;
+                        });
+                      }
+                    }}
+                    error={errors.deadline}
                     leftIcon={<Calendar className="w-4 h-4" />}
+                    required
                   />
                 </div>
 
                 <div>
                   <Input
-                    label="Number of Headcount Openings"
+                    label="Number of Headcount Openings *"
                     type="number"
                     min={1}
-                    max={20}
+                    max={50}
                     value={openingsCount}
-                    onChange={(e) => setOpeningsCount(Number(e.target.value))}
+                    onChange={(e) => {
+                      const val = Number(e.target.value);
+                      setOpeningsCount(val);
+                      if (errors.openingsCount && val >= 1) {
+                        setErrors((prev) => {
+                          const copy = { ...prev };
+                          delete copy.openingsCount;
+                          return copy;
+                        });
+                      }
+                    }}
+                    error={errors.openingsCount}
+                    required
                   />
                 </div>
               </div>
@@ -506,7 +915,10 @@ export default function PostInternshipPage() {
                 <Button
                   type="button"
                   variant="ghost"
-                  onClick={() => setStep(2)}
+                  onClick={() => {
+                    setErrors({});
+                    setStep(2);
+                  }}
                   leftIcon={<ArrowLeft className="w-4 h-4" />}
                 >
                   Back
@@ -514,7 +926,7 @@ export default function PostInternshipPage() {
                 <Button
                   type="button"
                   variant="gradient"
-                  onClick={() => setStep(4)}
+                  onClick={handleProceedFromStep3}
                   rightIcon={<Eye className="w-4 h-4" />}
                 >
                   Review &amp; Preview
@@ -529,7 +941,7 @@ export default function PostInternshipPage() {
               <div className="border-b border-border/60 pb-3">
                 <h2 className="text-base font-bold text-foreground">4. Review Listing Preview</h2>
                 <p className="text-xs text-muted-foreground">
-                  Confirm the details below. Once published, students will see this in their recommendation feed.
+                  Confirm the details below. Once published, students matching these requirements will see this in their feed.
                 </p>
               </div>
 
@@ -538,7 +950,7 @@ export default function PostInternshipPage() {
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <Badge variant="purple" size="sm" className="mb-2 font-semibold">
-                      {internshipType} • {workType}
+                      {internshipType} • {workType} • {department}
                     </Badge>
                     <h3 className="text-xl font-extrabold text-foreground">
                       {title || "Software Engineering Intern"}
@@ -551,14 +963,42 @@ export default function PostInternshipPage() {
                     </p>
                   </div>
                   <Badge variant="emerald" size="sm" className="font-bold">
-                    {openingsCount} Openings
+                    {openingsCount} {openingsCount === 1 ? "Opening" : "Openings"}
                   </Badge>
                 </div>
 
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  {description || "Join our team to work on mission-critical product features."}
+                  {description || "Join our team to work on mission-critical projects."}
                 </p>
 
+                {/* Target Degrees & Branches Preview */}
+                <div className="space-y-2 pt-2 border-t border-border/50">
+                  <div className="text-xs font-semibold text-foreground">Eligible Degree Levels:</div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {selectedDegrees.map((deg) => (
+                      <span
+                        key={deg}
+                        className="px-2 py-0.5 rounded-md bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 text-[11px] font-semibold"
+                      >
+                        {deg}
+                      </span>
+                    ))}
+                  </div>
+
+                  <div className="text-xs font-semibold text-foreground pt-1">Eligible Branches / Majors:</div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {selectedBranches.map((br) => (
+                      <span
+                        key={br}
+                        className="px-2 py-0.5 rounded-md bg-card border border-border text-[11px] font-medium text-foreground"
+                      >
+                        {br}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Required Skills */}
                 <div className="space-y-2 pt-2 border-t border-border/50">
                   <div className="text-xs font-semibold text-foreground">Required Skills:</div>
                   <div className="flex flex-wrap gap-1.5">
@@ -576,7 +1016,7 @@ export default function PostInternshipPage() {
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs text-muted-foreground pt-2 border-t border-border/50">
                   <div>
                     <span className="block text-[10px] uppercase font-semibold">Min CGPA</span>
-                    <strong className="text-foreground">{minCgpa}+</strong>
+                    <strong className="text-foreground">{minCgpa ? `${minCgpa}+` : "None"}</strong>
                   </div>
                   <div>
                     <span className="block text-[10px] uppercase font-semibold">Duration</span>
@@ -593,7 +1033,10 @@ export default function PostInternshipPage() {
                 <Button
                   type="button"
                   variant="ghost"
-                  onClick={() => setStep(3)}
+                  onClick={() => {
+                    setErrors({});
+                    setStep(3);
+                  }}
                   leftIcon={<ArrowLeft className="w-4 h-4" />}
                 >
                   Back

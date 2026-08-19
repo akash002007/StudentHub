@@ -327,7 +327,11 @@ export default function RecruiterInternshipsPage() {
               <div className="grid grid-cols-2 gap-3 pt-2">
                 <div className="p-3 rounded-xl bg-card border border-border">
                   <span className="text-[11px] text-muted-foreground block">Degree Requirement</span>
-                  <strong className="text-foreground">{selectedInternship.degreeRequirements}</strong>
+                  <strong className="text-foreground">
+                    {Array.isArray(selectedInternship.degreeRequirements)
+                      ? selectedInternship.degreeRequirements.join(", ")
+                      : selectedInternship.degreeRequirements}
+                  </strong>
                 </div>
                 <div className="p-3 rounded-xl bg-card border border-border">
                   <span className="text-[11px] text-muted-foreground block">Compensation</span>

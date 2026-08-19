@@ -455,14 +455,22 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       matchPercentage: 95,
       matchReasons: {
         matchingSkills: internship.requiredSkills.slice(0, 3),
-        academicMatch: `Strong alignment with ${internship.branchRequirements}`,
+        academicMatch: `Strong alignment with ${
+          Array.isArray(internship.branchRequirements)
+            ? internship.branchRequirements.join(", ")
+            : internship.branchRequirements
+        }`,
         projectSynergy: "High synergy with modern web and systems projects",
       },
       description: internship.description,
       responsibilities: internship.responsibilities,
       requirements: [
-        internship.degreeRequirements,
-        internship.branchRequirements,
+        Array.isArray(internship.degreeRequirements)
+          ? internship.degreeRequirements.join(", ")
+          : internship.degreeRequirements,
+        Array.isArray(internship.branchRequirements)
+          ? internship.branchRequirements.join(", ")
+          : internship.branchRequirements,
         `Min CGPA: ${internship.minCgpa}`,
         internship.experienceRequirements || "Technical projects demonstration",
       ],

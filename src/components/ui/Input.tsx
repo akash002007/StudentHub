@@ -39,7 +39,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         )}
         <div className="relative flex items-center">
           {leftIcon && (
-            <div className="absolute left-3.5 flex items-center pointer-events-none text-muted-foreground">
+            <div className="absolute left-3.5 flex items-center pointer-events-none text-muted-foreground dark:text-slate-400">
               {leftIcon}
             </div>
           )}
@@ -48,18 +48,18 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             type={type}
             ref={ref}
             className={cn(
-              "w-full h-10 rounded-xl bg-card border border-border px-3.5 text-sm text-foreground placeholder:text-muted-foreground/60 transition-all duration-200",
-              "focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20",
-              "disabled:opacity-50 disabled:bg-muted disabled:cursor-not-allowed",
+              "w-full h-10 rounded-xl bg-card dark:bg-[#161924] border border-border dark:border-[#2a3042] px-3.5 text-sm text-foreground dark:text-slate-100 placeholder:text-muted-foreground/60 dark:placeholder:text-slate-400/75 transition-all duration-200",
+              "hover:border-purple-500/40 dark:hover:border-[#3d465e] focus:outline-none focus:border-purple-500 dark:focus:border-purple-400 focus:ring-2 focus:ring-purple-500/20 dark:focus:ring-purple-500/30",
+              "disabled:opacity-50 disabled:bg-muted dark:disabled:bg-muted/40 disabled:cursor-not-allowed",
               leftIcon && "pl-10",
               rightIcon && "pr-10",
-              error && "border-rose-500 focus:border-rose-500 focus:ring-rose-500/20",
+              error && "border-rose-500 dark:border-rose-500 focus:border-rose-500 focus:ring-rose-500/20",
               className
             )}
             {...props}
           />
           {rightIcon && (
-            <div className="absolute right-3.5 flex items-center text-muted-foreground">
+            <div className="absolute right-3.5 flex items-center text-muted-foreground dark:text-slate-400">
               {rightIcon}
             </div>
           )}

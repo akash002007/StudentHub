@@ -1,5 +1,30 @@
 export type UserRole = 'student' | 'recruiter';
 
+export type AcademicStream =
+  | 'Engineering & Technology'
+  | 'Management & Business'
+  | 'Sciences & Mathematics'
+  | 'Healthcare & Medicine'
+  | 'Pharmacy'
+  | 'Law & Legal Studies'
+  | 'Design & Architecture'
+  | 'Commerce & Finance'
+  | 'Humanities & Social Sciences'
+  | 'Arts & Humanities'
+  | 'Media & Communication'
+  | 'Education'
+  | 'Hospitality & Tourism'
+  | 'Agriculture & Life Sciences'
+  | 'Other';
+
+export type AcademicLevel =
+  | 'Undergraduate'
+  | 'Postgraduate'
+  | 'Doctorate'
+  | 'Diploma'
+  | 'Certificate'
+  | 'Other';
+
 export interface StudentProfile {
   id: string;
   name: string;
@@ -9,7 +34,11 @@ export interface StudentProfile {
   headline: string;
   university: string;
   degree: string;
-  branch: string;
+  branch: string; // Preserved for backward compatibility
+  academicStream?: AcademicStream | string;
+  specialization?: string;
+  academicLevel?: AcademicLevel;
+  yearOfStudy?: string;
   graduationYear: number;
   cgpa: string;
   location: string;
@@ -30,6 +59,9 @@ export interface StudentProfile {
     leetcode?: string;
     portfolio?: string;
     twitter?: string;
+    behance?: string;
+    researchgate?: string;
+    ssrn?: string;
   };
   stats: {
     profileViews: number;
@@ -56,15 +88,35 @@ export interface RecruiterProfile {
 
 export type User = StudentProfile | RecruiterProfile;
 
+export type ProjectType =
+  | 'Personal'
+  | 'Hackathon'
+  | 'Capstone'
+  | 'Open Source'
+  | 'Business Project'
+  | 'Research Project'
+  | 'Healthcare Project'
+  | 'Clinical Experience'
+  | 'Design Project'
+  | 'Marketing Project'
+  | 'Case Study'
+  | 'Academic Project'
+  | 'Creative Work'
+  | 'Leadership'
+  | 'Volunteer Work'
+  | 'Other';
+
 export interface Project {
   id: string;
   title: string;
   description: string;
   technologies: string[];
+  tools?: string[];
   githubUrl?: string;
   liveUrl?: string;
+  documentUrl?: string;
   date: string;
-  type: 'Personal' | 'Hackathon' | 'Capstone' | 'Open Source';
+  type: ProjectType;
   featured?: boolean;
 }
 
@@ -180,7 +232,18 @@ export interface Community {
   id: string;
   name: string;
   slug: string;
-  category: 'AI & ML' | 'Web Development' | 'DSA & Prep' | 'Startups' | 'UI/UX Design' | 'Career Growth';
+  category:
+    | 'AI & ML'
+    | 'Web Development'
+    | 'DSA & Prep'
+    | 'Startups'
+    | 'UI/UX Design'
+    | 'Career Growth'
+    | 'Business & Finance'
+    | 'Bio & Healthcare'
+    | 'Law & Policy'
+    | 'Research & Sciences'
+    | string;
   description: string;
   icon: string;
   bannerColor: string;
@@ -234,8 +297,10 @@ export interface RecruiterInternship {
   description: string;
   responsibilities: string[];
   requiredSkills: string[];
-  degreeRequirements: string;
-  branchRequirements: string;
+  degreeRequirements: string | string[];
+  branchRequirements: string | string[];
+  degreeLevels?: string[];
+  eligibleBranches?: string[];
   minCgpa: string;
   gradYearRequirements: number[];
   experienceRequirements?: string;
@@ -251,6 +316,8 @@ export interface RecruiterApplicant {
   university: string;
   degree: string;
   branch: string;
+  academicStream?: AcademicStream | string;
+  specialization?: string;
   graduationYear: number;
   cgpa: string;
   location: string;
@@ -262,6 +329,9 @@ export interface RecruiterApplicant {
   portfolioUrl?: string;
   githubUrl?: string;
   linkedinUrl?: string;
+  behanceUrl?: string;
+  researchGateUrl?: string;
+  ssrnUrl?: string;
   bio: string;
   projects: Project[];
   certifications: Certification[];
@@ -275,6 +345,8 @@ export interface RecruiterStudentCandidate {
   university: string;
   degree: string;
   branch: string;
+  academicStream?: AcademicStream | string;
+  specialization?: string;
   graduationYear: number;
   cgpa: string;
   location: string;
@@ -289,6 +361,9 @@ export interface RecruiterStudentCandidate {
   githubUrl?: string;
   linkedinUrl?: string;
   portfolioUrl?: string;
+  behanceUrl?: string;
+  researchGateUrl?: string;
+  ssrnUrl?: string;
 }
 
 export interface CompanyInfo {

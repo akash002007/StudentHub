@@ -41,6 +41,7 @@ export default function InternshipsPage() {
   const [activeTab, setActiveTab] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [workTypeFilter, setWorkTypeFilter] = useState<string>("all");
+  const [selectedDomain, setSelectedDomain] = useState<string>("all");
   const [selectedInternship, setSelectedInternship] = useState<Internship | null>(null);
   const [isApplyModalOpen, setIsApplyModalOpen] = useState(false);
   const [applyingInternship, setApplyingInternship] = useState<Internship | null>(null);
@@ -53,6 +54,15 @@ export default function InternshipsPage() {
     { id: "remote", label: "100% Remote", count: internships.filter((i) => i.workType === "Remote").length },
   ];
 
+  const domainOptions = [
+    { id: "all", label: "All Disciplines" },
+    { id: "tech", label: "Engineering & Tech" },
+    { id: "business", label: "Finance & Business" },
+    { id: "health", label: "Healthcare & Bio" },
+    { id: "law", label: "Law & Policy" },
+    { id: "design", label: "Design & Creative" },
+  ];
+
   const filteredInternships = useMemo(() => {
     return internships.filter((item) => {
       // Search match
@@ -60,10 +70,31 @@ export default function InternshipsPage() {
       const matchesSearch =
         item.title.toLowerCase().includes(query) ||
         item.company.toLowerCase().includes(query) ||
+        item.department.toLowerCase().includes(query) ||
         item.location.toLowerCase().includes(query) ||
         item.requiredSkills.some((s) => s.toLowerCase().includes(query));
 
       if (!matchesSearch) return false;
+
+      // Domain filter
+      if (selectedDomain !== "all") {
+        const dept = item.department.toLowerCase();
+        if (selectedDomain === "tech" && !dept.includes("engineering") && !dept.includes("software") && !dept.includes("ai") && !dept.includes("systems")) {
+          return false;
+        }
+        if (selectedDomain === "business" && !dept.includes("finance") && !dept.includes("business") && !dept.includes("investment") && !dept.includes("marketing")) {
+          return false;
+        }
+        if (selectedDomain === "health" && !dept.includes("health") && !dept.includes("bio") && !dept.includes("medical") && !dept.includes("clinical")) {
+          return false;
+        }
+        if (selectedDomain === "law" && !dept.includes("law") && !dept.includes("legal") && !dept.includes("policy")) {
+          return false;
+        }
+        if (selectedDomain === "design" && !dept.includes("design") && !dept.includes("architecture") && !dept.includes("creative")) {
+          return false;
+        }
+      }
 
       // Work type filter
       if (workTypeFilter !== "all" && item.workType.toLowerCase() !== workTypeFilter.toLowerCase()) {
@@ -83,7 +114,7 @@ export default function InternshipsPage() {
 
       return true;
     });
-  }, [internships, searchQuery, workTypeFilter, activeTab, savedInternshipIds, isInternshipSaved]);
+  }, [internships, searchQuery, selectedDomain, workTypeFilter, activeTab, savedInternshipIds, isInternshipSaved]);
 
   const handleOpenApply = (internship: Internship) => {
     setApplyingInternship(internship);
@@ -110,45 +141,64 @@ export default function InternshipsPage() {
             Internship Discovery
           </h1>
           <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-            Explore verified student roles with transparent stipends and skill matching.
+            Explore verified student roles across Engineering, Business, Bio &amp; Healthcare, Law, and Design.
           </p>
         </div>
       </div>
 
       {/* Search and Filter Controls */}
-      <div className="flex flex-col md:flex-row gap-3 items-center justify-between">
-        <div className="relative w-full md:w-96">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search by role, company, or skill (e.g. React)..."
-            className="w-full h-10 pl-10 pr-4 bg-card border border-border rounded-xl text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all"
-          />
-          {searchQuery && (
-            <button
-              onClick={() => setSearchQuery("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-            >
-              <X className="w-3.5 h-3.5" />
-            </button>
-          )}
+      <div className="space-y-3">
+        <div className="flex flex-col md:flex-row gap-3 items-center justify-between">
+          <div className="relative w-full md:w-96">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search by role, company, department or skill..."
+              className="w-full h-10 pl-10 pr-4 bg-card border border-border rounded-xl text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+
+          {/* Work type filters */}
+          <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
+            {(["all", "remote", "hybrid", "onsite"] as const).map((type) => (
+              <button
+                key={type}
+                onClick={() => setWorkTypeFilter(type)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold uppercase tracking-wider transition-colors shrink-0 border ${
+                  workTypeFilter === type
+                    ? "bg-purple-600 text-white border-purple-600 shadow-xs"
+                    : "bg-card text-muted-foreground border-border hover:text-foreground hover:bg-muted"
+                }`}
+              >
+                {type === "all" ? "All Formats" : type}
+              </button>
+            ))}
+          </div>
         </div>
 
-        {/* Work type filters */}
-        <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
-          {(["all", "remote", "hybrid", "onsite"] as const).map((type) => (
+        {/* Academic Domain Filter Pills */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-1">
+          {domainOptions.map((opt) => (
             <button
-              key={type}
-              onClick={() => setWorkTypeFilter(type)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold uppercase tracking-wider transition-colors shrink-0 border ${
-                workTypeFilter === type
-                  ? "bg-purple-600 text-white border-purple-600 shadow-xs"
-                  : "bg-card text-muted-foreground border-border hover:text-foreground hover:bg-muted"
+              key={opt.id}
+              onClick={() => setSelectedDomain(opt.id)}
+              className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors shrink-0 border ${
+                selectedDomain === opt.id
+                  ? "bg-purple-500/15 border-purple-500 text-purple-600 dark:text-purple-400 font-semibold"
+                  : "bg-card/50 border-border text-muted-foreground hover:text-foreground hover:bg-muted"
               }`}
             >
-              {type === "all" ? "All Locations" : type}
+              {opt.label}
             </button>
           ))}
         </div>
