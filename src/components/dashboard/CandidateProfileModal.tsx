@@ -53,6 +53,7 @@ export interface CandidateModalData {
   applicationStatus?: ApplicationStatus;
   appliedDate?: string;
   notes?: string;
+  isShortlisted?: boolean;
 }
 
 interface CandidateProfileModalProps {

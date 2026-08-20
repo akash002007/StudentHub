@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { StudentProfile } from "@/types";
+import { isUniversityEmail } from "@/lib/utils";
 import { Sparkles } from "lucide-react";
 
 export function OnboardingGuard({ children }: { children: React.ReactNode }) {
@@ -27,13 +28,19 @@ export function OnboardingGuard({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    // For students: check if onboarding is incomplete
+    // For students: check if verification or profile completion is required
     const student = user as StudentProfile;
-    if (
-      student.accountStatus === "account_created" ||
-      (!student.onboardingCompleted && student.verificationStatus === "not_submitted")
-    ) {
-      router.replace("/onboarding");
+    const hasUni = student.hasUniversityEmail ?? isUniversityEmail(student.email);
+
+    // If non-university email student hasn't submitted verification
+    if (!hasUni && student.verificationStatus === "not_submitted") {
+      router.replace("/onboarding?step=verification");
+      return;
+    }
+
+    // If profile is not yet completed
+    if (!student.onboardingCompleted && student.accountStatus === "account_created") {
+      router.replace("/onboarding?step=profile");
       return;
     }
 

@@ -49,7 +49,7 @@ export function VerificationBanner() {
         </div>
 
         <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
-          <Link href="/onboarding?step=verification" className="w-full sm:w-auto">
+          <Link href="/onboarding?step=overview" className="w-full sm:w-auto">
             <Button
               size="sm"
               variant="outline"

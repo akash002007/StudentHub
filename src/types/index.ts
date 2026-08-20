@@ -31,7 +31,7 @@ export type AccountStatus =
   | 'profile_complete'
   | 'onboarding_complete';
 
-export type VerificationType = 'payment_receipt' | 'student_id_card';
+export type VerificationType = 'university_email' | 'payment_receipt' | 'student_id_card';
 
 export type VerificationStatus = 'not_submitted' | 'pending' | 'approved' | 'rejected';
 
@@ -72,6 +72,8 @@ export interface StudentProfile {
   location: string;
   bio: string;
   phone?: string;
+  hasUniversityEmail?: boolean;
+  isUniversityEmail?: boolean;
   personalEmail?: string;
   accountStatus?: AccountStatus;
   verificationStatus?: VerificationStatus;
@@ -105,19 +107,37 @@ export interface StudentProfile {
   };
 }
 
+export type RecruiterVerificationStatus =
+  | 'Pending'
+  | 'Email Verified'
+  | 'Company Verified'
+  | 'Recruiter Verified'
+  | 'Verification Failed'
+  | 'Suspended';
+
 export interface RecruiterProfile {
   id: string;
   name: string;
   email: string;
+  phone?: string;
   role: 'recruiter';
   avatar: string;
   title: string;
+  department?: string;
   company: string;
   companyLogo: string;
+  companyWebsite?: string;
+  companyLocation?: string;
+  companySize?: string;
+  companyType?: string;
+  recruiterRole?: string;
+  recruiterUsage?: string[];
   location: string;
   bio: string;
+  verificationStatus?: RecruiterVerificationStatus;
   activeListingsCount: number;
   candidatesReviewed: number;
+  interviewsConducted?: number;
 }
 
 export type User = StudentProfile | RecruiterProfile;
@@ -430,5 +450,42 @@ export interface RecruiterNotificationItem {
   timestamp: string;
   isRead: boolean;
   actionUrl?: string;
+}
+
+export type InterviewType =
+  | 'Phone'
+  | 'Video'
+  | 'Technical'
+  | 'HR'
+  | 'Managerial'
+  | 'Final';
+
+export type InterviewStatus =
+  | 'Scheduled'
+  | 'Completed'
+  | 'Cancelled'
+  | 'Rescheduled';
+
+export interface RecruiterInterview {
+  id: string;
+  candidateId: string;
+  candidateName: string;
+  candidateAvatar: string;
+  candidateUniversity: string;
+  candidateRole: string;
+  candidateEmail?: string;
+  internshipId?: string;
+  internshipTitle: string;
+  type: InterviewType;
+  status: InterviewStatus;
+  date: string;
+  time: string;
+  duration: string;
+  interviewerName: string;
+  meetingLink: string;
+  location?: string;
+  notes?: string;
+  feedback?: string;
+  createdAt: string;
 }
 

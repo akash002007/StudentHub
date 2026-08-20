@@ -11,6 +11,7 @@ import {
   StudentVerificationRequest,
 } from "@/types";
 import { defaultStudentUser, defaultRecruiterUser } from "@/data/mock-users";
+import { isUniversityEmail } from "@/lib/utils";
 
 interface AuthContextType {
   user: User | null;
@@ -24,9 +25,25 @@ interface AuthContextType {
     university: string;
     password?: string;
   }) => StudentProfile;
+  registerRecruiter: (data: {
+    name: string;
+    email: string;
+    phone?: string;
+    password?: string;
+    companyName: string;
+    companyWebsite?: string;
+    companyLocation?: string;
+    companySize?: string;
+    companyType?: string;
+    jobTitle?: string;
+    department?: string;
+    recruiterRole?: string;
+    recruiterUsage?: string[];
+  }) => RecruiterProfile;
   logout: () => void;
   switchRole: (newRole: UserRole) => void;
   updateStudentProfile: (updates: Partial<StudentProfile>) => void;
+  updateRecruiterProfile: (updates: Partial<RecruiterProfile>) => void;
   submitStudentVerification: (data: {
     verificationType: VerificationType;
     documentName: string;
@@ -109,6 +126,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     university: string;
     password?: string;
   }): StudentProfile => {
+    const isUni = isUniversityEmail(basicData.email);
+
     const newStudent: StudentProfile = {
       id: `student_${Date.now()}`,
       name: basicData.name.trim(),
@@ -124,11 +143,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       specialization: "",
       academicLevel: "Undergraduate",
       yearOfStudy: "1st Year",
-      graduationYear: new Date().getFullYear() + 3,
+      graduationYear: new Date().getFullYear() + 4,
       cgpa: "",
       location: "Campus / Remote",
       bio: "",
       phone: "",
+      hasUniversityEmail: isUni,
+      isUniversityEmail: isUni,
       personalEmail: "",
       status: "Looking for Part-time",
       skills: [],
@@ -143,15 +164,98 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         interviewsCount: 0,
       },
       accountStatus: "account_created",
-      verificationStatus: "not_submitted",
+      verificationStatus: isUni ? "approved" : "not_submitted",
       onboardingCompleted: false,
-      verificationRequest: null,
+      verificationRequest: isUni
+        ? {
+            id: `req_uni_${Date.now()}`,
+            studentId: `student_${Date.now()}`,
+            studentName: basicData.name.trim(),
+            university: basicData.university.trim(),
+            universityEmail: basicData.email.trim(),
+            verificationType: "university_email",
+            status: "approved",
+            documentName: "Institutional Email Verification",
+            documentSize: "Verified Domain",
+            documentUrl: "#",
+            submittedAt: new Date().toLocaleString("en-US", {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+            }),
+            reviewedAt: new Date().toLocaleString("en-US", {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+            }),
+            reviewerName: "Institutional Domain Verification System",
+          }
+        : null,
     };
 
     setUser(newStudent);
     setRole("student");
     persistSession(newStudent, "student");
     return newStudent;
+  };
+
+  const registerRecruiter = (data: {
+    name: string;
+    email: string;
+    phone?: string;
+    password?: string;
+    companyName: string;
+    companyWebsite?: string;
+    companyLocation?: string;
+    companySize?: string;
+    companyType?: string;
+    jobTitle?: string;
+    department?: string;
+    recruiterRole?: string;
+    recruiterUsage?: string[];
+  }): RecruiterProfile => {
+    const newRecruiter: RecruiterProfile = {
+      id: `recruiter_${Date.now()}`,
+      name: data.name.trim(),
+      email: data.email.trim(),
+      phone: data.phone?.trim() || "",
+      role: "recruiter",
+      avatar:
+        "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80",
+      title: data.jobTitle?.trim() || "University Talent Partner",
+      department: data.department?.trim() || "University Talent & Early Career",
+      company: data.companyName.trim() || "Technology Partner",
+      companyLogo:
+        "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=80&auto=format&fit=crop&q=80",
+      companyWebsite: data.companyWebsite?.trim() || "",
+      companyLocation: data.companyLocation?.trim() || "San Francisco, CA",
+      companySize: data.companySize || "500 - 1,000 employees",
+      companyType: data.companyType || "Technology & Software",
+      recruiterRole: data.recruiterRole || "Talent Acquisition",
+      recruiterUsage: data.recruiterUsage || ["Hire interns", "Discover student talent"],
+      location: data.companyLocation?.trim() || "San Francisco, CA",
+      bio: `Hiring ambitious college students and university talent at ${data.companyName.trim() || "our company"}.`,
+      verificationStatus: "Recruiter Verified",
+      activeListingsCount: 0,
+      candidatesReviewed: 0,
+      interviewsConducted: 0,
+    };
+
+    setUser(newRecruiter);
+    setRole("recruiter");
+    persistSession(newRecruiter, "recruiter");
+    return newRecruiter;
+  };
+
+  const updateRecruiterProfile = (updates: Partial<RecruiterProfile>) => {
+    if (!user || user.role !== "recruiter") return;
+    const updated = { ...user, ...updates } as RecruiterProfile;
+    setUser(updated);
+    persistSession(updated, "recruiter");
   };
 
   const logout = () => {
@@ -209,9 +313,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const updatedProfile: StudentProfile = {
       ...student,
-      accountStatus: "onboarding_complete",
       verificationStatus: "pending",
-      onboardingCompleted: true,
       personalEmail: data.personalEmail || student?.personalEmail,
       verificationRequest: newRequest,
     };
@@ -262,7 +364,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const updatedProfile: StudentProfile = {
       ...student,
       verificationStatus: "not_submitted",
-      accountStatus: "profile_complete",
       verificationRequest: null,
     };
 
@@ -279,9 +380,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         isLoaded,
         login,
         registerStudent,
+        registerRecruiter,
         logout,
         switchRole,
         updateStudentProfile,
+        updateRecruiterProfile,
         submitStudentVerification,
         reviewVerification,
         resetVerificationForResubmission,

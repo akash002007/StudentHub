@@ -19,6 +19,8 @@ import {
   BarChart3,
   MessageSquare,
   GitPullRequest,
+  Calendar,
+  Bookmark,
 } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
 import { Input } from "@/components/ui/Input";
@@ -127,16 +129,6 @@ export function QuickActionsFab() {
       },
     },
     {
-      id: "review_applications",
-      label: "Review Applications",
-      icon: GitPullRequest,
-      color: "from-blue-600 to-cyan-600",
-      onClick: () => {
-        setIsOpen(false);
-        router.push("/dashboard/recruiter/applications");
-      },
-    },
-    {
       id: "find_students",
       label: "Find Students",
       icon: Search,
@@ -147,13 +139,33 @@ export function QuickActionsFab() {
       },
     },
     {
-      id: "view_analytics",
-      label: "View Analytics",
-      icon: BarChart3,
+      id: "review_applications",
+      label: "Review Applications",
+      icon: GitPullRequest,
+      color: "from-blue-600 to-cyan-600",
+      onClick: () => {
+        setIsOpen(false);
+        router.push("/dashboard/recruiter/applications");
+      },
+    },
+    {
+      id: "shortlisted_candidates",
+      label: "Shortlisted Talent",
+      icon: Bookmark,
       color: "from-amber-600 to-orange-600",
       onClick: () => {
         setIsOpen(false);
-        router.push("/dashboard/recruiter/analytics");
+        router.push("/dashboard/recruiter/shortlisted");
+      },
+    },
+    {
+      id: "schedule_interview",
+      label: "Schedule Interview",
+      icon: Calendar,
+      color: "from-indigo-600 to-purple-600",
+      onClick: () => {
+        setIsOpen(false);
+        router.push("/dashboard/recruiter/interviews");
       },
     },
     {

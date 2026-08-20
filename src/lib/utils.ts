@@ -120,3 +120,67 @@ export function getInitials(name: string): string {
     .toUpperCase()
     .slice(0, 2);
 }
+
+/**
+ * Determines whether an email address belongs to a university or college institution.
+ * Academic institutions commonly use .edu, .ac.in, .ac.uk, .edu.in, .univ-, .college, etc.
+ * Free webmail providers like gmail.com, yahoo.com, outlook.com are non-university emails.
+ */
+export function isUniversityEmail(email: string): boolean {
+  if (!email || !email.includes("@")) return false;
+  const domain = email.split("@")[1]?.toLowerCase().trim();
+  if (!domain) return false;
+
+  // Known public free email providers are never university emails
+  const publicWebmailDomains = [
+    "gmail.com",
+    "googlemail.com",
+    "yahoo.com",
+    "yahoo.co.in",
+    "yahoo.co.uk",
+    "hotmail.com",
+    "outlook.com",
+    "live.com",
+    "msn.com",
+    "icloud.com",
+    "me.com",
+    "mac.com",
+    "aol.com",
+    "proton.me",
+    "protonmail.com",
+    "zoho.com",
+    "mail.com",
+    "gmx.com",
+    "yandex.com",
+  ];
+
+  if (publicWebmailDomains.includes(domain)) {
+    return false;
+  }
+
+  // Academic TLDs and domain conventions
+  if (
+    domain.endsWith(".edu") ||
+    domain.includes(".edu.") ||
+    domain.endsWith(".ac.in") ||
+    domain.endsWith(".ac.uk") ||
+    domain.endsWith(".ac.nz") ||
+    domain.endsWith(".ac.za") ||
+    domain.endsWith(".ac.jp") ||
+    domain.endsWith(".ac.kr") ||
+    domain.endsWith(".ac.th") ||
+    domain.endsWith(".ac.cn") ||
+    domain.includes(".ac.") ||
+    domain.includes(".edu") ||
+    domain.includes(".univ-") ||
+    domain.includes(".university") ||
+    domain.includes(".college") ||
+    domain.includes(".institute") ||
+    domain.includes(".school")
+  ) {
+    return true;
+  }
+
+  return false;
+}
+

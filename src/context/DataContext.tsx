@@ -15,6 +15,7 @@ import {
   RecruiterStudentCandidate,
   CompanyInfo,
   RecruiterNotificationItem,
+  RecruiterInterview,
 } from "@/types";
 import { mockInternships } from "@/data/mock-internships";
 import { initialMockApplications } from "@/data/mock-applications";
@@ -29,6 +30,7 @@ import {
   initialMockRecruiterConversations,
   initialMockRecruiterNotifications,
   initialMockCompanyInfo,
+  initialMockRecruiterInterviews,
 } from "@/data/mock-recruiter-data";
 import { useToast } from "./ToastContext";
 
@@ -101,6 +103,14 @@ interface DataContextType {
   unreadRecruiterNotificationsCount: number;
   markRecruiterNotificationAsRead: (id: string) => void;
   markAllRecruiterNotificationsAsRead: () => void;
+
+  recruiterInterviews: RecruiterInterview[];
+  scheduleInterview: (
+    interview: Omit<RecruiterInterview, "id" | "createdAt" | "status">
+  ) => void;
+  rescheduleInterview: (id: string, newDate: string, newTime: string) => void;
+  cancelInterview: (id: string, reason?: string) => void;
+  completeInterview: (id: string, feedback?: string) => void;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -135,6 +145,9 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const [recruiterCompany, setRecruiterCompany] = useState<CompanyInfo>(initialMockCompanyInfo);
   const [recruiterNotifications, setRecruiterNotifications] = useState<RecruiterNotificationItem[]>(
     initialMockRecruiterNotifications
+  );
+  const [recruiterInterviews, setRecruiterInterviews] = useState<RecruiterInterview[]>(
+    initialMockRecruiterInterviews
   );
 
   // Sync to local storage where helpful
@@ -676,6 +689,91 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
 
   const unreadRecruiterNotificationsCount = recruiterNotifications.filter((n) => !n.isRead).length;
 
+  const scheduleInterview = (
+    data: Omit<RecruiterInterview, "id" | "createdAt" | "status">
+  ) => {
+    const newInterview: RecruiterInterview = {
+      ...data,
+      id: `interview_${Date.now()}`,
+      status: "Scheduled",
+      createdAt: new Date().toISOString().split("T")[0],
+    };
+
+    setRecruiterInterviews((prev) => [newInterview, ...prev]);
+
+    // Also update applicant status if matched
+    setRecruiterApplicants((prev) =>
+      prev.map((app) =>
+        app.studentId === data.candidateId ? { ...app, status: "Interview" } : app
+      )
+    );
+
+    // Push recruiter notification
+    setRecruiterNotifications((prev) => [
+      {
+        id: `rec_notif_${Date.now()}`,
+        type: "interview",
+        title: "Interview Scheduled",
+        description: `${data.type} round confirmed with ${data.candidateName} for ${data.date} at ${data.time}.`,
+        timestamp: "Just now",
+        isRead: false,
+        actionUrl: "/dashboard/recruiter/interviews",
+      },
+      ...prev,
+    ]);
+
+    // Push student notification
+    setNotifications((prev) => [
+      {
+        id: `notif_${Date.now()}`,
+        type: "application",
+        title: "Interview Invitation Received!",
+        description: `Stripe has scheduled your ${data.type} interview for ${data.internshipTitle} on ${data.date} at ${data.time}.`,
+        timestamp: "Just now",
+        isRead: false,
+        actionUrl: "/dashboard/applications",
+      },
+      ...prev,
+    ]);
+
+    success(`Interview successfully scheduled with ${data.candidateName}!`);
+  };
+
+  const rescheduleInterview = (id: string, newDate: string, newTime: string) => {
+    setRecruiterInterviews((prev) =>
+      prev.map((int) =>
+        int.id === id ? { ...int, date: newDate, time: newTime, status: "Rescheduled" } : int
+      )
+    );
+    success("Interview rescheduled successfully!");
+  };
+
+  const cancelInterview = (id: string, reason?: string) => {
+    setRecruiterInterviews((prev) =>
+      prev.map((int) =>
+        int.id === id
+          ? {
+              ...int,
+              status: "Cancelled",
+              notes: reason ? `${int.notes ? int.notes + " | " : ""}Cancelled: ${reason}` : int.notes,
+            }
+          : int
+      )
+    );
+    info("Interview has been marked as cancelled.");
+  };
+
+  const completeInterview = (id: string, feedback?: string) => {
+    setRecruiterInterviews((prev) =>
+      prev.map((int) =>
+        int.id === id
+          ? { ...int, status: "Completed", feedback: feedback || int.feedback }
+          : int
+      )
+    );
+    success("Interview marked as completed!");
+  };
+
   return (
     <DataContext.Provider
       value={{
@@ -726,6 +824,11 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         unreadRecruiterNotificationsCount,
         markRecruiterNotificationAsRead,
         markAllRecruiterNotificationsAsRead,
+        recruiterInterviews,
+        scheduleInterview,
+        rescheduleInterview,
+        cancelInterview,
+        completeInterview,
       }}
     >
       {children}

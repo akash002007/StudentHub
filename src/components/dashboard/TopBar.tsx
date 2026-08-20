@@ -47,6 +47,21 @@ export function TopBar() {
     setGreeting(getTimeAwareGreeting(new Date()));
   }, []);
 
+  // Global Cmd+K / Ctrl+K keyboard shortcut listener
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setIsSearchOpen((prev) => !prev);
+      }
+      if (e.key === "Escape" && isSearchOpen) {
+        setIsSearchOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isSearchOpen]);
+
   const activeNotifications = role === "recruiter" ? recruiterNotifications : notifications;
   const activeUnreadCount =
     role === "recruiter" ? unreadRecruiterNotificationsCount : unreadNotificationsCount;
@@ -78,30 +93,33 @@ export function TopBar() {
         </Badge>
       </div>
 
-      {/* Right: Search, Notifications, Theme, Profile */}
+      {/* Right: Search, Theme Toggle, Notifications, Profile */}
       <div className="flex items-center gap-3">
-        {/* Global Search Input / Trigger */}
+        {/* Modern Global Search Bar Trigger */}
         <button
+          type="button"
           onClick={() => setIsSearchOpen(true)}
-          className="hidden md:flex items-center gap-3 h-9 px-3.5 rounded-xl bg-muted/60 hover:bg-muted border border-border/80 text-xs text-muted-foreground transition-colors w-60 lg:w-72 justify-between"
+          className="hidden md:flex items-center justify-between gap-3 h-9 px-3.5 rounded-xl bg-muted/40 hover:bg-muted/70 dark:bg-card/70 dark:hover:bg-card/90 border border-border/70 hover:border-purple-500/40 dark:hover:border-purple-500/40 text-xs text-muted-foreground hover:text-foreground shadow-2xs hover:shadow-xs transition-all duration-200 w-56 sm:w-64 md:w-72 lg:w-80 group cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500/50"
+          aria-label="Search internships, skills, peers (Press ⌘K or Ctrl+K to open)"
         >
-          <div className="flex items-center gap-2">
-            <Search className="w-3.5 h-3.5 text-muted-foreground" />
-            <span>
+          <div className="flex items-center gap-2.5 min-w-0 truncate">
+            <Search className="w-3.5 h-3.5 text-muted-foreground/80 group-hover:text-purple-500 transition-colors shrink-0" />
+            <span className="truncate text-xs font-normal text-muted-foreground group-hover:text-foreground transition-colors">
               {role === "recruiter"
-                ? "Search students, skills, jobs..."
+                ? "Search candidates, skills, jobs..."
                 : "Search internships, skills, peers..."}
             </span>
           </div>
-          <kbd className="hidden lg:inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] font-mono bg-card border border-border rounded text-muted-foreground">
+          <kbd className="hidden lg:inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] font-mono font-medium rounded-md bg-background/80 dark:bg-muted/60 border border-border/80 text-muted-foreground shadow-2xs group-hover:border-purple-500/30 group-hover:text-purple-500 transition-colors shrink-0">
             <Command className="w-2.5 h-2.5" /> K
           </kbd>
         </button>
 
         {/* Mobile Search Button */}
         <button
+          type="button"
           onClick={() => setIsSearchOpen(true)}
-          className="md:hidden p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted"
+          className="md:hidden p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted transition-colors border border-transparent hover:border-border/60"
           aria-label="Search"
         >
           <Search className="w-4 h-4" />

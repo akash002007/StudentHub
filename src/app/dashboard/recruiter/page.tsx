@@ -22,6 +22,9 @@ import {
   UserCheck,
   Award,
   Filter,
+  ShieldCheck,
+  Bookmark,
+  Video,
 } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
@@ -41,6 +44,7 @@ export default function RecruiterDashboardHomePage() {
     recruiterInternships,
     recruiterApplicants,
     recruiterStudents,
+    recruiterInterviews,
     updateApplicantStatus,
     toggleShortlistCandidate,
     addApplicantNote,
@@ -130,11 +134,15 @@ export default function RecruiterDashboardHomePage() {
         <div className="relative rounded-3xl p-6 sm:p-8 bg-gradient-to-br from-blue-950/30 via-card to-purple-950/20 border border-blue-500/20 shadow-sm overflow-hidden">
           <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="space-y-2">
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <Badge variant="gradient" size="sm" className="font-semibold">
                   <Sparkles className="w-3 h-3 text-blue-500" />
                   Recruiter Hiring Workspace
                 </Badge>
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                  Verified Recruiter &bull; Stripe
+                </span>
                 <span className="text-xs text-muted-foreground">
                   {new Date().toLocaleDateString("en-US", {
                     weekday: "short",
@@ -160,15 +168,20 @@ export default function RecruiterDashboardHomePage() {
             </div>
 
             {/* Quick Action Button Group */}
-            <div className="flex flex-wrap items-center gap-3 shrink-0">
+            <div className="flex flex-wrap items-center gap-2.5 shrink-0">
               <Link href="/dashboard/recruiter/post-internship">
                 <Button variant="gradient" size="sm" rightIcon={<PlusCircle className="w-4 h-4" />}>
-                  Post New Internship
+                  Post Internship
                 </Button>
               </Link>
               <Link href="/dashboard/recruiter/students">
                 <Button variant="outline" size="sm" rightIcon={<Search className="w-4 h-4" />}>
-                  Find Student Talent
+                  Find Talent
+                </Button>
+              </Link>
+              <Link href="/dashboard/recruiter/interviews">
+                <Button variant="outline" size="sm" rightIcon={<Calendar className="w-4 h-4" />}>
+                  Interviews
                 </Button>
               </Link>
             </div>
@@ -395,6 +408,58 @@ export default function RecruiterDashboardHomePage() {
                     </div>
                   </div>
                 ))}
+              </div>
+            </Card>
+
+            {/* Upcoming Interviews Widget */}
+            <Card className="p-5 border-border/80 bg-card space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-bold text-sm text-foreground flex items-center gap-2">
+                    <Calendar className="w-4 h-4 text-purple-500" />
+                    <span>Upcoming Interviews</span>
+                  </h3>
+                  <p className="text-xs text-muted-foreground">Scheduled evaluation rounds</p>
+                </div>
+                <Link href="/dashboard/recruiter/interviews">
+                  <Button variant="ghost" size="sm">
+                    View All
+                  </Button>
+                </Link>
+              </div>
+
+              <div className="space-y-2.5">
+                {recruiterInterviews
+                  .filter((i) => i.status === "Scheduled" || i.status === "Rescheduled")
+                  .slice(0, 2)
+                  .map((int) => (
+                    <div
+                      key={int.id}
+                      className="p-3 rounded-xl bg-muted/40 border border-border/60 flex items-center justify-between gap-3"
+                    >
+                      <div className="flex items-center gap-2.5 overflow-hidden">
+                        <Avatar src={int.candidateAvatar} name={int.candidateName} size="sm" />
+                        <div className="overflow-hidden">
+                          <div className="text-xs font-bold text-foreground truncate">
+                            {int.candidateName}
+                          </div>
+                          <div className="text-[11px] text-muted-foreground truncate">
+                            {int.type} &bull; {int.date} ({int.time})
+                          </div>
+                        </div>
+                      </div>
+
+                      <a
+                        href={int.meetingLink}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="p-1.5 rounded-lg bg-purple-600 hover:bg-purple-700 text-white shrink-0 shadow-xs"
+                        title="Join Meeting"
+                      >
+                        <Video className="w-3.5 h-3.5" />
+                      </a>
+                    </div>
+                  ))}
               </div>
             </Card>
 

@@ -20,6 +20,9 @@ import {
   PlusCircle,
   BarChart3,
   Building2,
+  Calendar,
+  Bookmark,
+  Settings,
 } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { ThemeToggle } from "@/components/shared/ThemeToggle";
@@ -194,6 +197,22 @@ export function MobileNav() {
                   <span>Post Internship</span>
                 </Link>
                 <Link
+                  href="/dashboard/recruiter/shortlisted"
+                  onClick={() => setIsMoreOpen(false)}
+                  className="p-3 rounded-xl bg-muted/60 hover:bg-muted flex items-center gap-2.5 text-foreground border border-border/50"
+                >
+                  <Bookmark className="w-4 h-4 text-purple-500" />
+                  <span>Shortlisted</span>
+                </Link>
+                <Link
+                  href="/dashboard/recruiter/interviews"
+                  onClick={() => setIsMoreOpen(false)}
+                  className="p-3 rounded-xl bg-muted/60 hover:bg-muted flex items-center gap-2.5 text-foreground border border-border/50"
+                >
+                  <Calendar className="w-4 h-4 text-emerald-500" />
+                  <span>Interviews</span>
+                </Link>
+                <Link
                   href="/dashboard/recruiter/analytics"
                   onClick={() => setIsMoreOpen(false)}
                   className="p-3 rounded-xl bg-muted/60 hover:bg-muted flex items-center gap-2.5 text-foreground border border-border/50"
@@ -210,6 +229,14 @@ export function MobileNav() {
                   <span>Company Profile</span>
                 </Link>
                 <Link
+                  href="/dashboard/recruiter/profile"
+                  onClick={() => setIsMoreOpen(false)}
+                  className="p-3 rounded-xl bg-muted/60 hover:bg-muted flex items-center gap-2.5 text-foreground border border-border/50"
+                >
+                  <User className="w-4 h-4 text-purple-500" />
+                  <span>Recruiter Profile</span>
+                </Link>
+                <Link
                   href="/dashboard/recruiter/notifications"
                   onClick={() => setIsMoreOpen(false)}
                   className="p-3 rounded-xl bg-muted/60 hover:bg-muted flex items-center justify-between text-foreground border border-border/50"
@@ -223,6 +250,14 @@ export function MobileNav() {
                       {unreadRecruiterNotificationsCount}
                     </Badge>
                   )}
+                </Link>
+                <Link
+                  href="/dashboard/recruiter/settings"
+                  onClick={() => setIsMoreOpen(false)}
+                  className="p-3 rounded-xl bg-muted/60 hover:bg-muted flex items-center gap-2.5 text-foreground border border-border/50"
+                >
+                  <Settings className="w-4 h-4 text-muted-foreground" />
+                  <span>Settings</span>
                 </Link>
                 <div className="p-3 rounded-xl bg-muted/60 flex items-center justify-between text-foreground border border-border/50 col-span-2">
                   <span className="text-xs">Theme Mode</span>
