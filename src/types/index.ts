@@ -25,6 +25,34 @@ export type AcademicLevel =
   | 'Certificate'
   | 'Other';
 
+export type AccountStatus =
+  | 'account_created'
+  | 'profile_incomplete'
+  | 'profile_complete'
+  | 'onboarding_complete';
+
+export type VerificationType = 'payment_receipt' | 'student_id_card';
+
+export type VerificationStatus = 'not_submitted' | 'pending' | 'approved' | 'rejected';
+
+export interface StudentVerificationRequest {
+  id: string;
+  studentId: string;
+  studentName: string;
+  university: string;
+  universityEmail: string;
+  verificationType: VerificationType;
+  status: VerificationStatus;
+  documentName: string;
+  documentSize: string;
+  documentUrl: string;
+  personalEmail?: string;
+  submittedAt: string;
+  reviewedAt?: string;
+  reviewerName?: string;
+  rejectionReason?: string;
+}
+
 export interface StudentProfile {
   id: string;
   name: string;
@@ -43,6 +71,12 @@ export interface StudentProfile {
   cgpa: string;
   location: string;
   bio: string;
+  phone?: string;
+  personalEmail?: string;
+  accountStatus?: AccountStatus;
+  verificationStatus?: VerificationStatus;
+  onboardingCompleted?: boolean;
+  verificationRequest?: StudentVerificationRequest | null;
   status: 'Open to Summer 2026 Internships' | 'Looking for Part-time' | 'Actively Interviewing' | 'Not Looking';
   skills: string[];
   resume: {

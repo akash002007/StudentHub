@@ -18,6 +18,7 @@ import { Card } from "@/components/ui/Card";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
+import { RoleGuard } from "@/components/dashboard/RoleGuard";
 import { useData } from "@/context/DataContext";
 import { cn } from "@/lib/utils";
 
@@ -55,7 +56,8 @@ export default function MessagesPage() {
   };
 
   return (
-    <div className="h-[calc(100vh-8.5rem)] flex flex-col space-y-4">
+    <RoleGuard allowedRole="student">
+      <div className="h-[calc(100vh-8.5rem)] flex flex-col space-y-4">
       {/* Top Header */}
       <div>
         <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
@@ -258,5 +260,6 @@ export default function MessagesPage() {
         </div>
       </Card>
     </div>
+    </RoleGuard>
   );
 }

@@ -13,7 +13,7 @@ import { UserRole } from "@/types";
 
 export default function SignupPage() {
   const router = useRouter();
-  const { login } = useAuth();
+  const { login, registerStudent } = useAuth();
   const { success } = useToast();
 
   const [role, setRole] = useState<UserRole>("student");
@@ -38,6 +38,11 @@ export default function SignupPage() {
       return;
     }
 
+    if (role === "student" && !universityOrCompany.trim()) {
+      setErrorMsg("Please enter your university or institution");
+      return;
+    }
+
     if (!password || password.length < 6) {
       setErrorMsg("Password must be at least 6 characters");
       return;
@@ -46,12 +51,19 @@ export default function SignupPage() {
     setIsLoading(true);
 
     setTimeout(() => {
-      login(email, role, name);
-      success(`Account created! Welcome to StudentHub, ${name}!`);
       if (role === "recruiter") {
+        login(email, role, name);
+        success(`Account created! Welcome to StudentHub, ${name}!`);
         router.push("/dashboard/recruiter");
       } else {
-        router.push("/dashboard");
+        registerStudent({
+          name,
+          email,
+          university: universityOrCompany,
+          password,
+        });
+        success(`Account created! Let's complete your profile & verification.`);
+        router.push("/onboarding");
       }
     }, 600);
   };
