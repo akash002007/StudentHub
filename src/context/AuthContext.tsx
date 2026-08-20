@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import {
   User,
   UserRole,
@@ -9,8 +9,9 @@ import {
   VerificationType,
   VerificationStatus,
   StudentVerificationRequest,
+  AdminProfile,
 } from "@/types";
-import { defaultStudentUser, defaultRecruiterUser } from "@/data/mock-users";
+import { defaultStudentUser, defaultRecruiterUser, defaultAdminUser } from "@/data/mock-users";
 import { isUniversityEmail } from "@/lib/utils";
 
 interface AuthContextType {
@@ -24,7 +25,7 @@ interface AuthContextType {
     email: string;
     university: string;
     password?: string;
-  }) => StudentProfile;
+  }) => Promise<StudentProfile>;
   registerRecruiter: (data: {
     name: string;
     email: string;
@@ -50,9 +51,23 @@ interface AuthContextType {
     documentSize: string;
     documentUrl: string;
     personalEmail?: string;
-  }) => StudentVerificationRequest;
-  reviewVerification: (status: "approved" | "rejected", rejectionReason?: string) => void;
+    college?: string;
+    degree?: string;
+    branch?: string;
+    year?: string;
+    studentIdNumber?: string;
+    graduationYear?: string;
+  }) => Promise<StudentVerificationRequest>;
+  resubmitStudentVerification: (data: {
+    documentName: string;
+    documentSize: string;
+    documentUrl: string;
+    personalEmail?: string;
+    notes?: string;
+  }) => Promise<void>;
+  reviewVerification: (status: "approved" | "rejected", rejectionReason?: string) => Promise<void>;
   resetVerificationForResubmission: () => void;
+  refreshUserSession: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -65,25 +80,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [role, setRole] = useState<UserRole>("student");
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Initialize from localStorage on mount
-  useEffect(() => {
-    try {
-      const storedRole = localStorage.getItem(ROLE_STORAGE_KEY) as UserRole | null;
-      const storedUserJson = localStorage.getItem(AUTH_STORAGE_KEY);
-
-      if (storedUserJson) {
-        const parsedUser = JSON.parse(storedUserJson);
-        setUser(parsedUser);
-        setRole(storedRole || parsedUser.role || "student");
-      }
-    } catch {
-      console.warn("Failed to load auth session from localStorage");
-    } finally {
-      setIsLoaded(true);
-    }
-  }, []);
-
-  // Save to localStorage when user/role changes
+  // Helper to persist session
   const persistSession = (newUser: User | null, newRole: UserRole) => {
     try {
       if (newUser) {
@@ -98,6 +95,88 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const refreshUserSession = useCallback(async () => {
+    if (!user || user.role !== "student") return;
+    try {
+      const res = await fetch(`/api/student/verification?studentId=${encodeURIComponent(user.id)}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.student) {
+          setUser((prev) => {
+            if (!prev) return null;
+            const updated = {
+              ...prev,
+              ...data.student,
+              verificationStatus: data.student.verificationStatus || data.verificationStatus,
+              verificationRequest: data.request
+                ? {
+                    id: data.request.verificationId,
+                    verificationId: data.request.verificationId,
+                    studentId: data.request.studentId,
+                    studentName: data.request.student.fullName,
+                    university: data.request.student.college,
+                    universityEmail: data.request.student.collegeEmail,
+                    verificationType: data.request.verificationMethod === "College Email" ? "university_email" : data.request.verificationMethod === "Payment Receipt" ? "payment_receipt" : "student_id_card",
+                    status: data.request.status === "Approved" ? "approved" : data.request.status === "Rejected" ? "rejected" : data.request.status === "Needs Information" ? "needs_information" : "pending",
+                    documentName: data.request.document?.fileName || "Document.pdf",
+                    documentSize: data.request.document?.fileSize || "1.5 MB",
+                    documentUrl: data.request.document?.fileUrl || "#",
+                    personalEmail: data.request.student.email,
+                    submittedAt: data.request.submittedAt,
+                    reviewedAt: data.request.reviewedAt,
+                    reviewerName: data.request.reviewedBy,
+                    rejectionReason: data.request.rejectionReason,
+                    adminNotes: data.request.adminNotes,
+                  }
+                : (prev as StudentProfile).verificationRequest,
+            } as StudentProfile;
+            persistSession(updated, "student");
+            return updated;
+          });
+        }
+      }
+    } catch (err) {
+      console.warn("Session refresh error:", err);
+    }
+  }, [user]);
+
+  // Initialize from localStorage on mount & sync with server
+  useEffect(() => {
+    try {
+      const storedRole = localStorage.getItem(ROLE_STORAGE_KEY) as UserRole | null;
+      const storedUserJson = localStorage.getItem(AUTH_STORAGE_KEY);
+
+      if (storedUserJson) {
+        const parsedUser = JSON.parse(storedUserJson);
+        setUser(parsedUser);
+        const resolvedRole = storedRole || parsedUser.role || "student";
+        setRole(resolvedRole);
+
+        // If student, sync latest from backend
+        if (resolvedRole === "student" && parsedUser.id) {
+          fetch(`/api/student/verification?studentId=${encodeURIComponent(parsedUser.id)}`)
+            .then((r) => r.json())
+            .then((d) => {
+              if (d.student) {
+                const synched: StudentProfile = {
+                  ...parsedUser,
+                  ...d.student,
+                  verificationStatus: d.student.verificationStatus || d.verificationStatus,
+                };
+                setUser(synched);
+                persistSession(synched, "student");
+              }
+            })
+            .catch(() => {});
+        }
+      }
+    } catch {
+      console.warn("Failed to load auth session from localStorage");
+    } finally {
+      setIsLoaded(true);
+    }
+  }, []);
+
   const login = (email: string, selectedRole: UserRole, customName?: string) => {
     let authenticatedUser: User;
 
@@ -107,6 +186,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         email: email || defaultRecruiterUser.email,
         name: customName || defaultRecruiterUser.name,
       };
+    } else if (selectedRole === "admin") {
+      authenticatedUser = {
+        ...defaultAdminUser,
+        email: email || defaultAdminUser.email,
+        name: customName || defaultAdminUser.name,
+      } as AdminProfile;
     } else {
       authenticatedUser = {
         ...defaultStudentUser,
@@ -118,14 +203,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(authenticatedUser);
     setRole(selectedRole);
     persistSession(authenticatedUser, selectedRole);
+
+    // Sync if student
+    if (selectedRole === "student") {
+      fetch(`/api/student/verification?studentId=${encodeURIComponent(authenticatedUser.id)}`)
+        .then((r) => r.json())
+        .then((d) => {
+          if (d.student) {
+            const synched: StudentProfile = {
+              ...(authenticatedUser as StudentProfile),
+              ...d.student,
+              verificationStatus: d.student.verificationStatus || d.verificationStatus,
+            };
+            setUser(synched);
+            persistSession(synched, "student");
+          }
+        })
+        .catch(() => {});
+    }
   };
 
-  const registerStudent = (basicData: {
+  const registerStudent = async (basicData: {
     name: string;
     email: string;
     university: string;
     password?: string;
-  }): StudentProfile => {
+  }): Promise<StudentProfile> => {
     const isUni = isUniversityEmail(basicData.email);
 
     const newStudent: StudentProfile = {
@@ -196,6 +299,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           }
         : null,
     };
+
+    // Auto submit to backend if uni email
+    if (isUni) {
+      try {
+        await fetch("/api/student/verification", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            studentId: newStudent.id,
+            studentName: newStudent.name,
+            email: newStudent.email,
+            college: newStudent.university,
+            degree: "Undergraduate",
+            branch: "General",
+            year: "1st Year",
+            studentIdNumber: "AUTO-EDU-VERIFIED",
+            graduationYear: newStudent.graduationYear,
+            verificationType: "university_email",
+            documentName: "Institutional Domain Check",
+            documentSize: "Domain Verified",
+            documentUrl: "#",
+          }),
+        });
+      } catch (err) {
+        console.warn("Failed to post uni verification to backend:", err);
+      }
+    }
 
     setUser(newStudent);
     setRole("student");
@@ -269,9 +399,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (newRole === "recruiter") {
       setUser(defaultRecruiterUser);
       persistSession(defaultRecruiterUser, newRole);
+    } else if (newRole === "admin") {
+      setUser(defaultAdminUser);
+      persistSession(defaultAdminUser, newRole);
     } else {
       setUser(defaultStudentUser);
       persistSession(defaultStudentUser, newRole);
+      // Fetch latest student verification state from server store
+      fetch(`/api/student/verification?studentId=${encodeURIComponent(defaultStudentUser.id)}`)
+        .then((r) => r.json())
+        .then((d) => {
+          if (d.student) {
+            const synched = { ...defaultStudentUser, ...d.student };
+            setUser(synched);
+            persistSession(synched, "student");
+          }
+        })
+        .catch(() => {});
     }
   };
 
@@ -280,22 +424,71 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const updated = { ...user, ...updates } as StudentProfile;
     setUser(updated);
     persistSession(updated, "student");
+
+    // Push to server API in background
+    fetch(`/api/admin/students/${encodeURIComponent(updated.id)}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updates),
+    }).catch(() => {});
   };
 
-  const submitStudentVerification = (data: {
+  const submitStudentVerification = async (data: {
     verificationType: VerificationType;
     documentName: string;
     documentSize: string;
     documentUrl: string;
     personalEmail?: string;
-  }): StudentVerificationRequest => {
+    college?: string;
+    degree?: string;
+    branch?: string;
+    year?: string;
+    studentIdNumber?: string;
+    graduationYear?: string;
+  }): Promise<StudentVerificationRequest> => {
     const student = user as StudentProfile;
-    const newRequest: StudentVerificationRequest = {
-      id: `req_${Date.now()}`,
-      studentId: student?.id || `student_${Date.now()}`,
+    const studentId = student?.id || `student_${Date.now()}`;
+
+    const payload = {
+      studentId,
       studentName: student?.name || "Student",
-      university: student?.university || "University",
-      universityEmail: student?.email || "",
+      email: student?.email || "student@university.edu",
+      college: data.college || student?.university || "University",
+      degree: data.degree || student?.degree || "B.Tech",
+      branch: data.branch || student?.branch || student?.specialization || "Computer Science",
+      year: data.year || student?.yearOfStudy || "3rd Year",
+      studentIdNumber: data.studentIdNumber || "STU-2026-REG",
+      graduationYear: data.graduationYear || String(student?.graduationYear || 2027),
+      phone: student?.phone,
+      verificationType: data.verificationType,
+      documentName: data.documentName,
+      documentSize: data.documentSize,
+      documentUrl: data.documentUrl,
+      personalEmail: data.personalEmail || student?.personalEmail,
+    };
+
+    let serverRequest: any = null;
+    try {
+      const res = await fetch("/api/student/verification", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (res.ok) {
+        const json = await res.json();
+        serverRequest = json.request;
+      }
+    } catch (err) {
+      console.warn("Server verification submission error:", err);
+    }
+
+    const newRequest: StudentVerificationRequest = {
+      id: serverRequest?.verificationId || `req_${Date.now()}`,
+      verificationId: serverRequest?.verificationId || `VER-2026-${Date.now().toString().slice(-6)}`,
+      studentId,
+      studentName: payload.studentName,
+      university: payload.college,
+      universityEmail: payload.email,
       verificationType: data.verificationType,
       status: "pending",
       documentName: data.documentName,
@@ -323,10 +516,100 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return newRequest;
   };
 
-  const reviewVerification = (status: "approved" | "rejected", rejectionReason?: string) => {
+  const resubmitStudentVerification = async (data: {
+    documentName: string;
+    documentSize: string;
+    documentUrl: string;
+    personalEmail?: string;
+    notes?: string;
+  }): Promise<void> => {
+    if (!user || user.role !== "student") return;
+    const student = user as StudentProfile;
+    const verificationId = student.verificationRequest?.verificationId || "VER-CURRENT";
+
+    try {
+      const res = await fetch(`/api/student/verification/${encodeURIComponent(verificationId)}/resubmit`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          studentId: student.id,
+          ...data,
+        }),
+      });
+      if (res.ok) {
+        const json = await res.json();
+        if (json.student) {
+          setUser(json.student);
+          persistSession(json.student, "student");
+          return;
+        }
+      }
+    } catch (err) {
+      console.warn("Resubmit error:", err);
+    }
+
+    // Local fallback update
+    const updatedRequest: StudentVerificationRequest = {
+      ...(student.verificationRequest || {
+        id: `req_${Date.now()}`,
+        verificationId: `VER-2026-${Date.now().toString().slice(-6)}`,
+        studentId: student.id,
+        studentName: student.name,
+        university: student.university,
+        universityEmail: student.email,
+        verificationType: "payment_receipt",
+      }),
+      status: "pending",
+      documentName: data.documentName,
+      documentSize: data.documentSize,
+      documentUrl: data.documentUrl,
+      personalEmail: data.personalEmail || student.personalEmail,
+      submittedAt: new Date().toLocaleString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+      rejectionReason: undefined,
+    };
+
+    const updatedProfile: StudentProfile = {
+      ...student,
+      verificationStatus: "pending",
+      verificationRequest: updatedRequest,
+    };
+
+    setUser(updatedProfile);
+    persistSession(updatedProfile, "student");
+  };
+
+  const reviewVerification = async (status: "approved" | "rejected", rejectionReason?: string) => {
     if (!user || user.role !== "student") return;
     const student = user as StudentProfile;
     const currentReq = student.verificationRequest;
+    const verId = currentReq?.verificationId || currentReq?.id || "VER-2026-004812";
+
+    try {
+      if (status === "approved") {
+        await fetch(`/api/admin/verification/${encodeURIComponent(verId)}/approve`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ adminName: "StudentHub Admin Team" }),
+        });
+      } else {
+        await fetch(`/api/admin/verification/${encodeURIComponent(verId)}/reject`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            reason: rejectionReason || "Uploaded document was unreadable or expired.",
+            adminName: "StudentHub Admin Team",
+          }),
+        });
+      }
+    } catch (err) {
+      console.warn("Review API error:", err);
+    }
 
     const updatedReq: StudentVerificationRequest | null = currentReq
       ? {
@@ -386,8 +669,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         updateStudentProfile,
         updateRecruiterProfile,
         submitStudentVerification,
+        resubmitStudentVerification,
         reviewVerification,
         resetVerificationForResubmission,
+        refreshUserSession,
       }}
     >
       {children}
@@ -402,4 +687,3 @@ export function useAuth() {
   }
   return context;
 }
-

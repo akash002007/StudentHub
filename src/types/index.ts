@@ -1,4 +1,4 @@
-export type UserRole = 'student' | 'recruiter';
+export type UserRole = 'student' | 'recruiter' | 'admin';
 
 export type AcademicStream =
   | 'Engineering & Technology'
@@ -33,16 +33,32 @@ export type AccountStatus =
 
 export type VerificationType = 'university_email' | 'payment_receipt' | 'student_id_card';
 
-export type VerificationStatus = 'not_submitted' | 'pending' | 'approved' | 'rejected';
+export type VerificationStatus =
+  | 'not_submitted'
+  | 'pending'
+  | 'approved'
+  | 'rejected'
+  | 'needs_information';
+
+export interface VerificationAttempt {
+  attemptNumber: number;
+  date: string;
+  status: 'pending' | 'approved' | 'rejected' | 'needs_information';
+  documentName?: string;
+  rejectionReason?: string;
+  adminNotes?: string;
+  reviewedBy?: string;
+}
 
 export interface StudentVerificationRequest {
   id: string;
+  verificationId?: string;
   studentId: string;
   studentName: string;
   university: string;
   universityEmail: string;
   verificationType: VerificationType;
-  status: VerificationStatus;
+  status: VerificationStatus | VerificationQueueStatus;
   documentName: string;
   documentSize: string;
   documentUrl: string;
@@ -51,6 +67,9 @@ export interface StudentVerificationRequest {
   reviewedAt?: string;
   reviewerName?: string;
   rejectionReason?: string;
+  adminNotes?: string;
+  requiredInformation?: string[];
+  attempts?: VerificationAttempt[];
 }
 
 export interface StudentProfile {
@@ -139,8 +158,6 @@ export interface RecruiterProfile {
   candidatesReviewed: number;
   interviewsConducted?: number;
 }
-
-export type User = StudentProfile | RecruiterProfile;
 
 export type ProjectType =
   | 'Personal'
@@ -488,4 +505,166 @@ export interface RecruiterInterview {
   feedback?: string;
   createdAt: string;
 }
+
+export interface AdminProfile {
+  id: string;
+  name: string;
+  email: string;
+  role: 'admin';
+  avatar: string;
+  title: string;
+  team: string;
+}
+
+export type VerificationQueueStatus =
+  | 'Pending'
+  | 'Under Review'
+  | 'Approved'
+  | 'Rejected'
+  | 'Needs Information';
+
+export type VerificationMethod =
+  | 'College Email'
+  | 'Google'
+  | 'Payment Receipt'
+  | 'Manual Review';
+
+export type VerificationRiskLevel = 'Low' | 'Medium' | 'High';
+
+export type VerificationPriority = 'Normal' | 'High Priority' | 'Review Required';
+
+export type VerificationCheckState = 'Pending' | 'Verified' | 'Failed';
+
+export interface VerificationChecklistItem {
+  id: string;
+  label: string;
+  state: VerificationCheckState;
+}
+
+export interface VerificationAcademicField {
+  label: string;
+  value: string;
+  verified: boolean;
+}
+
+export interface VerificationDocumentSummary {
+  fileName: string;
+  uploadDate: string;
+  fileSize: string;
+  documentType: string;
+  studentNameDetected?: string;
+  collegeNameDetected?: string;
+  paymentDate?: string;
+  receiptNumber?: string;
+  fileUrl: string;
+}
+
+export interface DuplicateAccountCandidate {
+  id: string;
+  name: string;
+  email: string;
+  degree: string;
+  college: string;
+  studentId: string;
+  phone: string;
+  graduationYear: string;
+}
+
+export interface VerificationTimelineEvent {
+  id: string;
+  timestamp: string;
+  title: string;
+  actor: string;
+  description?: string;
+}
+
+export interface VerificationRequest {
+  verificationId: string;
+  studentId: string;
+  status: VerificationQueueStatus;
+  verificationMethod: VerificationMethod;
+  submittedAt: string;
+  reviewedAt?: string;
+  reviewedBy?: string;
+  riskLevel: VerificationRiskLevel;
+  priority: VerificationPriority;
+  rejectionReason?: string;
+  adminNotes?: string;
+  student: {
+    avatar: string;
+    fullName: string;
+    email: string;
+    phone: string;
+    college: string;
+    degree: string;
+    branch: string;
+    year: string;
+    semester: string;
+    graduationYear: string;
+    studentId: string;
+    collegeEmail: string;
+    accountCreatedAt: string;
+  };
+  academicFields: VerificationAcademicField[];
+  verificationResult: string;
+  checklist: VerificationChecklistItem[];
+  document?: VerificationDocumentSummary;
+  duplicateCandidates: DuplicateAccountCandidate[];
+  timeline: VerificationTimelineEvent[];
+}
+
+export interface AuditLogEntry {
+  id: string;
+  timestamp: string;
+  admin: string;
+  action: string;
+  student: string;
+  previousStatus: string;
+  newStatus: string;
+  ipSessionRef: string;
+  details: string;
+}
+
+export interface AdminNotificationItem {
+  id: string;
+  title: string;
+  description: string;
+  timestamp: string;
+  isRead: boolean;
+  type:
+    | 'verification_request'
+    | 'document_uploaded'
+    | 'resubmission'
+    | 'risk_alert'
+    | 'recruiter_request'
+    | 'system';
+}
+
+export interface AdminOverviewMetrics {
+  totalStudents: number;
+  pendingVerification: number;
+  verifiedStudents: number;
+  rejectedApplications: number;
+  verificationRate: number;
+  avgVerificationTimeHours: number;
+  newRegistrationsToday: number;
+  newRegistrationsWeek: number;
+  awaitingInformation: number;
+  suspiciousAttempts: number;
+}
+
+export interface AdminStudentRecord {
+  id: string;
+  name: string;
+  email: string;
+  college: string;
+  degree: string;
+  year: string;
+  verificationStatus: VerificationQueueStatus;
+  profileCompletion: number;
+  lastActive: string;
+  joined: string;
+}
+
+export type User = StudentProfile | RecruiterProfile | AdminProfile;
 

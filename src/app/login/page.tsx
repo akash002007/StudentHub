@@ -28,9 +28,12 @@ export default function LoginPage() {
     if (fillRole === "student") {
       setEmail("alex.rivera@stanford.edu");
       setPassword("studenthub123");
-    } else {
+    } else if (fillRole === "recruiter") {
       setEmail("sarah.chen@stripe-careers.com");
       setPassword("recruiter123");
+    } else {
+      setEmail("priya.menon@studenthub.io");
+      setPassword("admin123");
     }
   };
 
@@ -52,9 +55,19 @@ export default function LoginPage() {
 
     setTimeout(() => {
       login(email, role);
-      success(`Welcome back! Logged in as ${role === "student" ? "Alex Rivera (Student)" : "Sarah Chen (Recruiter)"}`);
+      success(
+        `Welcome back! Logged in as ${
+          role === "student"
+            ? "Alex Rivera (Student)"
+            : role === "recruiter"
+            ? "Sarah Chen (Recruiter)"
+            : "Priya Menon (Admin)"
+        }`
+      );
       if (role === "recruiter") {
         router.push("/dashboard/recruiter");
+      } else if (role === "admin") {
+        router.push("/admin");
       } else {
         router.push("/dashboard");
       }
@@ -99,7 +112,7 @@ export default function LoginPage() {
           </div>
 
           {/* Role Selection Tabs */}
-          <div className="grid grid-cols-2 gap-2 p-1 rounded-xl bg-muted border border-border">
+          <div className="grid grid-cols-3 gap-2 p-1 rounded-xl bg-muted border border-border">
             <button
               type="button"
               onClick={() => setRole("student")}
@@ -123,6 +136,18 @@ export default function LoginPage() {
             >
               <Briefcase className="w-4 h-4 text-blue-500" />
               <span>Recruiter / Company</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setRole("admin")}
+              className={`flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-xs font-semibold transition-all ${
+                role === "admin"
+                  ? "bg-card text-foreground shadow-xs border border-border/80"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <UserCheck className="w-4 h-4 text-emerald-500" />
+              <span>Admin</span>
             </button>
           </div>
 
@@ -171,7 +196,7 @@ export default function LoginPage() {
                 isLoading={isLoading}
                 rightIcon={<ArrowRight className="w-4 h-4" />}
               >
-                Sign In as {role === "student" ? "Student" : "Recruiter"}
+                Sign In as {role === "student" ? "Student" : role === "recruiter" ? "Recruiter" : "Admin"}
               </Button>
             </form>
 
@@ -180,7 +205,7 @@ export default function LoginPage() {
               <p className="text-xs text-muted-foreground text-center mb-2.5">
                 Quick Demo Login (One-Click Fill)
               </p>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                 <Button
                   type="button"
                   variant="outline"
@@ -198,6 +223,15 @@ export default function LoginPage() {
                   onClick={() => handleQuickFill("recruiter")}
                 >
                   Fill Recruiter Demo
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="text-xs"
+                  onClick={() => handleQuickFill("admin")}
+                >
+                  Fill Admin Demo
                 </Button>
               </div>
             </div>

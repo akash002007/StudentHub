@@ -22,8 +22,8 @@ export function OnboardingGuard({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    // Recruiters don't have student onboarding
-    if (role === "recruiter") {
+    // Recruiters and admins don't have student onboarding
+    if (role === "recruiter" || role === "admin") {
       setCanRender(true);
       return;
     }

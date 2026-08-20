@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
@@ -31,6 +31,7 @@ import {
   Info,
   Check,
   ShieldAlert,
+  AlertTriangle,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -74,7 +75,7 @@ const PRESET_AVATARS = [
   "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
 ];
 
-export default function OnboardingPage() {
+function OnboardingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const {
@@ -1339,6 +1340,26 @@ export default function OnboardingPage() {
                   </>
                 )}
 
+                {currentVerificationStatus === "needs_information" && (
+                  <>
+                    <div className="w-14 h-14 rounded-2xl bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center mx-auto shadow-sm">
+                      <AlertTriangle className="w-7 h-7" />
+                    </div>
+                    <div className="space-y-1">
+                      <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 text-xs font-bold">
+                        <AlertCircle className="w-3.5 h-3.5" />
+                        Verification Status: Additional Information Required
+                      </div>
+                      <h3 className="text-xl font-bold text-foreground">
+                        Admin Requested Additional Documentation
+                      </h3>
+                      <p className="text-xs sm:text-sm text-foreground max-w-lg mx-auto font-medium">
+                        {verifRequest?.adminNotes || "Please upload a clearer fee receipt or ID document to complete your verification."}
+                      </p>
+                    </div>
+                  </>
+                )}
+
                 {currentVerificationStatus === "rejected" && (
                   <>
                     <div className="w-14 h-14 rounded-2xl bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center mx-auto shadow-sm">
@@ -1426,7 +1447,7 @@ export default function OnboardingPage() {
 
               {/* Action Buttons */}
               <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3">
-                {currentVerificationStatus === "rejected" ? (
+                {currentVerificationStatus === "rejected" || currentVerificationStatus === "needs_information" ? (
                   <Button
                     type="button"
                     variant="gradient"
@@ -1434,7 +1455,9 @@ export default function OnboardingPage() {
                     className="w-full sm:w-auto h-11 px-6 text-sm font-semibold shadow-md shadow-purple-600/20"
                     leftIcon={<RefreshCw className="w-4 h-4" />}
                   >
-                    Resubmit Valid Document
+                    {currentVerificationStatus === "needs_information"
+                      ? "Upload Requested Document"
+                      : "Resubmit Valid Document"}
                   </Button>
                 ) : (
                   <Button
@@ -1556,5 +1579,24 @@ export default function OnboardingPage() {
         &copy; {new Date().getFullYear()} StudentHub Platform • Secure Student Verification
       </footer>
     </div>
+  );
+}
+
+export default function OnboardingPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-background">
+          <div className="flex flex-col items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-purple-600/10 text-purple-600 flex items-center justify-center animate-pulse">
+              <Sparkles className="w-5 h-5 animate-spin" />
+            </div>
+            <p className="text-xs text-muted-foreground font-medium">Loading workspace onboarding...</p>
+          </div>
+        </div>
+      }
+    >
+      <OnboardingContent />
+    </Suspense>
   );
 }

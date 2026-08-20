@@ -20,8 +20,10 @@ export function RoleGuard({ children, allowedRole, redirectTo }: RoleGuardProps)
 
   useEffect(() => {
     if (role !== allowedRole) {
+      const fallbackRoute =
+        role === "recruiter" ? "/dashboard/recruiter" : role === "admin" ? "/admin" : "/dashboard";
       const destination =
-        redirectTo || (role === "recruiter" ? "/dashboard/recruiter" : "/dashboard");
+        redirectTo || fallbackRoute;
       router.replace(destination);
     } else {
       setIsAuthorized(true);

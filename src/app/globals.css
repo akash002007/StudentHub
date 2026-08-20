@@ -141,3 +141,20 @@
   animation: shimmer 2s infinite;
   content: "";
 }
+
+/* Autoplay countdown progress line */
+@keyframes progressFill {
+  0% {
+    transform: scaleX(0);
+  }
+  100% {
+    transform: scaleX(1);
+  }
+}
+
+.animate-progress {
+  animation-name: progressFill;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+

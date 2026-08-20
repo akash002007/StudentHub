@@ -1,5 +1,6 @@
 import { LandingNav } from "@/components/landing/LandingNav";
 import { HeroSection } from "@/components/landing/HeroSection";
+import { GSAPBentoShowcase } from "@/components/animations/GSAPBentoShowcase";
 import { FeaturesGrid } from "@/components/landing/FeaturesGrid";
 import { InternshipSpotlight } from "@/components/landing/InternshipSpotlight";
 import { CommunityShowcase } from "@/components/landing/CommunityShowcase";
@@ -13,6 +14,7 @@ export default function LandingPage() {
       <LandingNav />
       <main className="flex-1">
         <HeroSection />
+        <GSAPBentoShowcase />
         <FeaturesGrid />
         <InternshipSpotlight />
         <CommunityShowcase />

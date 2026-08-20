@@ -48,6 +48,9 @@ export function LandingNav() {
 
         {/* Desktop Links */}
         <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-muted-foreground">
+          <a href="#experience" className="hover:text-foreground transition-colors">
+            Experience
+          </a>
           <a href="#features" className="hover:text-foreground transition-colors">
             Features
           </a>
@@ -108,6 +111,13 @@ export function LandingNav() {
       {isMobileMenuOpen && (
         <div className="md:hidden glass-panel mt-3 rounded-2xl p-5 border border-border flex flex-col gap-4 shadow-xl animate-slide-up">
           <nav className="flex flex-col gap-3 text-sm font-medium">
+            <a
+              href="#experience"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="px-3 py-2 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground"
+            >
+              Experience
+            </a>
             <a
               href="#features"
               onClick={() => setIsMobileMenuOpen(false)}

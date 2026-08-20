@@ -1,4 +1,4 @@
-import { StudentProfile, RecruiterProfile } from "@/types";
+import { StudentProfile, RecruiterProfile, AdminProfile } from "@/types";
 
 export const defaultStudentUser: StudentProfile = {
   id: "student_01",
@@ -150,4 +150,14 @@ export const defaultRecruiterUser: RecruiterProfile = {
   activeListingsCount: 8,
   candidatesReviewed: 1420,
   interviewsConducted: 48,
+};
+
+export const defaultAdminUser: AdminProfile = {
+  id: "admin_01",
+  name: "Priya Menon",
+  email: "priya.menon@studenthub.io",
+  role: "admin",
+  avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&auto=format&fit=crop&q=80",
+  title: "Trust & Safety Administrator",
+  team: "Verification Operations",
 };
