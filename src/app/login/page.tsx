@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/Badge";
 import { ThemeToggle } from "@/components/shared/ThemeToggle";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
+import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 import { UserRole } from "@/types";
 
 export default function LoginPage() {
@@ -107,7 +108,7 @@ export default function LoginPage() {
               Sign In to Your Workspace
             </h1>
             <p className="text-xs sm:text-sm text-muted-foreground">
-              Enter your credentials or choose quick-fill for instant demo access.
+              Enter your credentials or continue with Google for instant access.
             </p>
           </div>
 
@@ -123,7 +124,7 @@ export default function LoginPage() {
               }`}
             >
               <GraduationCap className="w-4 h-4 text-purple-500" />
-              <span>Student / Candidate</span>
+              <span>Student</span>
             </button>
             <button
               type="button"
@@ -135,7 +136,7 @@ export default function LoginPage() {
               }`}
             >
               <Briefcase className="w-4 h-4 text-blue-500" />
-              <span>Recruiter / Company</span>
+              <span>Recruiter</span>
             </button>
             <button
               type="button"
@@ -153,6 +154,21 @@ export default function LoginPage() {
 
           {/* Login Card */}
           <div className="p-6 sm:p-8 rounded-2xl border border-border bg-card shadow-sm space-y-5">
+            {/* Google Authentication Button */}
+            <div className="space-y-3">
+              <GoogleSignInButton
+                role={role}
+                mode="login"
+              />
+              <div className="relative flex items-center justify-center">
+                <div className="border-t border-border w-full" />
+                <span className="bg-card px-3 text-[11px] font-medium uppercase tracking-wider text-muted-foreground shrink-0">
+                  Or continue with email
+                </span>
+                <div className="border-t border-border w-full" />
+              </div>
+            </div>
+
             <form onSubmit={handleSubmit} className="space-y-4">
               <Input
                 label="Email Address"

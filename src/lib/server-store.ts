@@ -5,6 +5,10 @@ import {
   AuditLogEntry,
   NotificationItem,
   StudentProfile,
+  RecruiterProfile,
+  AdminProfile,
+  User,
+  UserRole,
   VerificationChecklistItem,
   VerificationQueueStatus,
   VerificationRequest,
@@ -15,10 +19,13 @@ import {
 import { defaultStudentUser, defaultAdminUser, defaultRecruiterUser } from "@/data/mock-users";
 import { verificationRequests as initialVerificationRequests, auditLogs as initialAuditLogs, adminNotifications as initialAdminNotifications } from "@/data/mock-admin-data";
 import { initialMockNotifications } from "@/data/mock-notifications";
+import { isUniversityEmail } from "@/lib/utils";
 
 interface StoreState {
   verificationRequests: VerificationRequest[];
   studentProfiles: Map<string, StudentProfile>;
+  recruiterProfiles: Map<string, RecruiterProfile>;
+  adminProfiles: Map<string, AdminProfile>;
   auditLogs: AuditLogEntry[];
   adminNotifications: AdminNotificationItem[];
   studentNotifications: Map<string, NotificationItem[]>; // userId -> notifications
@@ -33,6 +40,8 @@ declare global {
 
 function initializeStore(): StoreState {
   const studentProfiles = new Map<string, StudentProfile>();
+  const recruiterProfiles = new Map<string, RecruiterProfile>();
+  const adminProfiles = new Map<string, AdminProfile>();
   const studentNotifications = new Map<string, NotificationItem[]>();
 
   // Initialize default student
@@ -41,6 +50,16 @@ function initializeStore(): StoreState {
     verificationStatus: "approved",
   });
   studentNotifications.set(defaultStudentUser.id, [...initialMockNotifications]);
+
+  // Initialize default recruiter
+  recruiterProfiles.set(defaultRecruiterUser.id, {
+    ...defaultRecruiterUser,
+  });
+
+  // Initialize default admin
+  adminProfiles.set(defaultAdminUser.id, {
+    ...defaultAdminUser,
+  });
 
   // Clone initial verification requests
   const verificationRequests = JSON.parse(JSON.stringify(initialVerificationRequests)) as VerificationRequest[];
@@ -158,6 +177,8 @@ function initializeStore(): StoreState {
   return {
     verificationRequests,
     studentProfiles,
+    recruiterProfiles,
+    adminProfiles,
     auditLogs: JSON.parse(JSON.stringify(initialAuditLogs)),
     adminNotifications: JSON.parse(JSON.stringify(initialAdminNotifications)),
     studentNotifications,
@@ -850,5 +871,211 @@ export class ServerStore {
     list.unshift(newNotif);
     store.studentNotifications.set(studentId, list);
     return newNotif;
+  }
+
+  static findUserByGoogleId(googleId: string): User | null {
+    // Check students
+    const students = Array.from(store.studentProfiles.values());
+    for (let i = 0; i < students.length; i++) {
+      if (students[i].googleId === googleId) return students[i];
+    }
+    // Check recruiters
+    const recruiters = Array.from(store.recruiterProfiles.values());
+    for (let i = 0; i < recruiters.length; i++) {
+      if (recruiters[i].googleId === googleId) return recruiters[i];
+    }
+    // Check admins
+    const admins = Array.from(store.adminProfiles.values());
+    for (let i = 0; i < admins.length; i++) {
+      if (admins[i].googleId === googleId) return admins[i];
+    }
+    return null;
+  }
+
+  static findUserByEmail(email: string): User | null {
+    const normalized = email.trim().toLowerCase();
+    // Check students
+    const students = Array.from(store.studentProfiles.values());
+    for (let i = 0; i < students.length; i++) {
+      const student = students[i];
+      if (student.email.trim().toLowerCase() === normalized) return student;
+      if (student.personalEmail && student.personalEmail.trim().toLowerCase() === normalized) return student;
+    }
+    // Check recruiters
+    const recruiters = Array.from(store.recruiterProfiles.values());
+    for (let i = 0; i < recruiters.length; i++) {
+      if (recruiters[i].email.trim().toLowerCase() === normalized) return recruiters[i];
+    }
+    // Check admins
+    const admins = Array.from(store.adminProfiles.values());
+    for (let i = 0; i < admins.length; i++) {
+      if (admins[i].email.trim().toLowerCase() === normalized) return admins[i];
+    }
+    return null;
+  }
+
+  static handleGoogleAuth(params: {
+    googleId: string;
+    email: string;
+    name: string;
+    avatar?: string;
+    role?: UserRole;
+    university?: string;
+    company?: string;
+  }): { user: User; isNewUser: boolean; redirectUrl: string } | { error: string; status: number } {
+    const { googleId, email, name, avatar, role = "student", university, company } = params;
+    const normalizedEmail = email.trim().toLowerCase();
+
+    // 1. Check if user already exists with this googleId
+    const existingGoogleUser = ServerStore.findUserByGoogleId(googleId);
+    if (existingGoogleUser) {
+      const redirectUrl =
+        existingGoogleUser.role === "admin"
+          ? "/admin"
+          : existingGoogleUser.role === "recruiter"
+          ? "/dashboard/recruiter"
+          : (existingGoogleUser as StudentProfile).verificationStatus === "not_submitted"
+          ? "/onboarding?step=verification"
+          : "/dashboard";
+
+      return { user: existingGoogleUser, isNewUser: false, redirectUrl };
+    }
+
+    // 2. Check if user already exists with this verified email (Account Linking)
+    const existingEmailUser = ServerStore.findUserByEmail(normalizedEmail);
+    if (existingEmailUser) {
+      // Safely link the Google ID to existing account
+      existingEmailUser.googleId = googleId;
+      existingEmailUser.emailVerified = true;
+      existingEmailUser.authProvider = "google";
+      if (avatar && (!existingEmailUser.avatar || existingEmailUser.avatar.includes("unsplash") === false)) {
+        existingEmailUser.avatar = avatar;
+      }
+
+      if (existingEmailUser.role === "student") {
+        store.studentProfiles.set(existingEmailUser.id, existingEmailUser as StudentProfile);
+      } else if (existingEmailUser.role === "recruiter") {
+        store.recruiterProfiles.set(existingEmailUser.id, existingEmailUser as RecruiterProfile);
+      } else if (existingEmailUser.role === "admin") {
+        store.adminProfiles.set(existingEmailUser.id, existingEmailUser as AdminProfile);
+      }
+
+      const redirectUrl =
+        existingEmailUser.role === "admin"
+          ? "/admin"
+          : existingEmailUser.role === "recruiter"
+          ? "/dashboard/recruiter"
+          : (existingEmailUser as StudentProfile).verificationStatus === "not_submitted"
+          ? "/onboarding?step=verification"
+          : "/dashboard";
+
+      return { user: existingEmailUser, isNewUser: false, redirectUrl };
+    }
+
+    // 3. New User Registration Flow
+    // Admin Security Rule: Public users CANNOT self-select Admin role on signup
+    if (role === "admin") {
+      const authorizedAdmins = ["priya.menon@studenthub.io", "admin@studenthub.io", "admin@studenthub.com"];
+      const isAuthorized =
+        authorizedAdmins.includes(normalizedEmail) ||
+        Array.from(store.adminProfiles.values()).some((a) => a.email.toLowerCase() === normalizedEmail);
+
+      if (!isAuthorized) {
+        return {
+          error: "Unauthorized: This Google account is not registered as an administrator. Please contact your system administrator.",
+          status: 403,
+        };
+      }
+    }
+
+    if (role === "recruiter") {
+      const newRecruiterId = `recruiter_${Date.now()}`;
+      const newRecruiter: RecruiterProfile = {
+        id: newRecruiterId,
+        name: name || "Recruiter",
+        email: normalizedEmail,
+        role: "recruiter",
+        avatar: avatar || "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80",
+        title: "Talent Acquisition Specialist",
+        company: company || "Partner Company",
+        companyLogo: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=150&auto=format&fit=crop&q=80",
+        location: "San Francisco, CA / Remote",
+        bio: `Recruiting talent at ${company || "our organization"}.`,
+        verificationStatus: "Pending",
+        activeListingsCount: 0,
+        candidatesReviewed: 0,
+        googleId,
+        emailVerified: true,
+        authProvider: "google",
+      };
+
+      store.recruiterProfiles.set(newRecruiterId, newRecruiter);
+      return { user: newRecruiter, isNewUser: true, redirectUrl: "/dashboard/recruiter" };
+    }
+
+    // Default: Student Registration
+    const isUni = isUniversityEmail(normalizedEmail);
+    const newStudentId = `student_${Date.now()}`;
+    const newStudent: StudentProfile = {
+      id: newStudentId,
+      name: name || "Student Candidate",
+      email: normalizedEmail,
+      role: "student",
+      avatar: avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+      headline: `Student @ ${university || "University"}`,
+      university: university || (isUni ? normalizedEmail.split("@")[1] : "University"),
+      degree: "Undergraduate Studies",
+      branch: "Computer Science & Engineering",
+      academicStream: "Engineering & Technology",
+      specialization: "General",
+      academicLevel: "Undergraduate",
+      yearOfStudy: "1st Year",
+      graduationYear: new Date().getFullYear() + 4,
+      cgpa: "",
+      location: "Campus / Remote",
+      bio: "Ambitious student exploring technology and software engineering opportunities.",
+      hasUniversityEmail: isUni,
+      isUniversityEmail: isUni,
+      personalEmail: normalizedEmail,
+      accountStatus: isUni ? "profile_complete" : "account_created",
+      // Non-university emails MUST go through StudentHub verification!
+      verificationStatus: isUni ? "approved" : "not_submitted",
+      onboardingCompleted: isUni,
+      verificationRequest: null,
+      status: "Open to Summer 2026 Internships",
+      skills: ["Problem Solving", "Collaboration"],
+      resume: null,
+      projects: [],
+      certifications: [],
+      socialLinks: {},
+      stats: {
+        profileViews: 0,
+        searchAppearances: 0,
+        applicationsCount: 0,
+        interviewsCount: 0,
+      },
+      googleId,
+      emailVerified: true,
+      authProvider: "google",
+    };
+
+    store.studentProfiles.set(newStudentId, newStudent);
+
+    // Add initial welcome notification
+    store.studentNotifications.set(newStudentId, [
+      {
+        id: `notif_${newStudentId}_1`,
+        type: "system",
+        title: "Welcome to StudentHub!",
+        description: isUni
+          ? "Your institutional email was automatically verified. Complete your profile to get discovered!"
+          : "Your Google account is connected. Please submit your student verification to unlock full student perks.",
+        timestamp: "Just now",
+        isRead: false,
+      },
+    ]);
+
+    const redirectUrl = isUni ? "/dashboard" : "/onboarding?step=verification";
+    return { user: newStudent, isNewUser: true, redirectUrl };
   }
 }

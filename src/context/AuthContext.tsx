@@ -20,6 +20,19 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoaded: boolean;
   login: (email: string, role: UserRole, name?: string) => void;
+  loginWithGoogle: (
+    credential: string,
+    role?: UserRole,
+    metadata?: { university?: string; company?: string }
+  ) => Promise<{
+    success: boolean;
+    user?: User;
+    token?: string;
+    refreshToken?: string;
+    isNewUser?: boolean;
+    redirectUrl?: string;
+    error?: string;
+  }>;
   registerStudent: (basicData: {
     name: string;
     email: string;
@@ -223,6 +236,63 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const loginWithGoogle = async (
+    credential: string,
+    targetRole: UserRole = "student",
+    metadata?: { university?: string; company?: string }
+  ) => {
+    try {
+      const res = await fetch("/api/auth/google", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          credential,
+          role: targetRole,
+          university: metadata?.university,
+          company: metadata?.company,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.success && data.user) {
+        setUser(data.user);
+        setRole(data.user.role);
+        persistSession(data.user, data.user.role);
+
+        try {
+          if (data.token) {
+            localStorage.setItem("studenthub_access_token", data.token);
+          }
+          if (data.refreshToken) {
+            localStorage.setItem("studenthub_refresh_token", data.refreshToken);
+          }
+        } catch {
+          console.warn("Could not save auth tokens to localStorage");
+        }
+
+        return {
+          success: true,
+          user: data.user,
+          token: data.token,
+          refreshToken: data.refreshToken,
+          isNewUser: data.isNewUser,
+          redirectUrl: data.redirectUrl,
+        };
+      } else {
+        return {
+          success: false,
+          error: data.error || "Google authentication failed",
+        };
+      }
+    } catch {
+      return {
+        success: false,
+        error: "Network error during Google authentication. Please try again.",
+      };
+    }
+  };
+
   const registerStudent = async (basicData: {
     name: string;
     email: string;
@@ -392,6 +462,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null);
     setRole("student");
     persistSession(null, "student");
+    try {
+      localStorage.removeItem("studenthub_access_token");
+      localStorage.removeItem("studenthub_refresh_token");
+    } catch {
+      // ignore
+    }
   };
 
   const switchRole = (newRole: UserRole) => {
@@ -662,6 +738,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         isAuthenticated: !!user,
         isLoaded,
         login,
+        loginWithGoogle,
         registerStudent,
         registerRecruiter,
         logout,

@@ -30,6 +30,7 @@ import { Input } from "@/components/ui/Input";
 import { ThemeToggle } from "@/components/shared/ThemeToggle";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
+import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 import { UserRole } from "@/types";
 import { isUniversityEmail } from "@/lib/utils";
 
@@ -326,6 +327,18 @@ export default function SignupPage() {
           {/* ================= STUDENT SIGNUP FORM ================= */}
           {role === "student" ? (
             <div className="p-6 sm:p-8 rounded-2xl border border-border bg-card shadow-sm space-y-6">
+              {/* Google Sign Up */}
+              <div className="space-y-3">
+                <GoogleSignInButton role="student" mode="signup" />
+                <div className="relative flex items-center justify-center">
+                  <div className="border-t border-border w-full" />
+                  <span className="bg-card px-3 text-[11px] font-medium uppercase tracking-wider text-muted-foreground shrink-0">
+                    Or register with student email
+                  </span>
+                  <div className="border-t border-border w-full" />
+                </div>
+              </div>
+
               <form onSubmit={handleStudentSubmit} className="space-y-4">
                 <div>
                   <Input
@@ -465,6 +478,18 @@ export default function SignupPage() {
                 {/* STEP 1: PERSONAL & CONTACT INFORMATION */}
                 {currentStep === 1 && (
                   <div className="space-y-5 animate-in fade-in duration-200">
+                    {/* Google Recruiter Sign Up */}
+                    <div className="space-y-3">
+                      <GoogleSignInButton role="recruiter" mode="signup" />
+                      <div className="relative flex items-center justify-center">
+                        <div className="border-t border-border w-full" />
+                        <span className="bg-card px-3 text-[11px] font-medium uppercase tracking-wider text-muted-foreground shrink-0">
+                          Or enter recruiter details
+                        </span>
+                        <div className="border-t border-border w-full" />
+                      </div>
+                    </div>
+
                     <div className="space-y-1">
                       <h2 className="text-base font-bold text-foreground flex items-center gap-2">
                         <User className="w-4 h-4 text-purple-500" />

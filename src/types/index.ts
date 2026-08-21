@@ -78,6 +78,9 @@ export interface StudentProfile {
   email: string;
   role: 'student';
   avatar: string;
+  googleId?: string;
+  emailVerified?: boolean;
+  authProvider?: 'credentials' | 'google';
   headline: string;
   university: string;
   degree: string;
@@ -141,6 +144,9 @@ export interface RecruiterProfile {
   phone?: string;
   role: 'recruiter';
   avatar: string;
+  googleId?: string;
+  emailVerified?: boolean;
+  authProvider?: 'credentials' | 'google';
   title: string;
   department?: string;
   company: string;
@@ -512,6 +518,9 @@ export interface AdminProfile {
   email: string;
   role: 'admin';
   avatar: string;
+  googleId?: string;
+  emailVerified?: boolean;
+  authProvider?: 'credentials' | 'google';
   title: string;
   team: string;
 }
