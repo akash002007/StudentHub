@@ -1,5 +1,6 @@
 import { LandingNav } from "@/components/landing/LandingNav";
 import { HeroSection } from "@/components/landing/HeroSection";
+import { CareerDNASection } from "@/components/career-dna/CareerDNASection";
 import { GSAPBentoShowcase } from "@/components/animations/GSAPBentoShowcase";
 import { FeaturesGrid } from "@/components/landing/FeaturesGrid";
 import { InternshipSpotlight } from "@/components/landing/InternshipSpotlight";
@@ -14,6 +15,7 @@ export default function LandingPage() {
       <LandingNav />
       <main className="flex-1">
         <HeroSection />
+        <CareerDNASection />
         <GSAPBentoShowcase />
         <FeaturesGrid />
         <InternshipSpotlight />

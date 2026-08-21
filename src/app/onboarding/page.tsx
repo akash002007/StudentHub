@@ -270,7 +270,21 @@ function OnboardingContent() {
       uploadedAt: "Uploaded just now",
       url: URL.createObjectURL(file),
     });
-    success(`Resume "${file.name}" attached successfully`);
+
+    // Trigger non-blocking server upload & Resume DNA background analysis
+    if (student?.id) {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("userId", student.id);
+      fetch("/api/resume/upload", {
+        method: "POST",
+        body: formData,
+      }).catch((err) => {
+        console.warn("Background resume analysis trigger notice:", err);
+      });
+    }
+
+    success(`Resume "${file.name}" attached successfully. Resume DNA analysis is processing in the background.`);
   };
 
   // Verification Document Selection & Validation

@@ -115,18 +115,406 @@ export interface StudentProfile {
     github?: string;
     linkedin?: string;
     leetcode?: string;
+    codeforces?: string;
     portfolio?: string;
     twitter?: string;
     behance?: string;
     researchgate?: string;
     ssrn?: string;
   };
+  githubConnection?: GitHubConnection | null;
   stats: {
     profileViews: number;
     searchAppearances: number;
     applicationsCount: number;
     interviewsCount: number;
   };
+}
+
+export type GitHubSyncStatus = "CONNECTED" | "SYNCING" | "SYNCED" | "FAILED";
+
+export interface GitHubConnection {
+  id: string;
+  userId: string;
+  githubUserId: string;
+  githubUsername: string;
+  githubDisplayName: string | null;
+  githubAvatarUrl: string | null;
+  githubProfileUrl: string;
+  syncStatus?: GitHubSyncStatus;
+  syncStartedAt?: string | null;
+  syncCompletedAt?: string | null;
+  syncError?: string | null;
+  repositoriesCount?: number;
+  projectsDetectedCount?: number;
+  skillsDetectedCount?: number;
+  connectedAt: string;
+  updatedAt: string;
+}
+
+export interface GitHubRepository {
+  id: string;
+  githubRepositoryId: number;
+  userId: string;
+  name: string;
+  fullName: string;
+  description: string | null;
+  htmlUrl: string;
+  language: string | null;
+  languages: Record<string, number>; // language -> bytes
+  topics: string[];
+  starsCount: number;
+  forksCount: number;
+  isFork: boolean;
+  isPrivate: boolean;
+  defaultBranch: string;
+  createdAt: string;
+  updatedAt: string;
+  pushedAt: string;
+  readmeSnippet?: string | null;
+}
+
+export type EvidenceType =
+  | "SKILL"
+  | "PROJECT"
+  | "ARCHITECTURE"
+  | "TESTING"
+  | "SECURITY"
+  | "DATABASE"
+  | "API"
+  | "AI_ML"
+  | "DEVOPS"
+  | "DOCUMENTATION"
+  | "PROBLEM_SOLVING"
+  | "ACTIVITY";
+
+export type EvidenceSource =
+  | "SOURCE_CODE"
+  | "DEPENDENCY"
+  | "REPOSITORY_LANG"
+  | "README"
+  | "TOPIC"
+  | "PROJECT_STRUCTURE";
+
+export interface NormalizedEvidence {
+  id: string;
+  type: EvidenceType;
+  skill?: string;
+  repositoryId: string;
+  repositoryName: string;
+  source: EvidenceSource;
+  files?: string[];
+  reason: string;
+  confidence: number; // 0.0 to 1.0
+  weight: number; // multiplier
+  detectedAt: string;
+}
+
+export interface SkillEvidence {
+  id: string;
+  skill: string; // Normalized skill name
+  confidence: number; // 0 to 100
+  source: "github" | "resume" | "profile" | "certification";
+  sourceId: string;
+  repoName?: string;
+  languageBytes?: number;
+  detectedAt: string;
+}
+
+export interface CareerDNAScoreDimensions {
+  technicalDepth: number; // 0 - 100
+  technicalBreadth: number; // 0 - 100
+  projectComplexity: number; // 0 - 100
+  engineeringQuality: number; // 0 - 100
+  problemSolving: number; // 0 - 100
+  projectCompleteness: number; // 0 - 100
+  consistency: number; // 0 - 100
+}
+
+export interface CareerDNASnapshot {
+  snapshotId: string;
+  overallScore: number;
+  analysisConfidence: number;
+  dimensions: CareerDNAScoreDimensions;
+  capturedAt: string;
+}
+
+export type ResumeStatus = "UPLOADED" | "PROCESSING" | "COMPLETED" | "FAILED" | "SUPERSEDED";
+
+export interface ResumeDNA {
+  score: number; // 0 - 100
+  confidence: number; // 0 - 100
+  summary: string;
+  primaryStrength: string;
+  skills: Array<{ name: string; category: string; confidence: number; evidence: string }>;
+  education: Array<{ institution: string; degree: string; year: string; gpa?: string }>;
+  projects: Array<{ title: string; techStack: string[]; description: string; impact?: string }>;
+  experience: Array<{ organization: string; role: string; duration: string; achievements: string[] }>;
+  certifications: string[];
+  achievements: string[];
+  strengths: string[];
+  weaknesses: string[];
+  recommendations: string[];
+  evidence: Array<{ id: string; entity: string; skill: string; text: string; confidence: number; source: "Resume" }>;
+}
+
+export interface ResumeRecord {
+  id: string;
+  userId: string;
+  fileName: string;
+  fileType: string;
+  fileSize: string;
+  fileSizeBytes: number;
+  status: ResumeStatus;
+  extractedText: string;
+  uploadedAt: string;
+  analyzedAt: string | null;
+  analysisVersion: string;
+  resumeScore: number | null;
+  isActive: boolean;
+  supersededAt: string | null;
+  resumeDNA: ResumeDNA | null;
+  error?: string | null;
+}
+
+export type CodeforcesSyncStatus = "CONNECTED" | "SYNCING" | "SYNCED" | "FAILED";
+export type CodeforcesVerificationStatus = "PENDING_VERIFICATION" | "VERIFIED" | "VERIFICATION_FAILED" | "DISCONNECTED";
+
+export interface CodeforcesConnection {
+  id: string;
+  userId: string;
+  handle: string;
+  rating: number;
+  maxRating: number;
+  rank: string;
+  maxRank: string;
+  avatar: string;
+  contestsCount: number;
+  totalSubmissions: number;
+  solvedProblemsCount: number;
+  strongestTags: Array<{ tag: string; count: number }>;
+  difficultyDistribution: Record<string, number>;
+  languages: Record<string, number>;
+  ratingTrend: "Improving" | "Stable" | "Declining";
+  status: CodeforcesVerificationStatus;
+  syncStatus: CodeforcesSyncStatus;
+  verificationToken: string | null;
+  verificationExpiresAt: string | null;
+  verifiedAt: string | null;
+  lastSyncedAt: string | null;
+  connectedAt: string;
+  error?: string | null;
+}
+
+export interface CodeforcesDNA {
+  score: number; // 0 - 100
+  confidence: number;
+  handle: string;
+  rating: number;
+  maxRating: number;
+  rank: string;
+  maxRank: string;
+  solvedProblemsCount: number;
+  contestsCount: number;
+  strongestTags: Array<{ tag: string; count: number }>;
+  difficultyDistribution: Record<string, number>;
+  languages: Record<string, number>;
+  ratingTrend: "Improving" | "Stable" | "Declining";
+  strengths: string[];
+  developingAreas: string[];
+  evidence: Array<{ id: string; entity: string; skill: string; text: string; confidence: number; source: "Codeforces" }>;
+}
+
+export type HuggingFaceSyncStatus = "CONNECTED" | "SYNCING" | "SYNCED" | "FAILED";
+
+export interface HuggingFaceConnectionRecord {
+  id: string;
+  userId: string;
+  hfUserId: string;
+  username: string;
+  fullname: string | null;
+  avatarUrl: string | null;
+  profileUrl: string;
+  accessTokenEncrypted: string;
+  modelsCount: number;
+  datasetsCount: number;
+  spacesCount: number;
+  totalLikes: number;
+  syncStatus: HuggingFaceSyncStatus;
+  lastSyncedAt: string | null;
+  connectedAt: string;
+  error?: string | null;
+}
+
+export interface HuggingFaceDNA {
+  score: number; // 0 - 100
+  confidence: number;
+  username: string;
+  modelsCount: number;
+  datasetsCount: number;
+  spacesCount: number;
+  totalLikes: number;
+  topFrameworks: string[];
+  aiSpecializations: string[];
+  evidence: Array<{
+    id: string;
+    entity: string;
+    skill: string;
+    text: string;
+    confidence: number;
+    source: "HuggingFace";
+  }>;
+}
+
+export type CertificateVerificationStatus =
+  | "VERIFIED"
+  | "PARTIALLY_VERIFIED"
+  | "UNABLE_TO_VERIFY"
+  | "SUSPICIOUS"
+  | "ANALYSIS_FAILED";
+
+export type CertificateVerificationConfidence = "HIGH" | "MEDIUM" | "LOW";
+export type IdentityMatchStatus = "MATCH" | "PARTIAL_MATCH" | "MISMATCH" | "UNKNOWN";
+export type IssuerVerificationStatus = "VERIFIED" | "PARTIALLY_VERIFIED" | "UNRECOGNIZED" | "SUSPICIOUS";
+export type CredentialVerificationStatus = "VERIFIED" | "NOT_FOUND" | "UNAVAILABLE" | "MISMATCH";
+export type DocumentIntegrityStatus = "NO_OBVIOUS_MANIPULATION" | "POSSIBLE_MANIPULATION" | "INSUFFICIENT_EVIDENCE";
+export type DigitalSignatureStatus = "DIGITAL_SIGNATURE_VALID" | "DIGITAL_SIGNATURE_INVALID" | "NO_DIGITAL_SIGNATURE";
+
+export interface CertificateRecord {
+  id: string;
+  userId: string;
+  fileName: string;
+  fileType: string;
+  fileSizeBytes: number;
+  fileSize: string; // e.g. "1.2 MB"
+  fileUrl: string;
+  recipientName: string;
+  certificateTitle: string;
+  courseName: string;
+  issuerName: string;
+  issueDate: string | null;
+  expiryDate: string | null;
+  certificateId: string | null;
+  credentialId: string | null;
+  verificationUrl: string | null;
+  qrData: string | null;
+  skills: string[];
+  identityMatchStatus: IdentityMatchStatus;
+  issuerVerificationStatus: IssuerVerificationStatus;
+  credentialVerificationStatus: CredentialVerificationStatus;
+  documentIntegrityStatus: DocumentIntegrityStatus;
+  digitalSignatureStatus: DigitalSignatureStatus;
+  verificationStatus: CertificateVerificationStatus;
+  verificationConfidence: CertificateVerificationConfidence;
+  evidenceStatements: string[];
+  status: "UPLOADED" | "PROCESSING" | "COMPLETED" | "FAILED";
+  uploadedAt: string;
+  analyzedAt: string | null;
+  error?: string | null;
+}
+
+export interface CertificateDNA {
+  score: number; // 0 - 100
+  totalCertificates: number;
+  verifiedCount: number;
+  partiallyVerifiedCount: number;
+  unableToVerifyCount: number;
+  suspiciousCount: number;
+  topVerifiedSkills: Array<{ name: string; certificateCount: number }>;
+  evidence: Array<{
+    id: string;
+    entity: string;
+    skill: string;
+    text: string;
+    confidence: number;
+    source: "Certificate";
+  }>;
+}
+
+export interface CareerDNA {
+  id: string;
+  userId: string;
+  overallScore: number; // Deterministic 0 - 100
+  analysisConfidence: number; // Deterministic evidence confidence % (0 - 100)
+  dimensions: CareerDNAScoreDimensions;
+  dimensionExplanations: Record<keyof CareerDNAScoreDimensions, string>;
+  evidences: NormalizedEvidence[];
+  topSkills: Array<{
+    name: string;
+    score: number;
+    evidenceCount: number;
+  }>;
+  skillEvidences: SkillEvidence[];
+  featuredProjects: Project[];
+  summary: string;
+  potentialCareerDirections: string[];
+  skillGaps: string[];
+  scoringVersion: string;
+  analysisVersion: string;
+  scoringWeights: Record<string, number>;
+  githubStats: {
+    totalRepos: number;
+    primaryLanguages: string[];
+    topRepoName: string;
+    totalStars: number;
+    lastSyncAt: string;
+  } | null;
+  codeforcesStats?: {
+    handle: string;
+    rating: number;
+    maxRating: number;
+    rank: string;
+    solvedProblemsCount: number;
+    contestsCount: number;
+    lastSyncAt: string;
+  } | null;
+  huggingfaceStats?: {
+    username: string;
+    modelsCount: number;
+    datasetsCount: number;
+    spacesCount: number;
+    totalLikes: number;
+    lastSyncAt: string;
+  } | null;
+  certificateStats?: {
+    totalCertificates: number;
+    verifiedCertificates: number;
+    topSkills: string[];
+    lastAnalysisAt: string;
+  } | null;
+  history?: CareerDNASnapshot[];
+  sourceStatuses?: {
+    resume: "ANALYZED" | "NOT_CONNECTED" | "PROCESSING" | "STALE";
+    github: "ANALYZED" | "CONNECTED" | "NOT_CONNECTED" | "PROCESSING" | "STALE";
+    codeforces?: "ANALYZED" | "CONNECTED" | "NOT_CONNECTED" | "PROCESSING" | "STALE";
+    huggingface?: "ANALYZED" | "CONNECTED" | "NOT_CONNECTED" | "PROCESSING" | "STALE";
+    certificates?: "ANALYZED" | "CONNECTED" | "NOT_CONNECTED" | "PROCESSING" | "STALE";
+    projects: "ANALYZED" | "NOT_CONNECTED";
+    skills: "ANALYZED";
+    experience: "ANALYZED" | "NOT_CONNECTED";
+    education: "ANALYZED" | "NOT_CONNECTED";
+    certifications: "ANALYZED" | "NOT_CONNECTED";
+  };
+  sourceBreakdown?: {
+    resumeScore: number | null;
+    githubScore: number | null;
+    codeforcesScore?: number | null;
+    huggingfaceScore?: number | null;
+    certificatesScore?: number | null;
+    projectsScore: number | null;
+    skillsScore: number | null;
+    experienceScore: number | null;
+    educationScore: number | null;
+  };
+  nextBestActions?: Array<{
+    id: string;
+    priority: "HIGH" | "MEDIUM" | "LOW";
+    title: string;
+    reason: string;
+    action: string;
+    source: string;
+  }>;
+  updatedAt: string;
 }
 
 export type RecruiterVerificationStatus =
@@ -673,6 +1061,24 @@ export interface AdminStudentRecord {
   profileCompletion: number;
   lastActive: string;
   joined: string;
+  skills?: string[];
+  avatar?: string;
+  headline?: string;
+  careerDNA?: {
+    score: number;
+    rating: string;
+    confidence: number;
+    primaryStrength: string;
+    topSkills: string[];
+    projectsAnalyzed: number;
+    verified: boolean;
+    lastAnalyzedAt: string;
+    summary?: string;
+    evidences?: NormalizedEvidence[];
+    featuredProjects?: Project[];
+    skillGaps?: string[];
+    dimensions?: CareerDNAScoreDimensions;
+  } | null;
 }
 
 export type User = StudentProfile | RecruiterProfile | AdminProfile;

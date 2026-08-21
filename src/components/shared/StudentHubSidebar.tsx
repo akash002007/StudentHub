@@ -32,6 +32,7 @@ import {
   Moon,
   Laptop,
   ArrowLeftRight,
+  Dna,
 } from "lucide-react";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
@@ -163,6 +164,16 @@ export function StudentHubSidebar({
           icon: User,
           badge: "85%",
           badgeVariant: "lavender",
+        },
+      ],
+    },
+    {
+      groupLabel: "INTELLIGENCE",
+      items: [
+        {
+          label: "Career DNA",
+          href: "/dashboard/career-dna",
+          icon: Dna,
         },
       ],
     },

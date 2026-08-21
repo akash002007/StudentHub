@@ -26,6 +26,7 @@ import { Avatar } from "@/components/ui/Avatar";
 import { useAuth } from "@/context/AuthContext";
 import { useData } from "@/context/DataContext";
 import { getTimeAwareGreeting, getStatusBadgeStyle } from "@/lib/utils";
+import { CareerDNASummaryCard } from "@/components/dashboard/CareerDNASummaryCard";
 
 export default function DashboardHomePage() {
   const router = useRouter();
@@ -110,6 +111,9 @@ export default function DashboardHomePage() {
           </div>
         </div>
       </div>
+
+      {/* Career DNA Summary Section */}
+      <CareerDNASummaryCard userId={user?.id} />
 
       {/* Quick Statistics Overview Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">

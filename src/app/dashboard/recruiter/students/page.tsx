@@ -26,6 +26,7 @@ import { Select } from "@/components/ui/Select";
 import { Avatar } from "@/components/ui/Avatar";
 import { RoleGuard } from "@/components/dashboard/RoleGuard";
 import { CandidateProfileModal, CandidateModalData } from "@/components/dashboard/CandidateProfileModal";
+import { RecruiterCareerDNAModal } from "@/components/recruiter/RecruiterCareerDNAModal";
 import { useData } from "@/context/DataContext";
 import { RecruiterStudentCandidate } from "@/types";
 
@@ -43,11 +44,17 @@ export default function RecruiterFindStudentsPage() {
   const [selectedSkill, setSelectedSkill] = useState<string>("all");
   const [selectedGradYear, setSelectedGradYear] = useState<string>("all");
   const [minCgpaFilter, setMinCgpaFilter] = useState<string>("all");
+  const [careerDnaFilter, setCareerDnaFilter] = useState<string>("all");
+  const [sortBy, setSortBy] = useState<string>("recommended");
   const [onlyShortlisted, setOnlyShortlisted] = useState(false);
 
-  // Modal State
+  // Profile Modal State
   const [selectedCandidate, setSelectedCandidate] = useState<CandidateModalData | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Career DNA Modal State
+  const [selectedDnaCandidate, setSelectedDnaCandidate] = useState<any | null>(null);
+  const [isDnaModalOpen, setIsDnaModalOpen] = useState(false);
 
   const allSkills = Array.from(
     new Set(recruiterStudents.flatMap((s) => s.skills))
@@ -61,43 +68,73 @@ export default function RecruiterFindStudentsPage() {
     new Set(recruiterStudents.map((s) => s.academicStream).filter(Boolean) as string[])
   ).sort();
 
-  const filteredStudents = recruiterStudents.filter((student) => {
-    const matchesSearch =
-      student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      student.university.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      student.skills.some((s) => s.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      (student.specialization && student.specialization.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      (student.academicStream && student.academicStream.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      student.bio.toLowerCase().includes(searchQuery.toLowerCase());
+  const filteredStudents = recruiterStudents
+    .filter((student) => {
+      const matchesSearch =
+        student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        student.university.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        student.skills.some((s) => s.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (student.specialization && student.specialization.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (student.academicStream && student.academicStream.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        student.bio.toLowerCase().includes(searchQuery.toLowerCase());
 
-    const matchesStream =
-      selectedStream === "all" || student.academicStream === selectedStream;
+      const matchesStream =
+        selectedStream === "all" || student.academicStream === selectedStream;
 
-    const matchesUniversity =
-      selectedUniversity === "all" || student.university === selectedUniversity;
+      const matchesUniversity =
+        selectedUniversity === "all" || student.university === selectedUniversity;
 
-    const matchesSkill =
-      selectedSkill === "all" || student.skills.includes(selectedSkill);
+      const matchesSkill =
+        selectedSkill === "all" || student.skills.includes(selectedSkill);
 
-    const matchesGradYear =
-      selectedGradYear === "all" || student.graduationYear.toString() === selectedGradYear;
+      const matchesGradYear =
+        selectedGradYear === "all" || student.graduationYear.toString() === selectedGradYear;
 
-    const matchesCgpa =
-      minCgpaFilter === "all" ||
-      parseFloat(student.cgpa.split("/")[0].trim()) >= parseFloat(minCgpaFilter);
+      const matchesCgpa =
+        minCgpaFilter === "all" ||
+        parseFloat(student.cgpa.split("/")[0].trim()) >= parseFloat(minCgpaFilter);
 
-    const matchesShortlist = !onlyShortlisted || student.isShortlisted;
+      const matchesShortlist = !onlyShortlisted || student.isShortlisted;
 
-    return (
-      matchesSearch &&
-      matchesStream &&
-      matchesUniversity &&
-      matchesSkill &&
-      matchesGradYear &&
-      matchesCgpa &&
-      matchesShortlist
-    );
-  });
+      // Career DNA Score Tier Filter
+      const studentScore = (student as any).careerDNA?.score;
+      let matchesCareerDna = true;
+      if (careerDnaFilter === "90") matchesCareerDna = Boolean(studentScore && studentScore >= 90);
+      else if (careerDnaFilter === "80") matchesCareerDna = Boolean(studentScore && studentScore >= 80);
+      else if (careerDnaFilter === "70") matchesCareerDna = Boolean(studentScore && studentScore >= 70);
+      else if (careerDnaFilter === "60") matchesCareerDna = Boolean(studentScore && studentScore >= 60);
+      else if (careerDnaFilter === "below60") matchesCareerDna = Boolean(studentScore && studentScore < 60);
+
+      return (
+        matchesSearch &&
+        matchesStream &&
+        matchesUniversity &&
+        matchesSkill &&
+        matchesGradYear &&
+        matchesCgpa &&
+        matchesShortlist &&
+        matchesCareerDna
+      );
+    })
+    .sort((a, b) => {
+      const aScore = (a as any).careerDNA?.score ?? -1;
+      const bScore = (b as any).careerDNA?.score ?? -1;
+
+      if (sortBy === "dna_high") {
+        return bScore - aScore;
+      }
+      if (sortBy === "dna_low") {
+        // Place unscored candidates at the end
+        if (aScore === -1 && bScore !== -1) return 1;
+        if (bScore === -1 && aScore !== -1) return -1;
+        return aScore - bScore;
+      }
+      if (sortBy === "profile_strength") {
+        return (b.skills.length + (b.resumeUrl ? 5 : 0)) - (a.skills.length + (a.resumeUrl ? 5 : 0));
+      }
+      // Default: Recommended (combines Career DNA + skills count)
+      return (bScore * 2 + b.skills.length * 5) - (aScore * 2 + a.skills.length * 5);
+    });
 
   const handleOpenCandidate = (student: RecruiterStudentCandidate) => {
     setSelectedCandidate({
@@ -138,6 +175,14 @@ export default function RecruiterFindStudentsPage() {
     router.push("/dashboard/recruiter/messages");
   };
 
+  const handleOpenDnaModal = (student: RecruiterStudentCandidate) => {
+    setSelectedDnaCandidate({
+      name: student.name,
+      careerDNA: (student as any).careerDNA,
+    });
+    setIsDnaModalOpen(true);
+  };
+
   const resetFilters = () => {
     setSearchQuery("");
     setSelectedStream("all");
@@ -145,6 +190,8 @@ export default function RecruiterFindStudentsPage() {
     setSelectedSkill("all");
     setSelectedGradYear("all");
     setMinCgpaFilter("all");
+    setCareerDnaFilter("all");
+    setSortBy("recommended");
     setOnlyShortlisted(false);
   };
 
@@ -156,13 +203,13 @@ export default function RecruiterFindStudentsPage() {
           <div>
             <div className="flex items-center gap-2 text-xs font-semibold text-purple-600 dark:text-purple-400 mb-1">
               <Sparkles className="w-3.5 h-3.5" />
-              <span>Talent Discovery</span>
+              <span>Talent Discovery &amp; Career DNA</span>
             </div>
             <h1 className="text-2xl font-extrabold text-foreground tracking-tight">
               Find Student Talent
             </h1>
             <p className="text-xs text-muted-foreground">
-              Search verified student engineers, designers, and researchers across top universities.
+              Search verified student engineers using GitHub-powered Career DNA scores and verified code evidence.
             </p>
           </div>
 
@@ -182,7 +229,7 @@ export default function RecruiterFindStudentsPage() {
 
         {/* Filter Panel */}
         <div className="p-5 rounded-2xl bg-card border border-border space-y-4 shadow-xs">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3">
             <div>
               <Input
                 placeholder="Search by name or skills..."
@@ -194,15 +241,43 @@ export default function RecruiterFindStudentsPage() {
 
             <div>
               <Select
-                value={selectedStream}
-                onChange={(e) => setSelectedStream(e.target.value)}
+                value={selectedSkill}
+                onChange={(e) => setSelectedSkill(e.target.value)}
               >
-                <option value="all">All Academic Streams</option>
-                {allStreams.map((st) => (
-                  <option key={st} value={st}>
-                    {st}
+                <option value="all">All Skills &amp; Stacks</option>
+                {allSkills.map((s) => (
+                  <option key={s} value={s}>
+                    {s}
                   </option>
                 ))}
+              </Select>
+            </div>
+
+            {/* Career DNA Tier Filter */}
+            <div>
+              <Select
+                value={careerDnaFilter}
+                onChange={(e) => setCareerDnaFilter(e.target.value)}
+              >
+                <option value="all">Career DNA: Any</option>
+                <option value="90">90+ Exceptional</option>
+                <option value="80">80+ Strong</option>
+                <option value="70">70+ Good</option>
+                <option value="60">60+ Developing</option>
+                <option value="below60">Below 60</option>
+              </Select>
+            </div>
+
+            {/* Sorting Dropdown */}
+            <div>
+              <Select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+              >
+                <option value="recommended">Sort: Recommended</option>
+                <option value="dna_high">Career DNA: High → Low</option>
+                <option value="dna_low">Career DNA: Low → High</option>
+                <option value="profile_strength">Profile Strength</option>
               </Select>
             </div>
 
@@ -215,20 +290,6 @@ export default function RecruiterFindStudentsPage() {
                 {allUniversities.map((u) => (
                   <option key={u} value={u}>
                     {u}
-                  </option>
-                ))}
-              </Select>
-            </div>
-
-            <div>
-              <Select
-                value={selectedSkill}
-                onChange={(e) => setSelectedSkill(e.target.value)}
-              >
-                <option value="all">All Skills &amp; Stacks</option>
-                {allSkills.map((s) => (
-                  <option key={s} value={s}>
-                    {s}
                   </option>
                 ))}
               </Select>
@@ -360,6 +421,61 @@ export default function RecruiterFindStudentsPage() {
                   </div>
                 </div>
 
+                {/* Compact Career DNA Section */}
+                {(student as any).careerDNA ? (
+                  <div className="p-3 rounded-2xl bg-purple-500/5 dark:bg-purple-950/20 border border-purple-500/20 space-y-2 text-xs">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-full bg-purple-600 text-white font-extrabold flex items-center justify-center text-xs shrink-0 shadow-xs">
+                          {(student as any).careerDNA.score}
+                        </div>
+                        <div>
+                          <span className="font-bold text-foreground block text-[11px]">Career DNA</span>
+                          <span className="text-[10px] text-purple-600 dark:text-purple-400 font-semibold">
+                            {(student as any).careerDNA.rating}
+                          </span>
+                        </div>
+                      </div>
+
+                      {(student as any).careerDNA.verified && (
+                        <Badge variant="emerald" size="sm" className="text-[9px] px-1.5 py-0 font-semibold">
+                          GitHub Verified
+                        </Badge>
+                      )}
+                    </div>
+
+                    <div className="pt-1.5 border-t border-purple-500/10 space-y-1 text-[11px]">
+                      <div className="flex items-center justify-between text-muted-foreground">
+                        <span>Strength:</span>
+                        <span className="font-semibold text-foreground truncate max-w-[120px]">
+                          {(student as any).careerDNA.primaryStrength}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between text-muted-foreground">
+                        <span>Confidence / Repos:</span>
+                        <span className="font-medium text-foreground">
+                          {(student as any).careerDNA.confidence}% · {(student as any).careerDNA.projectsAnalyzed} repos
+                        </span>
+                      </div>
+                    </div>
+
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleOpenDnaModal(student)}
+                      className="w-full h-7 text-[11px] font-semibold text-purple-600 dark:text-purple-400 hover:bg-purple-500/10 mt-1"
+                    >
+                      View Career DNA Evidence &rarr;
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="p-2.5 rounded-xl bg-muted/30 border border-border/40 text-[11px] text-muted-foreground flex items-center justify-between">
+                    <span>Career DNA:</span>
+                    <span className="font-medium italic">Not available</span>
+                  </div>
+                )}
+
                 {/* Projects snippet */}
                 {student.projects && student.projects.length > 0 && (
                   <div className="pt-2 border-t border-border/40 text-[11px] text-muted-foreground flex items-center justify-between">
@@ -421,6 +537,14 @@ export default function RecruiterFindStudentsPage() {
               ? recruiterStudents.find((s) => s.id === selectedCandidate.id)?.isShortlisted
               : false
           }
+        />
+
+        {/* Recruiter Career DNA Evidence Detail Modal */}
+        <RecruiterCareerDNAModal
+          isOpen={isDnaModalOpen}
+          onClose={() => setIsDnaModalOpen(false)}
+          candidateName={selectedDnaCandidate?.name || "Candidate"}
+          careerDNA={selectedDnaCandidate?.careerDNA}
         />
       </div>
     </RoleGuard>

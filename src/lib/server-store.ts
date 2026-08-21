@@ -1,3 +1,5 @@
+import fs from "fs";
+import path from "path";
 import {
   AdminNotificationItem,
   AdminOverviewMetrics,
@@ -15,6 +17,16 @@ import {
   VerificationRiskLevel,
   VerificationStatus,
   VerificationType,
+  GitHubRepository,
+  CareerDNA,
+  GitHubSyncStatus,
+  ResumeRecord,
+  CodeforcesConnection,
+  CodeforcesDNA,
+  CertificateRecord,
+  CertificateDNA,
+  HuggingFaceConnectionRecord,
+  HuggingFaceDNA,
 } from "@/types";
 import { defaultStudentUser, defaultAdminUser, defaultRecruiterUser } from "@/data/mock-users";
 import { verificationRequests as initialVerificationRequests, auditLogs as initialAuditLogs, adminNotifications as initialAdminNotifications } from "@/data/mock-admin-data";
@@ -29,7 +41,37 @@ interface StoreState {
   auditLogs: AuditLogEntry[];
   adminNotifications: AdminNotificationItem[];
   studentNotifications: Map<string, NotificationItem[]>; // userId -> notifications
+  githubConnections: Map<string, GitHubConnectionRecord>; // userId -> GitHubConnectionRecord
+  githubRepositories: Map<string, GitHubRepository[]>; // userId -> GitHubRepository[]
+  careerDNA: Map<string, CareerDNA>; // userId -> CareerDNA
+  resumes: Map<string, ResumeRecord[]>; // userId -> ResumeRecord[]
+  codeforcesConnections: Map<string, CodeforcesConnection>; // userId -> CodeforcesConnection
+  codeforcesDNA: Map<string, CodeforcesDNA>; // userId -> CodeforcesDNA
+  huggingfaceConnections: Map<string, HuggingFaceConnectionRecord>; // userId -> HuggingFaceConnectionRecord
+  huggingfaceDNA: Map<string, HuggingFaceDNA>; // userId -> HuggingFaceDNA
+  certificates: Map<string, CertificateRecord[]>; // userId -> CertificateRecord[]
+  certificateDNA: Map<string, CertificateDNA>; // userId -> CertificateDNA
   verificationCounter: number;
+}
+
+export interface GitHubConnectionRecord {
+  id: string;
+  userId: string;
+  githubUserId: string;
+  githubUsername: string;
+  githubDisplayName: string | null;
+  githubAvatarUrl: string | null;
+  githubProfileUrl: string;
+  accessTokenEncrypted: string;
+  syncStatus?: GitHubSyncStatus;
+  syncStartedAt?: string | null;
+  syncCompletedAt?: string | null;
+  syncError?: string | null;
+  repositoriesCount?: number;
+  projectsDetectedCount?: number;
+  skillsDetectedCount?: number;
+  connectedAt: string;
+  updatedAt: string;
 }
 
 // Global declaration to maintain single memory store during Next.js dev hot-reloads
@@ -43,6 +85,12 @@ function initializeStore(): StoreState {
   const recruiterProfiles = new Map<string, RecruiterProfile>();
   const adminProfiles = new Map<string, AdminProfile>();
   const studentNotifications = new Map<string, NotificationItem[]>();
+  const githubConnections = new Map<string, GitHubConnectionRecord>();
+  const githubRepositories = new Map<string, GitHubRepository[]>();
+  const careerDNA = new Map<string, CareerDNA>();
+  const resumes = new Map<string, ResumeRecord[]>();
+  const codeforcesConnections = new Map<string, CodeforcesConnection>();
+  const codeforcesDNA = new Map<string, CodeforcesDNA>();
 
   // Initialize default student
   studentProfiles.set(defaultStudentUser.id, {
@@ -174,7 +222,7 @@ function initializeStore(): StoreState {
     }
   });
 
-  return {
+  const initialStore: StoreState = {
     verificationRequests,
     studentProfiles,
     recruiterProfiles,
@@ -182,8 +230,111 @@ function initializeStore(): StoreState {
     auditLogs: JSON.parse(JSON.stringify(initialAuditLogs)),
     adminNotifications: JSON.parse(JSON.stringify(initialAdminNotifications)),
     studentNotifications,
+    githubConnections,
+    githubRepositories,
+    careerDNA,
+    resumes,
+    codeforcesConnections,
+    codeforcesDNA,
+    huggingfaceConnections: new Map<string, HuggingFaceConnectionRecord>(),
+    huggingfaceDNA: new Map<string, HuggingFaceDNA>(),
+    certificates: new Map<string, CertificateRecord[]>(),
+    certificateDNA: new Map<string, CertificateDNA>(),
     verificationCounter: 4814,
   };
+
+  loadStoreFromDisk(initialStore);
+  return initialStore;
+}
+
+const DB_FILE_PATH = path.join(process.cwd(), ".data", "server-store-db.json");
+
+function loadStoreFromDisk(storeObj: StoreState): void {
+  try {
+    if (!fs.existsSync(DB_FILE_PATH)) return;
+    const raw = fs.readFileSync(DB_FILE_PATH, "utf-8");
+    if (!raw.trim()) return;
+    const data = JSON.parse(raw);
+
+    if (data.codeforcesConnections && Array.isArray(data.codeforcesConnections)) {
+      data.codeforcesConnections.forEach(([key, val]: [string, CodeforcesConnection]) => {
+        storeObj.codeforcesConnections.set(key, val);
+      });
+    }
+    if (data.codeforcesDNA && Array.isArray(data.codeforcesDNA)) {
+      data.codeforcesDNA.forEach(([key, val]: [string, CodeforcesDNA]) => {
+        storeObj.codeforcesDNA.set(key, val);
+      });
+    }
+    if (data.githubConnections && Array.isArray(data.githubConnections)) {
+      data.githubConnections.forEach(([key, val]: [string, GitHubConnectionRecord]) => {
+        storeObj.githubConnections.set(key, val);
+      });
+    }
+    if (data.githubRepositories && Array.isArray(data.githubRepositories)) {
+      data.githubRepositories.forEach(([key, val]: [string, GitHubRepository[]]) => {
+        storeObj.githubRepositories.set(key, val);
+      });
+    }
+    if (data.huggingfaceConnections && Array.isArray(data.huggingfaceConnections)) {
+      data.huggingfaceConnections.forEach(([key, val]: [string, HuggingFaceConnectionRecord]) => {
+        storeObj.huggingfaceConnections.set(key, val);
+      });
+    }
+    if (data.huggingfaceDNA && Array.isArray(data.huggingfaceDNA)) {
+      data.huggingfaceDNA.forEach(([key, val]: [string, HuggingFaceDNA]) => {
+        storeObj.huggingfaceDNA.set(key, val);
+      });
+    }
+    if (data.certificates && Array.isArray(data.certificates)) {
+      data.certificates.forEach(([key, val]: [string, CertificateRecord[]]) => {
+        storeObj.certificates.set(key, val);
+      });
+    }
+    if (data.certificateDNA && Array.isArray(data.certificateDNA)) {
+      data.certificateDNA.forEach(([key, val]: [string, CertificateDNA]) => {
+        storeObj.certificateDNA.set(key, val);
+      });
+    }
+    if (data.resumes && Array.isArray(data.resumes)) {
+      data.resumes.forEach(([key, val]: [string, ResumeRecord[]]) => {
+        storeObj.resumes.set(key, val);
+      });
+    }
+    if (data.careerDNA && Array.isArray(data.careerDNA)) {
+      data.careerDNA.forEach(([key, val]: [string, CareerDNA]) => {
+        storeObj.careerDNA.set(key, val);
+      });
+    }
+  } catch (err) {
+    console.warn("Failed to load server store from disk:", err);
+  }
+}
+
+export function persistStoreToDisk(): void {
+  try {
+    const dir = path.dirname(DB_FILE_PATH);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+
+    const serializable = {
+      codeforcesConnections: Array.from(store.codeforcesConnections.entries()),
+      codeforcesDNA: Array.from(store.codeforcesDNA.entries()),
+      githubConnections: Array.from(store.githubConnections.entries()),
+      githubRepositories: Array.from(store.githubRepositories.entries()),
+      huggingfaceConnections: Array.from(store.huggingfaceConnections.entries()),
+      huggingfaceDNA: Array.from(store.huggingfaceDNA.entries()),
+      certificates: Array.from(store.certificates.entries()),
+      certificateDNA: Array.from(store.certificateDNA.entries()),
+      resumes: Array.from(store.resumes.entries()),
+      careerDNA: Array.from(store.careerDNA.entries()),
+    };
+
+    fs.writeFileSync(DB_FILE_PATH, JSON.stringify(serializable, null, 2), "utf-8");
+  } catch (err) {
+    console.warn("Failed to persist server store to disk:", err);
+  }
 }
 
 const store: StoreState = global.__STUDENTHUB_SERVER_STORE__ || (global.__STUDENTHUB_SERVER_STORE__ = initializeStore());
@@ -783,6 +934,35 @@ export class ServerStore {
       else if (p.verificationStatus === "rejected") vStatus = "Rejected";
       else if (p.verificationStatus === "needs_information") vStatus = "Needs Information";
 
+      const dna = store.careerDNA.get(p.id);
+      const githubConn = store.githubConnections.get(p.id);
+
+      let careerDnaSummary = null;
+      if (dna) {
+        let scoreLabel = "Good";
+        if (dna.overallScore >= 90) scoreLabel = "Exceptional";
+        else if (dna.overallScore >= 80) scoreLabel = "Strong";
+        else if (dna.overallScore >= 70) scoreLabel = "Good";
+        else if (dna.overallScore >= 60) scoreLabel = "Developing";
+        else scoreLabel = "Needs Improvement";
+
+        careerDnaSummary = {
+          score: dna.overallScore,
+          rating: scoreLabel,
+          confidence: dna.analysisConfidence || 85,
+          primaryStrength: dna.potentialCareerDirections?.[0] || "Software Engineering",
+          topSkills: (dna.topSkills || []).slice(0, 4).map((s) => s.name),
+          projectsAnalyzed: dna.githubStats?.totalRepos || 0,
+          verified: Boolean(githubConn && githubConn.syncStatus === "SYNCED"),
+          lastAnalyzedAt: dna.updatedAt,
+          summary: dna.summary,
+          evidences: (dna.evidences || []).slice(0, 4),
+          featuredProjects: dna.featuredProjects || [],
+          skillGaps: dna.skillGaps || [],
+          dimensions: dna.dimensions,
+        };
+      }
+
       const record: AdminStudentRecord = {
         id: p.id,
         name: p.name,
@@ -794,6 +974,10 @@ export class ServerStore {
         profileCompletion: p.skills.length > 0 && p.resume ? 95 : 80,
         lastActive: "Just now",
         joined: "Aug 2026",
+        skills: p.skills || [],
+        avatar: p.avatar,
+        headline: p.headline,
+        careerDNA: careerDnaSummary,
       };
 
       const matchesQuery =
@@ -1079,3 +1263,421 @@ export class ServerStore {
     return { user: newStudent, isNewUser: true, redirectUrl };
   }
 }
+
+/**
+ * Gets a student's connected GitHub record by userId
+ */
+export function getGitHubConnection(userId: string): GitHubConnectionRecord | null {
+  return store.githubConnections.get(userId) || null;
+}
+
+/**
+ * Checks if a GitHub account is already linked to any user
+ */
+export function getGitHubConnectionByGithubId(githubUserId: string): GitHubConnectionRecord | null {
+  const connections = Array.from(store.githubConnections.values());
+  for (const conn of connections) {
+    if (String(conn.githubUserId) === String(githubUserId)) {
+      return conn;
+    }
+  }
+  return null;
+}
+
+/**
+ * Saves or updates a GitHub connection for a student user
+ */
+export function saveGitHubConnection(
+  data: Omit<GitHubConnectionRecord, "id" | "connectedAt" | "updatedAt">
+): GitHubConnectionRecord {
+  const existing = store.githubConnections.get(data.userId);
+  const now = new Date().toISOString();
+
+  const record: GitHubConnectionRecord = {
+    id: existing?.id || `gh_conn_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+    ...data,
+    connectedAt: existing?.connectedAt || now,
+    updatedAt: now,
+  };
+
+  store.githubConnections.set(data.userId, record);
+
+  // Synchronize student profile GitHub social link and connection metadata
+  const student = store.studentProfiles.get(data.userId);
+  if (student) {
+    student.socialLinks = {
+      ...student.socialLinks,
+      github: data.githubProfileUrl,
+    };
+    student.githubConnection = {
+      id: record.id,
+      userId: record.userId,
+      githubUserId: record.githubUserId,
+      githubUsername: record.githubUsername,
+      githubDisplayName: record.githubDisplayName,
+      githubAvatarUrl: record.githubAvatarUrl,
+      githubProfileUrl: record.githubProfileUrl,
+      connectedAt: record.connectedAt,
+      updatedAt: record.updatedAt,
+    };
+  }
+
+  return record;
+}
+
+/**
+ * Disconnects a GitHub account from a student profile
+ */
+export function deleteGitHubConnection(userId: string): boolean {
+  const deleted = store.githubConnections.delete(userId);
+  store.githubRepositories.delete(userId);
+
+  const student = store.studentProfiles.get(userId);
+  if (student) {
+    if (student.socialLinks) {
+      delete student.socialLinks.github;
+    }
+    delete student.githubConnection;
+  }
+
+  return deleted;
+}
+
+/**
+ * Updates the GitHub sync status and metadata for a user
+ */
+export function updateGitHubSyncStatus(
+  userId: string,
+  syncStatus: GitHubSyncStatus,
+  metadata?: Partial<GitHubConnectionRecord>
+): GitHubConnectionRecord | null {
+  const existing = store.githubConnections.get(userId);
+  if (!existing) return null;
+
+  const updated: GitHubConnectionRecord = {
+    ...existing,
+    syncStatus,
+    ...metadata,
+    updatedAt: new Date().toISOString(),
+  };
+
+  store.githubConnections.set(userId, updated);
+
+  const student = store.studentProfiles.get(userId);
+  if (student && student.githubConnection) {
+    student.githubConnection = {
+      ...student.githubConnection,
+      syncStatus,
+      ...metadata,
+      updatedAt: updated.updatedAt,
+    };
+  }
+
+  return updated;
+}
+
+/**
+ * Saves normalized GitHub repositories for a user
+ */
+export function saveGitHubRepositories(userId: string, repos: GitHubRepository[]): GitHubRepository[] {
+  store.githubRepositories.set(userId, repos);
+  return repos;
+}
+
+/**
+ * Retrieves normalized GitHub repositories for a user
+ */
+export function getGitHubRepositories(userId: string): GitHubRepository[] {
+  return store.githubRepositories.get(userId) || [];
+}
+
+/**
+ * Saves Career DNA for a user
+ */
+export function saveCareerDNA(userId: string, dna: CareerDNA): CareerDNA {
+  store.careerDNA.set(userId, dna);
+
+  // Sync featured projects & top skills into student profile if student exists
+  const student = store.studentProfiles.get(userId);
+  if (student) {
+    if (dna.featuredProjects && dna.featuredProjects.length > 0) {
+      // Merge unique projects without duplicate IDs
+      const existingIds = new Set(student.projects.map((p: any) => p.id));
+      const newProjects = dna.featuredProjects.filter((p: any) => !existingIds.has(p.id));
+      student.projects = [...student.projects, ...newProjects];
+    }
+
+    if (dna.topSkills && dna.topSkills.length > 0) {
+      const existingSkillsSet = new Set(student.skills.map((s: string) => s.toLowerCase()));
+      const newSkillNames = dna.topSkills
+        .map((s: { name: string }) => s.name)
+        .filter((name: string) => !existingSkillsSet.has(name.toLowerCase()));
+      student.skills = [...student.skills, ...newSkillNames];
+    }
+  }
+
+  return dna;
+}
+
+/**
+ * Retrieves Career DNA for a user
+ */
+export function getCareerDNA(userId: string): CareerDNA | null {
+  return store.careerDNA.get(userId) || null;
+}
+
+/**
+ * Saves or updates a ResumeRecord for a user
+ */
+export function saveResumeRecord(userId: string, record: ResumeRecord): ResumeRecord {
+  const existingList = store.resumes.get(userId) || [];
+  const existingIndex = existingList.findIndex((r) => r.id === record.id);
+
+  let updatedList: ResumeRecord[];
+  if (existingIndex >= 0) {
+    updatedList = [...existingList];
+    updatedList[existingIndex] = record;
+  } else {
+    updatedList = [record, ...existingList];
+  }
+
+  store.resumes.set(userId, updatedList);
+
+  // Sync resume metadata to student profile if record is active
+  if (record.isActive) {
+    const student = store.studentProfiles.get(userId);
+    if (student) {
+      student.resume = {
+        fileName: record.fileName,
+        fileSize: record.fileSize,
+        uploadedAt: record.uploadedAt,
+        url: "#",
+      };
+    }
+  }
+
+  return record;
+}
+
+/**
+ * Retrieves the current active ResumeRecord for a user
+ */
+export function getActiveResumeRecord(userId: string): ResumeRecord | null {
+  const list = store.resumes.get(userId) || [];
+  return list.find((r) => r.isActive && r.status !== "SUPERSEDED") || null;
+}
+
+/**
+ * Retrieves full resume history for a user
+ */
+export function getResumeHistory(userId: string): ResumeRecord[] {
+  return store.resumes.get(userId) || [];
+}
+
+/**
+ * Retrieves a specific resume record by ID
+ */
+export function getResumeById(userId: string, resumeId: string): ResumeRecord | null {
+  const list = store.resumes.get(userId) || [];
+  return list.find((r) => r.id === resumeId) || null;
+}
+
+/**
+ * Marks all previous active resumes for a user as SUPERSEDED (except exceptId if provided)
+ */
+export function deactivatePreviousResumes(userId: string, exceptId?: string): void {
+  const list = store.resumes.get(userId) || [];
+  const now = new Date().toISOString();
+
+  const updated = list.map((r) => {
+    if (r.id !== exceptId && r.isActive) {
+      return {
+        ...r,
+        isActive: false,
+        status: "SUPERSEDED" as const,
+        supersededAt: now,
+      };
+    }
+    return r;
+  });
+
+  store.resumes.set(userId, updated);
+}
+
+/**
+ * Saves CodeforcesConnection for a user
+ */
+export function saveCodeforcesConnection(userId: string, conn: CodeforcesConnection): CodeforcesConnection {
+  store.codeforcesConnections.set(userId, conn);
+
+  // Sync to student profile socialLinks
+  const student = store.studentProfiles.get(userId);
+  if (student) {
+    if (!student.socialLinks) {
+      student.socialLinks = {};
+    }
+    student.socialLinks.codeforces = `https://codeforces.com/profile/${conn.handle}`;
+  }
+
+  persistStoreToDisk();
+  return conn;
+}
+
+/**
+ * Retrieves CodeforcesConnection for a user
+ */
+export function getCodeforcesConnection(userId: string): CodeforcesConnection | null {
+  return store.codeforcesConnections.get(userId) || null;
+}
+
+/**
+ * Deletes CodeforcesConnection for a user
+ */
+export function deleteCodeforcesConnection(userId: string): boolean {
+  store.codeforcesDNA.delete(userId);
+  const result = store.codeforcesConnections.delete(userId);
+  persistStoreToDisk();
+  return result;
+}
+
+/**
+ * Saves CodeforcesDNA for a user
+ */
+export function saveCodeforcesDNA(userId: string, dna: CodeforcesDNA): CodeforcesDNA {
+  store.codeforcesDNA.set(userId, dna);
+  persistStoreToDisk();
+  return dna;
+}
+
+/**
+ * Retrieves CodeforcesDNA for a user
+ */
+export function getCodeforcesDNA(userId: string): CodeforcesDNA | null {
+  return store.codeforcesDNA.get(userId) || null;
+}
+
+// --------------------------------------------------
+// CERTIFICATE INTELLIGENCE STORAGE HELPERS
+// --------------------------------------------------
+
+/**
+ * Saves or updates a CertificateRecord for a user
+ */
+export function saveCertificate(userId: string, certificate: CertificateRecord): CertificateRecord {
+  const existing = store.certificates.get(userId) || [];
+  const index = existing.findIndex((c) => c.id === certificate.id);
+
+  if (index >= 0) {
+    existing[index] = certificate;
+  } else {
+    existing.unshift(certificate);
+  }
+
+  store.certificates.set(userId, existing);
+  persistStoreToDisk();
+  return certificate;
+}
+
+/**
+ * Retrieves all CertificateRecords for a user
+ */
+export function getCertificates(userId: string): CertificateRecord[] {
+  return store.certificates.get(userId) || [];
+}
+
+/**
+ * Retrieves a specific CertificateRecord by ID
+ */
+export function getCertificateById(userId: string, id: string): CertificateRecord | null {
+  const list = store.certificates.get(userId) || [];
+  return list.find((c) => c.id === id) || null;
+}
+
+/**
+ * Deletes a CertificateRecord by ID
+ */
+export function deleteCertificate(userId: string, id: string): boolean {
+  const list = store.certificates.get(userId) || [];
+  const updated = list.filter((c) => c.id !== id);
+  store.certificates.set(userId, updated);
+  persistStoreToDisk();
+  return list.length !== updated.length;
+}
+
+/**
+ * Saves CertificateDNA for a user
+ */
+export function saveCertificateDNA(userId: string, dna: CertificateDNA): CertificateDNA {
+  store.certificateDNA.set(userId, dna);
+  persistStoreToDisk();
+  return dna;
+}
+
+/**
+ * Retrieves CertificateDNA for a user
+ */
+export function getCertificateDNA(userId: string): CertificateDNA | null {
+  return store.certificateDNA.get(userId) || null;
+}
+
+/**
+ * Retrieves StudentProfile for a user
+ */
+export function getStudentProfile(userId: string): StudentProfile | null {
+  return store.studentProfiles.get(userId) || null;
+}
+
+// --------------------------------------------------
+// HUGGING FACE INTELLIGENCE STORAGE HELPERS
+// --------------------------------------------------
+
+/**
+ * Saves or updates a HuggingFaceConnectionRecord for a user
+ */
+export function saveHuggingFaceConnection(
+  connection: HuggingFaceConnectionRecord
+): HuggingFaceConnectionRecord {
+  store.huggingfaceConnections.set(connection.userId, connection);
+  persistStoreToDisk();
+  return connection;
+}
+
+/**
+ * Retrieves a HuggingFaceConnectionRecord for a user
+ */
+export function getHuggingFaceConnection(
+  userId: string
+): HuggingFaceConnectionRecord | null {
+  return store.huggingfaceConnections.get(userId) || null;
+}
+
+/**
+ * Deletes a HuggingFaceConnectionRecord and associated HuggingFaceDNA for a user
+ */
+export function deleteHuggingFaceConnection(userId: string): boolean {
+  const existed = store.huggingfaceConnections.delete(userId);
+  store.huggingfaceDNA.delete(userId);
+  persistStoreToDisk();
+  return existed;
+}
+
+/**
+ * Saves HuggingFaceDNA for a user
+ */
+export function saveHuggingFaceDNA(
+  userId: string,
+  dna: HuggingFaceDNA
+): HuggingFaceDNA {
+  store.huggingfaceDNA.set(userId, dna);
+  persistStoreToDisk();
+  return dna;
+}
+
+/**
+ * Retrieves HuggingFaceDNA for a user
+ */
+export function getHuggingFaceDNA(userId: string): HuggingFaceDNA | null {
+  return store.huggingfaceDNA.get(userId) || null;
+}
+
+
