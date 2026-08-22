@@ -23,6 +23,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Avatar } from "@/components/ui/Avatar";
 import { RoleGuard } from "@/components/dashboard/RoleGuard";
 import { CandidateProfileModal, CandidateModalData } from "@/components/dashboard/CandidateProfileModal";
+import { RecruiterCareerDNASection } from "@/components/recruiter/RecruiterCareerDNASection";
 import { useData } from "@/context/DataContext";
 import { RecruiterStudentCandidate } from "@/types";
 
@@ -89,6 +90,7 @@ export default function RecruiterShortlistedPage() {
       projects: student.projects,
       certifications: student.certifications,
       isShortlisted: student.isShortlisted,
+      careerDNA: (student as any).careerDNA,
     });
     setIsModalOpen(true);
   };
@@ -286,6 +288,16 @@ export default function RecruiterShortlistedPage() {
                       </span>
                     )}
                   </div>
+
+                  {/* Compact Career DNA Section */}
+                  <RecruiterCareerDNASection
+                    studentId={student.id}
+                    candidateName={student.name}
+                    careerDNA={(student as any).careerDNA}
+                    compact={true}
+                    onOpenFullModal={() => handleOpenCandidate(student)}
+                    className="mt-3"
+                  />
                 </div>
 
                 {/* Card Actions */}

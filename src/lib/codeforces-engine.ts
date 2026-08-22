@@ -3,9 +3,15 @@ import { CodeforcesConnection, CodeforcesDNA } from "@/types";
 export type CodeforcesApiErrorKind = "NOT_FOUND" | "TIMEOUT" | "UNAVAILABLE";
 
 export class CodeforcesApiError extends Error {
-  constructor(public readonly kind: CodeforcesApiErrorKind, message: string) {
+  public readonly retryable: boolean;
+  constructor(
+    public readonly kind: CodeforcesApiErrorKind,
+    message: string,
+    retryable = false
+  ) {
     super(message);
     this.name = "CodeforcesApiError";
+    this.retryable = retryable;
   }
 }
 
@@ -32,7 +38,7 @@ export class CodeforcesEngine {
    */
   static async fetchUserInfo(handle: string, bypassCache = false): Promise<any> {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 8000);
+    const timeout = setTimeout(() => controller.abort(), 15000); // 15s timeout for resilient public profile fetching
     const fetchOptions: RequestInit = bypassCache
       ? { cache: "no-store", headers: { "User-Agent": "StudentHub-CareerDNA/1.0" } }
       : { headers: { "User-Agent": "StudentHub-CareerDNA/1.0" }, next: { revalidate: 3600 } };
@@ -44,25 +50,41 @@ export class CodeforcesEngine {
       );
 
       if (!res.ok) {
-        throw new CodeforcesApiError("UNAVAILABLE", "Unable to reach Codeforces right now. Please try again in a moment.");
+        throw new CodeforcesApiError(
+          "UNAVAILABLE",
+          "Codeforces is temporarily unavailable. Please try again in a moment.",
+          true
+        );
       }
 
       const data = await res.json();
       if (data.status !== "OK" || !data.result || data.result.length === 0) {
         const comment = typeof data.comment === "string" ? data.comment.toLowerCase() : "";
         if (comment.includes("not found") || comment.includes("not exist")) {
-          throw new CodeforcesApiError("NOT_FOUND", "We couldn't find this Codeforces account.");
+          throw new CodeforcesApiError("NOT_FOUND", `Codeforces account "${handle}" was not found.`, false);
         }
-        throw new CodeforcesApiError("UNAVAILABLE", "Unable to reach Codeforces right now. Please try again in a moment.");
+        throw new CodeforcesApiError(
+          "UNAVAILABLE",
+          "Codeforces is temporarily unavailable. Please try again in a moment.",
+          true
+        );
       }
 
       return data.result[0];
     } catch (error) {
       if (error instanceof CodeforcesApiError) throw error;
       if (error instanceof DOMException && error.name === "AbortError") {
-        throw new CodeforcesApiError("TIMEOUT", "Codeforces is taking too long to respond. Please try again.");
+        throw new CodeforcesApiError(
+          "TIMEOUT",
+          "Codeforces is taking longer than expected. Please try again.",
+          true
+        );
       }
-      throw new CodeforcesApiError("UNAVAILABLE", "Unable to reach Codeforces right now. Please try again in a moment.");
+      throw new CodeforcesApiError(
+        "UNAVAILABLE",
+        "Unable to reach Codeforces right now. Please try again in a moment.",
+        true
+      );
     } finally {
       clearTimeout(timeout);
     }

@@ -633,7 +633,7 @@ export const initialMockRecruiterApplicants: RecruiterApplicant[] = [
   },
 ];
 
-export const initialMockRecruiterStudents: RecruiterStudentCandidate[] = [
+const rawMockRecruiterStudents: RecruiterStudentCandidate[] = [
   {
     id: "cand_1",
     name: "Alex Rivera",
@@ -1290,6 +1290,187 @@ export const initialMockRecruiterStudents: RecruiterStudentCandidate[] = [
     certifications: [],
   },
 ];
+
+const candidateDnaMap: Record<string, any> = {
+  cand_1: {
+    score: 92,
+    rating: "Exceptional",
+    confidence: 94,
+    primaryStrength: "Distributed Systems & Full Stack",
+    topSkills: ["TypeScript", "React", "Rust", "Node.js"],
+    projectsAnalyzed: 14,
+    verified: true,
+    lastAnalyzedAt: "2026-02-15T10:00:00Z",
+    summary: "Exceptional systems architect with proven proficiency in real-time WebSockets, CRDT synchronization, and Rust tokenizers.",
+    evidences: [
+      { id: "ev_1", repositoryName: "PulseFlow", type: "CRDT Sync", reason: "Real-time WebSocket state synchronization with 1,200+ users." },
+      { id: "ev_2", repositoryName: "DeepQuery", type: "Vector Indexer", reason: "Rust and Python FastAPI vector search engine with ChromaDB." }
+    ],
+    skillGaps: ["Add production Kubernetes deployment charts", "Expand unit test code coverage past 85%"],
+    dimensions: { architecture: 94, codeQuality: 92, problemSolving: 95, technicalBreadth: 90, consistency: 89 }
+  },
+  cand_2: {
+    score: 89,
+    rating: "Strong",
+    confidence: 92,
+    primaryStrength: "Frontend Engineering & Design Systems",
+    topSkills: ["React", "TypeScript", "Next.js", "Tailwind CSS"],
+    projectsAnalyzed: 9,
+    verified: true,
+    lastAnalyzedAt: "2026-02-14T12:00:00Z",
+    summary: "Specialized frontend engineer focused on accessible headless design systems and component performance ergonomics.",
+    evidences: [
+      { id: "ev_3", repositoryName: "Aura UI", type: "Design System", reason: "Headless UI component library built for speed with 4,000+ npm downloads." }
+    ],
+    skillGaps: ["Add GraphQL query caching strategies", "Incorporate automated visual regression tests"],
+    dimensions: { architecture: 88, codeQuality: 92, problemSolving: 86, technicalBreadth: 89, consistency: 91 }
+  },
+  cand_3: {
+    score: 91,
+    rating: "Exceptional",
+    confidence: 93,
+    primaryStrength: "Systems Architecture & Distributed Storage",
+    topSkills: ["Rust", "Go", "C++", "Linux"],
+    projectsAnalyzed: 12,
+    verified: true,
+    lastAnalyzedAt: "2026-02-13T15:00:00Z",
+    summary: "High throughput Raft consensus protocol author in async Rust with Tokio and gRPC.",
+    evidences: [
+      { id: "ev_4", repositoryName: "RaftKV", type: "Consensus Engine", reason: "High throughput Raft implementation in async Rust." }
+    ],
+    dimensions: { architecture: 93, codeQuality: 90, problemSolving: 94, technicalBreadth: 88, consistency: 90 }
+  },
+  cand_4: {
+    score: 95,
+    rating: "Exceptional",
+    confidence: 96,
+    primaryStrength: "Machine Learning & Graph Neural Networks",
+    topSkills: ["Python", "PyTorch", "GNNs", "FastAPI"],
+    projectsAnalyzed: 16,
+    verified: true,
+    lastAnalyzedAt: "2026-02-12T09:00:00Z",
+    summary: "CMU ML researcher focusing on graph neural networks and streaming financial anomaly detection.",
+    evidences: [
+      { id: "ev_5", repositoryName: "GraphGuard", type: "GNN Pipeline", reason: "Fraud detection pipeline processing millions of streaming transactions." }
+    ],
+    dimensions: { architecture: 95, codeQuality: 94, problemSolving: 98, technicalBreadth: 93, consistency: 95 }
+  },
+  cand_5: {
+    score: 84,
+    rating: "Strong",
+    confidence: 88,
+    primaryStrength: "Kernel Observability & Infrastructure",
+    topSkills: ["Go", "Kubernetes", "eBPF", "Docker"],
+    projectsAnalyzed: 8,
+    verified: true,
+    lastAnalyzedAt: "2026-02-11T11:00:00Z",
+    summary: "UW student researcher specializing in kernel observability, container networking, and eBPF tracing.",
+    evidences: [
+      { id: "ev_6", repositoryName: "eBPF-Trace", type: "Kernel Tracing", reason: "Zero-overhead packet inspection and latency tracing for microservices." }
+    ],
+    dimensions: { architecture: 85, codeQuality: 84, problemSolving: 87, technicalBreadth: 82, consistency: 82 }
+  },
+  cand_6: {
+    score: 88,
+    rating: "Strong",
+    confidence: 91,
+    primaryStrength: "Design Systems & Product Engineering",
+    topSkills: ["Figma", "Design Systems", "React", "UX Research"],
+    projectsAnalyzed: 10,
+    verified: true,
+    lastAnalyzedAt: "2026-02-10T14:00:00Z",
+    summary: "Design technologist exploring keyboard-first workflows, micro-interactions, and financial UI clarity.",
+    dimensions: { architecture: 86, codeQuality: 88, problemSolving: 89, technicalBreadth: 90, consistency: 87 }
+  },
+  cand_7: {
+    score: 86,
+    rating: "Strong",
+    confidence: 89,
+    primaryStrength: "Mobile Engineering & Payments",
+    topSkills: ["Swift", "SwiftUI", "CoreNFC", "Mobile SDKs"],
+    projectsAnalyzed: 9,
+    verified: true,
+    lastAnalyzedAt: "2026-02-09T16:00:00Z",
+    summary: "Waterloo SE with 4 co-op rotations across fintech and mobile products. Built sub-second tap-to-pay checkouts.",
+    dimensions: { architecture: 87, codeQuality: 86, problemSolving: 85, technicalBreadth: 86, consistency: 86 }
+  },
+  cand_8: {
+    score: 93,
+    rating: "Exceptional",
+    confidence: 95,
+    primaryStrength: "Applied Cryptography & ZK Proofs",
+    topSkills: ["Rust", "C++", "Solidity", "Circom"],
+    projectsAnalyzed: 13,
+    verified: true,
+    lastAnalyzedAt: "2026-02-08T18:00:00Z",
+    summary: "UIUC researcher passionate about applied cryptography, zero-knowledge verification, and low-latency smart contracts.",
+    dimensions: { architecture: 94, codeQuality: 91, problemSolving: 96, technicalBreadth: 92, consistency: 92 }
+  },
+  cand_9: {
+    score: 90,
+    rating: "Exceptional",
+    confidence: 92,
+    primaryStrength: "Bio-Analytics & Computational Genomics",
+    topSkills: ["Bioinformatics", "CRISPR-Cas9", "R", "Python"],
+    projectsAnalyzed: 11,
+    verified: true,
+    lastAnalyzedAt: "2026-02-07T12:00:00Z",
+    summary: "Biotechnology researcher at Johns Hopkins investigating CRISPR guide RNA optimization and oncology biomarker pipelines.",
+    dimensions: { architecture: 89, codeQuality: 91, problemSolving: 92, technicalBreadth: 88, consistency: 90 }
+  },
+  cand_10: {
+    score: 91,
+    rating: "Exceptional",
+    confidence: 93,
+    primaryStrength: "Financial Modeling & Strategic Valuation",
+    topSkills: ["Financial Modeling", "LBO Valuation", "DCF Analysis", "M&A Advisory"],
+    projectsAnalyzed: 8,
+    verified: true,
+    lastAnalyzedAt: "2026-02-06T10:00:00Z",
+    summary: "Wharton MBA candidate with deep experience in leveraged buyouts, capital allocation strategy, and SaaS financial forecasting.",
+    dimensions: { architecture: 90, codeQuality: 91, problemSolving: 93, technicalBreadth: 90, consistency: 91 }
+  },
+};
+
+export const initialMockRecruiterStudents: RecruiterStudentCandidate[] = rawMockRecruiterStudents.map((cand) => {
+  const existingDna = candidateDnaMap[cand.id];
+  if (existingDna) {
+    return { ...cand, careerDNA: existingDna };
+  }
+
+  // Deterministic fallback Career DNA for remaining candidates
+  const score = 80 + (cand.skills.length % 15);
+  const rating = score >= 90 ? "Exceptional" : score >= 80 ? "Strong" : "Good";
+  const primaryStrength = cand.specialization || cand.academicStream || cand.branch || "Software Engineering";
+
+  return {
+    ...cand,
+    careerDNA: {
+      score,
+      rating,
+      confidence: 85,
+      primaryStrength,
+      topSkills: cand.skills.slice(0, 4),
+      projectsAnalyzed: cand.projects?.length ? cand.projects.length + 3 : 5,
+      verified: true,
+      lastAnalyzedAt: "2026-02-10T10:00:00Z",
+      summary: `${cand.name} demonstrates solid foundational capability in ${primaryStrength} with strong domain execution across projects.`,
+      evidences: (cand.projects || []).map((p, idx) => ({
+        id: `ev_gen_${idx}`,
+        repositoryName: p.title,
+        type: p.type,
+        reason: p.description,
+      })),
+      dimensions: {
+        architecture: score,
+        codeQuality: score - 2,
+        problemSolving: score + 1,
+        technicalBreadth: score - 1,
+        consistency: score,
+      },
+    },
+  };
+});
 
 
 export const initialMockRecruiterConversations: Conversation[] = [

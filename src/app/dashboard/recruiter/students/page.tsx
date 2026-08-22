@@ -27,6 +27,7 @@ import { Avatar } from "@/components/ui/Avatar";
 import { RoleGuard } from "@/components/dashboard/RoleGuard";
 import { CandidateProfileModal, CandidateModalData } from "@/components/dashboard/CandidateProfileModal";
 import { RecruiterCareerDNAModal } from "@/components/recruiter/RecruiterCareerDNAModal";
+import { RecruiterCareerDNASection } from "@/components/recruiter/RecruiterCareerDNASection";
 import { useData } from "@/context/DataContext";
 import { RecruiterStudentCandidate } from "@/types";
 
@@ -160,6 +161,7 @@ export default function RecruiterFindStudentsPage() {
       ssrnUrl: student.ssrnUrl,
       projects: student.projects,
       certifications: student.certifications,
+      careerDNA: (student as any).careerDNA,
     });
     setIsModalOpen(true);
   };
@@ -422,59 +424,13 @@ export default function RecruiterFindStudentsPage() {
                 </div>
 
                 {/* Compact Career DNA Section */}
-                {(student as any).careerDNA ? (
-                  <div className="p-3 rounded-2xl bg-purple-500/5 dark:bg-purple-950/20 border border-purple-500/20 space-y-2 text-xs">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-full bg-purple-600 text-white font-extrabold flex items-center justify-center text-xs shrink-0 shadow-xs">
-                          {(student as any).careerDNA.score}
-                        </div>
-                        <div>
-                          <span className="font-bold text-foreground block text-[11px]">Career DNA</span>
-                          <span className="text-[10px] text-purple-600 dark:text-purple-400 font-semibold">
-                            {(student as any).careerDNA.rating}
-                          </span>
-                        </div>
-                      </div>
-
-                      {(student as any).careerDNA.verified && (
-                        <Badge variant="emerald" size="sm" className="text-[9px] px-1.5 py-0 font-semibold">
-                          GitHub Verified
-                        </Badge>
-                      )}
-                    </div>
-
-                    <div className="pt-1.5 border-t border-purple-500/10 space-y-1 text-[11px]">
-                      <div className="flex items-center justify-between text-muted-foreground">
-                        <span>Strength:</span>
-                        <span className="font-semibold text-foreground truncate max-w-[120px]">
-                          {(student as any).careerDNA.primaryStrength}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between text-muted-foreground">
-                        <span>Confidence / Repos:</span>
-                        <span className="font-medium text-foreground">
-                          {(student as any).careerDNA.confidence}% · {(student as any).careerDNA.projectsAnalyzed} repos
-                        </span>
-                      </div>
-                    </div>
-
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleOpenDnaModal(student)}
-                      className="w-full h-7 text-[11px] font-semibold text-purple-600 dark:text-purple-400 hover:bg-purple-500/10 mt-1"
-                    >
-                      View Career DNA Evidence &rarr;
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="p-2.5 rounded-xl bg-muted/30 border border-border/40 text-[11px] text-muted-foreground flex items-center justify-between">
-                    <span>Career DNA:</span>
-                    <span className="font-medium italic">Not available</span>
-                  </div>
-                )}
+                <RecruiterCareerDNASection
+                  studentId={student.id}
+                  candidateName={student.name}
+                  careerDNA={(student as any).careerDNA}
+                  compact={true}
+                  onOpenFullModal={() => handleOpenDnaModal(student)}
+                />
 
                 {/* Projects snippet */}
                 {student.projects && student.projects.length > 0 && (

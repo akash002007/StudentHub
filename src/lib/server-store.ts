@@ -23,6 +23,8 @@ import {
   ResumeRecord,
   CodeforcesConnection,
   CodeforcesDNA,
+  LeetCodeConnection,
+  LeetCodeDNA,
   CertificateRecord,
   CertificateDNA,
   HuggingFaceConnectionRecord,
@@ -47,6 +49,8 @@ interface StoreState {
   resumes: Map<string, ResumeRecord[]>; // userId -> ResumeRecord[]
   codeforcesConnections: Map<string, CodeforcesConnection>; // userId -> CodeforcesConnection
   codeforcesDNA: Map<string, CodeforcesDNA>; // userId -> CodeforcesDNA
+  leetcodeConnections: Map<string, LeetCodeConnection>; // userId -> LeetCodeConnection
+  leetcodeDNA: Map<string, LeetCodeDNA>; // userId -> LeetCodeDNA
   huggingfaceConnections: Map<string, HuggingFaceConnectionRecord>; // userId -> HuggingFaceConnectionRecord
   huggingfaceDNA: Map<string, HuggingFaceDNA>; // userId -> HuggingFaceDNA
   certificates: Map<string, CertificateRecord[]>; // userId -> CertificateRecord[]
@@ -236,6 +240,8 @@ function initializeStore(): StoreState {
     resumes,
     codeforcesConnections,
     codeforcesDNA,
+    leetcodeConnections: new Map<string, LeetCodeConnection>(),
+    leetcodeDNA: new Map<string, LeetCodeDNA>(),
     huggingfaceConnections: new Map<string, HuggingFaceConnectionRecord>(),
     huggingfaceDNA: new Map<string, HuggingFaceDNA>(),
     certificates: new Map<string, CertificateRecord[]>(),
@@ -264,6 +270,16 @@ function loadStoreFromDisk(storeObj: StoreState): void {
     if (data.codeforcesDNA && Array.isArray(data.codeforcesDNA)) {
       data.codeforcesDNA.forEach(([key, val]: [string, CodeforcesDNA]) => {
         storeObj.codeforcesDNA.set(key, val);
+      });
+    }
+    if (data.leetcodeConnections && Array.isArray(data.leetcodeConnections)) {
+      data.leetcodeConnections.forEach(([key, val]: [string, LeetCodeConnection]) => {
+        storeObj.leetcodeConnections.set(key, val);
+      });
+    }
+    if (data.leetcodeDNA && Array.isArray(data.leetcodeDNA)) {
+      data.leetcodeDNA.forEach(([key, val]: [string, LeetCodeDNA]) => {
+        storeObj.leetcodeDNA.set(key, val);
       });
     }
     if (data.githubConnections && Array.isArray(data.githubConnections)) {
@@ -321,6 +337,8 @@ export function persistStoreToDisk(): void {
     const serializable = {
       codeforcesConnections: Array.from(store.codeforcesConnections.entries()),
       codeforcesDNA: Array.from(store.codeforcesDNA.entries()),
+      leetcodeConnections: Array.from(store.leetcodeConnections.entries()),
+      leetcodeDNA: Array.from(store.leetcodeDNA.entries()),
       githubConnections: Array.from(store.githubConnections.entries()),
       githubRepositories: Array.from(store.githubRepositories.entries()),
       huggingfaceConnections: Array.from(store.huggingfaceConnections.entries()),
@@ -340,6 +358,15 @@ export function persistStoreToDisk(): void {
 const store: StoreState = global.__STUDENTHUB_SERVER_STORE__ || (global.__STUDENTHUB_SERVER_STORE__ = initializeStore());
 
 export class ServerStore {
+  static getUserById(userId: string): any {
+    return (
+      store.studentProfiles.get(userId) ||
+      store.recruiterProfiles.get(userId) ||
+      store.adminProfiles.get(userId) ||
+      null
+    );
+  }
+
   static getMetrics(): AdminOverviewMetrics {
     const totalStudents = store.studentProfiles.size + 12400; // Realistic platform baseline
     const pendingVerification = store.verificationRequests.filter(
@@ -1554,6 +1581,69 @@ export function saveCodeforcesDNA(userId: string, dna: CodeforcesDNA): Codeforce
  */
 export function getCodeforcesDNA(userId: string): CodeforcesDNA | null {
   return store.codeforcesDNA.get(userId) || null;
+}
+
+// --------------------------------------------------
+// LEETCODE INTELLIGENCE STORAGE HELPERS
+// --------------------------------------------------
+
+/**
+ * Saves LeetCodeConnection for a user
+ */
+export function saveLeetCodeConnection(userId: string, conn: LeetCodeConnection): LeetCodeConnection {
+  store.leetcodeConnections.set(userId, conn);
+
+  // Sync to student profile socialLinks
+  const student = store.studentProfiles.get(userId);
+  if (student) {
+    if (!student.socialLinks) {
+      student.socialLinks = {};
+    }
+    student.socialLinks.leetcode = `https://leetcode.com/${conn.leetcodeId}`;
+  }
+
+  persistStoreToDisk();
+  return conn;
+}
+
+/**
+ * Retrieves LeetCodeConnection for a user
+ */
+export function getLeetCodeConnection(userId: string): LeetCodeConnection | null {
+  return store.leetcodeConnections.get(userId) || null;
+}
+
+/**
+ * Deletes LeetCodeConnection for a user
+ */
+export function deleteLeetCodeConnection(userId: string): boolean {
+  store.leetcodeDNA.delete(userId);
+  const result = store.leetcodeConnections.delete(userId);
+
+  // Clean up social link
+  const student = store.studentProfiles.get(userId);
+  if (student?.socialLinks?.leetcode) {
+    delete student.socialLinks.leetcode;
+  }
+
+  persistStoreToDisk();
+  return result;
+}
+
+/**
+ * Saves LeetCodeDNA for a user
+ */
+export function saveLeetCodeDNA(userId: string, dna: LeetCodeDNA): LeetCodeDNA {
+  store.leetcodeDNA.set(userId, dna);
+  persistStoreToDisk();
+  return dna;
+}
+
+/**
+ * Retrieves LeetCodeDNA for a user
+ */
+export function getLeetCodeDNA(userId: string): LeetCodeDNA | null {
+  return store.leetcodeDNA.get(userId) || null;
 }
 
 // --------------------------------------------------

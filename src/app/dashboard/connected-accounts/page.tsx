@@ -25,10 +25,12 @@ import { Button } from "@/components/ui/Button";
 import { RoleGuard } from "@/components/dashboard/RoleGuard";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
-import { GitHubConnection, CodeforcesConnection } from "@/types";
+import { GitHubConnection, CodeforcesConnection, LeetCodeConnection } from "@/types";
 import { GitHubInsights } from "@/components/dashboard/GitHubInsights";
 import { CodeforcesInsights } from "@/components/dashboard/CodeforcesInsights";
+import { LeetCodeInsights } from "@/components/dashboard/LeetCodeInsights";
 import { ConnectCodeforcesModal } from "@/components/dashboard/ConnectCodeforcesModal";
+import { ConnectLeetCodeModal } from "@/components/dashboard/ConnectLeetCodeModal";
 import { CareerDNADisplay } from "@/components/dashboard/CareerDNADisplay";
 
 export default function ConnectedAccountsPage() {
@@ -51,6 +53,14 @@ export default function ConnectedAccountsPage() {
   const [showDisconnectCfModal, setShowDisconnectCfModal] = useState(false);
   const [isSyncingCf, setIsSyncingCf] = useState(false);
   const [isDisconnectingCf, setIsDisconnectingCf] = useState(false);
+
+  // LeetCode Integration State
+  const [leetcodeConn, setLeetcodeConn] = useState<LeetCodeConnection | null>(null);
+  const [isLoadingLc, setIsLoadingLc] = useState(true);
+  const [showLeetCodeModal, setShowLeetCodeModal] = useState(false);
+  const [showDisconnectLcModal, setShowDisconnectLcModal] = useState(false);
+  const [isSyncingLc, setIsSyncingLc] = useState(false);
+  const [isDisconnectingLc, setIsDisconnectingLc] = useState(false);
 
   // Hugging Face Integration State
   const [hfConn, setHfConn] = useState<any | null>(null);
@@ -97,6 +107,25 @@ export default function ConnectedAccountsPage() {
     }
   }, [user]);
 
+  const fetchLeetCodeConnection = useCallback(async () => {
+    if (!user) return;
+    try {
+      const res = await fetch(`/api/integrations/leetcode/status?userId=${encodeURIComponent(user.id)}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.connected && data.connection) {
+          setLeetcodeConn(data.connection);
+        } else {
+          setLeetcodeConn(null);
+        }
+      }
+    } catch {
+      console.warn("Failed to fetch LeetCode status");
+    } finally {
+      setIsLoadingLc(false);
+    }
+  }, [user]);
+
   const fetchHuggingFaceConnection = useCallback(async () => {
     if (!user) return;
     try {
@@ -120,6 +149,7 @@ export default function ConnectedAccountsPage() {
   useEffect(() => {
     fetchGithubConnection();
     fetchCodeforcesConnection();
+    fetchLeetCodeConnection();
     fetchHuggingFaceConnection();
 
     const status = searchParams.get("status");
@@ -261,6 +291,52 @@ export default function ConnectedAccountsPage() {
       toastError("Error disconnecting Codeforces account.");
     } finally {
       setIsDisconnectingCf(false);
+    }
+  };
+
+  const handleSyncLeetCode = async () => {
+    if (!user || !leetcodeConn) return;
+    setIsSyncingLc(true);
+    try {
+      const res = await fetch("/api/integrations/leetcode/sync", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: user.id }),
+      });
+      const data = await res.json().catch(() => null);
+      if (res.ok && data?.success) {
+        success("LeetCode statistics synchronized successfully!");
+        fetchLeetCodeConnection();
+      } else {
+        toastError(data?.error || "Failed to synchronize LeetCode account.");
+        fetchLeetCodeConnection();
+      }
+    } catch {
+      toastError("Network error syncing LeetCode profile.");
+    } finally {
+      setIsSyncingLc(false);
+    }
+  };
+
+  const handleDisconnectLeetCode = async () => {
+    if (!user) return;
+    setIsDisconnectingLc(true);
+    try {
+      const res = await fetch(`/api/integrations/leetcode?userId=${encodeURIComponent(user.id)}`, {
+        method: "DELETE",
+      });
+      const data = await res.json().catch(() => null);
+      if (res.ok && data?.success) {
+        setLeetcodeConn(null);
+        setShowDisconnectLcModal(false);
+        success("LeetCode account disconnected successfully.");
+      } else {
+        toastError(data?.error || "Failed to disconnect LeetCode account.");
+      }
+    } catch {
+      toastError("Error disconnecting LeetCode account.");
+    } finally {
+      setIsDisconnectingLc(false);
     }
   };
 
@@ -774,9 +850,168 @@ export default function ConnectedAccountsPage() {
             </div>
           </Card>
 
+          {/* 4. LEETCODE CARD */}
+          <Card
+            hoverEffect
+            className="p-6 border-amber-500/20 bg-gradient-to-br from-card via-card to-amber-500/5 dark:to-amber-950/20 flex flex-col justify-between space-y-4 shadow-sm"
+          >
+            <div className="space-y-3">
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500 shrink-0">
+                    <Code className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-base text-foreground">LeetCode</h3>
+                    <p className="text-xs text-muted-foreground">Algorithmic Problem-Solving Profile</p>
+                  </div>
+                </div>
+
+                <Badge
+                  variant={
+                    leetcodeConn?.status === "VERIFIED"
+                      ? "amber"
+                      : leetcodeConn?.status === "PENDING_VERIFICATION"
+                      ? "amber"
+                      : "secondary"
+                  }
+                  size="sm"
+                  className="font-semibold capitalize"
+                >
+                  {isLoadingLc
+                    ? "Checking..."
+                    : !leetcodeConn
+                    ? "Not Connected"
+                    : leetcodeConn.status === "PENDING_VERIFICATION"
+                    ? "Verification Required"
+                    : leetcodeConn.syncStatus === "SYNCING"
+                    ? "Syncing..."
+                    : leetcodeConn.syncStatus === "FAILED"
+                    ? "Sync Failed"
+                    : "Verified"}
+                </Badge>
+              </div>
+
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                {leetcodeConn
+                  ? leetcodeConn.status === "PENDING_VERIFICATION"
+                    ? `Account @${leetcodeConn.leetcodeId} attached. Complete ownership verification to add LeetCode evidence to Career DNA.`
+                    : `Connected as @${leetcodeConn.leetcodeId}. Solved ${leetcodeConn.totalProblemsSolved} problems (${leetcodeConn.easySolved} Easy, ${leetcodeConn.mediumSolved} Medium, ${leetcodeConn.hardSolved} Hard).`
+                  : "Connect your LeetCode account to verify problem-solving achievements and add evidence to Career DNA."}
+              </p>
+
+              {leetcodeConn && (
+                <div className="pt-2 text-[11px] text-muted-foreground space-y-1.5 border-t border-border/40">
+                  <div className="flex items-center justify-between">
+                    <span>LeetCode ID:</span>
+                    <a
+                      href={`https://leetcode.com/${leetcodeConn.leetcodeId}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-amber-600 dark:text-amber-400 hover:underline flex items-center gap-1 font-medium"
+                    >
+                      @{leetcodeConn.leetcodeId} <ExternalLink className="w-3 h-3" />
+                    </a>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>Ownership Status:</span>
+                    <span
+                      className={`font-bold ${
+                        leetcodeConn.status === "VERIFIED"
+                          ? "text-emerald-600 dark:text-emerald-400"
+                          : "text-amber-600 dark:text-amber-400"
+                      }`}
+                    >
+                      {leetcodeConn.status === "VERIFIED" ? "Verified Owner" : "Pending Verification"}
+                    </span>
+                  </div>
+                  {leetcodeConn.status === "VERIFIED" && (
+                    <>
+                      <div className="flex items-center justify-between">
+                        <span>Total Solved:</span>
+                        <span className="font-bold text-foreground">
+                          {leetcodeConn.totalProblemsSolved} problems
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span>Global Rank:</span>
+                        <span className="font-bold text-foreground">
+                          {leetcodeConn.ranking > 0
+                            ? `#${leetcodeConn.ranking.toLocaleString()}`
+                            : "Unavailable"}
+                        </span>
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Actions Footer */}
+            <div className="pt-2 border-t border-border/40 flex items-center gap-2">
+              {leetcodeConn && leetcodeConn.status === "VERIFIED" ? (
+                <>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1 text-xs"
+                    onClick={handleSyncLeetCode}
+                    disabled={isSyncingLc || leetcodeConn.syncStatus === "SYNCING"}
+                  >
+                    {isSyncingLc || leetcodeConn.syncStatus === "SYNCING" ? (
+                      <>
+                        <RefreshCw className="w-3.5 h-3.5 mr-1.5 animate-spin" /> Syncing...
+                      </>
+                    ) : (
+                      <>
+                        <RefreshCw className="w-3.5 h-3.5 mr-1.5" /> Sync Now
+                      </>
+                    )}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 text-xs text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 hover:border-rose-300 dark:hover:border-rose-800"
+                    onClick={() => setShowDisconnectLcModal(true)}
+                  >
+                    Disconnect
+                  </Button>
+                </>
+              ) : leetcodeConn && leetcodeConn.status === "PENDING_VERIFICATION" ? (
+                <div className="flex items-center gap-2 w-full">
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    className="flex-1 text-xs font-bold bg-amber-600 hover:bg-amber-700 text-white"
+                    onClick={() => setShowLeetCodeModal(true)}
+                  >
+                    <ShieldCheck className="w-4 h-4 mr-1.5" /> Verify your LeetCode account
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 text-xs text-rose-600 dark:text-rose-400"
+                    onClick={() => setShowDisconnectLcModal(true)}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              ) : (
+                <Button
+                  variant="primary"
+                  size="sm"
+                  className="w-full text-xs font-semibold bg-amber-600 hover:bg-amber-700 text-white"
+                  onClick={() => setShowLeetCodeModal(true)}
+                >
+                  <Code className="w-4 h-4 mr-2" /> Connect Account
+                </Button>
+              )}
+            </div>
+          </Card>
+
           {/* Other Platforms Cards */}
           {integrationPlatforms
-            .filter((acc: any) => acc.id !== "codeforces" && acc.id !== "huggingface")
+            .filter((acc: any) => acc.id !== "codeforces" && acc.id !== "huggingface" && acc.id !== "leetcode")
             .map((acc: any) => (
             <Card
               key={acc.id}
@@ -787,9 +1022,7 @@ export default function ConnectedAccountsPage() {
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 rounded-2xl bg-muted border border-border/60 flex items-center justify-center text-foreground shrink-0">
-                      {acc.platform === "leetcode" && <Code className="w-6 h-6 text-amber-500" />}
                       {acc.platform === "linkedin" && <Linkedin className="w-6 h-6 text-blue-500" />}
-                      {acc.platform === "codeforces" && <Trophy className="w-6 h-6 text-rose-500" />}
                       {acc.platform === "portfolio" && <Globe className="w-6 h-6 text-purple-500" />}
                       {acc.platform === "kaggle" && <Database className="w-6 h-6 text-cyan-500" />}
                     </div>
@@ -821,7 +1054,7 @@ export default function ConnectedAccountsPage() {
           ))}
         </div>
 
-        {/* GitHub Insights & Data Results Section */}
+        {/* GitHub, Codeforces & LeetCode Insights & Data Results Section */}
         {user && (
           <>
             <GitHubInsights
@@ -834,6 +1067,11 @@ export default function ConnectedAccountsPage() {
               onSyncClick={handleSyncCodeforces}
               isSyncingManual={isSyncingCf}
             />
+            <LeetCodeInsights
+              userId={user.id}
+              onSyncClick={handleSyncLeetCode}
+              isSyncingManual={isSyncingLc}
+            />
             <CareerDNADisplay userId={user.id} />
           </>
         )}
@@ -843,6 +1081,13 @@ export default function ConnectedAccountsPage() {
           isOpen={showCodeforcesModal}
           onClose={() => setShowCodeforcesModal(false)}
           onSuccess={() => fetchCodeforcesConnection()}
+        />
+
+        {/* Connect LeetCode Modal */}
+        <ConnectLeetCodeModal
+          isOpen={showLeetCodeModal}
+          onClose={() => setShowLeetCodeModal(false)}
+          onSuccess={() => fetchLeetCodeConnection()}
         />
 
         {/* Disconnect GitHub Confirmation Modal */}
@@ -909,6 +1154,41 @@ export default function ConnectedAccountsPage() {
                   className="bg-rose-600 hover:bg-rose-700 text-white"
                 >
                   {isDisconnectingCf ? "Disconnecting..." : "Disconnect Codeforces"}
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Disconnect LeetCode Confirmation Modal */}
+        {showDisconnectLcModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
+            <div className="bg-card border border-border rounded-2xl p-6 max-w-md w-full space-y-4 shadow-xl">
+              <div className="flex items-center gap-3 text-rose-600 dark:text-rose-400">
+                <AlertTriangle className="w-6 h-6 shrink-0" />
+                <h3 className="font-bold text-lg text-foreground">Disconnect LeetCode?</h3>
+              </div>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Remove the active LeetCode connection and its synchronized data. Reconnecting requires ownership verification again.
+              </p>
+
+              <div className="flex items-center justify-end gap-3 pt-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowDisconnectLcModal(false)}
+                  disabled={isDisconnectingLc}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="danger"
+                  size="sm"
+                  onClick={handleDisconnectLeetCode}
+                  disabled={isDisconnectingLc}
+                  className="bg-rose-600 hover:bg-rose-700 text-white"
+                >
+                  {isDisconnectingLc ? "Disconnecting..." : "Disconnect LeetCode"}
                 </Button>
               </div>
             </div>

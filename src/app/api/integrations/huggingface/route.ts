@@ -6,12 +6,21 @@ import {
   getCareerDNA,
 } from "@/lib/server-store";
 import { CareerDNABuilder } from "@/lib/career-dna";
+import { getAuthenticatedUser, unauthorizedResponse } from "@/lib/auth-server";
+
+export const dynamic = "force-dynamic";
 
 export async function DELETE(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const userId = searchParams.get("userId") || "std_default_01";
+    const rawUserId = searchParams.get("userId");
 
+    const authUser = await getAuthenticatedUser(request, rawUserId || undefined);
+    if (!authUser) {
+      return unauthorizedResponse();
+    }
+
+    const userId = authUser.userId;
     const conn = getHuggingFaceConnection(userId);
     if (!conn) {
       return NextResponse.json(
@@ -31,12 +40,16 @@ export async function DELETE(request: NextRequest) {
 
     CareerDNABuilder.compileCareerDNA(userId, featuredProjects, skillEvidences, repos);
 
+    console.log(
+      `[Hugging Face Disconnect] authenticated: true, connectionFound: true, tokenRemoved: true, connectionRemoved: true, userId: ${userId}`
+    );
+
     return NextResponse.json({
       success: true,
       message: "Hugging Face account disconnected successfully. Career DNA updated.",
     });
   } catch (err: any) {
-    console.error("Hugging Face Disconnect API Error:", err);
+    console.error("[Hugging Face Disconnect] API Error:", err);
     return NextResponse.json(
       { success: false, error: "Failed to disconnect Hugging Face account." },
       { status: 500 }

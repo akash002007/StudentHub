@@ -34,6 +34,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useData } from "@/context/DataContext";
 import { getTimeAwareGreeting, getStatusBadgeStyle } from "@/lib/utils";
 import { CandidateProfileModal, CandidateModalData } from "@/components/dashboard/CandidateProfileModal";
+import { RecruiterCareerDNASection } from "@/components/recruiter/RecruiterCareerDNASection";
 import { RoleGuard } from "@/components/dashboard/RoleGuard";
 import { ApplicationStatus } from "@/types";
 
@@ -77,6 +78,12 @@ export default function RecruiterDashboardHomePage() {
   const recentApplicants = recruiterApplicants.slice(0, 5);
 
   const handleOpenCandidate = (applicant: (typeof recruiterApplicants)[0]) => {
+    const studentMatch = recruiterStudents.find(
+      (s) =>
+        s.id === applicant.studentId ||
+        s.name.toLowerCase() === applicant.studentName.toLowerCase()
+    );
+
     setSelectedCandidate({
       id: applicant.studentId,
       name: applicant.studentName,
@@ -99,6 +106,7 @@ export default function RecruiterDashboardHomePage() {
       applicationStatus: applicant.status,
       appliedDate: applicant.appliedDate,
       notes: applicant.notes,
+      careerDNA: (studentMatch as any)?.careerDNA,
     });
     setIsModalOpen(true);
   };
@@ -328,6 +336,24 @@ export default function RecruiterDashboardHomePage() {
                         {applicant.appliedDate}
                       </span>
                     </div>
+
+                    {/* Compact Career DNA Section */}
+                    {(() => {
+                      const studentMatch = recruiterStudents.find(
+                        (s) =>
+                          s.id === applicant.studentId ||
+                          s.name.toLowerCase() === applicant.studentName.toLowerCase()
+                      );
+                      return (
+                        <RecruiterCareerDNASection
+                          studentId={applicant.studentId}
+                          candidateName={applicant.studentName}
+                          careerDNA={(studentMatch as any)?.careerDNA}
+                          compact={true}
+                          onOpenFullModal={() => handleOpenCandidate(applicant)}
+                        />
+                      );
+                    })()}
 
                     <div className="flex items-center justify-between pt-1 text-xs">
                       <div className="flex flex-wrap gap-1">

@@ -27,6 +27,7 @@ import { Select } from "@/components/ui/Select";
 import { Avatar } from "@/components/ui/Avatar";
 import { RoleGuard } from "@/components/dashboard/RoleGuard";
 import { CandidateProfileModal, CandidateModalData } from "@/components/dashboard/CandidateProfileModal";
+import { RecruiterCareerDNASection } from "@/components/recruiter/RecruiterCareerDNASection";
 import { useData } from "@/context/DataContext";
 import { ApplicationStatus, RecruiterApplicant } from "@/types";
 import { getStatusBadgeStyle } from "@/lib/utils";
@@ -77,6 +78,12 @@ export default function RecruiterApplicationsPage() {
   });
 
   const handleOpenCandidate = (applicant: RecruiterApplicant) => {
+    const studentMatch = recruiterStudents.find(
+      (s) =>
+        s.id === applicant.studentId ||
+        s.name.toLowerCase() === applicant.studentName.toLowerCase()
+    );
+
     setSelectedCandidate({
       id: applicant.studentId,
       name: applicant.studentName,
@@ -99,6 +106,7 @@ export default function RecruiterApplicationsPage() {
       applicationStatus: applicant.status,
       appliedDate: applicant.appliedDate,
       notes: applicant.notes,
+      careerDNA: (studentMatch as any)?.careerDNA,
     });
     setIsModalOpen(true);
   };
@@ -346,6 +354,24 @@ export default function RecruiterApplicationsPage() {
                         ))}
                       </div>
                     </div>
+
+                    {/* Compact Career DNA Section */}
+                    {(() => {
+                      const studentMatch = recruiterStudents.find(
+                        (s) =>
+                          s.id === applicant.studentId ||
+                          s.name.toLowerCase() === applicant.studentName.toLowerCase()
+                      );
+                      return (
+                        <RecruiterCareerDNASection
+                          studentId={applicant.studentId}
+                          candidateName={applicant.studentName}
+                          careerDNA={(studentMatch as any)?.careerDNA}
+                          compact={true}
+                          onOpenFullModal={() => handleOpenCandidate(applicant)}
+                        />
+                      );
+                    })()}
                   </Card>
                 );
               })

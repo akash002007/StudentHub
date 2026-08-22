@@ -1,11 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getGitHubConnection, getGitHubRepositories } from "@/lib/server-store";
 import { isGitHubSyncRunning } from "@/lib/github-sync-worker";
+import { getAuthenticatedUser, unauthorizedResponse } from "@/lib/auth-server";
+
+export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
-  const userId = searchParams.get("userId") || "std_default_01";
+  const rawUserId = searchParams.get("userId");
+  const authUser = await getAuthenticatedUser(request, rawUserId || undefined);
 
+  if (!authUser) {
+    return unauthorizedResponse();
+  }
+
+  const userId = authUser.userId;
   const connection = getGitHubConnection(userId);
   if (!connection) {
     return NextResponse.json({

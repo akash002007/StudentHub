@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getCodeforcesConnection, getCodeforcesDNA } from "@/lib/server-store";
+import { getLeetCodeConnection, getLeetCodeDNA } from "@/lib/server-store";
 import { getAuthenticatedUser, unauthorizedResponse } from "@/lib/auth-server";
 
 export const dynamic = "force-dynamic";
@@ -12,8 +12,8 @@ export async function GET(request: NextRequest) {
       return unauthorizedResponse();
     }
 
-    const connection = getCodeforcesConnection(authUser.userId);
-    const dna = getCodeforcesDNA(authUser.userId);
+    const connection = getLeetCodeConnection(authUser.userId);
+    const dna = getLeetCodeDNA(authUser.userId);
 
     return NextResponse.json({
       success: true,
@@ -22,9 +22,9 @@ export async function GET(request: NextRequest) {
       dna,
     });
   } catch (err: any) {
-    console.error("[Codeforces Status] API Error:", err);
+    console.error("[LeetCode Status] API Error:", err);
     return NextResponse.json(
-      { success: false, error: "Failed to fetch Codeforces status." },
+      { success: false, error: "Failed to fetch LeetCode status." },
       { status: 500 }
     );
   }

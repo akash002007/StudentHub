@@ -18,12 +18,14 @@ import {
   Clock,
   Layers,
   Code2,
+  Dna,
 } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { ApplicationStatus, Project, Certification } from "@/types";
+import { RecruiterCareerDNASection } from "@/components/recruiter/RecruiterCareerDNASection";
 
 export interface CandidateModalData {
   id: string;
@@ -54,6 +56,7 @@ export interface CandidateModalData {
   appliedDate?: string;
   notes?: string;
   isShortlisted?: boolean;
+  careerDNA?: any;
 }
 
 interface CandidateProfileModalProps {
@@ -77,7 +80,7 @@ export function CandidateProfileModal({
   onMessage,
   onSaveNote,
 }: CandidateProfileModalProps) {
-  const [activeTab, setActiveTab] = useState<"overview" | "projects" | "notes">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "career-dna" | "projects" | "notes">("overview");
   const [noteText, setNoteText] = useState(candidate?.notes || "");
 
   if (!candidate) return null;
@@ -187,14 +190,14 @@ export function CandidateProfileModal({
             </div>
           </div>
 
-          {/* Social / External Links Bar */}
-          <div className="mt-4 pt-3 border-t border-border/50 flex flex-wrap items-center gap-3 text-xs">
+          {/* Social Links Sub-bar */}
+          <div className="mt-4 pt-3 border-t border-border/40 flex items-center gap-3 flex-wrap text-xs">
             {candidate.portfolioUrl && (
               <a
                 href={candidate.portfolioUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="flex items-center gap-1 text-purple-600 dark:text-purple-400 hover:underline font-medium"
+                className="flex items-center gap-1 text-foreground/80 hover:text-foreground font-medium"
               >
                 <Globe className="w-3.5 h-3.5" />
                 <span>Portfolio</span>
@@ -323,6 +326,18 @@ export function CandidateProfileModal({
           </button>
           <button
             type="button"
+            onClick={() => setActiveTab("career-dna")}
+            className={`pb-2.5 transition-colors border-b-2 flex items-center gap-1.5 ${
+              activeTab === "career-dna"
+                ? "border-purple-600 text-purple-600 dark:text-purple-400"
+                : "border-transparent text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <Dna className="w-3.5 h-3.5" />
+            Career DNA
+          </button>
+          <button
+            type="button"
             onClick={() => setActiveTab("projects")}
             className={`pb-2.5 transition-colors border-b-2 ${
               activeTab === "projects"
@@ -348,6 +363,14 @@ export function CandidateProfileModal({
         {/* Tab Content */}
         {activeTab === "overview" && (
           <div className="space-y-4 text-xs">
+            {/* Embedded Expandable Career DNA Section */}
+            <RecruiterCareerDNASection
+              studentId={candidate.id}
+              candidateName={candidate.name}
+              careerDNA={candidate.careerDNA}
+              initialExpanded={false}
+            />
+
             {/* Bio */}
             <div>
               <h4 className="font-semibold text-foreground mb-1.5 text-xs">Candidate Summary</h4>
@@ -419,6 +442,18 @@ export function CandidateProfileModal({
           </div>
         )}
 
+        {/* Dedicated Career DNA Tab */}
+        {activeTab === "career-dna" && (
+          <div className="space-y-4">
+            <RecruiterCareerDNASection
+              studentId={candidate.id}
+              candidateName={candidate.name}
+              careerDNA={candidate.careerDNA}
+              initialExpanded={true}
+            />
+          </div>
+        )}
+
         {activeTab === "projects" && (
           <div className="space-y-3 max-h-80 overflow-y-auto pr-1 text-xs">
             {candidate.projects && candidate.projects.length > 0 ? (
@@ -448,6 +483,16 @@ export function CandidateProfileModal({
                           <FileText className="w-3.5 h-3.5" /> Doc
                         </a>
                       )}
+                      {proj.githubUrl && (
+                        <a
+                          href={proj.githubUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="p-1 rounded text-foreground hover:text-purple-500 flex items-center gap-1 text-[11px]"
+                        >
+                          <Github className="w-3.5 h-3.5" /> Code
+                        </a>
+                      )}
                       {proj.liveUrl && (
                         <a
                           href={proj.liveUrl}
@@ -458,26 +503,16 @@ export function CandidateProfileModal({
                           <ExternalLink className="w-3.5 h-3.5" /> Live
                         </a>
                       )}
-                      {proj.githubUrl && (
-                        <a
-                          href={proj.githubUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="p-1 rounded text-muted-foreground hover:text-foreground"
-                        >
-                          <Github className="w-4 h-4" />
-                        </a>
-                      )}
                     </div>
                   </div>
-                  <p className="text-muted-foreground leading-relaxed text-xs">
-                    {proj.description}
-                  </p>
+
+                  <p className="text-muted-foreground leading-relaxed">{proj.description}</p>
+
                   <div className="flex flex-wrap gap-1 pt-1">
-                    {(proj.technologies || proj.tools || []).map((t) => (
+                    {proj.technologies.map((t) => (
                       <span
                         key={t}
-                        className="px-2 py-0.5 rounded bg-card text-[10px] font-mono text-muted-foreground border border-border/60"
+                        className="px-2 py-0.5 rounded bg-muted text-[10px] text-foreground/80 font-medium"
                       >
                         {t}
                       </span>
@@ -486,31 +521,28 @@ export function CandidateProfileModal({
                 </div>
               ))
             ) : (
-              <div className="p-8 text-center text-muted-foreground">
-                <Code2 className="w-8 h-8 mx-auto mb-2 text-muted-foreground/50" />
-                <p>No proof-of-work projects listed by this candidate yet.</p>
-              </div>
+              <p className="text-center py-6 text-muted-foreground italic">No projects listed.</p>
             )}
           </div>
         )}
 
         {activeTab === "notes" && (
-          <form onSubmit={handleNoteSubmit} className="space-y-3 text-xs">
+          <form onSubmit={handleNoteSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-foreground/80 uppercase tracking-wide mb-1.5">
+              <label className="block text-xs font-semibold text-foreground mb-1.5">
                 Internal Recruiter &amp; Hiring Team Notes
               </label>
               <textarea
-                rows={4}
                 value={noteText}
                 onChange={(e) => setNoteText(e.target.value)}
-                placeholder="Add interview feedback, technical assessment notes, or alignment observations..."
-                className="w-full p-3 rounded-xl bg-card border border-border text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20"
+                placeholder="Add private evaluation notes on this candidate (e.g. communication skills, technical interview strengths, follow-up items)..."
+                rows={5}
+                className="w-full p-3 rounded-xl bg-muted/40 border border-border text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-purple-500 resize-none"
               />
             </div>
             <div className="flex justify-end">
-              <Button type="submit" variant="gradient" size="sm">
-                Save Recruiter Notes
+              <Button type="submit" variant="gradient" size="sm" className="text-xs">
+                Save Candidate Notes
               </Button>
             </div>
           </form>

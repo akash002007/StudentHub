@@ -5,6 +5,8 @@ import {
   saveGitHubConnection,
 } from "@/lib/server-store";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
@@ -32,13 +34,13 @@ export async function GET(request: NextRequest) {
   // 2. Validate OAuth state parameter against HTTP-only cookie (CSRF & state replay protection)
   const savedStateCookie = request.cookies.get("studenthub_gh_state")?.value;
   if (!savedStateCookie || savedStateCookie !== state) {
-    console.error("GitHub OAuth Callback state mismatch:", { savedStateCookie, state });
+    console.error("[GitHub OAuth Callback] state mismatch error");
     return NextResponse.redirect(
       `${appUrl}/dashboard/connected-accounts?error=invalid_state`
     );
   }
 
-  // Extract userId from state token (format: "randomHex:userId")
+  // Extract userId from verified state token (format: "randomHex:userId")
   const stateParts = state.split(":");
   const userId = stateParts[1] || "std_default_01";
 
@@ -95,7 +97,7 @@ export async function GET(request: NextRequest) {
     const githubAvatarUrl = githubUser.avatar_url || null;
     const githubProfileUrl = githubUser.html_url || `https://github.com/${githubUsername}`;
 
-    // 5. Prevent linking the same numeric GitHub account to multiple StudentHub users
+    // 5. Prevent linking the same numeric GitHub account to multiple different StudentHub users
     const existingConn = getGitHubConnectionByGithubId(githubUserId);
     if (existingConn && existingConn.userId !== userId) {
       const response = NextResponse.redirect(
@@ -123,6 +125,10 @@ export async function GET(request: NextRequest) {
     const { enqueueGitHubSync } = await import("@/lib/github-sync-worker");
     enqueueGitHubSync(userId);
 
+    console.log(
+      `[GitHub OAuth Callback] stateValid: true, authorizationCodePresent: true, providerIdentityFetched: true, connectionCreated: true, userId: ${userId}`
+    );
+
     // 9. Redirect back to Connected Accounts page with success status
     const response = NextResponse.redirect(
       `${appUrl}/dashboard/connected-accounts?status=github_connected`
@@ -133,7 +139,7 @@ export async function GET(request: NextRequest) {
 
     return response;
   } catch (err: unknown) {
-    console.error("GitHub OAuth Callback error:", err);
+    console.error("[GitHub OAuth Callback] error:", err);
     return NextResponse.redirect(
       `${appUrl}/dashboard/connected-accounts?error=callback_error`
     );

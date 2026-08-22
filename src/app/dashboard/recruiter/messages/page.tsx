@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Avatar } from "@/components/ui/Avatar";
 import { RoleGuard } from "@/components/dashboard/RoleGuard";
+import { CandidateProfileModal, CandidateModalData } from "@/components/dashboard/CandidateProfileModal";
 import { useData } from "@/context/DataContext";
 import { useAuth } from "@/context/AuthContext";
 
@@ -27,10 +28,54 @@ export default function RecruiterMessagesPage() {
     activeRecruiterConversationId,
     setActiveRecruiterConversationId,
     sendRecruiterMessage,
+    recruiterStudents,
+    recruiterApplicants,
+    toggleShortlistCandidate,
   } = useData();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [messageInput, setMessageInput] = useState("");
+  const [selectedCandidate, setSelectedCandidate] = useState<CandidateModalData | null>(null);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+
+  const handleOpenCandidateProfile = () => {
+    if (!activeConversation) return;
+    const participant = activeConversation.participant;
+    const studentMatch = recruiterStudents.find(
+      (s) =>
+        s.id === participant.id ||
+        s.name.toLowerCase() === participant.name.toLowerCase()
+    );
+    const applicantMatch = recruiterApplicants.find(
+      (a) =>
+        a.studentId === participant.id ||
+        a.studentName.toLowerCase() === participant.name.toLowerCase()
+    );
+
+    setSelectedCandidate({
+      id: participant.id,
+      name: participant.name,
+      avatar: participant.avatar,
+      university: participant.companyOrCollege || studentMatch?.university || "University",
+      degree: studentMatch?.degree || applicantMatch?.degree || participant.role,
+      branch: studentMatch?.branch || applicantMatch?.branch || "Engineering",
+      graduationYear: studentMatch?.graduationYear || applicantMatch?.graduationYear || 2026,
+      cgpa: studentMatch?.cgpa || applicantMatch?.cgpa || "3.9",
+      location: studentMatch?.location || applicantMatch?.location || "Remote",
+      skills: studentMatch?.skills || applicantMatch?.skills || ["Technical Skills"],
+      bio: studentMatch?.bio || applicantMatch?.bio || "",
+      matchScore: applicantMatch?.matchScore || 92,
+      resumeUrl: studentMatch?.resumeUrl || applicantMatch?.resumeUrl,
+      portfolioUrl: studentMatch?.portfolioUrl || applicantMatch?.portfolioUrl,
+      githubUrl: studentMatch?.githubUrl || applicantMatch?.githubUrl,
+      linkedinUrl: studentMatch?.linkedinUrl || applicantMatch?.linkedinUrl,
+      projects: studentMatch?.projects || applicantMatch?.projects,
+      certifications: studentMatch?.certifications || applicantMatch?.certifications,
+      isShortlisted: studentMatch?.isShortlisted,
+      careerDNA: (studentMatch as any)?.careerDNA,
+    });
+    setIsProfileModalOpen(true);
+  };
 
   const filteredConversations = recruiterConversations.filter(
     (c) =>
@@ -152,6 +197,15 @@ export default function RecruiterMessagesPage() {
                 </div>
 
                 <div className="flex items-center gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleOpenCandidateProfile}
+                    className="text-xs h-8 cursor-pointer text-purple-600 dark:text-purple-400 hover:bg-purple-500/10"
+                  >
+                    Profile &amp; Career DNA
+                  </Button>
                   <Badge variant="emerald" size="sm">
                     {activeConversation.participant.isOnline ? "Online" : "Offline"}
                   </Badge>
@@ -216,6 +270,21 @@ export default function RecruiterMessagesPage() {
             </div>
           )}
         </div>
+
+        {/* Candidate Profile Review Modal with Career DNA */}
+        <CandidateProfileModal
+          isOpen={isProfileModalOpen}
+          onClose={() => setIsProfileModalOpen(false)}
+          candidate={selectedCandidate}
+          onShortlistToggle={() => {
+            if (selectedCandidate) toggleShortlistCandidate(selectedCandidate.id);
+          }}
+          isShortlisted={
+            selectedCandidate
+              ? recruiterStudents.find((s) => s.id === selectedCandidate.id)?.isShortlisted
+              : false
+          }
+        />
       </div>
     </RoleGuard>
   );

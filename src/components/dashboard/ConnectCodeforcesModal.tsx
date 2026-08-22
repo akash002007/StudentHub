@@ -1,17 +1,17 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Trophy,
   X,
   AlertCircle,
-  Sparkles,
   RefreshCw,
   Copy,
   Check,
   ExternalLink,
   ShieldCheck,
   Clock,
+  AlertTriangle,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
@@ -24,6 +24,13 @@ interface ConnectCodeforcesModalProps {
   onClose: () => void;
   onSuccess: () => void;
 }
+
+export type VerificationState =
+  | "IDLE"
+  | "VERIFYING"
+  | "VERIFIED"
+  | "FAILED"
+  | "TEMPORARY_ERROR";
 
 export function ConnectCodeforcesModal({
   isOpen,
@@ -40,11 +47,39 @@ export function ConnectCodeforcesModal({
   const [expiresAt, setExpiresAt] = useState<string | null>(null);
 
   const [isSubmittingHandle, setIsSubmittingHandle] = useState(false);
-  const [isVerifyingOwnership, setIsVerifyingOwnership] = useState(false);
+  const [verificationState, setVerificationState] = useState<VerificationState>("IDLE");
+  const verificationStateRef = useRef<VerificationState>("IDLE");
+  const [verificationMessage, setVerificationMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [isRetryable, setIsRetryable] = useState(false);
   const [copiedToken, setCopiedToken] = useState(false);
 
-  // Reset modal state when opened
+  const updateVerificationState = (state: VerificationState) => {
+    verificationStateRef.current = state;
+    setVerificationState(state);
+  };
+
+  const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  // Helper to clear any running polling / timer loops
+  const cleanupTimers = () => {
+    if (pollIntervalRef.current) {
+      clearInterval(pollIntervalRef.current);
+      pollIntervalRef.current = null;
+    }
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+  };
+
+  // Reset modal state when opened / closed
   useEffect(() => {
     if (isOpen) {
       setStep(1);
@@ -52,16 +87,23 @@ export function ConnectCodeforcesModal({
       setActiveHandle("");
       setVerificationToken("");
       setExpiresAt(null);
+      updateVerificationState("IDLE");
+      setVerificationMessage("");
       setErrorMessage("");
+      setIsRetryable(false);
+    } else {
+      cleanupTimers();
     }
+    return () => cleanupTimers();
   }, [isOpen]);
 
   if (!isOpen) return null;
 
-  // Step 1: Submit Handle & Get Challenge Token
+  // Step 1: Submit Handle & Get Single-Use Challenge Token
   const handleConnectStart = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage("");
+    setIsRetryable(false);
 
     const trimmed = handleInput.trim();
     if (!trimmed) {
@@ -83,7 +125,12 @@ export function ConnectCodeforcesModal({
         body: JSON.stringify({ userId: user.id, handle: trimmed }),
       });
 
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
+
+      if (res.status === 401) {
+        setErrorMessage("Session expired. Please sign in again.");
+        return;
+      }
 
       if (res.ok && data.success) {
         setActiveHandle(data.handle);
@@ -91,7 +138,9 @@ export function ConnectCodeforcesModal({
         setExpiresAt(data.expiresAt);
         setStep(2);
       } else {
-        setErrorMessage(data.error || "Codeforces profile not found. Please check your handle.");
+        setErrorMessage(
+          data.error || "Codeforces profile not found. Please check your handle."
+        );
       }
     } catch {
       setErrorMessage("Network error connecting to Codeforces. Please try again.");
@@ -102,31 +151,91 @@ export function ConnectCodeforcesModal({
 
   // Step 2: Verify Ownership Token against Live Codeforces API
   const handleVerifyOwnership = async () => {
-    if (!user || !activeHandle) return;
+    if (!user || !activeHandle || verificationStateRef.current === "VERIFYING") return;
+
+    cleanupTimers();
     setErrorMessage("");
-    setIsVerifyingOwnership(true);
+    setIsRetryable(false);
+    updateVerificationState("VERIFYING");
+    setVerificationMessage("Checking your Codeforces profile...");
+
+    abortControllerRef.current = new AbortController();
+
+    // 45s safety timeout for long operations
+    timeoutRef.current = setTimeout(() => {
+      if (verificationStateRef.current === "VERIFYING") {
+        cleanupTimers();
+        updateVerificationState("TEMPORARY_ERROR");
+        setIsRetryable(true);
+        setErrorMessage("Verification is taking longer than expected. Please try again.");
+      }
+    }, 45000);
 
     try {
       const res = await fetch("/api/integrations/codeforces/verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId: user.id, handle: activeHandle }),
+        signal: abortControllerRef.current.signal,
       });
 
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
 
-      if (res.ok && data.success) {
-        success(`Codeforces handle @${activeHandle} verified & connected!`);
-        setIsVerifyingOwnership(false);
-        onSuccess();
-        onClose();
-      } else {
-        setErrorMessage(data.error || "Verification token was not found on your Codeforces profile. Make sure the token is visible and try again.");
+      cleanupTimers();
+
+      // CASE F: StudentHub Authentication genuinely missing (HTTP 401)
+      if (res.status === 401) {
+        updateVerificationState("FAILED");
+        setErrorMessage("Session expired. Please sign in again.");
+        return;
       }
-    } catch {
-      setErrorMessage("Network error verifying Codeforces ownership. Please try again.");
-    } finally {
-      setIsVerifyingOwnership(false);
+
+      // CASE A: Verified
+      if (res.ok && data.success && data.status === "VERIFIED") {
+        updateVerificationState("VERIFIED");
+        success(`Codeforces handle @${activeHandle} verified & connected!`);
+        setTimeout(() => {
+          onSuccess();
+          onClose();
+        }, 500);
+        return;
+      }
+
+      // CASE C & D: Temporary error (504, 502, 503, 408, 429)
+      if (
+        res.status === 504 ||
+        res.status === 502 ||
+        res.status === 503 ||
+        res.status === 408 ||
+        res.status === 429 ||
+        data.status === "TEMPORARY_ERROR"
+      ) {
+        updateVerificationState("TEMPORARY_ERROR");
+        setIsRetryable(true);
+        setErrorMessage(
+          data.error || "Codeforces is taking longer than expected. Please try again."
+        );
+        return;
+      }
+
+      // CASE B: Verification code genuinely not found or expired (400, 404, status FAILED)
+      updateVerificationState("FAILED");
+      setIsRetryable(false);
+      setErrorMessage(
+        data.error ||
+          "Verification code was not found on your Codeforces profile. Please save the profile changes and try again."
+      );
+    } catch (err: any) {
+      cleanupTimers();
+      if (err?.name === "AbortError") {
+        updateVerificationState("TEMPORARY_ERROR");
+        setIsRetryable(true);
+        setErrorMessage("Verification is taking longer than expected. Please try again.");
+      } else {
+        updateVerificationState("TEMPORARY_ERROR");
+        setIsRetryable(true);
+        setErrorMessage("Network error checking Codeforces. Please try again.");
+      }
     }
   };
 
@@ -138,14 +247,19 @@ export function ConnectCodeforcesModal({
     }
   };
 
+  const isVerifying = verificationState === "VERIFYING";
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs p-4">
       <div className="bg-card border border-border rounded-3xl p-6 sm:p-8 max-w-lg w-full space-y-6 shadow-2xl relative my-8">
         {/* Close Button */}
         <button
-          onClick={onClose}
-          disabled={isSubmittingHandle || isVerifyingOwnership}
-          className="absolute top-5 right-5 p-2 rounded-full bg-muted/60 text-muted-foreground hover:text-foreground transition-colors"
+          onClick={() => {
+            cleanupTimers();
+            onClose();
+          }}
+          disabled={isSubmittingHandle || isVerifying}
+          className="absolute top-5 right-5 p-2 rounded-full bg-muted/60 text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
         >
           <X className="w-5 h-5" />
         </button>
@@ -276,13 +390,36 @@ export function ConnectCodeforcesModal({
                   </a>
                 </li>
                 <li>
-                  Set your <strong className="text-foreground dark:text-slate-100">First Name</strong> or <strong className="text-foreground dark:text-slate-100">Organization</strong> to: <code className="px-1.5 py-0.5 rounded bg-muted/80 dark:bg-slate-800 border border-border/50 font-mono font-extrabold text-rose-600 dark:text-rose-400">{verificationToken}</code>
+                  Set your <strong className="text-foreground dark:text-slate-100">First Name</strong> or <strong className="text-foreground dark:text-slate-100">Organization</strong> to:{" "}
+                  <code className="px-1.5 py-0.5 rounded bg-muted/80 dark:bg-slate-800 border border-border/50 font-mono font-extrabold text-rose-600 dark:text-rose-400">
+                    {verificationToken}
+                  </code>
                 </li>
                 <li>Save profile changes on Codeforces and click <strong>Verify Ownership</strong> below.</li>
               </ol>
             </div>
 
-            {errorMessage && (
+            {/* In-Flight Verification Status Banner */}
+            {isVerifying && (
+              <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-600 dark:text-amber-400 font-medium flex items-center gap-2 animate-pulse">
+                <RefreshCw className="w-4 h-4 animate-spin shrink-0 text-amber-500" />
+                <span>{verificationMessage || "Checking your Codeforces profile..."}</span>
+              </div>
+            )}
+
+            {/* Temporary Error Notice (Retryable) */}
+            {verificationState === "TEMPORARY_ERROR" && errorMessage && (
+              <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-700 dark:text-amber-300 font-medium flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0" />
+                <div className="space-y-0.5">
+                  <p className="font-bold text-amber-800 dark:text-amber-200">Temporary Response Delay</p>
+                  <p>{errorMessage}</p>
+                </div>
+              </div>
+            )}
+
+            {/* Actual Failure Notice */}
+            {verificationState === "FAILED" && errorMessage && (
               <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-xs text-rose-600 dark:text-rose-400 font-semibold flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 shrink-0" />
                 <span>{errorMessage}</span>
@@ -295,8 +432,13 @@ export function ConnectCodeforcesModal({
                 type="button"
                 variant="ghost"
                 size="sm"
-                onClick={() => setStep(1)}
-                disabled={isVerifyingOwnership}
+                onClick={() => {
+                  cleanupTimers();
+                  setStep(1);
+                  setVerificationState("IDLE");
+                  setErrorMessage("");
+                }}
+                disabled={isVerifying}
                 className="text-xs text-muted-foreground dark:text-slate-400"
               >
                 &larr; Change Handle
@@ -307,8 +449,11 @@ export function ConnectCodeforcesModal({
                   type="button"
                   variant="outline"
                   size="sm"
-                  onClick={onClose}
-                  disabled={isVerifyingOwnership}
+                  onClick={() => {
+                    cleanupTimers();
+                    onClose();
+                  }}
+                  disabled={isVerifying}
                   className="text-xs"
                 >
                   Cancel
@@ -318,13 +463,15 @@ export function ConnectCodeforcesModal({
                   variant="danger"
                   size="sm"
                   onClick={handleVerifyOwnership}
-                  disabled={isVerifyingOwnership}
+                  disabled={isVerifying}
                   className="text-xs font-bold"
                 >
-                  {isVerifyingOwnership ? (
+                  {isVerifying ? (
                     <>
-                      <RefreshCw className="w-3.5 h-3.5 mr-1.5 animate-spin" /> Verifying Codeforces account...
+                      <RefreshCw className="w-3.5 h-3.5 mr-1.5 animate-spin" /> Verifying your Codeforces account...
                     </>
+                  ) : isRetryable ? (
+                    "Retry Verification"
                   ) : (
                     "Verify Ownership"
                   )}

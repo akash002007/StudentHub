@@ -217,11 +217,13 @@ export function GSAPBentoShowcase() {
       if (stepTextRefs.current[0] && stepTextRefs.current[1]) {
         tl.to(
           stepTextRefs.current[0],
-          { opacity: 0, y: -40, duration: 0.15, ease: "power2.inOut", onComplete: () => {
-            if (stepTextRefs.current[0]) stepTextRefs.current[0].style.display = "none";
-          }, onReverseComplete: () => {
-            if (stepTextRefs.current[0]) stepTextRefs.current[0].style.display = "block";
-          }},
+          {
+            opacity: 0, y: -40, duration: 0.15, ease: "power2.inOut", onComplete: () => {
+              if (stepTextRefs.current[0]) stepTextRefs.current[0].style.display = "none";
+            }, onReverseComplete: () => {
+              if (stepTextRefs.current[0]) stepTextRefs.current[0].style.display = "block";
+            }
+          },
           t1Start
         ).fromTo(
           stepTextRefs.current[1],
@@ -269,11 +271,13 @@ export function GSAPBentoShowcase() {
       if (stepTextRefs.current[1] && stepTextRefs.current[2]) {
         tl.to(
           stepTextRefs.current[1],
-          { opacity: 0, y: -40, duration: 0.15, ease: "power2.inOut", onComplete: () => {
-            if (stepTextRefs.current[1]) stepTextRefs.current[1].style.display = "none";
-          }, onReverseComplete: () => {
-            if (stepTextRefs.current[1]) stepTextRefs.current[1].style.display = "block";
-          }},
+          {
+            opacity: 0, y: -40, duration: 0.15, ease: "power2.inOut", onComplete: () => {
+              if (stepTextRefs.current[1]) stepTextRefs.current[1].style.display = "none";
+            }, onReverseComplete: () => {
+              if (stepTextRefs.current[1]) stepTextRefs.current[1].style.display = "block";
+            }
+          },
           t2Start
         ).fromTo(
           stepTextRefs.current[2],
@@ -321,11 +325,13 @@ export function GSAPBentoShowcase() {
       if (stepTextRefs.current[2] && stepTextRefs.current[3]) {
         tl.to(
           stepTextRefs.current[2],
-          { opacity: 0, y: -40, duration: 0.15, ease: "power2.inOut", onComplete: () => {
-            if (stepTextRefs.current[2]) stepTextRefs.current[2].style.display = "none";
-          }, onReverseComplete: () => {
-            if (stepTextRefs.current[2]) stepTextRefs.current[2].style.display = "block";
-          }},
+          {
+            opacity: 0, y: -40, duration: 0.15, ease: "power2.inOut", onComplete: () => {
+              if (stepTextRefs.current[2]) stepTextRefs.current[2].style.display = "none";
+            }, onReverseComplete: () => {
+              if (stepTextRefs.current[2]) stepTextRefs.current[2].style.display = "block";
+            }
+          },
           t3Start
         ).fromTo(
           stepTextRefs.current[3],
@@ -385,11 +391,13 @@ export function GSAPBentoShowcase() {
       if (stepTextRefs.current[3] && stepTextRefs.current[4]) {
         tl.to(
           stepTextRefs.current[3],
-          { opacity: 0, y: -40, duration: 0.15, ease: "power2.inOut", onComplete: () => {
-            if (stepTextRefs.current[3]) stepTextRefs.current[3].style.display = "none";
-          }, onReverseComplete: () => {
-            if (stepTextRefs.current[3]) stepTextRefs.current[3].style.display = "block";
-          }},
+          {
+            opacity: 0, y: -40, duration: 0.15, ease: "power2.inOut", onComplete: () => {
+              if (stepTextRefs.current[3]) stepTextRefs.current[3].style.display = "none";
+            }, onReverseComplete: () => {
+              if (stepTextRefs.current[3]) stepTextRefs.current[3].style.display = "block";
+            }
+          },
           t4Start
         ).fromTo(
           stepTextRefs.current[4],
@@ -434,7 +442,7 @@ export function GSAPBentoShowcase() {
   const scrollToScene = (index: number) => {
     if (!triggerRef.current) return;
     const st = ScrollTrigger.getById("experience-pin") || ScrollTrigger.getAll().find((s) => s.trigger === triggerRef.current);
-    
+
     if (st) {
       const targetProgress = index / (scenes.length - 1);
       const targetScroll = st.start + targetProgress * (st.end - st.start);
@@ -472,7 +480,7 @@ export function GSAPBentoShowcase() {
         {/* Main Content Stage Grid */}
         <div className="max-w-7xl w-full mx-auto px-4 sm:px-8 py-8 sm:py-12 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-            
+
             {/* Left Narrative Column (7 cols) */}
             <div className="lg:col-span-7 relative min-h-[420px] flex items-center">
               {scenes.map((scene, idx) => (
@@ -545,7 +553,7 @@ export function GSAPBentoShowcase() {
 
             {/* Right Transforming Bento Stage (5 cols) */}
             <div className="lg:col-span-5 relative min-h-[460px] flex items-center justify-center">
-              
+
               {/* Bento Card 1: Student Identity & Verification Core */}
               <div
                 ref={cardPrimaryRef}
@@ -702,11 +710,10 @@ export function GSAPBentoShowcase() {
                   key={s.id}
                   onClick={() => scrollToScene(idx)}
                   aria-label={`Jump to scene ${s.id}`}
-                  className={`relative px-2.5 py-1.5 rounded-lg text-xs font-mono font-bold transition-all ${
-                    isActive
+                  className={`relative px-2.5 py-1.5 rounded-lg text-xs font-mono font-bold transition-all ${isActive
                       ? "bg-purple-600 text-white shadow-md shadow-purple-600/30 scale-105"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
-                  }`}
+                    }`}
                 >
                   {s.id}
                 </button>

@@ -28,6 +28,7 @@ import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import { Avatar } from "@/components/ui/Avatar";
 import { RoleGuard } from "@/components/dashboard/RoleGuard";
+import { CandidateProfileModal, CandidateModalData } from "@/components/dashboard/CandidateProfileModal";
 import { useData } from "@/context/DataContext";
 import { useToast } from "@/context/ToastContext";
 import {
@@ -46,6 +47,8 @@ export default function RecruiterInterviewsPage() {
     recruiterApplicants,
     recruiterStudents,
     recruiterInternships,
+    toggleShortlistCandidate,
+    startRecruiterConversation,
   } = useData();
 
   const { success, error: toastError } = useToast();
@@ -59,6 +62,10 @@ export default function RecruiterInterviewsPage() {
   const [isRescheduleModalOpen, setIsRescheduleModalOpen] = useState(false);
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
   const [selectedInterview, setSelectedInterview] = useState<RecruiterInterview | null>(null);
+
+  // Candidate Profile Review Modal State
+  const [selectedCandidate, setSelectedCandidate] = useState<CandidateModalData | null>(null);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
   // New Interview Form
   const [candidateId, setCandidateId] = useState(recruiterApplicants[0]?.studentId || "");
@@ -156,6 +163,43 @@ export default function RecruiterInterviewsPage() {
     if (!selectedInterview) return;
     completeInterview(selectedInterview.id, feedbackText);
     setIsFeedbackModalOpen(false);
+  };
+
+  const handleOpenCandidateProfile = (interview: RecruiterInterview) => {
+    const studentMatch = recruiterStudents.find(
+      (s) =>
+        s.id === interview.candidateId ||
+        s.name.toLowerCase() === interview.candidateName.toLowerCase()
+    );
+    const applicantMatch = recruiterApplicants.find(
+      (a) =>
+        a.studentId === interview.candidateId ||
+        a.studentName.toLowerCase() === interview.candidateName.toLowerCase()
+    );
+
+    setSelectedCandidate({
+      id: interview.candidateId,
+      name: interview.candidateName,
+      avatar: interview.candidateAvatar,
+      university: interview.candidateUniversity,
+      degree: studentMatch?.degree || applicantMatch?.degree || "Student",
+      branch: studentMatch?.branch || applicantMatch?.branch || "Engineering",
+      graduationYear: studentMatch?.graduationYear || applicantMatch?.graduationYear || 2026,
+      cgpa: studentMatch?.cgpa || applicantMatch?.cgpa || "3.9",
+      location: studentMatch?.location || applicantMatch?.location || "Remote",
+      skills: studentMatch?.skills || applicantMatch?.skills || ["Engineering"],
+      bio: studentMatch?.bio || applicantMatch?.bio || "",
+      matchScore: applicantMatch?.matchScore || 90,
+      resumeUrl: studentMatch?.resumeUrl || applicantMatch?.resumeUrl,
+      portfolioUrl: studentMatch?.portfolioUrl || applicantMatch?.portfolioUrl,
+      githubUrl: studentMatch?.githubUrl || applicantMatch?.githubUrl,
+      linkedinUrl: studentMatch?.linkedinUrl || applicantMatch?.linkedinUrl,
+      projects: studentMatch?.projects || applicantMatch?.projects,
+      certifications: studentMatch?.certifications || applicantMatch?.certifications,
+      isShortlisted: studentMatch?.isShortlisted,
+      careerDNA: (studentMatch as any)?.careerDNA,
+    });
+    setIsProfileModalOpen(true);
   };
 
   return (
@@ -364,6 +408,16 @@ export default function RecruiterInterviewsPage() {
 
                     {/* Action Buttons */}
                     <div className="flex items-center gap-2 shrink-0">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleOpenCandidateProfile(interview)}
+                        className="text-xs h-8 cursor-pointer text-purple-600 dark:text-purple-400 hover:bg-purple-500/10"
+                      >
+                        Profile &amp; Career DNA
+                      </Button>
+
                       {isUpcoming && (
                         <>
                           <a
@@ -626,6 +680,32 @@ export default function RecruiterInterviewsPage() {
             </div>
           </form>
         </Modal>
+
+        {/* Candidate Profile Review Modal with Career DNA */}
+        <CandidateProfileModal
+          isOpen={isProfileModalOpen}
+          onClose={() => setIsProfileModalOpen(false)}
+          candidate={selectedCandidate}
+          onShortlistToggle={() => {
+            if (selectedCandidate) toggleShortlistCandidate(selectedCandidate.id);
+          }}
+          isShortlisted={
+            selectedCandidate
+              ? recruiterStudents.find((s) => s.id === selectedCandidate.id)?.isShortlisted
+              : false
+          }
+          onMessage={() => {
+            if (!selectedCandidate) return;
+            startRecruiterConversation({
+              id: selectedCandidate.id,
+              name: selectedCandidate.name,
+              avatar: selectedCandidate.avatar,
+              role: selectedCandidate.degree,
+              college: selectedCandidate.university,
+            });
+            setIsProfileModalOpen(false);
+          }}
+        />
       </div>
     </RoleGuard>
   );

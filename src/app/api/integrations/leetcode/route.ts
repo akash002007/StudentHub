@@ -1,13 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
-  deleteCodeforcesConnection,
+  deleteLeetCodeConnection,
   getGitHubRepositories,
   getCareerDNA,
 } from "@/lib/server-store";
 import { CareerDNABuilder } from "@/lib/career-dna";
 import { getAuthenticatedUser, unauthorizedResponse } from "@/lib/auth-server";
-
-export const dynamic = "force-dynamic";
 
 export async function DELETE(request: NextRequest) {
   try {
@@ -17,10 +15,10 @@ export async function DELETE(request: NextRequest) {
       return unauthorizedResponse();
     }
 
-    const deleted = deleteCodeforcesConnection(authUser.userId);
+    const deleted = deleteLeetCodeConnection(authUser.userId);
 
     if (deleted) {
-      // Recalculate Career DNA after Codeforces is disconnected
+      // Recalculate Career DNA after LeetCode is disconnected
       const repos = getGitHubRepositories(authUser.userId);
       const existingDNA = getCareerDNA(authUser.userId);
       const featuredProjects = existingDNA?.featuredProjects || [];
@@ -34,14 +32,18 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
+    console.log(
+      `[LeetCode Disconnect] authenticated: true, connectionFound: true, databaseUpdated: true, success: true, userId: ${authUser.userId}`
+    );
+
     return NextResponse.json({
       success: true,
-      message: "Codeforces account disconnected successfully.",
+      message: "LeetCode account disconnected successfully.",
     });
   } catch (err: any) {
-    console.error("Codeforces Disconnect API Error:", err);
+    console.error("[LeetCode Disconnect] API Error:", err);
     return NextResponse.json(
-      { success: false, error: "Failed to disconnect Codeforces account." },
+      { success: false, error: "Failed to disconnect LeetCode account." },
       { status: 500 }
     );
   }

@@ -10,6 +10,8 @@ import {
   getCareerDNA,
   getCodeforcesConnection,
   getCodeforcesDNA,
+  getLeetCodeConnection,
+  getLeetCodeDNA,
   getCertificateDNA,
   getHuggingFaceConnection,
   getHuggingFaceDNA,
@@ -108,11 +110,14 @@ export class CareerDNABuilder {
 
     const cfConn = getCodeforcesConnection(userId);
     const cfDNA = getCodeforcesDNA(userId);
+    const lcConn = getLeetCodeConnection(userId);
+    const lcDNA = getLeetCodeDNA(userId);
     const certDNA = getCertificateDNA(userId);
     const hfConn = getHuggingFaceConnection(userId);
     const hfDNA = getHuggingFaceDNA(userId);
 
     const isCfVerified = Boolean(cfConn && cfConn.status === "VERIFIED");
+    const isLcVerified = Boolean(lcConn && lcConn.status === "VERIFIED");
 
     const codeforcesStats = isCfVerified && cfConn
       ? {
@@ -123,6 +128,19 @@ export class CareerDNABuilder {
           solvedProblemsCount: cfConn.solvedProblemsCount,
           contestsCount: cfConn.contestsCount,
           lastSyncAt: cfConn.lastSyncedAt || now,
+        }
+      : null;
+
+    const leetcodeStats = isLcVerified && lcConn
+      ? {
+          leetcodeId: lcConn.leetcodeId,
+          totalProblemsSolved: lcConn.totalProblemsSolved,
+          easySolved: lcConn.easySolved,
+          mediumSolved: lcConn.mediumSolved,
+          hardSolved: lcConn.hardSolved,
+          contestRating: lcConn.contestRating,
+          ranking: lcConn.ranking,
+          lastSyncAt: lcConn.lastSyncedAt || now,
         }
       : null;
 
@@ -152,6 +170,7 @@ export class CareerDNABuilder {
     const hasGithub = repositories.length > 0;
     const hasProjects = projects.length > 0;
     const hasCodeforces = Boolean(isCfVerified && cfConn && cfConn.syncStatus === "SYNCED");
+    const hasLeetCode = Boolean(isLcVerified && lcConn && lcConn.syncStatus === "SYNCED");
     const hasCertificates = Boolean(certDNA && certDNA.totalCertificates > 0);
     const hasHuggingFace = Boolean(isHfConnected && hfConn);
 
@@ -159,6 +178,7 @@ export class CareerDNABuilder {
       resume: "ANALYZED" as const,
       github: hasGithub ? ("ANALYZED" as const) : ("NOT_CONNECTED" as const),
       codeforces: hasCodeforces ? ("ANALYZED" as const) : ("NOT_CONNECTED" as const),
+      leetcode: hasLeetCode ? ("ANALYZED" as const) : ("NOT_CONNECTED" as const),
       huggingface: hasHuggingFace ? ("ANALYZED" as const) : ("NOT_CONNECTED" as const),
       certificates: hasCertificates ? ("ANALYZED" as const) : ("NOT_CONNECTED" as const),
       projects: hasProjects ? ("ANALYZED" as const) : ("NOT_CONNECTED" as const),
@@ -172,6 +192,7 @@ export class CareerDNABuilder {
       resumeScore: 81,
       githubScore: hasGithub ? Math.round(80 * 0.95) : null,
       codeforcesScore: hasCodeforces && cfDNA ? cfDNA.score : null,
+      leetcodeScore: hasLeetCode && lcDNA ? lcDNA.score : null,
       huggingfaceScore: hasHuggingFace && hfDNA ? hfDNA.score : null,
       certificatesScore: hasCertificates && certDNA ? certDNA.score : null,
       projectsScore: hasProjects ? Math.round(85 * 1.02) : null,
@@ -248,6 +269,7 @@ export class CareerDNABuilder {
         lastSyncAt: now,
       },
       codeforcesStats,
+      leetcodeStats,
       huggingfaceStats,
       certificateStats,
       history: updatedHistory,

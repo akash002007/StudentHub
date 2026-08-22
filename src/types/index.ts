@@ -325,6 +325,50 @@ export interface CodeforcesDNA {
   evidence: Array<{ id: string; entity: string; skill: string; text: string; confidence: number; source: "Codeforces" }>;
 }
 
+export type LeetCodeSyncStatus = "CONNECTED" | "SYNCING" | "SYNCED" | "FAILED";
+export type LeetCodeVerificationStatus = "PENDING_VERIFICATION" | "VERIFIED" | "VERIFICATION_FAILED" | "DISCONNECTED";
+
+export interface LeetCodeConnection {
+  id: string;
+  userId: string;
+  leetcodeId: string;
+  ranking: number;
+  totalProblemsSolved: number;
+  easySolved: number;
+  mediumSolved: number;
+  hardSolved: number;
+  acceptanceRate?: number;
+  contestRating: number;
+  contestRank?: string;
+  contestsCount: number;
+  globalRanking?: number;
+  topPercentage?: number;
+  avatar: string;
+  status: LeetCodeVerificationStatus;
+  syncStatus: LeetCodeSyncStatus;
+  verificationToken: string | null;
+  verificationExpiresAt: string | null;
+  verifiedAt: string | null;
+  lastSyncedAt: string | null;
+  connectedAt: string;
+  error?: string | null;
+}
+
+export interface LeetCodeDNA {
+  score: number; // 0 - 100
+  confidence: number;
+  leetcodeId: string;
+  totalSolved: number;
+  easySolved: number;
+  mediumSolved: number;
+  hardSolved: number;
+  contestRating: number;
+  ranking: number;
+  strengths: string[];
+  developingAreas: string[];
+  evidence: Array<{ id: string; entity: string; skill: string; text: string; confidence: number; source: "LeetCode" }>;
+}
+
 export type HuggingFaceSyncStatus = "CONNECTED" | "SYNCING" | "SYNCED" | "FAILED";
 
 export interface HuggingFaceConnectionRecord {
@@ -468,6 +512,16 @@ export interface CareerDNA {
     contestsCount: number;
     lastSyncAt: string;
   } | null;
+  leetcodeStats?: {
+    leetcodeId: string;
+    totalProblemsSolved: number;
+    easySolved: number;
+    mediumSolved: number;
+    hardSolved: number;
+    contestRating: number;
+    ranking: number;
+    lastSyncAt: string;
+  } | null;
   huggingfaceStats?: {
     username: string;
     modelsCount: number;
@@ -487,6 +541,7 @@ export interface CareerDNA {
     resume: "ANALYZED" | "NOT_CONNECTED" | "PROCESSING" | "STALE";
     github: "ANALYZED" | "CONNECTED" | "NOT_CONNECTED" | "PROCESSING" | "STALE";
     codeforces?: "ANALYZED" | "CONNECTED" | "NOT_CONNECTED" | "PROCESSING" | "STALE";
+    leetcode?: "ANALYZED" | "CONNECTED" | "NOT_CONNECTED" | "PROCESSING" | "STALE";
     huggingface?: "ANALYZED" | "CONNECTED" | "NOT_CONNECTED" | "PROCESSING" | "STALE";
     certificates?: "ANALYZED" | "CONNECTED" | "NOT_CONNECTED" | "PROCESSING" | "STALE";
     projects: "ANALYZED" | "NOT_CONNECTED";
@@ -499,6 +554,7 @@ export interface CareerDNA {
     resumeScore: number | null;
     githubScore: number | null;
     codeforcesScore?: number | null;
+    leetcodeScore?: number | null;
     huggingfaceScore?: number | null;
     certificatesScore?: number | null;
     projectsScore: number | null;

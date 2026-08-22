@@ -1,11 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getHuggingFaceConnection, getHuggingFaceDNA } from "@/lib/server-store";
+import { getAuthenticatedUser, unauthorizedResponse } from "@/lib/auth-server";
+
+export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const userId = searchParams.get("userId") || "std_default_01";
+    const rawUserId = searchParams.get("userId");
+    const authUser = await getAuthenticatedUser(request, rawUserId || undefined);
 
+    if (!authUser) {
+      return unauthorizedResponse();
+    }
+
+    const userId = authUser.userId;
     const connection = getHuggingFaceConnection(userId);
     const dna = getHuggingFaceDNA(userId);
 

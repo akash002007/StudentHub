@@ -2,12 +2,21 @@ import { NextRequest, NextResponse } from "next/server";
 import { randomBytes } from "crypto";
 import { CodeforcesEngine } from "@/lib/codeforces-engine";
 import { saveCodeforcesConnection, getCodeforcesConnection } from "@/lib/server-store";
+import { getAuthenticatedUser, unauthorizedResponse } from "@/lib/auth-server";
 import { CodeforcesConnection } from "@/types";
+
+export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json().catch(() => ({}));
-    const { userId = "std_default_01", handle } = body;
+    const authUser = await getAuthenticatedUser(request, body.userId);
+
+    if (!authUser) {
+      return unauthorizedResponse();
+    }
+
+    const { handle } = body;
 
     if (!handle || typeof handle !== "string" || handle.trim().length === 0) {
       return NextResponse.json(
@@ -32,8 +41,13 @@ export async function POST(request: NextRequest) {
       userInfo = await CodeforcesEngine.fetchUserInfo(normalizedHandle);
     } catch (err: any) {
       return NextResponse.json(
-        { success: false, error: err.message || `Codeforces profile "${normalizedHandle}" not found. Please check your handle.` },
-        { status: 400 }
+        {
+          success: false,
+          error:
+            err.message ||
+            `Codeforces profile "${normalizedHandle}" not found. Please check your handle.`,
+        },
+        { status: err.kind === "NOT_FOUND" ? 404 : 400 }
       );
     }
 
@@ -43,11 +57,11 @@ export async function POST(request: NextRequest) {
     const now = new Date();
     const expiresAt = new Date(now.getTime() + 15 * 60 * 1000).toISOString(); // 15 mins TTL
 
-    const existingConn = getCodeforcesConnection(userId);
+    const existingConn = getCodeforcesConnection(authUser.userId);
 
     const connectionRecord: CodeforcesConnection = {
       id: existingConn?.id || `cf_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
-      userId,
+      userId: authUser.userId,
       handle: normalizedHandle,
       rating: userInfo.rating || 0,
       maxRating: userInfo.maxRating || 0,
@@ -71,7 +85,11 @@ export async function POST(request: NextRequest) {
       error: null,
     };
 
-    saveCodeforcesConnection(userId, connectionRecord);
+    saveCodeforcesConnection(authUser.userId, connectionRecord);
+
+    console.log(
+      `[Codeforces Connect] authenticated: true, connectionCreated: true, userId: ${authUser.userId}, handle: @${normalizedHandle}`
+    );
 
     return NextResponse.json({
       success: true,

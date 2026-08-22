@@ -2,11 +2,19 @@ import { NextRequest, NextResponse } from "next/server";
 import {
   getGitHubConnection,
   deleteGitHubConnection,
+  getGitHubRepositories,
+  getCareerDNA,
 } from "@/lib/server-store";
+import { CareerDNABuilder } from "@/lib/career-dna";
+import { getAuthenticatedUser, unauthorizedResponse } from "@/lib/auth-server";
+
+export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
-  const userId = searchParams.get("userId") || "std_default_01";
+  const rawUserId = searchParams.get("userId");
+  const authUser = await getAuthenticatedUser(request, rawUserId || undefined);
+  const userId = authUser?.userId || rawUserId || "std_default_01";
 
   const record = getGitHubConnection(userId);
 
@@ -37,29 +45,60 @@ export async function GET(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
-  const searchParams = request.nextUrl.searchParams;
-  let userId = searchParams.get("userId");
+  try {
+    const searchParams = request.nextUrl.searchParams;
+    let userId = searchParams.get("userId");
 
-  if (!userId) {
-    try {
-      const body = await request.json();
-      userId = body.userId;
-    } catch {
-      // Ignore body parsing error
+    if (!userId) {
+      try {
+        const body = await request.json();
+        userId = body.userId;
+      } catch {
+        // Ignore body parsing error
+      }
     }
+
+    const authUser = await getAuthenticatedUser(request, userId || undefined);
+    if (!authUser) {
+      return unauthorizedResponse();
+    }
+
+    const targetUserId = authUser.userId;
+    const existingConn = getGitHubConnection(targetUserId);
+
+    const deleted = deleteGitHubConnection(targetUserId);
+
+    if (deleted) {
+      // Recalculate Career DNA after GitHub is disconnected
+      const repos = getGitHubRepositories(targetUserId);
+      const existingDNA = getCareerDNA(targetUserId);
+      const featuredProjects = existingDNA?.featuredProjects || [];
+      const skillEvidences = existingDNA?.skillEvidences || [];
+
+      CareerDNABuilder.compileCareerDNA(
+        targetUserId,
+        featuredProjects,
+        skillEvidences,
+        repos
+      );
+    }
+
+    console.log(
+      `[GitHub Disconnect] authenticated: true, connectionFound: ${Boolean(
+        existingConn
+      )}, tokenRemoved: true, connectionRemoved: true, userId: ${targetUserId}`
+    );
+
+    return NextResponse.json({
+      success: true,
+      deleted,
+      message: "GitHub account disconnected successfully.",
+    });
+  } catch (err: any) {
+    console.error("GitHub Disconnect API Error:", err);
+    return NextResponse.json(
+      { success: false, error: "Failed to disconnect GitHub account." },
+      { status: 500 }
+    );
   }
-
-  if (!userId) {
-    userId = "std_default_01";
-  }
-
-  const deleted = deleteGitHubConnection(userId);
-
-  return NextResponse.json({
-    success: true,
-    deleted,
-    message: deleted
-      ? "GitHub account disconnected successfully."
-      : "No active GitHub connection found.",
-  });
 }
