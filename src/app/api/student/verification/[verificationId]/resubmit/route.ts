@@ -3,7 +3,7 @@ import { ServerStore } from "@/lib/server-store";
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { verificationId: string } }
+  { params }: { params: Promise<{ verificationId: string }> }
 ) {
   const body = await req.json();
   const studentId = body.studentId || "student_01";

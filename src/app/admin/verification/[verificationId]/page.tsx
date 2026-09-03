@@ -25,10 +25,11 @@ import { useToast } from "@/context/ToastContext";
 export default function VerificationReviewPage({
   params,
 }: {
-  params: { verificationId: string };
+  params: Promise<{ verificationId: string }>;
 }) {
+  const resolvedParams = React.use(params);
   const router = useRouter();
-  const rawId = decodeURIComponent(params.verificationId);
+  const rawId = decodeURIComponent(resolvedParams.verificationId);
   const [request, setRequest] = useState<VerificationRequest | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);

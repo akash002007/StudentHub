@@ -34,10 +34,11 @@ import { useToast } from "@/context/ToastContext";
 export default function StudentDetailPage({
   params,
 }: {
-  params: { studentId: string };
+  params: Promise<{ studentId: string }>;
 }) {
+  const resolvedParams = React.use(params);
   const router = useRouter();
-  const rawId = decodeURIComponent(params.studentId);
+  const rawId = decodeURIComponent(resolvedParams.studentId);
   const [student, setStudent] = useState<StudentProfile | null>(null);
   const [verificationReq, setVerificationReq] = useState<VerificationRequest | null>(null);
   const [auditLogs, setAuditLogs] = useState<AuditLogEntry[]>([]);

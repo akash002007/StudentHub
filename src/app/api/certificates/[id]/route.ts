@@ -12,12 +12,13 @@ import { CareerDNABuilder } from "@/lib/career-dna";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get("userId") || "std_default_01";
-    const certId = params.id;
+    const certId = id;
 
     const cert = getCertificateById(userId, certId);
     if (!cert) {
@@ -42,12 +43,13 @@ export async function GET(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get("userId") || "std_default_01";
-    const certId = params.id;
+    const certId = id;
 
     const cert = getCertificateById(userId, certId);
     if (!cert) {

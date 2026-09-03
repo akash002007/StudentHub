@@ -3,9 +3,10 @@ import { ServerStore } from "@/lib/server-store";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { studentId: string } }
+  { params }: { params: Promise<{ studentId: string }> }
 ) {
-  const student = ServerStore.getStudentProfileById(params.studentId);
+  const { studentId } = await params;
+  const student = ServerStore.getStudentProfileById(studentId);
 
   if (!student) {
     return NextResponse.json(
@@ -15,7 +16,7 @@ export async function GET(
   }
 
   // Get matching verification request if any
-  const verificationRequest = ServerStore.getVerificationRequestByStudentId(params.studentId);
+  const verificationRequest = ServerStore.getVerificationRequestByStudentId(studentId);
   const auditLogs = ServerStore.getAuditLogs().filter((l) => l.student === student.name);
 
   return NextResponse.json({
@@ -28,10 +29,11 @@ export async function GET(
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { studentId: string } }
+  { params }: { params: Promise<{ studentId: string }> }
 ) {
+  const { studentId } = await params;
   const body = await req.json();
-  const updated = ServerStore.updateStudentProfile(params.studentId, body);
+  const updated = ServerStore.updateStudentProfile(studentId, body);
 
   if (!updated) {
     return NextResponse.json(

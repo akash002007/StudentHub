@@ -3,9 +3,10 @@ import { ServerStore } from "@/lib/server-store";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { verificationId: string } }
+  { params }: { params: Promise<{ verificationId: string }> }
 ) {
-  const decodedId = decodeURIComponent(params.verificationId);
+  const { verificationId } = await params;
+  const decodedId = decodeURIComponent(verificationId);
   const request = ServerStore.getVerificationRequestById(decodedId);
 
   if (!request) {
@@ -20,9 +21,10 @@ export async function GET(
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { verificationId: string } }
+  { params }: { params: Promise<{ verificationId: string }> }
 ) {
-  const decodedId = decodeURIComponent(params.verificationId);
+  const { verificationId } = await params;
+  const decodedId = decodeURIComponent(verificationId);
   const body = await req.json();
 
   if (body.checklist) {
