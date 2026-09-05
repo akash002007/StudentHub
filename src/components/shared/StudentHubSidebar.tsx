@@ -559,14 +559,16 @@ export function StudentHubSidebar({
 
           {!isCollapsed && (
             <div className="mt-2 pt-2 border-t border-border/50 flex items-center justify-between text-[11px]">
-              <button
-                onClick={handleRoleSwitch}
-                className="inline-flex items-center gap-1 font-semibold text-muted-foreground hover:text-foreground transition-colors"
-                title="Switch Workspace Demo Role"
-              >
-                <ArrowLeftRight className="w-3 h-3 text-purple-500" />
-                <span>Switch Role</span>
-              </button>
+              {process.env.NODE_ENV === "development" && (
+                <button
+                  onClick={handleRoleSwitch}
+                  className="inline-flex items-center gap-1 font-semibold text-muted-foreground hover:text-foreground transition-colors"
+                  title="Switch Workspace Demo Role"
+                >
+                  <ArrowLeftRight className="w-3 h-3 text-purple-500" />
+                  <span>Switch Role</span>
+                </button>
+              )}
 
               <button
                 onClick={handleLogout}

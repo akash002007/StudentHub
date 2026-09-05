@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   Search,
   Filter,
@@ -23,20 +23,18 @@ import { Modal } from "@/components/ui/Modal";
 import { Tabs } from "@/components/ui/Tabs";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { RoleGuard } from "@/components/dashboard/RoleGuard";
-import { useData } from "@/context/DataContext";
+// useData removed
 import { useToast } from "@/context/ToastContext";
-import { Internship } from "@/types";
+import { Internship as BaseInternship } from "@/types";
+
+// Extend Internship type with our dynamic fields
+type Internship = BaseInternship & { isSaved?: boolean; hasApplied?: boolean };
 
 export default function InternshipsPage() {
-  const {
-    internships,
-    savedInternshipIds,
-    toggleSaveInternship,
-    isInternshipSaved,
-    applyToInternship,
-    hasAppliedToInternship,
-  } = useData();
   const { success } = useToast();
+
+  const [internships, setInternships] = useState<Internship[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const [activeTab, setActiveTab] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -47,10 +45,33 @@ export default function InternshipsPage() {
   const [applyingInternship, setApplyingInternship] = useState<Internship | null>(null);
   const [applicationNote, setApplicationNote] = useState("");
 
+  useEffect(() => {
+    async function fetchInternships() {
+      setIsLoading(true);
+      try {
+        const res = await fetch(`/api/internships?search=${encodeURIComponent(searchQuery)}&format=${workTypeFilter}&discipline=${selectedDomain}`);
+        if (res.ok) {
+          const data = await res.json();
+          setInternships(data);
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    
+    // Simple debounce for search
+    const timeoutId = setTimeout(() => {
+      fetchInternships();
+    }, 300);
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery, workTypeFilter, selectedDomain]);
+
   const tabs = [
     { id: "all", label: "All Internships", count: internships.length },
-    { id: "recommended", label: "Recommended (85%+ Match)", count: 4 },
-    { id: "saved", label: "Saved Roles", count: savedInternshipIds.length },
+    { id: "recommended", label: "Recommended (85%+ Match)", count: internships.filter(i => i.matchPercentage >= 85).length },
+    { id: "saved", label: "Saved Roles", count: internships.filter(i => i.isSaved).length },
     { id: "remote", label: "100% Remote", count: internships.filter((i) => i.workType === "Remote").length },
   ];
 
@@ -65,70 +86,56 @@ export default function InternshipsPage() {
 
   const filteredInternships = useMemo(() => {
     return internships.filter((item) => {
-      // Search match
-      const query = searchQuery.toLowerCase();
-      const matchesSearch =
-        item.title.toLowerCase().includes(query) ||
-        item.company.toLowerCase().includes(query) ||
-        item.department.toLowerCase().includes(query) ||
-        item.location.toLowerCase().includes(query) ||
-        item.requiredSkills.some((s) => s.toLowerCase().includes(query));
-
-      if (!matchesSearch) return false;
-
-      // Domain filter
-      if (selectedDomain !== "all") {
-        const dept = item.department.toLowerCase();
-        if (selectedDomain === "tech" && !dept.includes("engineering") && !dept.includes("software") && !dept.includes("ai") && !dept.includes("systems")) {
-          return false;
-        }
-        if (selectedDomain === "business" && !dept.includes("finance") && !dept.includes("business") && !dept.includes("investment") && !dept.includes("marketing")) {
-          return false;
-        }
-        if (selectedDomain === "health" && !dept.includes("health") && !dept.includes("bio") && !dept.includes("medical") && !dept.includes("clinical")) {
-          return false;
-        }
-        if (selectedDomain === "law" && !dept.includes("law") && !dept.includes("legal") && !dept.includes("policy")) {
-          return false;
-        }
-        if (selectedDomain === "design" && !dept.includes("design") && !dept.includes("architecture") && !dept.includes("creative")) {
-          return false;
-        }
-      }
-
-      // Work type filter
-      if (workTypeFilter !== "all" && item.workType.toLowerCase() !== workTypeFilter.toLowerCase()) {
-        return false;
-      }
-
-      // Tab filter
+      // API already filters by search, workType, and domain. 
+      // We only need to filter locally by activeTab.
       if (activeTab === "recommended") {
         return item.matchPercentage >= 85;
       }
       if (activeTab === "saved") {
-        return isInternshipSaved(item.id);
+        return item.isSaved;
       }
       if (activeTab === "remote") {
         return item.workType === "Remote";
       }
-
       return true;
     });
-  }, [internships, searchQuery, selectedDomain, workTypeFilter, activeTab, savedInternshipIds, isInternshipSaved]);
+  }, [internships, activeTab]);
 
   const handleOpenApply = (internship: Internship) => {
     setApplyingInternship(internship);
     setIsApplyModalOpen(true);
   };
 
-  const handleConfirmApply = (e: React.FormEvent) => {
+  const handleConfirmApply = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!applyingInternship) return;
 
-    applyToInternship(applyingInternship, applicationNote);
+    const id = applyingInternship.id;
+    // Optimistic UI
+    setInternships(prev => prev.map(i => i.id === id ? { ...i, hasApplied: true, applicantsCount: (i.applicantsCount || 0) + 1 } : i));
+    
     setIsApplyModalOpen(false);
     setApplicationNote("");
     setApplyingInternship(null);
+    success("Application submitted successfully!");
+
+    try {
+      await fetch(`/api/internships/${id}/apply`, { method: "POST" });
+    } catch (err) {
+      console.error(err);
+      setInternships(prev => prev.map(i => i.id === id ? { ...i, hasApplied: false, applicantsCount: (i.applicantsCount || 1) - 1 } : i));
+    }
+  };
+
+  const handleToggleSave = async (id: string) => {
+    // Optimistic UI update
+    setInternships(prev => prev.map(i => i.id === id ? { ...i, isSaved: !i.isSaved } : i));
+    try {
+      await fetch(`/api/internships/${id}/save`, { method: "POST" });
+    } catch (err) {
+      console.error(err);
+      setInternships(prev => prev.map(i => i.id === id ? { ...i, isSaved: !i.isSaved } : i));
+    }
   };
 
   return (
@@ -221,9 +228,13 @@ export default function InternshipsPage() {
         />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          {filteredInternships.map((intern) => {
-            const isSaved = isInternshipSaved(intern.id);
-            const isApplied = hasAppliedToInternship(intern.id);
+          {isLoading && internships.length === 0 ? (
+            <div className="col-span-1 md:col-span-2 py-20 flex justify-center text-muted-foreground">
+              Loading internships...
+            </div>
+          ) : filteredInternships.map((intern) => {
+            const isSaved = intern.isSaved;
+            const isApplied = intern.hasApplied;
 
             return (
               <Card
@@ -258,7 +269,7 @@ export default function InternshipsPage() {
                         {intern.matchPercentage}% Match
                       </Badge>
                       <button
-                        onClick={() => toggleSaveInternship(intern.id)}
+                        onClick={() => handleToggleSave(intern.id)}
                         className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
                         aria-label="Bookmark internship"
                       >
@@ -417,7 +428,7 @@ export default function InternshipsPage() {
                 >
                   Close
                 </Button>
-                {!hasAppliedToInternship(selectedInternship.id) && (
+                {!selectedInternship.hasApplied && (
                   <Button
                     variant="gradient"
                     size="sm"

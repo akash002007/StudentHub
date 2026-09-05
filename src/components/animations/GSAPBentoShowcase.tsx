@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState, useLayoutEffect } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -147,7 +147,7 @@ export function GSAPBentoShowcase() {
     },
   ];
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (!containerRef.current || !triggerRef.current) return;
 
     // Check reduced motion

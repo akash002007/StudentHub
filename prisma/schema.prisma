@@ -1,0 +1,54 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Internship {
+  id                 String   @id @default(uuid())
+  title              String
+  company            String
+  companyLogo        String?
+  companyDescription String?
+  location           String
+  workType           String
+  stipend            String?
+  duration           String?
+  deadline           String?
+  postedDate         String?
+  department         String?
+  requiredSkills     String // Stored as JSON string
+  description        String?
+  responsibilities   String // Stored as JSON string
+  requirements       String // Stored as JSON string
+  perks              String // Stored as JSON string
+  applicantsCount    Int      @default(0)
+
+  applications       Application[]
+  savedBy            SavedInternship[]
+}
+
+model Application {
+  id            String   @id @default(uuid())
+  userId        String
+  internshipId  String
+  status        String   @default("Applied")
+  appliedAt     DateTime @default(now())
+
+  internship    Internship @relation(fields: [internshipId], references: [id])
+}
+
+model SavedInternship {
+  id            String   @id @default(uuid())
+  userId        String
+  internshipId  String
+  savedAt       DateTime @default(now())
+
+  internship    Internship @relation(fields: [internshipId], references: [id])
+}

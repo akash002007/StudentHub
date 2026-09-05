@@ -3,14 +3,17 @@
 import React from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 import { ArrowRight, Sparkles, CheckCircle2, Building2, Users, Flame, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { ProductPreview } from "./ProductPreview";
 
 export function HeroSection() {
+  const router = useRouter();
+
   return (
-    <section className="relative pt-32 pb-20 sm:pt-40 sm:pb-28 overflow-hidden">
+    <section className="dark relative pt-32 pb-20 sm:pt-40 sm:pb-28 overflow-hidden bg-background text-foreground">
       {/* Background ambient lighting */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-purple-600/15 dark:bg-purple-500/10 blur-[130px] rounded-full pointer-events-none -z-10" />
       <div className="absolute top-1/3 left-1/3 w-[400px] h-[250px] bg-blue-600/10 dark:bg-blue-500/10 blur-[120px] rounded-full pointer-events-none -z-10" />
@@ -59,25 +62,23 @@ export function HeroSection() {
             transition={{ duration: 0.5, delay: 0.3 }}
             className="mt-8 flex flex-col sm:flex-row items-center gap-3.5 w-full sm:w-auto"
           >
-            <Link href="/signup" className="w-full sm:w-auto">
-              <Button
-                variant="gradient"
-                size="lg"
-                className="w-full sm:w-auto h-13 px-8 text-base shadow-lg shadow-purple-600/20"
-                rightIcon={<ArrowRight className="w-4 h-4" />}
-              >
-                Join StudentHub Free
-              </Button>
-            </Link>
-            <Link href="/login" className="w-full sm:w-auto">
-              <Button
-                variant="secondary"
-                size="lg"
-                className="w-full sm:w-auto h-13 px-7 text-base border-border/80"
-              >
-                Explore Demo Dashboard
-              </Button>
-            </Link>
+            <Button
+              variant="gradient"
+              size="lg"
+              className="w-full sm:w-auto h-13 px-8 text-base shadow-lg shadow-purple-600/20"
+              rightIcon={<ArrowRight className="w-4 h-4" />}
+              onClick={() => router.push("/signup")}
+            >
+              Join StudentHub Free
+            </Button>
+            <Button
+              variant="secondary"
+              size="lg"
+              className="w-full sm:w-auto h-13 px-7 text-base border-border/80"
+              onClick={() => router.push("/login")}
+            >
+              Explore Demo Dashboard
+            </Button>
           </motion.div>
 
           {/* Social Proof / Stats Badges */}
