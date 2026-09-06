@@ -13,7 +13,7 @@ export function HeroSection() {
   const router = useRouter();
 
   return (
-    <section className="dark relative pt-32 pb-20 sm:pt-40 sm:pb-28 overflow-hidden bg-background text-foreground">
+    <section className="relative pt-32 pb-20 sm:pt-40 sm:pb-28 overflow-hidden bg-background text-foreground">
       {/* Background ambient lighting */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-purple-600/15 dark:bg-purple-500/10 blur-[130px] rounded-full pointer-events-none -z-10" />
       <div className="absolute top-1/3 left-1/3 w-[400px] h-[250px] bg-blue-600/10 dark:bg-blue-500/10 blur-[120px] rounded-full pointer-events-none -z-10" />

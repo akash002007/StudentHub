@@ -21,7 +21,6 @@ import {
 } from "lucide-react";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
-import { ThemeToggle } from "@/components/shared/ThemeToggle";
 import { useAuth } from "@/context/AuthContext";
 import { useData } from "@/context/DataContext";
 import { getTimeAwareGreeting } from "@/lib/utils";
@@ -124,8 +123,6 @@ export function TopBar() {
         >
           <Search className="w-4 h-4" />
         </button>
-
-        <ThemeToggle />
 
         {/* Notifications Popover Trigger */}
         <div className="relative">
