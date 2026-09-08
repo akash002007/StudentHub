@@ -1,17 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createSupabaseServerClient, getAuthenticatedRecruiter } from "@/lib/supabase/server";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { requireRole, authorizeResourceAccess } from "@/lib/authorization";
 
-export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const auth = await getAuthenticatedRecruiter(request);
-    if (!auth.recruiter) {
-      return NextResponse.json(
-        { error: auth.error || "Unauthorized" },
-        { status: auth.status || 401 }
-      );
-    }
+    const { user, errorResponse } = await requireRole(request, ["RECRUITER", "COMPANY_ADMIN", "PLATFORM_ADMIN", "SUPER_ADMIN"]);
+    if (errorResponse) return errorResponse;
+    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    const applicationId = params.id;
+    const { id } = await params;
+    const applicationId = id;
     if (!applicationId) {
       return NextResponse.json({ error: "Application ID is required" }, { status: 400 });
     }
@@ -31,7 +29,33 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
 
     const supabase = await createSupabaseServerClient();
     
-    // In a production app, we would verify the recruiter has access to this specific internship's applications.
+    // Fetch the internship to authorize IDOR context
+    const { data: application } = await supabase
+      .from("applications")
+      .select("internship_id")
+      .eq("id", applicationId)
+      .single();
+      
+    if (!application) {
+      return NextResponse.json({ error: "Application not found" }, { status: 404 });
+    }
+
+    const { data: internship } = await supabase
+      .from("internships")
+      .select("company_id")
+      .eq("id", application.internship_id)
+      .single();
+      
+    if (!internship) {
+      return NextResponse.json({ error: "Associated internship not found" }, { status: 404 });
+    }
+
+    // Verify IDOR (ensuring recruiter actually has access to the internship's company)
+    const canAccess = authorizeResourceAccess(user, { companyId: internship.company_id });
+    if (!canAccess) {
+      return NextResponse.json({ error: "Forbidden: You do not have access to this application" }, { status: 403 });
+    }
+
     const { data, error } = await supabase
       .from("applications")
       .update({ status })

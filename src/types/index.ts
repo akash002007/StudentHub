@@ -1,4 +1,6 @@
-export type UserRole = 'student' | 'recruiter' | 'admin';
+export type UserRole = 
+  | "student" | "recruiter" | "admin" // Legacy support
+  | "STUDENT" | "RECRUITER" | "COMPANY_ADMIN" | "COLLEGE_ADMIN" | "VERIFICATION_OFFICER" | "PLATFORM_ADMIN" | "SUPER_ADMIN";
 
 export type AcademicStream =
   | 'Engineering & Technology'

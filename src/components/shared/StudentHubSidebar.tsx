@@ -73,7 +73,12 @@ export function StudentHubSidebar({
   const { user, role: authRole, logout, switchRole } = useAuth();
   const { theme, resolvedTheme, setTheme, toggleTheme } = useTheme();
 
-  const activeRole: UserRole = overrideRole || authRole || "student";
+  const activeRole: UserRole = overrideRole || authRole || "STUDENT";
+  
+  // Map the 7 IAM roles to the 3 visual Workspaces
+  const isStudentWorkspace = activeRole === "STUDENT";
+  const isRecruiterWorkspace = ["RECRUITER", "COMPANY_ADMIN"].includes(activeRole);
+  const isAdminWorkspace = ["PLATFORM_ADMIN", "SUPER_ADMIN", "VERIFICATION_OFFICER", "COLLEGE_ADMIN"].includes(activeRole);
 
   const [isCollapsed, setIsCollapsed] = useState(false);
 
@@ -211,13 +216,13 @@ export function StudentHubSidebar({
           badge: activeRecruiterListingsCount > 0 ? `${activeRecruiterListingsCount} Active` : null,
           badgeVariant: "blue",
         },
-        {
+        ...( ["RECRUITER", "COMPANY_ADMIN"].includes(activeRole) ? [{
           label: "Post Internship",
           href: "/dashboard/recruiter/post-internship",
           icon: PlusCircle,
           badge: "New",
-          badgeVariant: "purple",
-        },
+          badgeVariant: "purple" as const,
+        }] : []),
         {
           label: "Applications",
           href: "/dashboard/recruiter/applications",
@@ -297,23 +302,23 @@ export function StudentHubSidebar({
   ];
 
   const navGroups =
-    activeRole === "admin"
+    isAdminWorkspace
       ? adminNavGroups
-      : activeRole === "recruiter"
+      : isRecruiterWorkspace
       ? recruiterNavGroups
       : studentNavGroups;
 
   const brandHref =
-    activeRole === "admin"
+    isAdminWorkspace
       ? "/admin"
-      : activeRole === "recruiter"
+      : isRecruiterWorkspace
       ? "/dashboard/recruiter"
       : "/dashboard";
 
   const brandRoleSubtitle =
-    activeRole === "admin"
+    isAdminWorkspace
       ? "Admin Console"
-      : activeRole === "recruiter"
+      : isRecruiterWorkspace
       ? "Recruiter Workspace"
       : "Student Workspace";
 
@@ -323,14 +328,14 @@ export function StudentHubSidebar({
   };
 
   const handleRoleSwitch = () => {
-    let nextRole: UserRole = "student";
-    if (activeRole === "student") nextRole = "recruiter";
-    else if (activeRole === "recruiter") nextRole = "admin";
-    else nextRole = "student";
+    let nextRole: UserRole = "STUDENT";
+    if (activeRole === "STUDENT") nextRole = "RECRUITER";
+    else if (isRecruiterWorkspace) nextRole = "PLATFORM_ADMIN";
+    else nextRole = "STUDENT";
 
     switchRole(nextRole);
-    if (nextRole === "admin") router.push("/admin");
-    else if (nextRole === "recruiter") router.push("/dashboard/recruiter");
+    if (nextRole === "PLATFORM_ADMIN") router.push("/admin");
+    else if (nextRole === "RECRUITER") router.push("/dashboard/recruiter");
     else router.push("/dashboard");
   };
 
@@ -547,9 +552,9 @@ export function StudentHubSidebar({
                   {user?.name || "StudentHub User"}
                 </span>
                 <span className="text-[10px] text-muted-foreground truncate font-medium">
-                  {activeRole === "admin"
+                  {isAdminWorkspace
                     ? "Trust & Safety Admin"
-                    : activeRole === "recruiter"
+                    : isRecruiterWorkspace
                     ? "University Recruiter"
                     : "Verified Student"}
                 </span>

@@ -90,8 +90,18 @@ const ROLE_STORAGE_KEY = "studenthub_auth_role_v1";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [role, setRole] = useState<UserRole>("student");
+  const [role, setRole] = useState<UserRole>("STUDENT");
   const [isLoaded, setIsLoaded] = useState(false);
+
+  // Normalize role to ensure legacy support maps correctly
+  const normalizeRole = (rawRole: string): UserRole => {
+    const r = rawRole.toUpperCase();
+    if (["STUDENT", "RECRUITER", "COMPANY_ADMIN", "COLLEGE_ADMIN", "VERIFICATION_OFFICER", "PLATFORM_ADMIN", "SUPER_ADMIN"].includes(r)) {
+      return r as UserRole;
+    }
+    if (r === "ADMIN") return "PLATFORM_ADMIN";
+    return "STUDENT";
+  };
 
   // Helper to persist session
   const persistSession = (newUser: User | null, newRole: UserRole) => {
@@ -162,11 +172,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (storedUserJson) {
         const parsedUser = JSON.parse(storedUserJson);
         setUser(parsedUser);
-        const resolvedRole = storedRole || parsedUser.role || "student";
+        const resolvedRole = normalizeRole(storedRole || parsedUser.role || "STUDENT");
         setRole(resolvedRole);
 
         // If student, sync latest from backend
-        if (resolvedRole === "student" && parsedUser.id) {
+        if (resolvedRole === "STUDENT" && parsedUser.id) {
           fetch(`/api/student/verification?studentId=${encodeURIComponent(parsedUser.id)}`)
             .then((r) => r.json())
             .then((d) => {
@@ -190,26 +200,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  const login = (email: string, selectedRole: UserRole, customName?: string) => {
+  const login = (email: string, rawRole: UserRole, customName?: string) => {
     let authenticatedUser: User;
+    const selectedRole = normalizeRole(rawRole);
 
-    if (selectedRole === "recruiter") {
+    if (["RECRUITER", "COMPANY_ADMIN"].includes(selectedRole)) {
       authenticatedUser = {
         ...defaultRecruiterUser,
         email: email || defaultRecruiterUser.email,
         name: customName || defaultRecruiterUser.name,
+        role: selectedRole,
       };
-    } else if (selectedRole === "admin") {
+    } else if (["PLATFORM_ADMIN", "SUPER_ADMIN", "VERIFICATION_OFFICER", "COLLEGE_ADMIN"].includes(selectedRole)) {
       authenticatedUser = {
         ...defaultAdminUser,
         email: email || defaultAdminUser.email,
         name: customName || defaultAdminUser.name,
+        role: selectedRole,
       } as AdminProfile;
     } else {
       authenticatedUser = {
         ...defaultStudentUser,
         email: email || defaultStudentUser.email,
         name: customName || defaultStudentUser.name,
+        role: selectedRole,
       };
     }
 
@@ -238,7 +252,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const loginWithGoogle = async (
     credential: string,
-    targetRole: UserRole = "student",
+    targetRole: UserRole = "STUDENT",
     metadata?: { university?: string; company?: string }
   ) => {
     try {
@@ -256,9 +270,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const data = await res.json();
 
       if (res.ok && data.success && data.user) {
-        setUser(data.user);
-        setRole(data.user.role);
-        persistSession(data.user, data.user.role);
+        const mappedRole = normalizeRole(data.user.role);
+        setUser({ ...data.user, role: mappedRole });
+        setRole(mappedRole);
+        persistSession({ ...data.user, role: mappedRole }, mappedRole);
 
         try {
           if (data.token) {
@@ -398,8 +413,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     setUser(newStudent);
-    setRole("student");
-    persistSession(newStudent, "student");
+    setRole("STUDENT");
+    persistSession(newStudent, "STUDENT");
     return newStudent;
   };
 
@@ -446,8 +461,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     setUser(newRecruiter);
-    setRole("recruiter");
-    persistSession(newRecruiter, "recruiter");
+    setRole("RECRUITER");
+    persistSession(newRecruiter, "RECRUITER");
     return newRecruiter;
   };
 
@@ -460,8 +475,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = () => {
     setUser(null);
-    setRole("student");
-    persistSession(null, "student");
+    setRole("STUDENT");
+    persistSession(null, "STUDENT");
     try {
       localStorage.removeItem("studenthub_access_token");
       localStorage.removeItem("studenthub_refresh_token");
@@ -470,17 +485,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const switchRole = (newRole: UserRole) => {
+  const switchRole = (rawRole: UserRole) => {
+    const newRole = normalizeRole(rawRole);
     setRole(newRole);
-    if (newRole === "recruiter") {
-      setUser(defaultRecruiterUser);
-      persistSession(defaultRecruiterUser, newRole);
-    } else if (newRole === "admin") {
-      setUser(defaultAdminUser);
-      persistSession(defaultAdminUser, newRole);
+    if (["RECRUITER", "COMPANY_ADMIN"].includes(newRole)) {
+      setUser({...defaultRecruiterUser, role: newRole});
+      persistSession({...defaultRecruiterUser, role: newRole}, newRole);
+    } else if (["PLATFORM_ADMIN", "SUPER_ADMIN", "COLLEGE_ADMIN", "VERIFICATION_OFFICER"].includes(newRole)) {
+      setUser({...defaultAdminUser, role: newRole} as AdminProfile);
+      persistSession({...defaultAdminUser, role: newRole} as AdminProfile, newRole);
     } else {
-      setUser(defaultStudentUser);
-      persistSession(defaultStudentUser, newRole);
+      setUser({...defaultStudentUser, role: newRole});
+      persistSession({...defaultStudentUser, role: newRole}, newRole);
       // Fetch latest student verification state from server store
       fetch(`/api/student/verification?studentId=${encodeURIComponent(defaultStudentUser.id)}`)
         .then((r) => r.json())
