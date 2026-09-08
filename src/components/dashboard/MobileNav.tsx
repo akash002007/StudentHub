@@ -23,17 +23,21 @@ import {
   Calendar,
   Bookmark,
   Settings,
+  Sun,
+  Moon,
+  Laptop,
 } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
-import { ThemeToggle } from "@/components/shared/ThemeToggle";
 import { useAuth } from "@/context/AuthContext";
 import { useData } from "@/context/DataContext";
+import { useTheme } from "@/context/ThemeContext";
 import { cn } from "@/lib/utils";
 
 export function MobileNav() {
   const pathname = usePathname();
   const router = useRouter();
   const { logout, user, role } = useAuth();
+  const { theme, setTheme } = useTheme();
   const {
     unreadNotificationsCount,
     conversations,
@@ -260,8 +264,48 @@ export function MobileNav() {
                   <span>Settings</span>
                 </Link>
                 <div className="p-3 rounded-xl bg-muted/60 flex items-center justify-between text-foreground border border-border/50 col-span-2">
-                  <span className="text-xs">Theme Mode</span>
-                  <ThemeToggle />
+                  <span className="text-xs font-semibold text-muted-foreground">Appearance</span>
+                  <div className="flex items-center gap-1 bg-background/80 p-0.5 rounded-lg border border-border/60">
+                    <button
+                      onClick={() => setTheme("light")}
+                      className={cn(
+                        "p-1.5 rounded-md text-[10px] font-semibold transition-colors flex items-center gap-1",
+                        theme === "light"
+                          ? "bg-foreground text-background shadow-2xs"
+                          : "text-muted-foreground hover:text-foreground"
+                      )}
+                      title="Light mode"
+                      aria-label="Light mode"
+                    >
+                      <Sun className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={() => setTheme("dark")}
+                      className={cn(
+                        "p-1.5 rounded-md text-[10px] font-semibold transition-colors flex items-center gap-1",
+                        theme === "dark"
+                          ? "bg-foreground text-background shadow-2xs"
+                          : "text-muted-foreground hover:text-foreground"
+                      )}
+                      title="Dark mode"
+                      aria-label="Dark mode"
+                    >
+                      <Moon className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={() => setTheme("system")}
+                      className={cn(
+                        "p-1.5 rounded-md text-[10px] font-semibold transition-colors flex items-center gap-1",
+                        theme === "system"
+                          ? "bg-foreground text-background shadow-2xs"
+                          : "text-muted-foreground hover:text-foreground"
+                      )}
+                      title="System theme"
+                      aria-label="System theme"
+                    >
+                      <Laptop className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </div>
               </div>
             ) : (
@@ -292,14 +336,54 @@ export function MobileNav() {
                 <Link
                   href="/dashboard/connected-accounts"
                   onClick={() => setIsMoreOpen(false)}
-                  className="p-3 rounded-xl bg-muted/60 hover:bg-muted flex items-center gap-2.5 text-foreground border border-border/50"
+                  className="p-3 rounded-xl bg-muted/60 hover:bg-muted flex items-center gap-2.5 text-foreground border border-border/50 col-span-2 sm:col-span-1"
                 >
                   <Link2 className="w-4 h-4 text-blue-500" />
                   <span>Integrations</span>
                 </Link>
-                <div className="p-3 rounded-xl bg-muted/60 flex items-center justify-between text-foreground border border-border/50">
-                  <span className="text-xs">Theme</span>
-                  <ThemeToggle />
+                <div className="p-3 rounded-xl bg-muted/60 flex items-center justify-between text-foreground border border-border/50 col-span-2 sm:col-span-1">
+                  <span className="text-xs font-semibold text-muted-foreground">Appearance</span>
+                  <div className="flex items-center gap-1 bg-background/80 p-0.5 rounded-lg border border-border/60">
+                    <button
+                      onClick={() => setTheme("light")}
+                      className={cn(
+                        "p-1.5 rounded-md text-[10px] font-semibold transition-colors flex items-center gap-1",
+                        theme === "light"
+                          ? "bg-foreground text-background shadow-2xs"
+                          : "text-muted-foreground hover:text-foreground"
+                      )}
+                      title="Light mode"
+                      aria-label="Light mode"
+                    >
+                      <Sun className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={() => setTheme("dark")}
+                      className={cn(
+                        "p-1.5 rounded-md text-[10px] font-semibold transition-colors flex items-center gap-1",
+                        theme === "dark"
+                          ? "bg-foreground text-background shadow-2xs"
+                          : "text-muted-foreground hover:text-foreground"
+                      )}
+                      title="Dark mode"
+                      aria-label="Dark mode"
+                    >
+                      <Moon className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={() => setTheme("system")}
+                      className={cn(
+                        "p-1.5 rounded-md text-[10px] font-semibold transition-colors flex items-center gap-1",
+                        theme === "system"
+                          ? "bg-foreground text-background shadow-2xs"
+                          : "text-muted-foreground hover:text-foreground"
+                      )}
+                      title="System theme"
+                      aria-label="System theme"
+                    >
+                      <Laptop className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </div>
               </div>
             )}

@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import { motion } from "framer-motion";
 import {
   Briefcase,
   Users2,
@@ -70,12 +69,9 @@ export function FeaturesGrid() {
         {/* 4 Feature Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
           {features.map((f, i) => (
-            <motion.div
+            <div
               key={i}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: i * 0.1 }}
+              className="transition-all duration-300 hover:-translate-y-1"
             >
               <Card hoverEffect className="h-full border-border/80 bg-card p-6 sm:p-8 flex flex-col justify-between">
                 <div>
@@ -101,7 +97,7 @@ export function FeaturesGrid() {
                   <span>{f.highlight}</span>
                 </div>
               </Card>
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>

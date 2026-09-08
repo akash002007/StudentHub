@@ -1,10 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { ThemeProvider } from "@/context/ThemeContext";
-import { ToastProvider } from "@/context/ToastContext";
-import { AuthProvider } from "@/context/AuthContext";
-import { DataProvider } from "@/context/DataContext";
+import Providers from "./providers";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -33,15 +30,30 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={inter.variable} suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var stored = localStorage.getItem('studenthub_theme');
+                  var isDark = stored === 'dark' || ((!stored || stored === 'system') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+                  if (isDark) {
+                    document.documentElement.classList.add('dark');
+                  } else {
+                    document.documentElement.classList.remove('dark');
+                  }
+                } catch (e) {}
+              })();
+            `,
+          }}
+        />
+      </head>
       <body className="min-h-screen bg-background font-sans text-foreground antialiased selection:bg-purple-500/20 selection:text-purple-300">
-        <ThemeProvider>
-          <ToastProvider>
-            <AuthProvider>
-              <DataProvider>{children}</DataProvider>
-            </AuthProvider>
-          </ToastProvider>
-        </ThemeProvider>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
 }
+
+

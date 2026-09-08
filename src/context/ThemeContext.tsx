@@ -1,8 +1,8 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
 
-type Theme = "dark" | "light" | "system";
+export type Theme = "dark" | "light" | "system";
 
 interface ThemeContextType {
   theme: Theme;
@@ -14,55 +14,71 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>("dark");
+  const [theme, setThemeState] = useState<Theme>("system");
   const [resolvedTheme, setResolvedTheme] = useState<"dark" | "light">("dark");
 
+  // Read stored preference on mount
   useEffect(() => {
     try {
       const storedTheme = localStorage.getItem("studenthub_theme") as Theme | null;
-      if (storedTheme) {
+      if (storedTheme && (storedTheme === "light" || storedTheme === "dark" || storedTheme === "system")) {
         setThemeState(storedTheme);
       } else {
-        setThemeState("dark");
+        setThemeState("system");
       }
     } catch {
-      setThemeState("dark");
+      setThemeState("system");
     }
   }, []);
 
+  // Update resolvedTheme and document class when theme or OS appearance changes
   useEffect(() => {
     const root = document.documentElement;
-    let actualTheme: "dark" | "light" = "dark";
+
+    const applyTheme = (isDark: boolean) => {
+      const actual: "dark" | "light" = isDark ? "dark" : "light";
+      setResolvedTheme(actual);
+      if (isDark) {
+        root.classList.add("dark");
+      } else {
+        root.classList.remove("dark");
+      }
+    };
 
     if (theme === "system") {
-      const systemDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      actualTheme = systemDark ? "dark" : "light";
+      const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+      applyTheme(mediaQuery.matches);
+
+      const handleChange = (e: MediaQueryListEvent) => {
+        applyTheme(e.matches);
+      };
+
+      try {
+        mediaQuery.addEventListener("change", handleChange);
+        return () => mediaQuery.removeEventListener("change", handleChange);
+      } catch {
+        // Fallback for legacy environment
+        mediaQuery.addListener(handleChange);
+        return () => mediaQuery.removeListener(handleChange);
+      }
     } else {
-      actualTheme = theme;
-    }
-
-    setResolvedTheme(actualTheme);
-
-    if (actualTheme === "dark") {
-      root.classList.add("dark");
-    } else {
-      root.classList.remove("dark");
-    }
-
-    try {
-      localStorage.setItem("studenthub_theme", theme);
-    } catch {
-      // ignore
+      applyTheme(theme === "dark");
     }
   }, [theme]);
 
-  const setTheme = (newTheme: Theme) => {
+  const setTheme = useCallback((newTheme: Theme) => {
     setThemeState(newTheme);
-  };
+    try {
+      localStorage.setItem("studenthub_theme", newTheme);
+    } catch {
+      // ignore
+    }
+  }, []);
 
-  const toggleTheme = () => {
-    setThemeState((prev) => (prev === "dark" ? "light" : "dark"));
-  };
+  const toggleTheme = useCallback(() => {
+    const nextTheme: Theme = resolvedTheme === "dark" ? "light" : "dark";
+    setTheme(nextTheme);
+  }, [resolvedTheme, setTheme]);
 
   return (
     <ThemeContext.Provider value={{ theme, resolvedTheme, setTheme, toggleTheme }}>
@@ -78,3 +94,4 @@ export function useTheme() {
   }
   return context;
 }
+

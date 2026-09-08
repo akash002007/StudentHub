@@ -78,7 +78,7 @@ export interface StudentProfile {
   id: string;
   name: string;
   email: string;
-  role: 'student';
+  role: UserRole;
   avatar: string;
   googleId?: string;
   emailVerified?: boolean;
@@ -588,7 +588,7 @@ export interface RecruiterProfile {
   name: string;
   email: string;
   phone?: string;
-  role: 'recruiter';
+  role: UserRole;
   avatar: string;
   googleId?: string;
   emailVerified?: boolean;
@@ -962,7 +962,7 @@ export interface AdminProfile {
   id: string;
   name: string;
   email: string;
-  role: 'admin';
+  role: UserRole;
   avatar: string;
   googleId?: string;
   emailVerified?: boolean;
@@ -1140,4 +1140,271 @@ export interface AdminStudentRecord {
 }
 
 export type User = StudentProfile | RecruiterProfile | AdminProfile;
+
+// ============================================================================
+// Structured RPSC-Style Recruitment Portal Types
+// ============================================================================
+
+export type EmploymentType = 'INTERNSHIP' | 'FULL_TIME' | 'PART_TIME' | 'CONTRACT';
+export type WorkMode = 'ONSITE' | 'REMOTE' | 'HYBRID';
+export type DriveStatus =
+  | 'DRAFT'
+  | 'PUBLISHED'
+  | 'APPLICATIONS_OPEN'
+  | 'APPLICATIONS_CLOSED'
+  | 'SCREENING'
+  | 'SELECTION_IN_PROGRESS'
+  | 'RESULTS_PUBLISHED'
+  | 'CLOSED';
+
+export type StageType = 'SCREENING' | 'ASSESSMENT' | 'INTERVIEW' | 'FINAL_SELECTION';
+
+export type RecruitmentApplicationStatus =
+  | 'SUBMITTED'
+  | 'UNDER_REVIEW'
+  | 'ELIGIBLE'
+  | 'ELIGIBILITY_FAILED'
+  | 'SHORTLISTED'
+  | 'IN_SELECTION'
+  | 'SELECTED'
+  | 'REJECTED'
+  | 'WITHDRAWN'
+  | 'WAITLISTED';
+
+export interface EligibilityCriteria {
+  degrees: string[];
+  branches: string[];
+  specializations?: string[];
+  minCgpa?: number;
+  minPercentage?: number;
+  maxBacklogs?: number;
+  gradYearMin?: number;
+  gradYearMax?: number;
+  gradYears?: number[];
+  freshersAllowed?: boolean;
+  minExpYears?: number;
+  maxExpYears?: number;
+  requiredSkills: string[];
+  preferredSkills?: string[];
+  eligibleLocations?: string[];
+  remoteAllowed?: boolean;
+}
+
+export interface EligibilityItemResult {
+  name: string;
+  passed: boolean;
+  required: string;
+  candidateValue: string;
+  isMissingInfo?: boolean;
+  details?: string;
+}
+
+export interface EligibilityEvaluationResult {
+  status: 'ELIGIBLE' | 'NOT_ELIGIBLE' | 'REQUIRES_MANUAL_REVIEW';
+  score: number; // 0-100 match percentage
+  criteria: EligibilityItemResult[];
+  passedCount: number;
+  totalCount: number;
+  missingFields: string[];
+  evaluatedAt: string;
+}
+
+export interface RecruitmentStage {
+  id: string;
+  driveId: string;
+  name: string;
+  type: StageType;
+  order: number;
+  description: string;
+  passingScore?: number;
+  status: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED';
+}
+
+export interface StageWeights {
+  assessmentWeight: number; // e.g. 60
+  interviewWeight: number;  // e.g. 40
+}
+
+export interface RecruitmentDrive {
+  id: string;
+  title: string;
+  position: string;
+  description: string;
+  company: string;
+  companyLogo?: string;
+  department: string;
+  employmentType: EmploymentType;
+  workMode: WorkMode;
+  location: string;
+  openingsCount: number;
+  salaryStipend: string;
+  startDate: string;
+  endDate: string;
+  status: DriveStatus;
+  eligibilityCriteria: EligibilityCriteria;
+  stages: RecruitmentStage[];
+  stageWeights: StageWeights;
+  applicantsCount: number;
+  eligibleCount: number;
+  shortlistedCount: number;
+  interviewsCount: number;
+  selectedCount: number;
+  createdAt: string;
+  updatedAt: string;
+  createdBy?: string;
+}
+
+export interface CandidateApplicationHistoryEntry {
+  stageId: string;
+  stageName: string;
+  status: string;
+  timestamp: string;
+  actor: string;
+  note?: string;
+}
+
+export interface RecruitmentApplication {
+  id: string;
+  driveId: string;
+  driveTitle: string;
+  company: string;
+  studentId: string;
+  studentName: string;
+  studentEmail: string;
+  studentAvatar: string;
+  university: string;
+  degree: string;
+  branch: string;
+  graduationYear: number;
+  cgpa: string;
+  backlogs: number;
+  skills: string[];
+  resumeUrl?: string;
+  portfolioUrl?: string;
+  githubUrl?: string;
+  linkedinUrl?: string;
+  status: RecruitmentApplicationStatus;
+  eligibility: EligibilityEvaluationResult;
+  currentStageId: string;
+  currentStageName: string;
+  currentStageType: StageType;
+  assessmentScore?: number;
+  interviewScore?: number;
+  finalScore?: number;
+  rank?: number;
+  notes?: string;
+  appliedAt: string;
+  updatedAt: string;
+  manualOverride?: {
+    overriddenBy: string;
+    previousStatus: string;
+    newStatus: string;
+    reason: string;
+    timestamp: string;
+  };
+  history?: CandidateApplicationHistoryEntry[];
+}
+
+export interface CandidateAssessmentRecord {
+  id: string;
+  driveId: string;
+  applicationId: string;
+  studentId: string;
+  studentName: string;
+  stageId: string;
+  assessmentName: string;
+  instructions?: string;
+  date: string;
+  time?: string;
+  duration?: string;
+  maxScore: number;
+  passingScore: number;
+  candidateScore?: number;
+  passed?: boolean;
+  evaluatedBy?: string;
+  evaluatedAt?: string;
+}
+
+export interface InterviewEvaluation {
+  technicalScore: number;
+  communicationScore: number;
+  overallScore: number;
+  feedback: string;
+  recommendation: 'RECOMMEND' | 'HOLD' | 'NOT_RECOMMEND';
+  evaluatedAt: string;
+  evaluatorName: string;
+}
+
+export interface CandidateInterviewRecord {
+  id: string;
+  driveId: string;
+  applicationId: string;
+  studentId: string;
+  candidateName: string;
+  candidateAvatar: string;
+  candidateUniversity: string;
+  driveTitle: string;
+  stageId: string;
+  type: 'ONLINE' | 'OFFLINE' | 'PHONE' | 'VIDEO';
+  date: string;
+  time: string;
+  duration: string;
+  meetingLink?: string;
+  location?: string;
+  interviewerName: string;
+  status: 'SCHEDULED' | 'COMPLETED' | 'CANCELLED' | 'NO_SHOW';
+  notes?: string;
+  evaluation?: InterviewEvaluation;
+  createdAt: string;
+}
+
+export interface ResultCandidateItem {
+  applicationId: string;
+  studentId: string;
+  studentName: string;
+  studentAvatar?: string;
+  university: string;
+  degree?: string;
+  branch?: string;
+  rank: number;
+  assessmentScore: number;
+  interviewScore: number;
+  finalScore: number;
+  selectionStatus: 'SELECTED' | 'WAITLISTED' | 'REJECTED';
+  notes?: string;
+}
+
+export interface RecruitmentResultRecord {
+  id: string;
+  driveId: string;
+  driveTitle: string;
+  company: string;
+  publishedAt: string;
+  publishedBy: string;
+  isLocked: boolean;
+  totalSelected: number;
+  totalWaitlisted: number;
+  totalRejected: number;
+  candidates: ResultCandidateItem[];
+}
+
+export interface RecruiterAuditLogEntry {
+  id: string;
+  driveId?: string;
+  driveTitle?: string;
+  actorId: string;
+  actorName: string;
+  actorRole: string;
+  action: string;
+  targetType: 'DRIVE' | 'APPLICATION' | 'STAGE' | 'ASSESSMENT' | 'INTERVIEW' | 'EVALUATION' | 'RESULT';
+  targetId: string;
+  targetName?: string;
+  previousState?: string;
+  newState?: string;
+  reason?: string;
+  details: string;
+  timestamp: string;
+  ipSessionRef?: string;
+}
+
 

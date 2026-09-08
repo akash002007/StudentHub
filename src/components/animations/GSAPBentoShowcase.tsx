@@ -489,7 +489,10 @@ export function GSAPBentoShowcase() {
                   ref={(el) => {
                     stepTextRefs.current[idx] = el;
                   }}
-                  className="w-full space-y-5 text-left will-change-transform absolute inset-0 flex flex-col justify-center"
+                  className={cn(
+                    "w-full space-y-5 text-left will-change-transform flex flex-col justify-center",
+                    idx === 0 ? "relative opacity-100" : "absolute inset-0 opacity-0 pointer-events-none"
+                  )}
                 >
                   {/* Step Tag & Badge */}
                   <div className="flex items-center gap-2.5">
@@ -615,7 +618,7 @@ export function GSAPBentoShowcase() {
               {/* Bento Card 2: Career DNA & Verified Projects Card (Enters Scene 2) */}
               <div
                 ref={cardSecondaryRef}
-                className="absolute -bottom-6 -right-2 sm:-right-6 w-[88%] max-w-sm p-4 rounded-2xl bg-card/95 dark:bg-card/85 border border-blue-500/30 shadow-2xl backdrop-blur-xl space-y-2.5 will-change-transform z-25"
+                className="opacity-0 absolute -bottom-6 -right-2 sm:-right-6 w-[88%] max-w-sm p-4 rounded-2xl bg-card/95 dark:bg-card/85 border border-blue-500/30 shadow-2xl backdrop-blur-xl space-y-2.5 will-change-transform z-25"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -640,7 +643,7 @@ export function GSAPBentoShowcase() {
               {/* Bento Card 3: Peer Communities & Mentorship Card (Enters Scene 3) */}
               <div
                 ref={cardTertiaryRef}
-                className="absolute -top-6 -left-2 sm:-left-6 w-[85%] max-w-xs p-3.5 rounded-2xl bg-card/95 dark:bg-card/85 border border-emerald-500/30 shadow-2xl backdrop-blur-xl space-y-2 will-change-transform z-30"
+                className="opacity-0 absolute -top-6 -left-2 sm:-left-6 w-[85%] max-w-xs p-3.5 rounded-2xl bg-card/95 dark:bg-card/85 border border-emerald-500/30 shadow-2xl backdrop-blur-xl space-y-2 will-change-transform z-30"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -658,7 +661,7 @@ export function GSAPBentoShowcase() {
               {/* Bento Card 4: AI Internship Match & Placement Card (Enters Scene 4 & 5) */}
               <div
                 ref={cardQuaternaryRef}
-                className="absolute -bottom-8 left-0 sm:left-4 w-[92%] max-w-sm p-4 rounded-2xl bg-card/95 dark:bg-card/85 border border-amber-500/30 shadow-2xl backdrop-blur-xl space-y-3 will-change-transform z-35"
+                className="opacity-0 absolute -bottom-8 left-0 sm:left-4 w-[92%] max-w-sm p-4 rounded-2xl bg-card/95 dark:bg-card/85 border border-amber-500/30 shadow-2xl backdrop-blur-xl space-y-3 will-change-transform z-35"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2.5">

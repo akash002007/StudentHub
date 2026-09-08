@@ -9,7 +9,6 @@ import {
 } from "lucide-react";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
-import { ThemeToggle } from "@/components/shared/ThemeToggle";
 import { StudentHubSidebar } from "@/components/shared/StudentHubSidebar";
 import { useAuth } from "@/context/AuthContext";
 import { AdminNotificationItem } from "@/types";
@@ -77,9 +76,6 @@ export function AdminHeader({
             className="w-full bg-transparent text-xs text-foreground placeholder:text-muted-foreground focus:outline-none"
           />
         </div>
-
-        {/* Global Theme Toggle in Admin Topbar as well */}
-        <ThemeToggle />
 
         {/* Notifications */}
         <div className="relative">

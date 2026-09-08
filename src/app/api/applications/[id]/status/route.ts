@@ -8,8 +8,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     if (errorResponse) return errorResponse;
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    const { id } = await params;
-    const applicationId = id;
+    const { id: applicationId } = await params;
     if (!applicationId) {
       return NextResponse.json({ error: "Application ID is required" }, { status: 400 });
     }

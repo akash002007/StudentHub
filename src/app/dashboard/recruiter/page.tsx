@@ -10,556 +10,626 @@ import {
   GitPullRequest,
   CheckCircle2,
   TrendingUp,
-  Eye,
   Calendar,
   Clock,
   ArrowRight,
-  ChevronRight,
   PlusCircle,
-  Search,
   BarChart3,
   Building2,
   UserCheck,
   Award,
-  Filter,
-  ShieldCheck,
-  Bookmark,
+  Layers,
+  FileText,
   Video,
+  ShieldCheck,
+  ExternalLink,
+  ChevronRight,
+  AlertTriangle,
 } from "lucide-react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
+import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Avatar } from "@/components/ui/Avatar";
-import { useAuth } from "@/context/AuthContext";
-import { useData } from "@/context/DataContext";
-import { getTimeAwareGreeting, getStatusBadgeStyle } from "@/lib/utils";
-import { CandidateProfileModal, CandidateModalData } from "@/components/dashboard/CandidateProfileModal";
-import { RecruiterCareerDNASection } from "@/components/recruiter/RecruiterCareerDNASection";
 import { RoleGuard } from "@/components/dashboard/RoleGuard";
-import { ApplicationStatus } from "@/types";
+import { getTimeAwareGreeting } from "@/lib/utils";
+import { StructuredCandidateModal } from "@/components/recruiter/StructuredCandidateModal";
+import { RecruitmentDrive, RecruitmentApplication, CandidateInterviewRecord, RecruiterAuditLogEntry } from "@/types";
 
 export default function RecruiterDashboardHomePage() {
   const router = useRouter();
-  const { user } = useAuth();
-  const {
-    recruiterInternships,
-    recruiterApplicants,
-    recruiterStudents,
-    recruiterInterviews,
-    updateApplicantStatus,
-    toggleShortlistCandidate,
-    addApplicantNote,
-    startRecruiterConversation,
-  } = useData();
-
   const [greeting, setGreeting] = useState("Good morning");
-  const [selectedCandidate, setSelectedCandidate] = useState<CandidateModalData | null>(null);
+
+  // Live Server Data States
+  const [isLoading, setIsLoading] = useState(true);
+  const [kpis, setKpis] = useState({
+    activeDrivesCount: 0,
+    totalApplicationsCount: 0,
+    eligibleCandidatesCount: 0,
+    shortlistedCandidatesCount: 0,
+    interviewsCount: 0,
+    selectedCandidatesCount: 0,
+  });
+  const [activeDrives, setActiveDrives] = useState<RecruitmentDrive[]>([]);
+  const [recentApplications, setRecentApplications] = useState<RecruitmentApplication[]>([]);
+  const [upcomingInterviews, setUpcomingInterviews] = useState<CandidateInterviewRecord[]>([]);
+  const [recentAuditLogs, setRecentAuditLogs] = useState<RecruiterAuditLogEntry[]>([]);
+
+  // Candidate Profile Modal
+  const [selectedCandidate, setSelectedCandidate] = useState<RecruitmentApplication | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     setGreeting(getTimeAwareGreeting(new Date()));
+    fetchOverviewData();
   }, []);
 
-  const activeInternships = recruiterInternships.filter((i) => i.status === "Active");
-  const totalApplicationsCount = recruiterInternships.reduce(
-    (acc, curr) => acc + curr.applicationsCount,
-    0
-  );
-  const newApplicationsCount = recruiterApplicants.filter(
-    (a) => a.status === "Applied" || a.status === "Under Review"
-  ).length;
-  const shortlistedCount = recruiterApplicants.filter((a) => a.status === "Shortlisted").length;
-  const interviewsCount = recruiterApplicants.filter((a) => a.status === "Interview").length;
-  const totalViewsCount = recruiterInternships.reduce(
-    (acc, curr) => acc + curr.viewsCount,
-    0
-  );
-
-  const recentApplicants = recruiterApplicants.slice(0, 5);
-
-  const handleOpenCandidate = (applicant: (typeof recruiterApplicants)[0]) => {
-    const studentMatch = recruiterStudents.find(
-      (s) =>
-        s.id === applicant.studentId ||
-        s.name.toLowerCase() === applicant.studentName.toLowerCase()
-    );
-
-    setSelectedCandidate({
-      id: applicant.studentId,
-      name: applicant.studentName,
-      avatar: applicant.studentAvatar,
-      university: applicant.university,
-      degree: applicant.degree,
-      branch: applicant.branch,
-      graduationYear: applicant.graduationYear,
-      cgpa: applicant.cgpa,
-      location: applicant.location,
-      skills: applicant.skills,
-      bio: applicant.bio,
-      matchScore: applicant.matchScore,
-      resumeUrl: applicant.resumeUrl,
-      portfolioUrl: applicant.portfolioUrl,
-      githubUrl: applicant.githubUrl,
-      linkedinUrl: applicant.linkedinUrl,
-      projects: applicant.projects,
-      certifications: applicant.certifications,
-      applicationStatus: applicant.status,
-      appliedDate: applicant.appliedDate,
-      notes: applicant.notes,
-      careerDNA: (studentMatch as any)?.careerDNA,
-    });
-    setIsModalOpen(true);
-  };
-
-  const handleStatusChange = (newStatus: ApplicationStatus) => {
-    if (!selectedCandidate) return;
-    const applicant = recruiterApplicants.find(
-      (a) => a.studentId === selectedCandidate.id || a.studentName === selectedCandidate.name
-    );
-    if (applicant) {
-      updateApplicantStatus(applicant.id, newStatus);
-      setSelectedCandidate((prev) => (prev ? { ...prev, applicationStatus: newStatus } : null));
+  const fetchOverviewData = async () => {
+    setIsLoading(true);
+    try {
+      const res = await fetch("/api/recruiter/overview");
+      if (res.ok) {
+        const data = await res.json();
+        if (data.kpis) setKpis(data.kpis);
+        if (data.activeDrives) setActiveDrives(data.activeDrives);
+        if (data.recentApplications) setRecentApplications(data.recentApplications);
+        if (data.upcomingInterviews) setUpcomingInterviews(data.upcomingInterviews);
+        if (data.recentAuditLogs) setRecentAuditLogs(data.recentAuditLogs);
+      }
+    } catch (err) {
+      console.warn("Failed to fetch recruiter overview:", err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleMessageCandidate = () => {
+  const handleOpenCandidate = (app: RecruitmentApplication) => {
+    setSelectedCandidate(app);
+    setIsModalOpen(true);
+  };
+
+  const handleCandidateStatusUpdate = async (newStatus: string, notes?: string) => {
     if (!selectedCandidate) return;
-    startRecruiterConversation({
-      id: selectedCandidate.id,
-      name: selectedCandidate.name,
-      avatar: selectedCandidate.avatar,
-      role: selectedCandidate.degree,
-      college: selectedCandidate.university,
-    });
-    setIsModalOpen(false);
-    router.push("/dashboard/recruiter/messages");
+    try {
+      const res = await fetch(`/api/recruiter/applications/${selectedCandidate.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus, notes }),
+      });
+      if (res.ok) {
+        fetchOverviewData();
+        setIsModalOpen(false);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleManualOverride = async (newStatus: string, reason: string) => {
+    if (!selectedCandidate) return;
+    try {
+      const res = await fetch(`/api/recruiter/applications/${selectedCandidate.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus, isOverride: true, overrideReason: reason }),
+      });
+      if (res.ok) {
+        fetchOverviewData();
+        setIsModalOpen(false);
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
     <RoleGuard allowedRole="recruiter">
       <div className="space-y-8">
-        {/* Recruiter Workspace Hero Banner */}
-        <div className="relative rounded-3xl p-6 sm:p-8 bg-gradient-to-br from-blue-950/30 via-card to-purple-950/20 border border-blue-500/20 shadow-sm overflow-hidden">
+        {/* Workspace Hero Header */}
+        <div className="relative rounded-3xl p-6 sm:p-8 bg-gradient-to-br from-indigo-950/40 via-card to-purple-950/30 border border-purple-500/20 shadow-sm overflow-hidden">
           <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="space-y-2">
               <div className="flex flex-wrap items-center gap-2">
                 <Badge variant="gradient" size="sm" className="font-semibold">
-                  <Sparkles className="w-3 h-3 text-blue-500" />
-                  Recruiter Hiring Workspace
+                  <Sparkles className="w-3 h-3 text-purple-400" />
+                  Structured Recruitment Portal
                 </Badge>
                 <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
-                  <ShieldCheck className="w-3.5 h-3.5" />
-                  Verified Recruiter &bull; Stripe
-                </span>
-                <span className="text-xs text-muted-foreground">
-                  {new Date().toLocaleDateString("en-US", {
-                    weekday: "short",
-                    month: "short",
-                    day: "numeric",
-                  })}
+                  <ShieldCheck className="w-3 h-3" />
+                  RPSC-Style Rigor
                 </span>
               </div>
-              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
-                {greeting},{" "}
-                <span className="text-gradient">
-                  {user?.name ? user.name.split(" ")[0] : "Sarah"}
-                </span>
-                !
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
+                {greeting}, Sarah Chen
               </h1>
-              <p className="text-xs sm:text-sm text-muted-foreground max-w-xl leading-relaxed">
-                Your hiring overview across all active listings. You have{" "}
-                <span className="text-foreground font-semibold">
-                  {newApplicationsCount} candidate submissions
-                </span>{" "}
-                ready for review today.
+              <p className="text-xs sm:text-sm text-muted-foreground max-w-2xl leading-relaxed">
+                Manage structured recruitment drives, evaluate academic eligibility, coordinate multi-stage assessments, and publish auditable merit lists.
               </p>
             </div>
 
-            {/* Quick Action Button Group */}
-            <div className="flex flex-wrap items-center gap-2.5 shrink-0">
-              <Link href="/dashboard/recruiter/post-internship">
-                <Button variant="gradient" size="sm" rightIcon={<PlusCircle className="w-4 h-4" />}>
-                  Post Internship
+            <div className="flex flex-wrap items-center gap-3 shrink-0">
+              <Link href="/dashboard/recruiter/drives/new">
+                <Button variant="gradient" size="sm" leftIcon={<PlusCircle className="w-4 h-4" />}>
+                  Create Recruitment Drive
                 </Button>
               </Link>
-              <Link href="/dashboard/recruiter/students">
-                <Button variant="outline" size="sm" rightIcon={<Search className="w-4 h-4" />}>
-                  Find Talent
-                </Button>
-              </Link>
-              <Link href="/dashboard/recruiter/interviews">
-                <Button variant="outline" size="sm" rightIcon={<Calendar className="w-4 h-4" />}>
-                  Interviews
+              <Link href="/dashboard/recruiter/screening">
+                <Button variant="outline" size="sm" leftIcon={<UserCheck className="w-4 h-4" />}>
+                  Screening Workbench
                 </Button>
               </Link>
             </div>
           </div>
         </div>
 
-        {/* Hiring Statistics Overview Grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-          <Card hoverEffect className="p-5 border-border/80 bg-card">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Active Internships
+        {/* 6 Real Database KPI Metrics */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5">
+          <Card className="p-4 bg-card border-border/80 hover:border-purple-500/40 transition-all shadow-xs">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+                Active Drives
               </span>
-              <div className="w-8 h-8 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center">
-                <Briefcase className="w-4 h-4" />
+              <div className="w-7 h-7 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+                <Briefcase className="w-3.5 h-3.5" />
               </div>
             </div>
-            <div className="text-2xl sm:text-3xl font-extrabold text-foreground">
-              {activeInternships.length}
+            <div className="mt-2.5 text-2xl font-black text-foreground">
+              {kpis.activeDrivesCount}
             </div>
-            <p className="text-[11px] text-muted-foreground mt-1 flex items-center gap-1">
-              <span className="text-emerald-500 font-semibold">10 Openings</span> available
-            </p>
+            <div className="text-[10px] text-muted-foreground mt-0.5 flex items-center gap-1">
+              Live recruitment drives
+            </div>
           </Card>
 
-          <Card hoverEffect className="p-5 border-border/80 bg-card">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Total Applications
+          <Card className="p-4 bg-card border-border/80 hover:border-purple-500/40 transition-all shadow-xs">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+                Applications
               </span>
-              <div className="w-8 h-8 rounded-xl bg-purple-500/10 text-purple-500 flex items-center justify-center">
-                <GitPullRequest className="w-4 h-4" />
+              <div className="w-7 h-7 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+                <GitPullRequest className="w-3.5 h-3.5" />
               </div>
             </div>
-            <div className="text-2xl sm:text-3xl font-extrabold text-foreground">
-              {totalApplicationsCount}
+            <div className="mt-2.5 text-2xl font-black text-foreground">
+              {kpis.totalApplicationsCount}
             </div>
-            <p className="text-[11px] text-muted-foreground mt-1 flex items-center gap-1">
-              <span className="text-purple-500 font-semibold">+{newApplicationsCount} new</span> awaiting review
-            </p>
+            <div className="text-[10px] text-muted-foreground mt-0.5 flex items-center gap-1">
+              Total candidate pipeline
+            </div>
           </Card>
 
-          <Card hoverEffect className="p-5 border-border/80 bg-card">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <Card className="p-4 bg-card border-border/80 hover:border-purple-500/40 transition-all shadow-xs">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+                Eligible
+              </span>
+              <div className="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                <ShieldCheck className="w-3.5 h-3.5" />
+              </div>
+            </div>
+            <div className="mt-2.5 text-2xl font-black text-emerald-600 dark:text-emerald-400">
+              {kpis.eligibleCandidatesCount}
+            </div>
+            <div className="text-[10px] text-muted-foreground mt-0.5 flex items-center gap-1">
+              100% Criteria Passed
+            </div>
+          </Card>
+
+          <Card className="p-4 bg-card border-border/80 hover:border-purple-500/40 transition-all shadow-xs">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
                 Shortlisted
               </span>
-              <div className="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center">
-                <UserCheck className="w-4 h-4" />
+              <div className="w-7 h-7 rounded-lg bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center">
+                <UserCheck className="w-3.5 h-3.5" />
               </div>
             </div>
-            <div className="text-2xl sm:text-3xl font-extrabold text-foreground">
-              {shortlistedCount}
+            <div className="mt-2.5 text-2xl font-black text-purple-600 dark:text-purple-400">
+              {kpis.shortlistedCandidatesCount}
             </div>
-            <p className="text-[11px] text-muted-foreground mt-1">High-match candidates</p>
+            <div className="text-[10px] text-muted-foreground mt-0.5 flex items-center gap-1">
+              Passed to Assessment
+            </div>
           </Card>
 
-          <Card hoverEffect className="p-5 border-border/80 bg-card">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Interviews Scheduled
+          <Card className="p-4 bg-card border-border/80 hover:border-purple-500/40 transition-all shadow-xs">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+                Interviews
               </span>
-              <div className="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center">
-                <Calendar className="w-4 h-4" />
+              <div className="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+                <Calendar className="w-3.5 h-3.5" />
               </div>
             </div>
-            <div className="text-2xl sm:text-3xl font-extrabold text-foreground">
-              {interviewsCount}
+            <div className="mt-2.5 text-2xl font-black text-amber-600 dark:text-amber-400">
+              {kpis.interviewsCount}
             </div>
-            <p className="text-[11px] text-muted-foreground mt-1 flex items-center gap-1">
-              <span className="text-amber-500 font-semibold">This week:</span> Alex Rivera (Stanford)
-            </p>
+            <div className="text-[10px] text-muted-foreground mt-0.5 flex items-center gap-1">
+              Scheduled & In-Progress
+            </div>
+          </Card>
+
+          <Card className="p-4 bg-card border-border/80 hover:border-purple-500/40 transition-all shadow-xs">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+                Selected
+              </span>
+              <div className="w-7 h-7 rounded-lg bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center">
+                <Award className="w-3.5 h-3.5" />
+              </div>
+            </div>
+            <div className="mt-2.5 text-2xl font-black text-foreground">
+              {kpis.selectedCandidatesCount}
+            </div>
+            <div className="text-[10px] text-muted-foreground mt-0.5 flex items-center gap-1">
+              Final merit offers
+            </div>
           </Card>
         </div>
 
-        {/* Main 2-Column Section: Candidate Pipeline & Active Listings */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* Left Column: Recent Candidate Submissions (7 cols) */}
-          <div className="lg:col-span-7 space-y-4">
+        {/* Recruitment Pipeline Funnel Overview */}
+        <Card className="p-5 border-border bg-card shadow-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+            <div>
+              <div className="flex items-center gap-2">
+                <Layers className="w-4 h-4 text-purple-500" />
+                <h2 className="text-base font-bold text-foreground">
+                  Structured Recruitment Workflow Funnel
+                </h2>
+              </div>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Stage progression pipeline across all active drives.
+              </p>
+            </div>
+            <Link
+              href="/dashboard/recruiter/selection"
+              className="text-xs font-semibold text-purple-600 dark:text-purple-400 hover:underline flex items-center gap-1"
+            >
+              Stage Manager <ChevronRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+            {[
+              {
+                step: "1. Drive & Criteria",
+                label: `${kpis.activeDrivesCount} Active`,
+                sub: "Structured rules",
+                color: "border-blue-500/30 bg-blue-500/5",
+              },
+              {
+                step: "2. Applications",
+                label: `${kpis.totalApplicationsCount} Applied`,
+                sub: "Pipeline intake",
+                color: "border-indigo-500/30 bg-indigo-500/5",
+              },
+              {
+                step: "3. Eligibility Check",
+                label: `${kpis.eligibleCandidatesCount} Eligible`,
+                sub: "Criteria verified",
+                color: "border-emerald-500/30 bg-emerald-500/5",
+              },
+              {
+                step: "4. Assessment Round",
+                label: `${kpis.shortlistedCandidatesCount} In Test`,
+                sub: "Score recording",
+                color: "border-purple-500/30 bg-purple-500/5",
+              },
+              {
+                step: "5. Interview Round",
+                label: `${kpis.interviewsCount} Scheduled`,
+                sub: "Evaluations",
+                color: "border-amber-500/30 bg-amber-500/5",
+              },
+              {
+                step: "6. Merit & Selection",
+                label: `${kpis.selectedCandidatesCount} Selected`,
+                sub: "Locked results",
+                color: "border-rose-500/30 bg-rose-500/5",
+              },
+            ].map((f, i) => (
+              <div key={i} className={`p-3 rounded-2xl border ${f.color} space-y-1`}>
+                <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                  {f.step}
+                </div>
+                <div className="text-sm font-extrabold text-foreground">{f.label}</div>
+                <div className="text-[11px] text-muted-foreground">{f.sub}</div>
+              </div>
+            ))}
+          </div>
+        </Card>
+
+        {/* Two Column Section: Active Recruitment Drives & Upcoming Interviews */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Active Drives (2 Cols) */}
+          <div className="lg:col-span-2 space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-lg font-bold text-foreground tracking-tight">
-                  Recent Applications
+                <h2 className="text-base font-bold text-foreground flex items-center gap-2">
+                  <Briefcase className="w-4 h-4 text-purple-500" />
+                  Active Recruitment Drives
                 </h2>
                 <p className="text-xs text-muted-foreground">
-                  Latest student applicants for your engineering and design listings
+                  Recruitment campaigns currently accepting candidates and undergoing multi-stage evaluation.
                 </p>
               </div>
-              <Link href="/dashboard/recruiter/applications">
-                <Button variant="ghost" size="sm" rightIcon={<ChevronRight className="w-4 h-4" />}>
-                  View All Candidates
-                </Button>
+              <Link
+                href="/dashboard/recruiter/drives"
+                className="text-xs font-semibold text-purple-600 dark:text-purple-400 hover:underline flex items-center gap-1"
+              >
+                View All ({activeDrives.length}) <ChevronRight className="w-3.5 h-3.5" />
               </Link>
             </div>
 
-            <div className="space-y-3">
-              {recentApplicants.map((applicant) => {
-                const style = getStatusBadgeStyle(applicant.status);
-                return (
-                  <Card
-                    key={applicant.id}
-                    hoverEffect
-                    className="p-4 sm:p-5 border-border/80 bg-card space-y-3"
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex items-center gap-3">
-                        <Avatar
-                          src={applicant.studentAvatar}
-                          name={applicant.studentName}
-                          size="md"
-                          isOnline={true}
-                        />
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <h3 className="font-bold text-sm text-foreground">
-                              {applicant.studentName}
-                            </h3>
-                            <Badge variant="emerald" size="sm" className="font-semibold text-[10px]">
-                              {applicant.matchScore}% Match
-                            </Badge>
-                          </div>
-                          <p className="text-xs text-muted-foreground mt-0.5">
-                            {applicant.university} • {applicant.branch} •{" "}
-                            <span className="font-semibold text-foreground/80">
-                              CGPA {applicant.cgpa}
-                            </span>
-                          </p>
-                        </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {activeDrives.map((drive) => (
+                <Card
+                  key={drive.id}
+                  className="p-5 border-border/80 hover:border-purple-500/40 transition-all bg-card flex flex-col justify-between space-y-4"
+                >
+                  <div className="space-y-2">
+                    <div className="flex items-start justify-between gap-2">
+                      <Badge variant="purple" size="sm" className="font-bold uppercase tracking-wider">
+                        {drive.status.replace("_", " ")}
+                      </Badge>
+                      <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                        {drive.salaryStipend}
+                      </span>
+                    </div>
+
+                    <h3 className="font-extrabold text-base text-foreground leading-snug line-clamp-1">
+                      {drive.title}
+                    </h3>
+                    <p className="text-xs text-muted-foreground line-clamp-2">
+                      {drive.description}
+                    </p>
+
+                    <div className="flex flex-wrap gap-2 text-[11px] text-muted-foreground pt-1">
+                      <span className="font-medium text-foreground">{drive.department}</span>
+                      <span>•</span>
+                      <span>{drive.location}</span>
+                      <span>•</span>
+                      <span>{drive.openingsCount} Openings</span>
+                    </div>
+                  </div>
+
+                  <div className="pt-3 border-t border-border/80 space-y-3">
+                    <div className="grid grid-cols-3 gap-1 text-center text-xs">
+                      <div className="p-2 rounded-xl bg-muted/60">
+                        <div className="font-extrabold text-foreground">{drive.applicantsCount}</div>
+                        <div className="text-[10px] text-muted-foreground">Applied</div>
                       </div>
-
-                      <span
-                        className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${style.bg} ${style.text} ${style.border} shrink-0`}
-                      >
-                        {applicant.status}
-                      </span>
-                    </div>
-
-                    <div className="p-2.5 rounded-xl bg-muted/40 border border-border/50 text-xs flex items-center justify-between">
-                      <span className="text-muted-foreground text-[11px] truncate mr-2">
-                        Role:{" "}
-                        <strong className="text-foreground">{applicant.internshipTitle}</strong>
-                      </span>
-                      <span className="text-[10px] text-muted-foreground shrink-0">
-                        {applicant.appliedDate}
-                      </span>
-                    </div>
-
-                    {/* Compact Career DNA Section */}
-                    {(() => {
-                      const studentMatch = recruiterStudents.find(
-                        (s) =>
-                          s.id === applicant.studentId ||
-                          s.name.toLowerCase() === applicant.studentName.toLowerCase()
-                      );
-                      return (
-                        <RecruiterCareerDNASection
-                          studentId={applicant.studentId}
-                          candidateName={applicant.studentName}
-                          careerDNA={(studentMatch as any)?.careerDNA}
-                          compact={true}
-                          onOpenFullModal={() => handleOpenCandidate(applicant)}
-                        />
-                      );
-                    })()}
-
-                    <div className="flex items-center justify-between pt-1 text-xs">
-                      <div className="flex flex-wrap gap-1">
-                        {applicant.skills.slice(0, 3).map((s) => (
-                          <span
-                            key={s}
-                            className="px-2 py-0.5 rounded bg-muted text-[10px] font-medium text-foreground/80"
-                          >
-                            {s}
-                          </span>
-                        ))}
+                      <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-600">
+                        <div className="font-extrabold">{drive.eligibleCount}</div>
+                        <div className="text-[10px]">Eligible</div>
                       </div>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        className="text-xs h-7"
-                        onClick={() => handleOpenCandidate(applicant)}
-                      >
-                        Review Profile
-                      </Button>
+                      <div className="p-2 rounded-xl bg-purple-500/10 text-purple-600">
+                        <div className="font-extrabold">{drive.shortlistedCount}</div>
+                        <div className="text-[10px]">Shortlisted</div>
+                      </div>
                     </div>
-                  </Card>
-                );
-              })}
+
+                    <div className="flex items-center justify-between gap-2 pt-1">
+                      <Link
+                        href={`/dashboard/recruiter/screening?driveId=${drive.id}`}
+                        className="text-xs font-bold text-purple-600 dark:text-purple-400 hover:underline"
+                      >
+                        Screen Candidates →
+                      </Link>
+                      <Link href={`/dashboard/recruiter/results?driveId=${drive.id}`}>
+                        <Button size="sm" variant="outline" className="h-7 text-xs">
+                          Merit & Results
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
+                </Card>
+              ))}
             </div>
           </div>
 
-          {/* Right Column: Active Internships & Quick Shortcuts (5 cols) */}
-          <div className="lg:col-span-5 space-y-6">
-            {/* Active Internship Listings */}
-            <Card className="p-5 border-border/80 bg-card space-y-4">
+          {/* Upcoming Interviews & Audit Feed (1 Col) */}
+          <div className="space-y-6">
+            {/* Upcoming Interviews */}
+            <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="font-bold text-sm text-foreground">Active Listings</h3>
-                  <p className="text-xs text-muted-foreground">Live student-facing positions</p>
-                </div>
-                <Link href="/dashboard/recruiter/internships">
-                  <Button variant="ghost" size="sm">
-                    Manage
-                  </Button>
-                </Link>
-              </div>
-
-              <div className="space-y-3">
-                {activeInternships.slice(0, 3).map((listing) => (
-                  <div
-                    key={listing.id}
-                    className="p-3.5 rounded-xl bg-muted/40 border border-border/60 space-y-2 hover:bg-muted/70 transition-colors"
-                  >
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <h4 className="font-bold text-xs text-foreground leading-snug">
-                          {listing.title}
-                        </h4>
-                        <p className="text-[11px] text-muted-foreground">
-                          {listing.workType} • {listing.stipend}
-                        </p>
-                      </div>
-                      <Badge variant="purple" size="sm">
-                        {listing.internshipType}
-                      </Badge>
-                    </div>
-
-                    <div className="flex items-center justify-between text-[11px] text-muted-foreground pt-1 border-t border-border/40">
-                      <span className="flex items-center gap-1">
-                        <Users2 className="w-3.5 h-3.5 text-purple-500" />
-                        <strong className="text-foreground">{listing.applicationsCount}</strong>{" "}
-                        applicants
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Eye className="w-3.5 h-3.5 text-blue-500" />
-                        <strong className="text-foreground">{listing.viewsCount}</strong> views
-                      </span>
-                      <span className="text-rose-500 font-semibold text-[10px]">
-                        Due {listing.deadline}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </Card>
-
-            {/* Upcoming Interviews Widget */}
-            <Card className="p-5 border-border/80 bg-card space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="font-bold text-sm text-foreground flex items-center gap-2">
-                    <Calendar className="w-4 h-4 text-purple-500" />
-                    <span>Upcoming Interviews</span>
-                  </h3>
-                  <p className="text-xs text-muted-foreground">Scheduled evaluation rounds</p>
-                </div>
-                <Link href="/dashboard/recruiter/interviews">
-                  <Button variant="ghost" size="sm">
-                    View All
-                  </Button>
+                <h2 className="text-base font-bold text-foreground flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-purple-500" />
+                  Upcoming Interviews
+                </h2>
+                <Link
+                  href="/dashboard/recruiter/interviews"
+                  className="text-xs font-semibold text-purple-600 dark:text-purple-400 hover:underline"
+                >
+                  Manage
                 </Link>
               </div>
 
               <div className="space-y-2.5">
-                {recruiterInterviews
-                  .filter((i) => i.status === "Scheduled" || i.status === "Rescheduled")
-                  .slice(0, 2)
-                  .map((int) => (
-                    <div
-                      key={int.id}
-                      className="p-3 rounded-xl bg-muted/40 border border-border/60 flex items-center justify-between gap-3"
-                    >
-                      <div className="flex items-center gap-2.5 overflow-hidden">
-                        <Avatar src={int.candidateAvatar} name={int.candidateName} size="sm" />
-                        <div className="overflow-hidden">
-                          <div className="text-xs font-bold text-foreground truncate">
-                            {int.candidateName}
-                          </div>
-                          <div className="text-[11px] text-muted-foreground truncate">
-                            {int.type} &bull; {int.date} ({int.time})
+                {upcomingInterviews.length === 0 ? (
+                  <Card className="p-5 text-center text-xs text-muted-foreground bg-card">
+                    No interviews scheduled.
+                  </Card>
+                ) : (
+                  upcomingInterviews.map((int) => (
+                    <Card key={int.id} className="p-3.5 bg-card border-border hover:border-purple-500/30 transition-all">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex items-center gap-2.5">
+                          <Avatar src={int.candidateAvatar} alt={int.candidateName} size="sm" />
+                          <div>
+                            <div className="text-xs font-bold text-foreground">{int.candidateName}</div>
+                            <div className="text-[11px] text-muted-foreground">{int.candidateUniversity}</div>
                           </div>
                         </div>
+                        <Badge variant="purple" size="sm" className="text-[10px]">
+                          {int.type}
+                        </Badge>
                       </div>
 
-                      <a
-                        href={int.meetingLink}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="p-1.5 rounded-lg bg-purple-600 hover:bg-purple-700 text-white shrink-0 shadow-xs"
-                        title="Join Meeting"
-                      >
-                        <Video className="w-3.5 h-3.5" />
-                      </a>
-                    </div>
-                  ))}
+                      <div className="mt-2 pt-2 border-t border-border flex items-center justify-between text-[11px] text-muted-foreground">
+                        <span className="flex items-center gap-1 font-medium text-foreground">
+                          <Clock className="w-3 h-3 text-slate-400" />
+                          {int.date} at {int.time}
+                        </span>
+                        {int.meetingLink && (
+                          <a
+                            href={int.meetingLink}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-1 text-purple-600 hover:underline font-semibold"
+                          >
+                            <Video className="w-3 h-3" /> Meet
+                          </a>
+                        )}
+                      </div>
+                    </Card>
+                  ))
+                )}
               </div>
-            </Card>
+            </div>
 
-            {/* Recruiter Quick Action Tiles */}
-            <div className="grid grid-cols-2 gap-3">
-              <Link
-                href="/dashboard/recruiter/post-internship"
-                className="p-4 rounded-2xl bg-purple-500/10 border border-purple-500/20 hover:bg-purple-500/20 transition-colors flex flex-col justify-between group h-28"
-              >
-                <PlusCircle className="w-6 h-6 text-purple-600 dark:text-purple-400 group-hover:scale-110 transition-transform" />
-                <div>
-                  <div className="font-bold text-xs text-foreground">Post Internship</div>
-                  <div className="text-[10px] text-muted-foreground">Publish new role</div>
-                </div>
-              </Link>
+            {/* Recent Audit Activity */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h2 className="text-base font-bold text-foreground flex items-center gap-2">
+                  <FileText className="w-4 h-4 text-purple-500" />
+                  Recent Audit Trail
+                </h2>
+                <Link
+                  href="/dashboard/recruiter/audit-logs"
+                  className="text-xs font-semibold text-purple-600 dark:text-purple-400 hover:underline"
+                >
+                  All Logs
+                </Link>
+              </div>
 
-              <Link
-                href="/dashboard/recruiter/students"
-                className="p-4 rounded-2xl bg-blue-500/10 border border-blue-500/20 hover:bg-blue-500/20 transition-colors flex flex-col justify-between group h-28"
-              >
-                <Search className="w-6 h-6 text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform" />
-                <div>
-                  <div className="font-bold text-xs text-foreground">Find Students</div>
-                  <div className="text-[10px] text-muted-foreground">Source top talent</div>
-                </div>
-              </Link>
-
-              <Link
-                href="/dashboard/recruiter/analytics"
-                className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-500/20 transition-colors flex flex-col justify-between group h-28"
-              >
-                <BarChart3 className="w-6 h-6 text-emerald-600 dark:text-emerald-400 group-hover:scale-110 transition-transform" />
-                <div>
-                  <div className="font-bold text-xs text-foreground">Hiring Analytics</div>
-                  <div className="text-[10px] text-muted-foreground">Funnel performance</div>
-                </div>
-              </Link>
-
-              <Link
-                href="/dashboard/recruiter/company"
-                className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 hover:bg-amber-500/20 transition-colors flex flex-col justify-between group h-28"
-              >
-                <Building2 className="w-6 h-6 text-amber-600 dark:text-amber-400 group-hover:scale-110 transition-transform" />
-                <div>
-                  <div className="font-bold text-xs text-foreground">Company Profile</div>
-                  <div className="text-[10px] text-muted-foreground">Stripe Talent Hub</div>
-                </div>
-              </Link>
+              <div className="space-y-2">
+                {recentAuditLogs.slice(0, 4).map((log) => (
+                  <div
+                    key={log.id}
+                    className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-border text-[11px] space-y-0.5"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-foreground">{log.action.replace(/_/g, " ")}</span>
+                      <span className="text-[10px] text-muted-foreground">
+                        {new Date(log.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                      </span>
+                    </div>
+                    <p className="text-muted-foreground line-clamp-1">{log.details}</p>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Candidate Profile Review Modal */}
-        <CandidateProfileModal
+        {/* Recent Applications Table */}
+        <Card className="p-5 border-border bg-card shadow-sm space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <div className="flex items-center gap-2">
+                <GitPullRequest className="w-4 h-4 text-purple-500" />
+                <h2 className="text-base font-bold text-foreground">Recent Candidate Applications</h2>
+              </div>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Inspect structured candidate qualifications, eligibility pass/fail status, and screening decisions.
+              </p>
+            </div>
+            <Link
+              href="/dashboard/recruiter/applications"
+              className="text-xs font-semibold text-purple-600 dark:text-purple-400 hover:underline flex items-center gap-1"
+            >
+              View Full Pipeline ({kpis.totalApplicationsCount}) <ChevronRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+
+          <div className="overflow-x-auto rounded-xl border border-border">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-muted/60 border-b border-border text-muted-foreground">
+                <tr>
+                  <th className="px-4 py-3 font-semibold">Candidate</th>
+                  <th className="px-4 py-3 font-semibold">Drive / Position</th>
+                  <th className="px-4 py-3 font-semibold">Eligibility Verification</th>
+                  <th className="px-4 py-3 font-semibold">Stage</th>
+                  <th className="px-4 py-3 font-semibold">Status</th>
+                  <th className="px-4 py-3 font-semibold text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border bg-card">
+                {recentApplications.map((app) => (
+                  <tr key={app.id} className="hover:bg-muted/40 transition-colors">
+                    <td className="px-4 py-3.5">
+                      <div className="flex items-center gap-3">
+                        <Avatar src={app.studentAvatar} alt={app.studentName} size="sm" />
+                        <div>
+                          <div className="font-bold text-foreground">{app.studentName}</div>
+                          <div className="text-[11px] text-muted-foreground">
+                            {app.degree} • {app.university}
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3.5 text-foreground font-medium">{app.driveTitle}</td>
+                    <td className="px-4 py-3.5">
+                      {app.eligibility ? (
+                        <span
+                          className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
+                            app.eligibility.status === "ELIGIBLE"
+                              ? "bg-emerald-500/10 text-emerald-600 border border-emerald-500/30"
+                              : app.eligibility.status === "REQUIRES_MANUAL_REVIEW"
+                              ? "bg-amber-500/10 text-amber-600 border border-amber-500/30"
+                              : "bg-rose-500/10 text-rose-600 border border-rose-500/30"
+                          }`}
+                        >
+                          {app.eligibility.status === "ELIGIBLE" ? (
+                            <CheckCircle2 className="w-3 h-3" />
+                          ) : (
+                            <AlertTriangle className="w-3 h-3" />
+                          )}
+                          {app.eligibility.status === "ELIGIBLE"
+                            ? "100% Eligible"
+                            : app.eligibility.status === "REQUIRES_MANUAL_REVIEW"
+                            ? "Review Needed"
+                            : "Failed Criteria"}
+                        </span>
+                      ) : (
+                        <span className="text-muted-foreground">Pending</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3.5">
+                      <span className="font-semibold text-foreground">{app.currentStageName}</span>
+                    </td>
+                    <td className="px-4 py-3.5">
+                      <Badge variant="purple" size="sm">
+                        {app.status.replace("_", " ")}
+                      </Badge>
+                    </td>
+                    <td className="px-4 py-3.5 text-right">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-7 text-xs font-semibold"
+                        onClick={() => handleOpenCandidate(app)}
+                      >
+                        Inspect Profile
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Card>
+
+        {/* Candidate Profile / Eligibility Modal */}
+        <StructuredCandidateModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
-          candidate={selectedCandidate}
-          onStatusChange={handleStatusChange}
-          onMessage={handleMessageCandidate}
-          onShortlistToggle={() => {
-            if (selectedCandidate) toggleShortlistCandidate(selectedCandidate.id);
-          }}
-          isShortlisted={
-            selectedCandidate
-              ? recruiterStudents.find((s) => s.id === selectedCandidate.id)?.isShortlisted
-              : false
-          }
-          onSaveNote={(note) => {
-            if (selectedCandidate) {
-              const applicant = recruiterApplicants.find(
-                (a) => a.studentId === selectedCandidate.id
-              );
-              if (applicant) addApplicantNote(applicant.id, note);
-            }
+          application={selectedCandidate}
+          onStatusChange={handleCandidateStatusUpdate}
+          onManualOverride={handleManualOverride}
+          onMessage={() => {
+            setIsModalOpen(false);
+            router.push("/dashboard/recruiter/messages");
           }}
         />
       </div>
