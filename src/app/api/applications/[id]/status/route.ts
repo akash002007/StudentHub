@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseServerClient, getAuthenticatedRecruiter } from "@/lib/supabase/server";
 
-export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await getAuthenticatedRecruiter(request);
     if (!auth.recruiter) {
@@ -11,7 +11,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
       );
     }
 
-    const applicationId = params.id;
+    const { id: applicationId } = await params;
     if (!applicationId) {
       return NextResponse.json({ error: "Application ID is required" }, { status: 400 });
     }
