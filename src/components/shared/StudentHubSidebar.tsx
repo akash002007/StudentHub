@@ -33,6 +33,9 @@ import {
   Laptop,
   ArrowLeftRight,
   Dna,
+  UserCheck,
+  Layers,
+  Award,
 } from "lucide-react";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
@@ -194,9 +197,50 @@ export function StudentHubSidebar({
 
   const recruiterNavGroups: NavGroup[] = [
     {
-      groupLabel: "MAIN",
+      groupLabel: "RECRUITMENT WORKFLOW",
       items: [
-        { label: "Dashboard", href: "/dashboard/recruiter", icon: LayoutDashboard },
+        { label: "Overview", href: "/dashboard/recruiter", icon: LayoutDashboard },
+        {
+          label: "Recruitment Drives",
+          href: "/dashboard/recruiter/drives",
+          icon: Briefcase,
+          badge: activeRecruiterListingsCount > 0 ? `${activeRecruiterListingsCount} Active` : null,
+          badgeVariant: "blue",
+        },
+        {
+          label: "Applications",
+          href: "/dashboard/recruiter/applications",
+          icon: GitPullRequest,
+          badge: pendingApplicantsCount > 0 ? `${pendingApplicantsCount}` : null,
+          badgeVariant: "emerald",
+        },
+        {
+          label: "Screening & Eligibility",
+          href: "/dashboard/recruiter/screening",
+          icon: UserCheck,
+        },
+        {
+          label: "Selection Pipeline",
+          href: "/dashboard/recruiter/selection",
+          icon: Layers,
+        },
+        {
+          label: "Interviews",
+          href: "/dashboard/recruiter/interviews",
+          icon: Calendar,
+        },
+        {
+          label: "Results & Merit",
+          href: "/dashboard/recruiter/results",
+          icon: Award,
+          badge: "Published",
+          badgeVariant: "purple",
+        },
+      ],
+    },
+    {
+      groupLabel: "TALENT & SOURCING",
+      items: [
         {
           label: "Talent Discovery",
           href: "/dashboard/recruiter/students",
@@ -205,34 +249,10 @@ export function StudentHubSidebar({
           badgeVariant: "lavender",
         },
         {
-          label: "Internships",
-          href: "/dashboard/recruiter/internships",
-          icon: Briefcase,
-          badge: activeRecruiterListingsCount > 0 ? `${activeRecruiterListingsCount} Active` : null,
-          badgeVariant: "blue",
-        },
-        {
-          label: "Post Internship",
-          href: "/dashboard/recruiter/post-internship",
-          icon: PlusCircle,
-          badge: "New",
-          badgeVariant: "purple",
-        },
-        {
-          label: "Applications",
-          href: "/dashboard/recruiter/applications",
-          icon: GitPullRequest,
-          badge: pendingApplicantsCount > 0 ? `${pendingApplicantsCount} Pending` : null,
-          badgeVariant: "emerald",
-        },
-        {
           label: "Shortlisted",
           href: "/dashboard/recruiter/shortlisted",
           icon: Bookmark,
-          badge: shortlistedStudentsCount > 0 ? `${shortlistedStudentsCount}` : null,
-          badgeVariant: "lavender",
         },
-        { label: "Interviews", href: "/dashboard/recruiter/interviews", icon: Calendar },
         {
           label: "Messages",
           href: "/dashboard/recruiter/messages",
@@ -243,16 +263,11 @@ export function StudentHubSidebar({
       ],
     },
     {
-      groupLabel: "COMPANY",
+      groupLabel: "GOVERNANCE & SYSTEM",
       items: [
-        { label: "Company Profile", href: "/dashboard/recruiter/company", icon: Building2 },
-        { label: "Recruiter Profile", href: "/dashboard/recruiter/profile", icon: User },
         { label: "Analytics", href: "/dashboard/recruiter/analytics", icon: BarChart3 },
-      ],
-    },
-    {
-      groupLabel: "SYSTEM",
-      items: [
+        { label: "Audit Trail", href: "/dashboard/recruiter/audit-logs", icon: FileText },
+        { label: "Company Profile", href: "/dashboard/recruiter/company", icon: Building2 },
         {
           label: "Notifications",
           href: "/dashboard/recruiter/notifications",
