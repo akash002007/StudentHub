@@ -113,9 +113,7 @@ function RecruiterAssessmentsContent() {
   const [questionPage, setQuestionPage] = useState(1);
   const itemsPerPage = 10;
 
-  // Question Modals
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [previewQuestion, setPreviewQuestion] = useState<AssessmentQuestion | null>(null);
   const [editingQuestion, setEditingQuestion] = useState<AssessmentQuestion | null>(null);
   const [addToAssessmentTargetQuestion, setAddToAssessmentTargetQuestion] = useState<AssessmentQuestion | null>(null);
@@ -158,11 +156,6 @@ function RecruiterAssessmentsContent() {
     ownerType: "COMPANY" as QuestionSource,
   });
   const [isSavingQuestion, setIsSavingQuestion] = useState(false);
-
-  // Bulk import state
-  const [importText, setImportText] = useState("");
-  const [importErrors, setImportErrors] = useState<{ row: number; reason: string }[]>([]);
-  const [isImporting, setIsImporting] = useState(false);
 
   // -------------------------------------------------------------------------
   // CANDIDATES & RESULTS STATE
@@ -412,72 +405,7 @@ function RecruiterAssessmentsContent() {
     }
   };
 
-  const handleImportCSV = async () => {
-    if (!importText.trim()) {
-      toastError("Please paste CSV data.");
-      return;
-    }
 
-    setIsImporting(true);
-    setImportErrors([]);
-
-    try {
-      const lines = importText
-        .split("\n")
-        .map((l) => l.trim())
-        .filter(Boolean);
-      if (lines.length < 2) {
-        toastError("CSV must contain a header line and at least one question row.");
-        setIsImporting(false);
-        return;
-      }
-
-      const rows: any[] = [];
-      for (let i = 1; i < lines.length; i++) {
-        const parts = lines[i].split(",").map((p) => p.trim());
-        if (parts.length < 5) {
-          continue;
-        }
-
-        const [qText, type, optA, optB, optC, optD, correct, diff, cat, topic, marks, negMarks] = parts;
-        rows.push({
-          questionText: qText,
-          type: type || "SINGLE_CHOICE",
-          options: [optA, optB, optC, optD].filter(Boolean),
-          correctAnswer: correct || optA,
-          difficulty: diff || "MEDIUM",
-          category: cat || "Technical",
-          topic: topic || "General",
-          marks: Number(marks) || 2,
-          negativeMarks: Number(negMarks) || 0,
-        });
-      }
-
-      const res = await fetch("/api/recruiter/questions/import", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ questions: rows }),
-      });
-
-      const data = await res.json();
-      if (res.ok) {
-        success(`Successfully imported ${data.importedCount} questions!`);
-        setIsImportModalOpen(false);
-        setImportText("");
-        fetchQuestions();
-      } else {
-        if (data.errors) {
-          setImportErrors(data.errors);
-        }
-        toastError(data.error || "Failed to import questions.");
-      }
-    } catch (err) {
-      console.error(err);
-      toastError("Failed to parse import data.");
-    } finally {
-      setIsImporting(false);
-    }
-  };
 
   const handleAddQuestionToAssessment = async () => {
     if (!selectedTargetAssessmentId) {
@@ -605,24 +533,14 @@ function RecruiterAssessmentsContent() {
             </Button>
 
             {activeTab === "questions" ? (
-              <>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setIsImportModalOpen(true)}
-                  leftIcon={<Upload className="w-4 h-4" />}
-                >
-                  Import CSV
-                </Button>
-                <Button
-                  variant="gradient"
-                  size="sm"
-                  onClick={openCreateModal}
-                  leftIcon={<Plus className="w-4 h-4" />}
-                >
-                  Create Question
-                </Button>
-              </>
+              <Button
+                variant="gradient"
+                size="sm"
+                onClick={openCreateModal}
+                leftIcon={<Plus className="w-4 h-4" />}
+              >
+                Create Question
+              </Button>
             ) : (
               <Link href="/dashboard/recruiter/assessments/new">
                 <Button variant="gradient" size="sm" leftIcon={<Plus className="w-4 h-4" />}>
@@ -2092,59 +2010,6 @@ function RecruiterAssessmentsContent() {
             </div>
           </Modal>
         )}
-
-        {/* ========================================================================= */}
-        {/* MODAL: BULK CSV IMPORT                                                    */}
-        {/* ========================================================================= */}
-        <Modal
-          isOpen={isImportModalOpen}
-          onClose={() => setIsImportModalOpen(false)}
-          title="Import Questions via CSV"
-        >
-          <div className="space-y-4 max-h-[75vh] overflow-y-auto pr-1">
-            <div className="p-3 rounded-xl bg-muted/40 border border-border text-[11px] space-y-1">
-              <span className="font-bold text-foreground block">CSV Header Format:</span>
-              <code className="text-purple-600 dark:text-purple-400 block font-mono text-[10px]">
-                questionText,type,optA,optB,optC,optD,correct,diff,category,topic,marks,negativeMarks
-              </code>
-            </div>
-
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-foreground uppercase tracking-wider">
-                Paste CSV Lines *
-              </label>
-              <textarea
-                rows={7}
-                value={importText}
-                onChange={(e) => setImportText(e.target.value)}
-                placeholder={`questionText,type,optA,optB,optC,optD,correct,diff,category,topic,marks,negativeMarks\nWhat is ACID?,SINGLE_CHOICE,Atomicity,Asynchronous,Automatic,Active,Atomicity,MEDIUM,Technical,Databases,2,0.5`}
-                className="w-full px-3 py-2 rounded-xl border border-border bg-background text-xs font-mono text-foreground focus:outline-none"
-              />
-            </div>
-
-            {importErrors.length > 0 && (
-              <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 space-y-1 text-xs text-rose-600">
-                <span className="font-bold block">Validation Errors:</span>
-                <ul className="list-disc pl-4 space-y-0.5">
-                  {importErrors.map((err, idx) => (
-                    <li key={idx}>
-                      Row {err.row}: {err.reason}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            <div className="flex items-center justify-end gap-2.5 pt-4 border-t border-border">
-              <Button variant="outline" size="sm" onClick={() => setIsImportModalOpen(false)}>
-                Cancel
-              </Button>
-              <Button variant="gradient" size="sm" onClick={handleImportCSV} isLoading={isImporting}>
-                Import Questions
-              </Button>
-            </div>
-          </div>
-        </Modal>
 
         {/* ========================================================================= */}
         {/* PDF / WORD QUESTION UPLOAD & PARSER WORKSPACE MODAL                        */}
