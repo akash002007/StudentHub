@@ -62,6 +62,8 @@ interface NavItem {
 
 interface NavGroup {
   groupLabel?: string;
+  collapsible?: boolean;
+  collapseKey?: string;
   items: NavItem[];
 }
 
@@ -85,13 +87,18 @@ export function StudentHubSidebar({
   const isAdminWorkspace = ["ADMIN", "PLATFORM_ADMIN", "SUPER_ADMIN", "VERIFICATION_OFFICER", "COLLEGE_ADMIN"].includes(activeRole);
 
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [collapsedGroups, setCollapsedGroups] = useState<Record<string, boolean>>({});
 
-  // Load saved collapse state on mount
+  // Load saved collapse states on mount
   useEffect(() => {
     try {
       const saved = localStorage.getItem("studenthub_sidebar_collapsed");
       if (saved !== null) {
         setIsCollapsed(saved === "true");
+      }
+      const savedGroups = localStorage.getItem("studenthub_sidebar_groups_collapsed");
+      if (savedGroups !== null) {
+        setCollapsedGroups(JSON.parse(savedGroups));
       }
     } catch {
       // Ignore localStorage error
@@ -103,6 +110,18 @@ export function StudentHubSidebar({
       const next = !prev;
       try {
         localStorage.setItem("studenthub_sidebar_collapsed", String(next));
+      } catch {
+        // Ignore localStorage error
+      }
+      return next;
+    });
+  };
+
+  const toggleGroupCollapse = (key: string) => {
+    setCollapsedGroups((prev) => {
+      const next = { ...prev, [key]: !prev[key] };
+      try {
+        localStorage.setItem("studenthub_sidebar_groups_collapsed", JSON.stringify(next));
       } catch {
         // Ignore localStorage error
       }
@@ -258,11 +277,6 @@ export function StudentHubSidebar({
           badgeVariant: "purple",
         },
         {
-          label: "Question Bank",
-          href: "/dashboard/recruiter/questions",
-          icon: Sparkles,
-        },
-        {
           label: "Interviews",
           href: "/dashboard/recruiter/interviews",
           icon: Calendar,
@@ -277,7 +291,21 @@ export function StudentHubSidebar({
       ],
     },
     {
+      // Standalone Messages navigation item between Results & Merit and Talent & Sourcing
+      items: [
+        {
+          label: "Messages",
+          href: "/dashboard/recruiter/messages",
+          icon: Send,
+          badge: unreadRecruiterMessagesCount > 0 ? unreadRecruiterMessagesCount : null,
+          badgeVariant: "emerald",
+        },
+      ],
+    },
+    {
       groupLabel: "TALENT & SOURCING",
+      collapsible: true,
+      collapseKey: "talent_and_sourcing",
       items: [
         {
           label: "Talent Discovery",
@@ -301,23 +329,9 @@ export function StudentHubSidebar({
           badgeVariant: "purple" as const,
         }] : []),
         {
-          label: "Applications",
-          href: "/dashboard/recruiter/applications",
-          icon: GitPullRequest,
-          badge: pendingApplicantsCount > 0 ? `${pendingApplicantsCount} Pending` : null,
-          badgeVariant: "emerald",
-        },
-        {
           label: "Shortlisted",
           href: "/dashboard/recruiter/shortlisted",
           icon: Bookmark,
-        },
-        {
-          label: "Messages",
-          href: "/dashboard/recruiter/messages",
-          icon: Send,
-          badge: unreadRecruiterMessagesCount > 0 ? unreadRecruiterMessagesCount : null,
-          badgeVariant: "emerald",
         },
       ],
     },
@@ -474,69 +488,95 @@ export function StudentHubSidebar({
 
       {/* Middle Section: Scrollable Navigation Groups */}
       <div className="flex-1 overflow-y-auto px-3 py-3 space-y-4">
-        {navGroups.map((group, gIdx) => (
-          <div key={gIdx} className="space-y-1">
-            {!isCollapsed && group.groupLabel && (
-              <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground/70 px-3 pt-1 pb-0.5">
-                {group.groupLabel}
-              </p>
-            )}
+        {navGroups.map((group, gIdx) => {
+          const isGroupCollapsed = Boolean(
+            group.collapsible && group.collapseKey && collapsedGroups[group.collapseKey]
+          );
 
-            <div className="space-y-0.5">
-              {group.items.map((item) => {
-                const Icon = item.icon;
-                const active = isLinkActive(item.href);
-
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={() => {
-                      if (onCloseMobileDrawer) onCloseMobileDrawer();
-                    }}
-                    title={isCollapsed ? item.label : undefined}
-                    className={cn(
-                      "flex items-center gap-3 px-3 h-10 rounded-xl text-xs font-semibold transition-all group relative",
-                      active
-                        ? "bg-foreground text-background shadow-xs font-bold"
-                        : "text-muted-foreground hover:text-foreground hover:bg-muted/70"
-                    )}
+          return (
+            <div key={gIdx} className="space-y-1">
+              {!isCollapsed && group.groupLabel && (
+                group.collapsible && group.collapseKey ? (
+                  <button
+                    type="button"
+                    onClick={() => toggleGroupCollapse(group.collapseKey!)}
+                    className="w-full flex items-center justify-between text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground/70 hover:text-foreground px-3 pt-1 pb-0.5 transition-colors cursor-pointer group"
+                    title={isGroupCollapsed ? `Expand ${group.groupLabel}` : `Collapse ${group.groupLabel}`}
                   >
-                    <Icon
+                    <span>{group.groupLabel}</span>
+                    <ChevronRight
                       className={cn(
-                        "w-4 h-4 shrink-0 transition-transform group-hover:scale-110",
-                        active ? "text-background" : "text-muted-foreground group-hover:text-foreground"
+                        "w-3.5 h-3.5 text-muted-foreground/60 transition-transform duration-200",
+                        !isGroupCollapsed ? "rotate-90" : "rotate-0"
                       )}
                     />
+                  </button>
+                ) : (
+                  <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground/70 px-3 pt-1 pb-0.5">
+                    {group.groupLabel}
+                  </p>
+                )
+              )}
 
-                    {!isCollapsed && (
-                      <>
-                        <span className="truncate flex-1">{item.label}</span>
-                        {item.badge !== undefined && item.badge !== null && (
-                          <Badge
-                            variant={item.badgeVariant || "purple"}
-                            size="sm"
-                            className={cn(
-                              "text-[10px] px-1.5 py-0 h-4 font-bold shrink-0",
-                              active && "bg-background text-foreground"
-                            )}
-                          >
-                            {item.badge}
-                          </Badge>
+              {/* Group Items: Collapsed check */}
+              {(!isGroupCollapsed || isCollapsed) && (
+                <div className="space-y-0.5">
+                  {group.items.map((item) => {
+                    const Icon = item.icon;
+                    const active = isLinkActive(item.href);
+
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        onClick={() => {
+                          if (onCloseMobileDrawer) onCloseMobileDrawer();
+                        }}
+                        title={isCollapsed ? item.label : undefined}
+                        className={cn(
+                          "flex items-center gap-3 px-3 h-10 rounded-xl text-xs font-semibold transition-all group relative",
+                          active
+                            ? "bg-foreground text-background shadow-xs font-bold"
+                            : "text-muted-foreground hover:text-foreground hover:bg-muted/70"
                         )}
-                      </>
-                    )}
+                      >
+                        <Icon
+                          className={cn(
+                            "w-4 h-4 shrink-0 transition-transform group-hover:scale-110",
+                            active ? "text-background" : "text-muted-foreground group-hover:text-foreground"
+                          )}
+                        />
 
-                    {/* Collapsed Badge Dot Indicator */}
-                    {isCollapsed && item.badge !== undefined && item.badge !== null && (
-                      <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-purple-600" />
-                    )}
-                  </Link>
-                );
-              })}
+                        {!isCollapsed && (
+                          <>
+                            <span className="truncate flex-1">{item.label}</span>
+                            {item.badge !== undefined && item.badge !== null && (
+                              <Badge
+                                variant={item.badgeVariant || "purple"}
+                                size="sm"
+                                className={cn(
+                                  "text-[10px] px-1.5 py-0 h-4 font-bold shrink-0",
+                                  active && "bg-background text-foreground"
+                                )}
+                              >
+                                {item.badge}
+                              </Badge>
+                            )}
+                          </>
+                        )}
+
+                        {/* Collapsed Badge Dot Indicator */}
+                        {isCollapsed && item.badge !== undefined && item.badge !== null && (
+                          <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-purple-600" />
+                        )}
+                      </Link>
+                    );
+                  })}
+                </div>
+              )}
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Bottom Section: Theme Switcher & Compact Profile Card */}

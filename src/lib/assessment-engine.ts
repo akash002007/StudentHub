@@ -595,18 +595,32 @@ export function getQuestions(
     ownerType?: QuestionSource;
     companyId?: string;
     category?: string;
+    topic?: string;
     difficulty?: string;
     type?: string;
     search?: string;
+    status?: "ACTIVE" | "ARCHIVED" | "ALL";
   },
   authUser?: AuthenticatedUser
 ): AssessmentQuestion[] {
-  let list = Array.from(assessmentStore.questions.values()).filter((q) => !q.isArchived);
+  let list = Array.from(assessmentStore.questions.values());
 
-  // RBAC Filter: Recruiters see SYSTEM bank + their own COMPANY bank
+  // Filter archived status
+  if (filters?.status === "ARCHIVED") {
+    list = list.filter((q) => q.isArchived);
+  } else if (filters?.status !== "ALL") {
+    list = list.filter((q) => !q.isArchived);
+  }
+
+  // RBAC Filter: Recruiters see SYSTEM bank + their own COMPANY bank + their own RECRUITER bank
   if (authUser && !["SUPER_ADMIN", "PLATFORM_ADMIN"].includes(authUser.role)) {
     const userCompany = authUser.company_id || "comp_stripe";
-    list = list.filter((q) => q.ownerType === "SYSTEM" || q.companyId === userCompany);
+    list = list.filter(
+      (q) =>
+        q.ownerType === "SYSTEM" ||
+        (q.ownerType === "COMPANY" && q.companyId === userCompany) ||
+        (q.ownerType === "RECRUITER" && (q.createdById === authUser.id || q.companyId === userCompany))
+    );
   }
 
   if (filters?.ownerType) {
@@ -614,6 +628,9 @@ export function getQuestions(
   }
   if (filters?.category) {
     list = list.filter((q) => q.category.toLowerCase() === filters.category!.toLowerCase());
+  }
+  if (filters?.topic) {
+    list = list.filter((q) => q.topic.toLowerCase() === filters.topic!.toLowerCase());
   }
   if (filters?.difficulty) {
     list = list.filter((q) => q.difficulty === filters.difficulty);
@@ -663,14 +680,28 @@ export function saveQuestion(
     }
   }
 
+  // Prevent editing another recruiter's questions
+  if (existing && existing.ownerType === "RECRUITER") {
+    if (existing.createdById !== authUser.id && !["SUPER_ADMIN", "PLATFORM_ADMIN", "COMPANY_ADMIN"].includes(authUser.role)) {
+      return { question: {} as any, error: "Forbidden: Cannot edit another recruiter's question." };
+    }
+  }
+
   const isSystemUser = ["SUPER_ADMIN", "PLATFORM_ADMIN"].includes(authUser.role);
-  const targetOwnerType: QuestionSource = data.ownerType === "SYSTEM" && isSystemUser ? "SYSTEM" : "COMPANY";
+  let targetOwnerType: QuestionSource = "COMPANY";
+  if (data.ownerType === "SYSTEM" && isSystemUser) {
+    targetOwnerType = "SYSTEM";
+  } else if (data.ownerType === "RECRUITER") {
+    targetOwnerType = "RECRUITER";
+  } else {
+    targetOwnerType = "COMPANY";
+  }
   const targetCompany = targetOwnerType === "SYSTEM" ? undefined : authUser.company_id || "comp_stripe";
 
   const question: AssessmentQuestion = {
     id: data.id || `q_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
     ownerType: targetOwnerType,
-    ownerId: targetOwnerType === "SYSTEM" ? "system" : targetCompany || authUser.id,
+    ownerId: targetOwnerType === "SYSTEM" ? "system" : targetOwnerType === "RECRUITER" ? authUser.id : targetCompany || authUser.id,
     companyId: targetCompany,
     createdById: authUser.id,
     createdByName: authUser.name || "Recruiter",
@@ -723,6 +754,10 @@ export function archiveQuestion(
   const userCompany = authUser.company_id || "comp_stripe";
   if (q.ownerType === "COMPANY" && q.companyId !== userCompany && !["SUPER_ADMIN", "PLATFORM_ADMIN"].includes(authUser.role)) {
     return { success: false, error: "Forbidden: Cannot archive another company's question." };
+  }
+
+  if (q.ownerType === "RECRUITER" && q.createdById !== authUser.id && !["SUPER_ADMIN", "PLATFORM_ADMIN", "COMPANY_ADMIN"].includes(authUser.role)) {
+    return { success: false, error: "Forbidden: Cannot archive another recruiter's question." };
   }
 
   q.isArchived = true;

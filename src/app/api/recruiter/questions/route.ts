@@ -13,17 +13,21 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const ownerType = searchParams.get("ownerType") as QuestionSource | null;
     const category = searchParams.get("category") || undefined;
+    const topic = searchParams.get("topic") || undefined;
     const difficulty = searchParams.get("difficulty") || undefined;
     const type = searchParams.get("type") || undefined;
     const search = searchParams.get("search") || undefined;
+    const status = (searchParams.get("status") as "ACTIVE" | "ARCHIVED" | "ALL") || undefined;
 
     const questions = getQuestions(
       {
         ownerType: ownerType || undefined,
         category,
+        topic,
         difficulty,
         type,
         search,
+        status,
       },
       auth.recruiter
     );

@@ -25,6 +25,7 @@ import {
   Send,
   Calendar,
   AlertCircle,
+  Search,
 } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -88,7 +89,8 @@ export default function NewAssessmentPage() {
 
   // Questions Selected
   const [selectedQuestionIds, setSelectedQuestionIds] = useState<string[]>([]);
-  const [questionBankTab, setQuestionBankTab] = useState<"system" | "company" | "create">("system");
+  const [questionBankTab, setQuestionBankTab] = useState<"all" | "system" | "company" | "recruiter" | "create">("all");
+  const [pickerSearch, setPickerSearch] = useState("");
 
   // Inline Question Creator
   const [inlineQText, setInlineQText] = useState("");
@@ -717,11 +719,19 @@ export default function NewAssessmentPage() {
               <div>
                 <h2 className="text-lg font-bold text-foreground">Step 3: Question Bank & Selection</h2>
                 <p className="text-xs text-muted-foreground">
-                  Combine verified StudentHub System questions with your own Company questions or create inline questions.
+                  Combine verified StudentHub System questions, your Company Bank, and your Recruiter questions into a balanced exam.
                 </p>
               </div>
 
-              <div className="flex items-center gap-1.5 p-1 bg-muted rounded-xl">
+              <div className="flex flex-wrap items-center gap-1.5 p-1 bg-muted rounded-xl">
+                <button
+                  onClick={() => setQuestionBankTab("all")}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                    questionBankTab === "all" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
+                  }`}
+                >
+                  All Sources
+                </button>
                 <button
                   onClick={() => setQuestionBankTab("system")}
                   className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
@@ -736,7 +746,15 @@ export default function NewAssessmentPage() {
                     questionBankTab === "company" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
                   }`}
                 >
-                  My Question Bank
+                  Company Bank
+                </button>
+                <button
+                  onClick={() => setQuestionBankTab("recruiter")}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                    questionBankTab === "recruiter" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
+                  }`}
+                >
+                  My Questions
                 </button>
                 <button
                   onClick={() => setQuestionBankTab("create")}
@@ -752,18 +770,49 @@ export default function NewAssessmentPage() {
             {/* Questions Picker */}
             {questionBankTab !== "create" ? (
               <div className="space-y-3">
-                <div className="text-xs text-muted-foreground flex justify-between">
-                  <span>
-                    Showing {questionBankTab === "system" ? "Verified StudentHub Questions" : "Company Questions"}
-                  </span>
-                  <span className="font-bold text-purple-600 dark:text-purple-400">
-                    {selectedQuestionIds.length} Selected
-                  </span>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div className="relative flex-1 max-w-sm">
+                    <Search className="w-3.5 h-3.5 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="text"
+                      value={pickerSearch}
+                      onChange={(e) => setPickerSearch(e.target.value)}
+                      placeholder="Search questions in bank..."
+                      className="w-full pl-8 pr-3 py-1.5 rounded-lg border border-border bg-background text-xs text-foreground focus:outline-none"
+                    />
+                  </div>
+
+                  <div className="text-xs text-muted-foreground flex items-center gap-3">
+                    <span>
+                      {
+                        availableQuestions.filter((q) => {
+                          if (questionBankTab === "system") return q.ownerType === "SYSTEM";
+                          if (questionBankTab === "company") return q.ownerType === "COMPANY";
+                          if (questionBankTab === "recruiter") return q.ownerType === "RECRUITER";
+                          return true;
+                        }).length
+                      }{" "}
+                      questions available
+                    </span>
+                    <span className="font-bold text-purple-600 dark:text-purple-400">
+                      {selectedQuestionIds.length} Selected
+                    </span>
+                  </div>
                 </div>
 
                 <div className="divide-y divide-border border border-border rounded-xl overflow-hidden max-h-96 overflow-y-auto bg-background">
                   {availableQuestions
-                    .filter((q) => (questionBankTab === "system" ? q.ownerType === "SYSTEM" : q.ownerType !== "SYSTEM"))
+                    .filter((q) => {
+                      if (questionBankTab === "system") return q.ownerType === "SYSTEM";
+                      if (questionBankTab === "company") return q.ownerType === "COMPANY";
+                      if (questionBankTab === "recruiter") return q.ownerType === "RECRUITER";
+                      return true;
+                    })
+                    .filter((q) => {
+                      if (!pickerSearch.trim()) return true;
+                      const s = pickerSearch.toLowerCase();
+                      return q.questionText.toLowerCase().includes(s) || q.topic.toLowerCase().includes(s);
+                    })
                     .map((q) => {
                       const isSelected = selectedQuestionIds.includes(q.id);
 
@@ -782,9 +831,22 @@ export default function NewAssessmentPage() {
                             className="w-4 h-4 rounded text-purple-600 mt-0.5"
                           />
                           <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1">
-                              <Badge variant="outline" size="sm">
-                                {q.type}
+                            <div className="flex flex-wrap items-center gap-1.5 mb-1">
+                              <Badge
+                                variant={
+                                  q.ownerType === "SYSTEM"
+                                    ? "purple"
+                                    : q.ownerType === "COMPANY"
+                                    ? "blue"
+                                    : "emerald"
+                                }
+                                size="sm"
+                                className="text-[10px] font-bold"
+                              >
+                                {q.ownerType}
+                              </Badge>
+                              <Badge variant="outline" size="sm" className="text-[10px]">
+                                {q.type.replace("_", " ")}
                               </Badge>
                               <Badge
                                 variant={
@@ -795,6 +857,7 @@ export default function NewAssessmentPage() {
                                     : "rose"
                                 }
                                 size="sm"
+                                className="text-[10px]"
                               >
                                 {q.difficulty}
                               </Badge>
