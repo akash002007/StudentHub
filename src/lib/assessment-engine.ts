@@ -16,6 +16,14 @@ import {
   IntegrityEventType,
   IntegrityActionTaken,
   CandidateAssessmentRecord,
+  AssessmentSection,
+  AssessmentCutoffConfig,
+  AssessmentMeritConfig,
+  SectionScoreSummary,
+  QuestionObjection,
+  AssessmentAuthorization,
+  CutoffType,
+  MeritCriterion,
 } from "@/types";
 import { AuthenticatedUser } from "@/lib/supabase/server";
 import {
@@ -33,6 +41,8 @@ interface AssessmentStoreState {
   assessments: Map<string, AssessmentRecord>;
   attempts: Map<string, AssessmentAttempt>;
   integrityEvents: Map<string, AssessmentIntegrityEvent[]>; // attemptId -> events
+  objections: Map<string, QuestionObjection>;
+  authorizations: Map<string, AssessmentAuthorization>;
 }
 
 declare global {
@@ -48,6 +58,8 @@ function initializeAssessmentStore(): AssessmentStoreState {
   const assessments = new Map<string, AssessmentRecord>();
   const attempts = new Map<string, AssessmentAttempt>();
   const integrityEvents = new Map<string, AssessmentIntegrityEvent[]>();
+  const objections = new Map<string, QuestionObjection>();
+  const authorizations = new Map<string, AssessmentAuthorization>();
 
   // 1. Seed StudentHub System Bank Questions (Created by Admin, read-only to recruiters)
   const systemQuestions: AssessmentQuestion[] = [
@@ -336,6 +348,7 @@ function initializeAssessmentStore(): AssessmentStoreState {
 
   const sampleAssessment: AssessmentRecord = {
     id: "assess_stripe_sde_tech",
+    version: 1,
     title: "Core Algorithms & Distributed Systems Assessment",
     description: "Proctored technical evaluation covering Data Structures, Web Systems, Concurrency, and Payment Idempotency.",
     instructions: "Strict proctored examination. Webcam, microphone, and full-screen display sharing are required. Exiting fullscreen or navigating to other tabs will log an integrity violation.",
@@ -515,6 +528,8 @@ function initializeAssessmentStore(): AssessmentStoreState {
     assessments,
     attempts,
     integrityEvents,
+    objections,
+    authorizations,
   };
 
   loadAssessmentStoreFromDisk(initialStore);
@@ -548,6 +563,16 @@ function loadAssessmentStoreFromDisk(storeObj: AssessmentStoreState): void {
         storeObj.integrityEvents.set(id, evts);
       });
     }
+    if (data.objections && Array.isArray(data.objections)) {
+      data.objections.forEach(([id, obj]: [string, QuestionObjection]) => {
+        storeObj.objections.set(id, obj);
+      });
+    }
+    if (data.authorizations && Array.isArray(data.authorizations)) {
+      data.authorizations.forEach(([id, auth]: [string, AssessmentAuthorization]) => {
+        storeObj.authorizations.set(id, auth);
+      });
+    }
   } catch (err) {
     console.warn("[Assessment Store] Failed loading from disk:", err);
   }
@@ -565,6 +590,8 @@ function persistAssessmentStoreToDisk(): void {
       assessments: Array.from(assessmentStore.assessments.entries()),
       attempts: Array.from(assessmentStore.attempts.entries()),
       integrityEvents: Array.from(assessmentStore.integrityEvents.entries()),
+      objections: Array.from(assessmentStore.objections.entries()),
+      authorizations: Array.from(assessmentStore.authorizations.entries()),
     };
 
     fs.writeFileSync(ASSESSMENT_DB_FILE, JSON.stringify(payload, null, 2), "utf-8");
@@ -954,23 +981,30 @@ export function saveAssessmentConfig(
     return { assessment: {} as any, error: "Forbidden: Cannot edit another company's assessment." };
   }
 
-  // Calculate total marks from selected questions if not already locked
+  // Calculate total marks from sections or selected questions
+  const sections: AssessmentSection[] = Array.isArray(data.sections) ? data.sections : existing?.sections || [];
   const questionIds = Array.isArray(data.questionIds) ? data.questionIds : existing?.questionIds || [];
   let calculatedTotal = 0;
-  questionIds.forEach((qid) => {
-    const q = assessmentStore.questions.get(qid);
-    if (q) calculatedTotal += q.marks;
-  });
+
+  if (sections.length > 0) {
+    calculatedTotal = sections.reduce((acc: number, sec: any) => acc + (Number(sec.totalMarks) || 0), 0);
+  } else {
+    questionIds.forEach((qid) => {
+      const q = assessmentStore.questions.get(qid);
+      if (q) calculatedTotal += q.marks;
+    });
+  }
 
   const duration = Number(data.durationMinutes) > 0 ? Number(data.durationMinutes) : 45;
-  const passMarks = Number(data.passingMarks) > 0 ? Number(data.passingMarks) : Math.round(calculatedTotal * 0.6);
-  const passPct = calculatedTotal > 0 ? Math.round((passMarks / calculatedTotal) * 100) : 60;
+  const passMarks = Number(data.passingMarks) > 0 ? Number(data.passingMarks) : Math.round(calculatedTotal * 0.4);
+  const passPct = calculatedTotal > 0 ? Math.round((passMarks / calculatedTotal) * 100) : 40;
 
   const record: AssessmentRecord = {
     id: data.id || `assess_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+    version: data.version || existing?.version || 1,
     title: data.title.trim(),
     description: data.description ? data.description.trim() : "",
-    instructions: data.instructions ? data.instructions.trim() : "Complete the assessment within the allotted duration.",
+    instructions: data.instructions ? data.instructions.trim() : "Complete the examination within the allotted duration.",
     driveId: drive.id,
     driveTitle: drive.title,
     companyId: userCompany,
@@ -978,6 +1012,7 @@ export function saveAssessmentConfig(
     createdById: authUser.id,
     createdByName: authUser.name || "Recruiter",
     category: data.category || "Technical",
+    examinationType: data.examinationType || existing?.examinationType || "TECHNICAL_EXAM",
     durationMinutes: duration,
     startDateTime: data.startDateTime || existing?.startDateTime,
     endDateTime: data.endDateTime || existing?.endDateTime,
@@ -1003,13 +1038,29 @@ export function saveAssessmentConfig(
       showResultImmediately: true,
       attemptsAllowed: 1,
     },
+    sections: sections.length > 0 ? sections : undefined,
+    cutoffConfig: data.cutoffConfig || existing?.cutoffConfig || {
+      cutoffType: "TOP_N",
+      cutoffValue: 20,
+      type: "TOP_N",
+      value: 20,
+      description: "Top 20 candidates qualify for shortlist",
+    },
+    meritConfig: data.meritConfig || existing?.meritConfig || {
+      primaryCriterion: "TOTAL_SCORE",
+      secondaryCriterion: "SECTION_SCORE",
+      tieBreaker: "SUBMISSION_TIME",
+    },
     totalMarks: calculatedTotal > 0 ? calculatedTotal : Number(data.totalMarks) || 50,
     passingMarks: passMarks,
     passingPercentage: passPct,
     negativeMarkingEnabled: data.negativeMarkingEnabled ?? true,
+    negativeMarkingRate: Number(data.negativeMarkingRate) || 0.33,
+    negativeMarkingType: data.negativeMarkingType || "PERCENTAGE",
     questionIds,
     questionSnapshots: existing?.questionSnapshots,
     assignedCandidateIds: data.assignedCandidateIds || existing?.assignedCandidateIds || [],
+    isVersionLocked: existing?.isVersionLocked || false,
     createdAt: existing ? existing.createdAt : new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     publishedAt: existing?.publishedAt,
@@ -1050,33 +1101,91 @@ export function publishAssessmentConfig(
 
   // Snapshot questions into an immutable version
   const snapshots: AssessmentSnapshotQuestion[] = [];
-  assessment.questionIds.forEach((qid, idx) => {
-    const q = assessmentStore.questions.get(qid);
-    if (q) {
-      snapshots.push({
-        id: `snap_${q.id}_v${q.version}`,
-        originalQuestionId: q.id,
-        source: q.ownerType,
-        type: q.type,
-        questionText: q.questionText,
-        options: q.options ? [...q.options] : [],
-        correctAnswer: q.correctAnswer,
-        marks: q.marks,
-        negativeMarks: q.negativeMarks,
-        difficulty: q.difficulty,
-        category: q.category,
-        topic: q.topic,
-        orderIndex: idx + 1,
-        explanation: q.explanation,
+
+  if (assessment.sections && assessment.sections.length > 0) {
+    const hasSecQuestions = assessment.sections.some((sec) => sec.questionIds && sec.questionIds.length > 0);
+    if (hasSecQuestions) {
+      assessment.sections.forEach((sec) => {
+        (sec.questionIds || []).forEach((qid) => {
+          const q = assessmentStore.questions.get(qid);
+          if (q && !snapshots.some((s) => s.originalQuestionId === q.id)) {
+            snapshots.push({
+              id: `snap_${q.id}_v${q.version}`,
+              originalQuestionId: q.id,
+              sectionId: sec.id,
+              sectionName: sec.name,
+              source: q.ownerType,
+              type: q.type,
+              questionText: q.questionText,
+              options: q.options ? [...q.options] : [],
+              correctAnswer: q.correctAnswer,
+              marks: q.marks,
+              negativeMarks: sec.negativeMarksPerQuestion ?? q.negativeMarks,
+              difficulty: q.difficulty,
+              category: q.category,
+              topic: q.topic,
+              orderIndex: snapshots.length + 1,
+              explanation: q.explanation,
+            });
+          }
+        });
+      });
+    } else {
+      assessment.questionIds.forEach((qid, idx) => {
+        const q = assessmentStore.questions.get(qid);
+        if (q) {
+          const sec = assessment.sections![idx % assessment.sections!.length];
+          snapshots.push({
+            id: `snap_${q.id}_v${q.version}`,
+            originalQuestionId: q.id,
+            sectionId: sec?.id,
+            sectionName: sec?.name,
+            source: q.ownerType,
+            type: q.type,
+            questionText: q.questionText,
+            options: q.options ? [...q.options] : [],
+            correctAnswer: q.correctAnswer,
+            marks: q.marks,
+            negativeMarks: sec?.negativeMarksPerQuestion ?? q.negativeMarks,
+            difficulty: q.difficulty,
+            category: q.category,
+            topic: q.topic,
+            orderIndex: idx + 1,
+            explanation: q.explanation,
+          });
+        }
       });
     }
-  });
+  } else {
+    assessment.questionIds.forEach((qid, idx) => {
+      const q = assessmentStore.questions.get(qid);
+      if (q) {
+        snapshots.push({
+          id: `snap_${q.id}_v${q.version}`,
+          originalQuestionId: q.id,
+          source: q.ownerType,
+          type: q.type,
+          questionText: q.questionText,
+          options: q.options ? [...q.options] : [],
+          correctAnswer: q.correctAnswer,
+          marks: q.marks,
+          negativeMarks: q.negativeMarks,
+          difficulty: q.difficulty,
+          category: q.category,
+          topic: q.topic,
+          orderIndex: idx + 1,
+          explanation: q.explanation,
+        });
+      }
+    });
+  }
 
   const totalMarks = snapshots.reduce((sum, s) => sum + s.marks, 0);
 
   assessment.questionSnapshots = snapshots;
   assessment.totalMarks = totalMarks;
   assessment.status = "ACTIVE";
+  assessment.isVersionLocked = true;
   assessment.publishedAt = new Date().toISOString();
   assessment.updatedAt = new Date().toISOString();
 
@@ -1141,6 +1250,27 @@ export function assignCandidatesToAssessmentConfig(
       };
 
       saveAssessmentRecord(legacyRecord);
+
+      // Generate AssessmentAuthorization record for formal examination audit & access control
+      const authRecord: AssessmentAuthorization = {
+        id: `auth_${assessment.id}_${studentId}`,
+        assessmentId: assessment.id,
+        assessmentTitle: assessment.title,
+        driveId: assessment.driveId,
+        applicationId: app ? app.id : `app_${studentId}`,
+        candidateId: studentId,
+        candidateName: studentName,
+        candidateEmail: app?.studentEmail || `${studentId}@studenthub.internal`,
+        examDate: assessment.schedule?.examDate || new Date().toISOString().slice(0, 10),
+        examWindowStart: assessment.schedule?.windowStart || "09:00",
+        examWindowEnd: assessment.schedule?.windowEnd || "23:59",
+        durationMinutes: assessment.durationMinutes,
+        maxAttempts: assessment.schedule?.maxAttempts || 1,
+        attemptsUsed: 0,
+        status: "AUTHORIZED",
+        authorizedAt: new Date().toISOString(),
+      };
+      assessmentStore.authorizations.set(authRecord.id, authRecord);
 
       try {
         ServerStore.addStudentNotification(studentId, {
@@ -1321,6 +1451,16 @@ export function startAssessmentAttempt(
   };
 
   assessmentStore.attempts.set(attempt.id, attempt);
+
+  const authKey = `auth_${assessment.id}_${studentUser.id}`;
+  const candAuth = assessmentStore.authorizations.get(authKey);
+  if (candAuth) {
+    candAuth.attemptsUsed = (candAuth.attemptsUsed || 0) + 1;
+    candAuth.status = "USED";
+    candAuth.lastAttemptAt = now.toISOString();
+    assessmentStore.authorizations.set(authKey, candAuth);
+  }
+
   persistAssessmentStoreToDisk();
 
   logRecruiterAction({
@@ -1530,6 +1670,23 @@ export function submitAssessmentAttempt(
   // AUTOMATIC EVALUATION ENGINE
   const snapshots = assessment.questionSnapshots || [];
   let totalScore = 0;
+  const sectionScores: Record<string, SectionScoreSummary> = {};
+
+  if (assessment.sections && assessment.sections.length > 0) {
+    assessment.sections.forEach((sec) => {
+      sectionScores[sec.id] = {
+        sectionId: sec.id,
+        sectionName: sec.name,
+        score: 0,
+        maxMarks: sec.totalMarks,
+        percentage: 0,
+        passed: true,
+        correctCount: 0,
+        wrongCount: 0,
+        unansweredCount: 0,
+      };
+    });
+  }
 
   snapshots.forEach((snap) => {
     const candAns = attempt.answers[snap.id];
@@ -1557,17 +1714,48 @@ export function submitAssessmentAttempt(
       marksAwarded = isCorrect ? snap.marks : assessment.negativeMarkingEnabled ? -snap.negativeMarks : 0;
       candAns.isCorrect = isCorrect;
       candAns.marksAwarded = marksAwarded;
+
+      if (snap.sectionId && sectionScores[snap.sectionId]) {
+        if (isCorrect) {
+          sectionScores[snap.sectionId].correctCount++;
+        } else {
+          sectionScores[snap.sectionId].wrongCount++;
+        }
+        sectionScores[snap.sectionId].score += marksAwarded;
+      }
     } else {
       marksAwarded = 0;
+      if (snap.sectionId && sectionScores[snap.sectionId]) {
+        sectionScores[snap.sectionId].unansweredCount++;
+      }
     }
 
     totalScore += marksAwarded;
   });
 
+  // Finalize section scores
+  Object.values(sectionScores).forEach((sec) => {
+    sec.score = Math.max(0, Math.round(sec.score * 10) / 10);
+    sec.percentage = sec.maxMarks > 0 ? Math.round((sec.score / sec.maxMarks) * 100) : 0;
+    const secDef = assessment.sections?.find((s) => s.id === sec.sectionId);
+    if (secDef?.cutoffMarks) {
+      sec.passed = sec.score >= secDef.cutoffMarks;
+    }
+  });
+
   const finalScore = Math.max(0, Math.round(totalScore * 10) / 10);
   attempt.totalScore = finalScore;
   attempt.percentage = assessment.totalMarks > 0 ? Math.round((finalScore / assessment.totalMarks) * 100) : 0;
-  attempt.passed = finalScore >= assessment.passingMarks;
+  
+  let passed = finalScore >= assessment.passingMarks;
+  if (passed && assessment.sections) {
+    const anySecFailed = assessment.sections.some(
+      (s) => s.cutoffMarks && sectionScores[s.id] && !sectionScores[s.id].passed
+    );
+    if (anySecFailed) passed = false;
+  }
+  attempt.passed = passed;
+  attempt.sectionScores = sectionScores;
   attempt.updatedAt = now.toISOString();
 
   assessmentStore.attempts.set(attemptId, attempt);
@@ -1897,3 +2085,575 @@ export function getIntegrityEventsForAssessment(assessmentId: string): Assessmen
 
   return events.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 }
+
+// ---------------------------------------------------------------------------
+// RPSC-STYLE MERIT LIST, RANKING & TIE-BREAKING ENGINE
+// ---------------------------------------------------------------------------
+
+export function computeMeritList(assessmentId: string): {
+  assessment: AssessmentRecord | null;
+  meritList: AssessmentAttempt[];
+  totalQualified: number;
+  totalAppeared: number;
+  cutoffConfig?: AssessmentCutoffConfig;
+  meritConfig?: AssessmentMeritConfig;
+} {
+  const assessment = assessmentStore.assessments.get(assessmentId);
+  if (!assessment) {
+    return { assessment: null, meritList: [], totalQualified: 0, totalAppeared: 0 };
+  }
+
+  const attempts = Array.from(assessmentStore.attempts.values()).filter(
+    (att) => att.assessmentId === assessmentId && (att.status === "SUBMITTED" || att.status === "AUTO_SUBMITTED")
+  );
+
+  const meritConfig = assessment.meritConfig || {
+    primaryCriterion: "TOTAL_SCORE",
+    secondaryCriterion: "SECTION_SCORE",
+    tieBreakerRule: "SUBMISSION_TIME",
+  };
+
+  // Multi-tier sorting according to formal merit policy
+  const sortedAttempts = [...attempts].sort((a, b) => {
+    // 1. Primary: Total Score (descending)
+    const scoreDiff = (b.totalScore || 0) - (a.totalScore || 0);
+    if (Math.abs(scoreDiff) > 0.001) return scoreDiff;
+
+    // 2. Secondary criterion (e.g. secondary section score)
+    if (meritConfig.secondarySectionId) {
+      const secA = a.sectionScores?.[meritConfig.secondarySectionId]?.score || 0;
+      const secB = b.sectionScores?.[meritConfig.secondarySectionId]?.score || 0;
+      const secDiff = secB - secA;
+      if (Math.abs(secDiff) > 0.001) return secDiff;
+    }
+
+    // 3. Tertiary criterion (e.g. tertiary section score)
+    if (meritConfig.tertiarySectionId) {
+      const secA = a.sectionScores?.[meritConfig.tertiarySectionId]?.score || 0;
+      const secB = b.sectionScores?.[meritConfig.tertiarySectionId]?.score || 0;
+      const secDiff = secB - secA;
+      if (Math.abs(secDiff) > 0.001) return secDiff;
+    }
+
+    // 4. Configured Tie-breaker
+    if (meritConfig.tieBreakerRule === "FEWEST_INCORRECT") {
+      let wrongA = 0;
+      let wrongB = 0;
+      Object.values(a.answers || {}).forEach((ans) => { if (ans.isAnswered && !ans.isCorrect) wrongA++; });
+      Object.values(b.answers || {}).forEach((ans) => { if (ans.isAnswered && !ans.isCorrect) wrongB++; });
+      if (wrongA !== wrongB) return wrongA - wrongB; // fewer wrong answers wins
+    } else if (meritConfig.tieBreakerRule === "ACCURACY") {
+      let attA = 0, corA = 0;
+      let attB = 0, corB = 0;
+      Object.values(a.answers || {}).forEach((ans) => { if (ans.isAnswered) { attA++; if (ans.isCorrect) corA++; } });
+      Object.values(b.answers || {}).forEach((ans) => { if (ans.isAnswered) { attB++; if (ans.isCorrect) corB++; } });
+      const accA = attA > 0 ? corA / attA : 0;
+      const accB = attB > 0 ? corB / attB : 0;
+      if (Math.abs(accB - accA) > 0.001) return accB - accA;
+    }
+
+    // Default tie-break: Earlier submission timestamp wins (RPSC standard for speed/precision)
+    const timeA = a.submittedAt ? new Date(a.submittedAt).getTime() : 0;
+    const timeB = b.submittedAt ? new Date(b.submittedAt).getTime() : 0;
+    return timeA - timeB;
+  });
+
+  // Assign ranks and calculate cutoff qualification
+  const cutoffConfig = assessment.cutoffConfig || {
+    cutoffType: "PERCENTAGE",
+    cutoffValue: assessment.passingPercentage || 40,
+  };
+
+  const totalAppeared = sortedAttempts.length;
+  let totalQualified = 0;
+
+  sortedAttempts.forEach((att, idx) => {
+    const rank = idx + 1;
+    att.meritRank = rank;
+
+    // Check basic minimum passing condition
+    const passedExam = att.passed === true;
+
+    // Check shortlisting cutoff qualification
+    let cutoffCleared = false;
+    switch (cutoffConfig.cutoffType) {
+      case "FIXED_SCORE":
+        cutoffCleared = (att.totalScore || 0) >= (cutoffConfig.cutoffValue || 0);
+        break;
+      case "PERCENTAGE":
+        cutoffCleared = (att.percentage || 0) >= (cutoffConfig.cutoffValue || 0);
+        break;
+      case "TOP_N":
+        cutoffCleared = rank <= (cutoffConfig.cutoffValue || 0);
+        break;
+      case "TOP_PERCENTAGE": {
+        const topLimit = Math.max(1, Math.ceil(totalAppeared * ((cutoffConfig.cutoffValue || 20) / 100)));
+        cutoffCleared = rank <= topLimit;
+        break;
+      }
+      case "SECTIONAL":
+        cutoffCleared = passedExam;
+        break;
+      default:
+        cutoffCleared = passedExam;
+    }
+
+    att.cutoffCleared = cutoffCleared && passedExam;
+    if (att.cutoffCleared) totalQualified++;
+
+    // Update attempt in store
+    assessmentStore.attempts.set(att.id, att);
+  });
+
+  persistAssessmentStoreToDisk();
+
+  return {
+    assessment,
+    meritList: sortedAttempts,
+    totalQualified,
+    totalAppeared,
+    cutoffConfig,
+    meritConfig,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// CANDIDATE SHORTLISTING & PIPELINE TRANSITIONS
+// ---------------------------------------------------------------------------
+
+export function shortlistCandidates(
+  assessmentId: string,
+  candidateIds: string[],
+  action: "SHORTLIST" | "REJECT" | "MOVE_TO_INTERVIEW",
+  authUser: AuthenticatedUser,
+  notes?: string
+): { success: boolean; count: number; error?: string } {
+  const assessment = assessmentStore.assessments.get(assessmentId);
+  if (!assessment) return { success: false, count: 0, error: "Assessment not found." };
+
+  let processedCount = 0;
+
+  candidateIds.forEach((candidateId) => {
+    // Find attempt
+    const attempt = Array.from(assessmentStore.attempts.values()).find(
+      (att) => att.assessmentId === assessmentId && (att.studentId === candidateId || att.applicationId === candidateId)
+    );
+
+    if (attempt) {
+      attempt.shortlistStatus = action === "SHORTLIST" ? "SHORTLISTED" : action === "REJECT" ? "REJECTED" : "INTERVIEW_SCHEDULED";
+      attempt.updatedAt = new Date().toISOString();
+      assessmentStore.attempts.set(attempt.id, attempt);
+    }
+
+    // Update Application in recruitment pipeline
+    const appId = attempt?.applicationId || candidateId;
+    performCandidateStageAction(assessmentId, appId, action, notes, authUser);
+    processedCount++;
+  });
+
+  persistAssessmentStoreToDisk();
+
+  logRecruiterAction({
+    driveId: assessment.driveId,
+    driveTitle: assessment.driveTitle,
+    actorId: authUser.id,
+    actorName: authUser.name || "Recruiter",
+    actorRole: authUser.role,
+    action: `CANDIDATES_BULK_${action}`,
+    targetType: "ASSESSMENT",
+    targetId: assessment.id,
+    targetName: assessment.title,
+    details: `Applied bulk ${action} to ${processedCount} candidates from Merit List.`,
+  });
+
+  return { success: true, count: processedCount };
+}
+
+// ---------------------------------------------------------------------------
+// ASSESSMENT VERSIONING (IMMUTABILITY CONTROL)
+// ---------------------------------------------------------------------------
+
+export function createNewAssessmentVersion(
+  assessmentId: string,
+  authUser: AuthenticatedUser
+): { success: boolean; newAssessment?: AssessmentRecord; error?: string } {
+  const existing = assessmentStore.assessments.get(assessmentId);
+  if (!existing) return { success: false, error: "Assessment not found." };
+
+  const currentVersion = existing.version || 1;
+  const newVersion = currentVersion + 1;
+  const newId = `assess_${Date.now()}_v${newVersion}`;
+
+  const clonedAssessment: AssessmentRecord = {
+    ...existing,
+    id: newId,
+    title: `${existing.title.replace(/ \(v\d+\)$/, "")} (v${newVersion})`,
+    version: newVersion,
+    status: "DRAFT",
+    isVersionLocked: false,
+    assignedCandidateIds: [], // New version requires re-assignment or scheduled transition
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+
+  assessmentStore.assessments.set(newId, clonedAssessment);
+  persistAssessmentStoreToDisk();
+
+  logRecruiterAction({
+    driveId: existing.driveId,
+    driveTitle: existing.driveTitle,
+    actorId: authUser.id,
+    actorName: authUser.name || "Recruiter",
+    actorRole: authUser.role,
+    action: "ASSESSMENT_VERSION_CREATED",
+    targetType: "ASSESSMENT",
+    targetId: newId,
+    targetName: clonedAssessment.title,
+    details: `Created new mutable Version ${newVersion} from ${existing.title} (v${currentVersion}). Original version remains immutable.`,
+  });
+
+  return { success: true, newAssessment: clonedAssessment };
+}
+
+// ---------------------------------------------------------------------------
+// QUESTION PAPER BLUEPRINT GENERATOR
+// ---------------------------------------------------------------------------
+
+export interface BlueprintSectionRequest {
+  sectionId: string;
+  name: string;
+  easyCount: number;
+  mediumCount: number;
+  hardCount: number;
+  category?: string;
+  topic?: string;
+  marksPerEasy?: number;
+  marksPerMedium?: number;
+  marksPerHard?: number;
+  negativeRate?: number;
+}
+
+export function generatePaperFromBlueprint(
+  sections: BlueprintSectionRequest[],
+  companyId: string,
+  authUser: AuthenticatedUser
+): { success: boolean; snapshots?: AssessmentSnapshotQuestion[]; totalQuestions?: number; totalMarks?: number; error?: string } {
+  const allQuestions = Array.from(assessmentStore.questions.values()).filter((q) => !q.isArchived);
+
+  // Available pools: SYSTEM questions + COMPANY questions belonging to company + RECRUITER questions created by user
+  const pool = allQuestions.filter(
+    (q) =>
+      q.ownerType === "SYSTEM" ||
+      (q.ownerType === "COMPANY" && q.companyId === companyId) ||
+      (q.createdById === authUser.id)
+  );
+
+  const selectedSnapshots: AssessmentSnapshotQuestion[] = [];
+  let currentOrder = 1;
+
+  for (const sec of sections) {
+    const secPool = pool.filter((q) => {
+      if (sec.category && sec.category !== "All" && q.category !== sec.category) return false;
+      if (sec.topic && sec.topic !== "All" && q.topic !== sec.topic) return false;
+      return true;
+    });
+
+    const easyAvailable = secPool.filter((q) => q.difficulty === "EASY");
+    const medAvailable = secPool.filter((q) => q.difficulty === "MEDIUM");
+    const hardAvailable = secPool.filter((q) => q.difficulty === "HARD");
+
+    // Formal blueprint validation check
+    if (easyAvailable.length < sec.easyCount) {
+      return {
+        success: false,
+        error: `Section '${sec.name}' requires ${sec.easyCount} Easy questions, but only ${easyAvailable.length} matching questions are available in the Question Bank.`,
+      };
+    }
+    if (medAvailable.length < sec.mediumCount) {
+      return {
+        success: false,
+        error: `Section '${sec.name}' requires ${sec.mediumCount} Medium questions, but only ${medAvailable.length} matching questions are available in the Question Bank.`,
+      };
+    }
+    if (hardAvailable.length < sec.hardCount) {
+      return {
+        success: false,
+        error: `Section '${sec.name}' requires ${sec.hardCount} Hard questions, but only ${hardAvailable.length} matching questions are available in the Question Bank.`,
+      };
+    }
+
+    // Pick randomized subset from each tier
+    const pickRandom = (arr: AssessmentQuestion[], count: number) => {
+      const shuffled = [...arr].sort(() => Math.random() - 0.5);
+      return shuffled.slice(0, count);
+    };
+
+    const chosenEasy = pickRandom(easyAvailable, sec.easyCount);
+    const chosenMed = pickRandom(medAvailable, sec.mediumCount);
+    const chosenHard = pickRandom(hardAvailable, sec.hardCount);
+
+    const chosenAll = [...chosenEasy, ...chosenMed, ...chosenHard];
+
+    chosenAll.forEach((q) => {
+      const marks =
+        q.difficulty === "EASY" && sec.marksPerEasy
+          ? sec.marksPerEasy
+          : q.difficulty === "MEDIUM" && sec.marksPerMedium
+          ? sec.marksPerMedium
+          : q.difficulty === "HARD" && sec.marksPerHard
+          ? sec.marksPerHard
+          : q.marks;
+
+      const negativeMarks =
+        sec.negativeRate !== undefined
+          ? Math.round(marks * sec.negativeRate * 100) / 100
+          : q.negativeMarks;
+
+      selectedSnapshots.push({
+        id: `snap_${sec.sectionId}_${q.id}`,
+        originalQuestionId: q.id,
+        source: q.ownerType,
+        type: q.type,
+        questionText: q.questionText,
+        options: q.options ? [...q.options] : [],
+        correctAnswer: q.correctAnswer,
+        marks,
+        negativeMarks,
+        difficulty: q.difficulty,
+        category: q.category,
+        topic: q.topic,
+        orderIndex: currentOrder++,
+        explanation: q.explanation,
+        sectionId: sec.sectionId,
+        sectionName: sec.name,
+      });
+    });
+  }
+
+  const totalMarks = selectedSnapshots.reduce((acc, q) => acc + q.marks, 0);
+
+  return {
+    success: true,
+    snapshots: selectedSnapshots,
+    totalQuestions: selectedSnapshots.length,
+    totalMarks,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// QUESTION OBJECTION & RE-EVALUATION SYSTEM
+// ---------------------------------------------------------------------------
+
+export function submitQuestionObjection(params: {
+  assessmentId: string;
+  attemptId: string;
+  questionId: string;
+  objectionType: "WRONG_ANSWER_KEY" | "AMBIGUOUS_QUESTION" | "INCORRECT_QUESTION" | "TECHNICAL_ISSUE";
+  description: string;
+  proposedAnswer?: string;
+  candidateId: string;
+  candidateName: string;
+}): { success: boolean; objection: QuestionObjection; error?: string } {
+  const assessment = assessmentStore.assessments.get(params.assessmentId);
+  if (!assessment) return { success: false, objection: {} as any, error: "Assessment not found." };
+
+  const objectionId = `obj_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+  const newObjection: QuestionObjection = {
+    id: objectionId,
+    assessmentId: params.assessmentId,
+    attemptId: params.attemptId,
+    questionId: params.questionId,
+    candidateId: params.candidateId,
+    candidateName: params.candidateName,
+    objectionType: params.objectionType,
+    description: params.description,
+    proposedAnswer: params.proposedAnswer,
+    status: "SUBMITTED",
+    createdAt: new Date().toISOString(),
+  };
+
+  assessmentStore.objections.set(objectionId, newObjection);
+  persistAssessmentStoreToDisk();
+
+  return { success: true, objection: newObjection };
+}
+
+export function getQuestionObjections(assessmentId: string): QuestionObjection[] {
+  return Array.from(assessmentStore.objections.values())
+    .filter((obj) => obj.assessmentId === assessmentId)
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+}
+
+export function resolveQuestionObjection(
+  objectionId: string,
+  status: "ACCEPTED" | "REJECTED",
+  resolutionNotes: string,
+  authUser: AuthenticatedUser
+): { success: boolean; objection?: QuestionObjection; error?: string } {
+  const objection = assessmentStore.objections.get(objectionId);
+  if (!objection) return { success: false, error: "Objection not found." };
+
+  objection.status = status;
+  objection.resolutionNotes = resolutionNotes;
+  objection.resolvedAt = new Date().toISOString();
+  objection.resolvedBy = authUser.name || authUser.id;
+
+  assessmentStore.objections.set(objectionId, objection);
+  persistAssessmentStoreToDisk();
+
+  logRecruiterAction({
+    driveId: "recruitment_drive",
+    driveTitle: "Recruitment Examination",
+    actorId: authUser.id,
+    actorName: authUser.name || "Recruiter",
+    actorRole: authUser.role,
+    action: `OBJECTION_${status}`,
+    targetType: "ASSESSMENT",
+    targetId: objection.assessmentId,
+    targetName: `Objection on Question ${objection.questionId}`,
+    details: `Resolved candidate objection as ${status}. Notes: ${resolutionNotes}`,
+  });
+
+  return { success: true, objection };
+}
+
+export function reevaluateAssessment(
+  assessmentId: string,
+  updatedAnswerKeys: Record<string, any>, // questionSnapshotId -> corrected answer
+  authUser: AuthenticatedUser
+): { success: boolean; reevaluatedCount: number; error?: string } {
+  const assessment = assessmentStore.assessments.get(assessmentId);
+  if (!assessment) return { success: false, reevaluatedCount: 0, error: "Assessment not found." };
+
+  // 1. Update snapshot answers
+  (assessment.questionSnapshots || []).forEach((snap) => {
+    if (updatedAnswerKeys[snap.id] !== undefined) {
+      snap.correctAnswer = updatedAnswerKeys[snap.id];
+    }
+  });
+
+  assessmentStore.assessments.set(assessmentId, assessment);
+
+  // 2. Re-evaluate all submitted attempts
+  const attempts = Array.from(assessmentStore.attempts.values()).filter(
+    (att) => att.assessmentId === assessmentId && (att.status === "SUBMITTED" || att.status === "AUTO_SUBMITTED")
+  );
+
+  attempts.forEach((att) => {
+    let totalScore = 0;
+    const snapshots = assessment.questionSnapshots || [];
+
+    snapshots.forEach((snap) => {
+      const candAns = att.answers[snap.id];
+      if (candAns && candAns.isAnswered) {
+        let isCorrect = false;
+        if (snap.type === "SINGLE_CHOICE" || snap.type === "TRUE_FALSE") {
+          isCorrect = String(candAns.answer).trim().toLowerCase() === String(snap.correctAnswer).trim().toLowerCase();
+        } else if (snap.type === "MULTIPLE_CHOICE") {
+          const expectedArr = Array.isArray(snap.correctAnswer) ? snap.correctAnswer : [snap.correctAnswer];
+          const candArr = Array.isArray(candAns.answer) ? candAns.answer : [candAns.answer];
+          const normExp = expectedArr.map((e) => String(e).trim().toLowerCase()).sort();
+          const normCand = candArr.map((c) => String(c).trim().toLowerCase()).sort();
+          isCorrect = normExp.length === normCand.length && normExp.every((v, i) => v === normCand[i]);
+        } else if (snap.type === "SHORT_ANSWER") {
+          isCorrect = String(candAns.answer).trim().toLowerCase() === String(snap.correctAnswer).trim().toLowerCase();
+        }
+
+        const marks = isCorrect ? snap.marks : assessment.negativeMarkingEnabled ? -snap.negativeMarks : 0;
+        candAns.isCorrect = isCorrect;
+        candAns.marksAwarded = marks;
+
+        if (snap.sectionId && att.sectionScores && att.sectionScores[snap.sectionId]) {
+          // Will recalculate below
+        }
+      }
+    });
+
+    // Recalculate section scores
+    if (att.sectionScores) {
+      Object.keys(att.sectionScores).forEach((secId) => {
+        const secDef = assessment.sections?.find((s) => s.id === secId);
+        const secSnaps = snapshots.filter((s) => s.sectionId === secId);
+        let secScore = 0;
+        let correct = 0;
+        let wrong = 0;
+        let unans = 0;
+
+        secSnaps.forEach((s) => {
+          const ans = att.answers[s.id];
+          if (ans && ans.isAnswered) {
+            secScore += ans.marksAwarded || 0;
+            if (ans.isCorrect) correct++; else wrong++;
+          } else {
+            unans++;
+          }
+        });
+
+        secScore = Math.max(0, Math.round(secScore * 10) / 10);
+        const maxMarks = secDef?.totalMarks || 1;
+        const pct = Math.round((secScore / maxMarks) * 100);
+        const passed = secDef?.cutoffMarks ? secScore >= secDef.cutoffMarks : true;
+
+        att.sectionScores![secId] = {
+          sectionId: secId,
+          sectionName: secDef?.name || "Section",
+          score: secScore,
+          maxMarks,
+          percentage: pct,
+          passed,
+          correctCount: correct,
+          wrongCount: wrong,
+          unansweredCount: unans,
+        };
+      });
+    }
+
+    // Recalculate total score
+    totalScore = Object.values(att.answers).reduce((sum, a) => sum + (a.marksAwarded || 0), 0);
+    const finalScore = Math.max(0, Math.round(totalScore * 10) / 10);
+    att.totalScore = finalScore;
+    att.percentage = assessment.totalMarks > 0 ? Math.round((finalScore / assessment.totalMarks) * 100) : 0;
+
+    let passed = finalScore >= assessment.passingMarks;
+    if (passed && assessment.sections) {
+      const anySecFailed = assessment.sections.some(
+        (s) => s.cutoffMarks && att.sectionScores?.[s.id] && !att.sectionScores[s.id].passed
+      );
+      if (anySecFailed) passed = false;
+    }
+    att.passed = passed;
+    att.updatedAt = new Date().toISOString();
+
+    assessmentStore.attempts.set(att.id, att);
+  });
+
+  // Re-compute merit list with new scores
+  computeMeritList(assessmentId);
+  persistAssessmentStoreToDisk();
+
+  logRecruiterAction({
+    driveId: assessment.driveId,
+    driveTitle: assessment.driveTitle,
+    actorId: authUser.id,
+    actorName: authUser.name || "Recruiter",
+    actorRole: authUser.role,
+    action: "ASSESSMENT_REEVALUATED",
+    targetType: "ASSESSMENT",
+    targetId: assessment.id,
+    targetName: assessment.title,
+    details: `Re-evaluated ${attempts.length} candidate attempts following question key correction. Merit rankings and cutoffs updated.`,
+  });
+
+  return { success: true, reevaluatedCount: attempts.length };
+}
+
+// ---------------------------------------------------------------------------
+// ASSESSMENT AUTHORIZATIONS
+// ---------------------------------------------------------------------------
+
+export function getAssessmentAuthorizations(assessmentId: string): AssessmentAuthorization[] {
+  return Array.from(assessmentStore.authorizations.values())
+    .filter((auth) => auth.assessmentId === assessmentId)
+    .sort((a, b) => new Date(b.authorizedAt || b.createdAt || 0).getTime() - new Date(a.authorizedAt || a.createdAt || 0).getTime());
+}
+

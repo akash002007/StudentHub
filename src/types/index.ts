@@ -1543,9 +1543,57 @@ export interface AssessmentCandidateRules {
   attemptsAllowed: number;
 }
 
+export interface AssessmentSection {
+  id: string;
+  name: string; // e.g. "Technical Knowledge", "Aptitude", "General Awareness", "Problem Solving"
+  description?: string;
+  orderIndex: number;
+  totalQuestions: number;
+  questionCount?: number;
+  totalMarks: number;
+  negativeMarksPerQuestion: number;
+  cutoffMarks?: number; // Sectional minimum qualification
+  questionIds?: string[];
+  easyCount?: number;
+  mediumCount?: number;
+  hardCount?: number;
+  blueprint?: {
+    easyCount: number;
+    mediumCount: number;
+    hardCount: number;
+    topics?: string[];
+  };
+}
+
+export type CutoffType = "FIXED_SCORE" | "PERCENTAGE" | "TOP_N" | "TOP_PERCENTAGE" | "SECTIONAL";
+
+export interface AssessmentCutoffConfig {
+  type?: CutoffType;
+  value?: number; // e.g., 70 for 70 pts or 70%, 20 for Top 20 or Top 20%
+  cutoffType: CutoffType;
+  cutoffValue: number;
+  sectionalMinimums?: Record<string, number>; // sectionId -> min score or percentage
+  sectionalCutoffs?: { sectionId: string; minMarks: number }[];
+  description?: string;
+}
+
+export type MeritCriterion = "TOTAL_SCORE" | "SECTION_SCORE" | "SUBMISSION_TIME" | "PERCENTAGE" | "ACCURACY";
+
+export interface AssessmentMeritConfig {
+  primaryCriterion: MeritCriterion;
+  secondaryCriterion?: MeritCriterion;
+  secondarySectionId?: string;
+  tertiaryCriterion?: MeritCriterion;
+  tertiarySectionId?: string;
+  tieBreakerRule?: "SUBMISSION_TIME" | "FEWEST_INCORRECT" | "ACCURACY" | "SECTION_PRIORITY";
+  tieBreaker?: string;
+}
+
 export interface AssessmentSnapshotQuestion {
   id: string;
   originalQuestionId: string;
+  sectionId?: string;
+  sectionName?: string;
   source: QuestionSource;
   type: QuestionType;
   questionText: string;
@@ -1562,6 +1610,7 @@ export interface AssessmentSnapshotQuestion {
 
 export interface AssessmentRecord {
   id: string;
+  version: number;
   title: string;
   description: string;
   instructions: string;
@@ -1572,6 +1621,7 @@ export interface AssessmentRecord {
   createdById: string;
   createdByName: string;
   category: QuestionCategory;
+  examinationType?: string;
   durationMinutes: number;
   startDateTime?: string;
   endDateTime?: string;
@@ -1579,13 +1629,26 @@ export interface AssessmentRecord {
   mode: AssessmentMode;
   proctoringConfig: ProctoringConfig;
   candidateRules: AssessmentCandidateRules;
+  sections?: AssessmentSection[];
+  cutoffConfig?: AssessmentCutoffConfig;
+  meritConfig?: AssessmentMeritConfig;
   totalMarks: number;
   passingMarks: number;
   passingPercentage: number;
   negativeMarkingEnabled: boolean;
+  negativeMarkingRate?: number; // e.g. 0.33, 0.5, 0.25
+  negativeMarkingType?: "FIXED" | "PERCENTAGE" | "NONE";
   questionIds: string[];
   questionSnapshots?: AssessmentSnapshotQuestion[];
   assignedCandidateIds: string[]; // Application IDs or Student IDs
+  isVersionLocked?: boolean;
+  schedule?: {
+    examDate?: string;
+    windowStart?: string;
+    windowEnd?: string;
+    lateEntryGraceMinutes?: number;
+    maxAttempts?: number;
+  };
   createdAt: string;
   updatedAt: string;
   publishedAt?: string;
@@ -1605,6 +1668,7 @@ export type AttemptStatus =
 
 export interface AttemptAnswer {
   questionId: string;
+  sectionId?: string;
   answer: string | string[];
   isAnswered: boolean;
   answeredAt: string;
@@ -1613,9 +1677,22 @@ export interface AttemptAnswer {
   marksAwarded?: number;
 }
 
+export interface SectionScoreSummary {
+  sectionId: string;
+  sectionName: string;
+  score: number;
+  maxMarks: number;
+  percentage: number;
+  passed?: boolean;
+  correctCount: number;
+  wrongCount: number;
+  unansweredCount: number;
+}
+
 export interface AssessmentAttempt {
   id: string;
   assessmentId: string;
+  assessmentVersion?: number;
   assessmentTitle: string;
   studentId: string;
   studentName: string;
@@ -1632,16 +1709,62 @@ export interface AssessmentAttempt {
   lastActivityAt: string;
   questionOrder: string[]; // Deterministic question order per attempt
   answers: Record<string, AttemptAnswer>; // questionId -> AttemptAnswer
+  sectionScores?: Record<string, SectionScoreSummary>;
   totalScore?: number;
   maxScore: number;
   percentage?: number;
   passed?: boolean;
+  cutoffCleared?: boolean;
+  meritRank?: number;
+  shortlistStatus?: "PENDING" | "SHORTLISTED" | "WAITLISTED" | "REJECTED" | "MOVED_TO_INTERVIEW" | "INTERVIEW_SCHEDULED";
   integrityStatus: "CLEAN" | "REVIEW" | "TERMINATED";
   violationCount: number;
   pauseReason?: string;
   terminationReason?: string;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface QuestionObjection {
+  id: string;
+  assessmentId: string;
+  attemptId: string;
+  candidateId: string;
+  candidateName: string;
+  questionId: string;
+  questionText?: string;
+  objectionType: "WRONG_ANSWER_KEY" | "AMBIGUOUS_QUESTION" | "INCORRECT_QUESTION" | "TECHNICAL_ISSUE";
+  description: string;
+  proposedAnswer?: string;
+  status: "SUBMITTED" | "UNDER_REVIEW" | "ACCEPTED" | "REJECTED";
+  reviewerId?: string;
+  reviewerName?: string;
+  resolutionNotes?: string;
+  createdAt: string;
+  resolvedAt?: string;
+  resolvedBy?: string;
+}
+
+export interface AssessmentAuthorization {
+  id: string;
+  candidateId: string;
+  candidateName: string;
+  candidateEmail?: string;
+  assessmentId: string;
+  assessmentTitle?: string;
+  applicationId: string;
+  driveId: string;
+  examDate: string;
+  examWindowStart?: string;
+  examWindowEnd?: string;
+  durationMinutes: number;
+  maxAttempts?: number;
+  attemptNumber?: number;
+  attemptsUsed?: number;
+  lastAttemptAt?: string;
+  status: "AUTHORIZED" | "USED" | "EXPIRED" | "CANCELLED";
+  authorizedAt?: string;
+  createdAt?: string;
 }
 
 export type IntegrityEventType =

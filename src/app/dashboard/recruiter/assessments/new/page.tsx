@@ -26,6 +26,10 @@ import {
   Calendar,
   AlertCircle,
   Search,
+  BookOpen,
+  Filter,
+  RefreshCw,
+  Info,
 } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -40,17 +44,29 @@ import {
   QuestionCategory,
   QuestionType,
   QuestionDifficulty,
+  AssessmentSection,
+  CutoffType,
+  MeritCriterion,
+  AssessmentCutoffConfig,
+  AssessmentMeritConfig,
 } from "@/types";
 
 const STEPS = [
   { id: 1, name: "Basic Info", icon: FileText },
-  { id: 2, name: "Settings", icon: Sliders },
-  { id: 3, name: "Questions", icon: Sparkles },
-  { id: 4, name: "Scoring", icon: Award },
-  { id: 5, name: "Proctoring", icon: Shield },
-  { id: 6, name: "Candidate Rules", icon: HelpCircle },
-  { id: 7, name: "Preview", icon: Eye },
-  { id: 8, name: "Publish", icon: Send },
+  { id: 2, name: "Drive", icon: Building2 },
+  { id: 3, name: "Pattern", icon: Sliders },
+  { id: 4, name: "Sections", icon: Layers },
+  { id: 5, name: "Blueprint", icon: Sparkles },
+  { id: 6, name: "Question Bank", icon: Search },
+  { id: 7, name: "Scoring", icon: Award },
+  { id: 8, name: "Negative Marking", icon: AlertTriangle },
+  { id: 9, name: "Cutoff", icon: Sliders },
+  { id: 10, name: "Merit & Ranking", icon: Award },
+  { id: 11, name: "Proctoring", icon: Shield },
+  { id: 12, name: "Schedule", icon: Calendar },
+  { id: 13, name: "Candidate Rules", icon: HelpCircle },
+  { id: 14, name: "Preview", icon: Eye },
+  { id: 15, name: "Publish", icon: Send },
 ];
 
 export default function NewAssessmentPage() {
@@ -64,33 +80,75 @@ export default function NewAssessmentPage() {
   const [availableQuestions, setAvailableQuestions] = useState<AssessmentQuestion[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
+  const [isGeneratingBlueprint, setIsGeneratingBlueprint] = useState(false);
 
-  // Form State
+  // Form State - Step 1: Basic Info
   const [assessmentId, setAssessmentId] = useState<string>(editId || "");
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
+  const [title, setTitle] = useState("Software Engineer Technical Examination");
+  const [description, setDescription] = useState("Formal recruitment examination for assessing algorithmic capabilities, system architecture, and core computer science foundations.");
   const [instructions, setInstructions] = useState(
-    "Please ensure your camera, microphone, and full screen sharing are turned on before beginning. Do not switch tabs or exit fullscreen during the examination."
+    "Please ensure your camera, microphone, and entire screen sharing are active. Once initiated, exiting fullscreen or navigating away will log an integrity violation."
   );
-  const [selectedDriveId, setSelectedDriveId] = useState("");
   const [category, setCategory] = useState<QuestionCategory>("Technical");
-  const [durationMinutes, setDurationMinutes] = useState(45);
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const [examinationType, setExaminationType] = useState<string>("Technical Examination");
 
-  // Settings
-  const [attemptsAllowed, setAttemptsAllowed] = useState(1);
-  const [randomizeQuestions, setRandomizeQuestions] = useState(false);
-  const [randomizeOptions, setRandomizeOptions] = useState(false);
-  const [allowBackNavigation, setAllowBackNavigation] = useState(true);
-  const [autoSubmitOnTimeout, setAutoSubmitOnTimeout] = useState(true);
-  const [showResultImmediately, setShowResultImmediately] = useState(true);
-  const [negativeMarkingEnabled, setNegativeMarkingEnabled] = useState(true);
+  // Step 2: Recruitment Drive
+  const [selectedDriveId, setSelectedDriveId] = useState("");
 
-  // Questions Selected
+  // Step 3: Exam Pattern
+  const [totalQuestionsPattern, setTotalQuestionsPattern] = useState(50);
+  const [totalMarksPattern, setTotalMarksPattern] = useState(100);
+  const [durationMinutes, setDurationMinutes] = useState(90);
+  const [passingPercentage, setPassingPercentage] = useState(40);
+
+  // Step 4: Sections
+  const [sections, setSections] = useState<AssessmentSection[]>([
+    {
+      id: "sec_tech",
+      name: "Technical Knowledge",
+      description: "Data Structures, Algorithms, and System Architecture",
+      totalQuestions: 25,
+      totalMarks: 50,
+      negativeMarksPerQuestion: 0.33,
+      cutoffMarks: 20,
+      orderIndex: 1,
+      easyCount: 5,
+      mediumCount: 15,
+      hardCount: 5,
+    },
+    {
+      id: "sec_apt",
+      name: "Aptitude & Reasoning",
+      description: "Quantitative Aptitude and Logical Analysis",
+      totalQuestions: 15,
+      totalMarks: 30,
+      negativeMarksPerQuestion: 0.33,
+      cutoffMarks: 10,
+      orderIndex: 2,
+      easyCount: 5,
+      mediumCount: 8,
+      hardCount: 2,
+    },
+    {
+      id: "sec_comm",
+      name: "Communication & Domain",
+      description: "Domain Acumen, Written Technical Communication",
+      totalQuestions: 10,
+      totalMarks: 20,
+      negativeMarksPerQuestion: 0.33,
+      cutoffMarks: 8,
+      orderIndex: 3,
+      easyCount: 4,
+      mediumCount: 4,
+      hardCount: 2,
+    },
+  ]);
+
+  // Step 6: Question Bank & Selected Questions
   const [selectedQuestionIds, setSelectedQuestionIds] = useState<string[]>([]);
   const [questionBankTab, setQuestionBankTab] = useState<"all" | "system" | "company" | "recruiter" | "create">("all");
   const [pickerSearch, setPickerSearch] = useState("");
+  const [selectedSectionForAdd, setSelectedSectionForAdd] = useState("sec_tech");
 
   // Inline Question Creator
   const [inlineQText, setInlineQText] = useState("");
@@ -105,13 +163,26 @@ export default function NewAssessmentPage() {
   const [inlineMarks, setInlineMarks] = useState(2);
   const [inlineNegMarks, setInlineNegMarks] = useState(0.5);
   const [inlineDifficulty, setInlineDifficulty] = useState<QuestionDifficulty>("MEDIUM");
-  const [inlineTopic, setInlineTopic] = useState("Core Engineering");
+  const [inlineTopic, setInlineTopic] = useState("Software Engineering");
   const [inlineExplanation, setInlineExplanation] = useState("");
 
-  // Scoring
-  const [passingPercentage, setPassingPercentage] = useState(60);
+  // Step 8: Negative Marking
+  const [negativeMarkingEnabled, setNegativeMarkingEnabled] = useState(true);
+  const [negativeMarkingType, setNegativeMarkingType] = useState<"PERCENTAGE" | "FIXED" | "NONE">("PERCENTAGE");
+  const [negativeMarkingRate, setNegativeMarkingRate] = useState(0.33);
 
-  // Proctoring
+  // Step 9: Cutoff Rules
+  const [cutoffType, setCutoffType] = useState<CutoffType>("TOP_PERCENTAGE");
+  const [cutoffValue, setCutoffValue] = useState(20); // Top 20%
+  const [sectionalCutoffEnabled, setSectionalCutoffEnabled] = useState(true);
+
+  // Step 10: Merit & Ranking
+  const [primaryCriterion, setPrimaryCriterion] = useState<MeritCriterion>("TOTAL_SCORE");
+  const [secondaryCriterion, setSecondaryCriterion] = useState<MeritCriterion>("SECTION_SCORE");
+  const [secondarySectionId, setSecondarySectionId] = useState("sec_tech");
+  const [tieBreakerRule, setTieBreakerRule] = useState<"SUBMISSION_TIME" | "ACCURACY" | "FEWEST_INCORRECT" | "SECTION_PRIORITY">("SUBMISSION_TIME");
+
+  // Step 11: Proctoring
   const [isProctored, setIsProctored] = useState(true);
   const [cameraRequired, setCameraRequired] = useState(true);
   const [microphoneRequired, setMicrophoneRequired] = useState(true);
@@ -123,6 +194,20 @@ export default function NewAssessmentPage() {
   const [maxWindowViolations, setMaxWindowViolations] = useState(2);
   const [maxFullscreenViolations, setMaxFullscreenViolations] = useState(2);
   const [terminateOnViolationLimit, setTerminateOnViolationLimit] = useState(true);
+
+  // Step 12: Schedule
+  const [examDate, setExamDate] = useState("");
+  const [windowStart, setWindowStart] = useState("09:00");
+  const [windowEnd, setWindowEnd] = useState("18:00");
+  const [lateEntryGraceMinutes, setLateEntryGraceMinutes] = useState(15);
+  const [maxAttempts, setMaxAttempts] = useState(1);
+
+  // Step 13: Candidate Rules
+  const [randomizeQuestions, setRandomizeQuestions] = useState(true);
+  const [randomizeOptions, setRandomizeOptions] = useState(true);
+  const [allowBackNavigation, setAllowBackNavigation] = useState(true);
+  const [autoSubmitOnTimeout, setAutoSubmitOnTimeout] = useState(true);
+  const [showResultImmediately, setShowResultImmediately] = useState(false);
 
   // Load drives and questions
   useEffect(() => {
@@ -175,6 +260,26 @@ export default function NewAssessmentPage() {
         setDurationMinutes(a.durationMinutes);
         setSelectedQuestionIds(a.questionIds || []);
         setIsProctored(a.mode === "PROCTORED");
+        if (a.sections && a.sections.length > 0) {
+          setSections(a.sections);
+        }
+        if (a.cutoffConfig) {
+          setCutoffType(a.cutoffConfig.cutoffType);
+          setCutoffValue(a.cutoffConfig.cutoffValue);
+        }
+        if (a.meritConfig) {
+          setPrimaryCriterion(a.meritConfig.primaryCriterion);
+          setSecondaryCriterion(a.meritConfig.secondaryCriterion || "SECTION_SCORE");
+          setSecondarySectionId(a.meritConfig.secondarySectionId || "");
+          setTieBreakerRule(a.meritConfig.tieBreakerRule || "SUBMISSION_TIME");
+        }
+        if (a.negativeMarkingRate !== undefined) {
+          setNegativeMarkingRate(a.negativeMarkingRate);
+        }
+        if (a.negativeMarkingType) {
+          setNegativeMarkingType(a.negativeMarkingType);
+        }
+        setNegativeMarkingEnabled(a.negativeMarkingEnabled);
         if (a.proctoringConfig) {
           setCameraRequired(a.proctoringConfig.cameraRequired);
           setMicrophoneRequired(a.proctoringConfig.microphoneRequired);
@@ -191,16 +296,22 @@ export default function NewAssessmentPage() {
           setAutoSubmitOnTimeout(a.candidateRules.autoSubmitOnTimeout);
           setShowResultImmediately(a.candidateRules.showResultImmediately);
         }
-        setPassingPercentage(a.passingPercentage || 60);
+        setPassingPercentage(a.passingPercentage || 40);
       }
     } catch (err) {
       console.error("Failed to load draft:", err);
     }
   };
 
-  // Calculate totals
+  // Live Section Totals Calculation
+  const sectionTotalQuestions = sections.reduce((sum, s) => sum + s.totalQuestions, 0);
+  const sectionTotalMarks = sections.reduce((sum, s) => sum + s.totalMarks, 0);
+
+  // Selected questions calculations
   const selectedQuestions = availableQuestions.filter((q) => selectedQuestionIds.includes(q.id));
-  const totalCalculatedMarks = selectedQuestions.reduce((sum, q) => sum + q.marks, 0);
+  const totalCalculatedMarks = selectedQuestions.length > 0
+    ? selectedQuestions.reduce((sum, q) => sum + q.marks, 0)
+    : sectionTotalMarks;
   const passingMarks = Math.round((totalCalculatedMarks * passingPercentage) / 100);
 
   const toggleQuestionSelection = (id: string) => {
@@ -237,7 +348,7 @@ export default function NewAssessmentPage() {
 
       if (res.ok) {
         const data = await res.json();
-        success("Question created and added to assessment!");
+        success("Question added to Question Bank and attached to examination!");
         setAvailableQuestions([data.question, ...availableQuestions]);
         setSelectedQuestionIds([...selectedQuestionIds, data.question.id]);
         setInlineQText("");
@@ -250,6 +361,41 @@ export default function NewAssessmentPage() {
     } catch (err) {
       console.error(err);
       toastError("Failed to save question.");
+    }
+  };
+
+  // Blueprint Generation from Bank
+  const handleGenerateFromBlueprint = async () => {
+    setIsGeneratingBlueprint(true);
+    try {
+      const res = await fetch("/api/recruiter/assessments/blueprint/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sections: sections.map((sec) => ({
+            sectionId: sec.id,
+            name: sec.name,
+            easyCount: sec.easyCount || 0,
+            mediumCount: sec.mediumCount || 0,
+            hardCount: sec.hardCount || 0,
+            negativeRate: negativeMarkingRate,
+          })),
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        const pickedIds = data.snapshots.map((s: any) => s.originalQuestionId);
+        setSelectedQuestionIds(pickedIds);
+        success(`Blueprint validated! Generated paper with ${pickedIds.length} questions matching blueprint distribution.`);
+      } else {
+        toastError(data.error || "Blueprint generation failed. Verify question availability.");
+      }
+    } catch (err) {
+      console.error(err);
+      toastError("Error generating paper from blueprint.");
+    } finally {
+      setIsGeneratingBlueprint(false);
     }
   };
 
@@ -274,6 +420,22 @@ export default function NewAssessmentPage() {
         category,
         durationMinutes,
         mode: isProctored ? "PROCTORED" : "STANDARD",
+        sections,
+        cutoffConfig: {
+          cutoffType,
+          cutoffValue,
+          sectionalCutoffs: sections.map((s) => ({ sectionId: s.id, minMarks: s.cutoffMarks || 0 })),
+        },
+        meritConfig: {
+          primaryCriterion,
+          secondaryCriterion,
+          secondarySectionId,
+          tieBreakerRule,
+        },
+        negativeMarkingEnabled,
+        negativeMarkingRate,
+        negativeMarkingType,
+        examinationType,
         proctoringConfig: {
           cameraRequired,
           microphoneRequired,
@@ -287,17 +449,23 @@ export default function NewAssessmentPage() {
           terminateOnViolationLimit,
         },
         candidateRules: {
-          attemptsAllowed,
+          attemptsAllowed: maxAttempts,
           randomizeQuestions,
           randomizeOptions,
           allowBackNavigation,
           autoSubmitOnTimeout,
           showResultImmediately,
         },
-        totalMarks: totalCalculatedMarks,
+        schedule: {
+          examDate,
+          windowStart,
+          windowEnd,
+          lateEntryGraceMinutes,
+          maxAttempts,
+        },
+        totalMarks: sectionTotalMarks || totalCalculatedMarks,
         passingMarks,
         passingPercentage,
-        negativeMarkingEnabled,
         questionIds: selectedQuestionIds,
         status: "DRAFT",
       };
@@ -311,7 +479,7 @@ export default function NewAssessmentPage() {
       if (res.ok) {
         const data = await res.json();
         setAssessmentId(data.assessment.id);
-        success("Assessment draft saved successfully!");
+        success("Examination draft saved successfully!");
       } else {
         const err = await res.json();
         toastError(err.error || "Failed to save draft.");
@@ -326,14 +494,14 @@ export default function NewAssessmentPage() {
 
   const handlePublishAssessment = async () => {
     if (selectedQuestionIds.length === 0) {
-      toastError("Cannot publish assessment without questions. Please select at least one question.");
-      setCurrentStep(3);
+      toastError("Cannot publish examination without questions. Generate blueprint or select questions.");
+      setCurrentStep(5);
       return;
     }
 
     setIsPublishing(true);
     try {
-      // 1. First ensure current configuration is saved
+      // 1. Save draft configuration first
       const saveRes = await fetch("/api/recruiter/assessments", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -346,6 +514,22 @@ export default function NewAssessmentPage() {
           category,
           durationMinutes,
           mode: isProctored ? "PROCTORED" : "STANDARD",
+          sections,
+          cutoffConfig: {
+            cutoffType,
+            cutoffValue,
+            sectionalCutoffs: sections.map((s) => ({ sectionId: s.id, minMarks: s.cutoffMarks || 0 })),
+          },
+          meritConfig: {
+            primaryCriterion,
+            secondaryCriterion,
+            secondarySectionId,
+            tieBreakerRule,
+          },
+          negativeMarkingEnabled,
+          negativeMarkingRate,
+          negativeMarkingType,
+          examinationType,
           proctoringConfig: {
             cameraRequired,
             microphoneRequired,
@@ -359,983 +543,1340 @@ export default function NewAssessmentPage() {
             terminateOnViolationLimit,
           },
           candidateRules: {
-            attemptsAllowed,
+            attemptsAllowed: maxAttempts,
             randomizeQuestions,
             randomizeOptions,
             allowBackNavigation,
             autoSubmitOnTimeout,
             showResultImmediately,
           },
-          totalMarks: totalCalculatedMarks,
+          schedule: {
+            examDate,
+            windowStart,
+            windowEnd,
+            lateEntryGraceMinutes,
+            maxAttempts,
+          },
+          totalMarks: sectionTotalMarks || totalCalculatedMarks,
           passingMarks,
           passingPercentage,
-          negativeMarkingEnabled,
           questionIds: selectedQuestionIds,
           status: "DRAFT",
         }),
       });
 
-      const saveData = await saveRes.json();
       if (!saveRes.ok) {
-        toastError(saveData.error || "Failed to save assessment before publishing.");
-        setIsPublishing(false);
-        return;
+        const err = await saveRes.json();
+        throw new Error(err.error || "Failed to save configuration prior to publishing.");
       }
 
-      const activeId = saveData.assessment.id;
+      const saveData = await saveRes.json();
+      const targetId = saveData.assessment.id;
 
-      // 2. Snapshot questions and publish
-      const pubRes = await fetch(`/api/recruiter/assessments/${activeId}/publish`, {
+      // 2. Formally publish and lock version
+      const pubRes = await fetch(`/api/recruiter/assessments/${targetId}/publish`, {
         method: "POST",
       });
 
       if (pubRes.ok) {
-        success("Assessment published successfully! Questions are locked and candidates can now be evaluated.");
-        router.push(`/dashboard/recruiter/assessments/${activeId}`);
+        success("Examination published and locked! Now active for candidate assignment.");
+        router.push(`/dashboard/recruiter/assessments/${targetId}`);
       } else {
         const err = await pubRes.json();
         toastError(err.error || "Failed to publish assessment.");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      toastError("An unexpected error occurred during publishing.");
+      toastError(err.message || "Failed to publish assessment.");
     } finally {
       setIsPublishing(false);
     }
   };
 
+  // Readiness Checklist Items
+  const checklist = [
+    { label: "Recruitment Drive selected", valid: !!selectedDriveId },
+    { label: "Paper pattern & duration defined", valid: durationMinutes > 0 && totalMarksPattern > 0 },
+    { label: "Sections defined & totals balanced", valid: sections.length > 0 && sectionTotalQuestions > 0 },
+    { label: "Question Blueprint configured", valid: sections.every((s) => (s.easyCount || 0) + (s.mediumCount || 0) + (s.hardCount || 0) === s.totalQuestions) },
+    { label: "Questions selected or generated", valid: selectedQuestionIds.length > 0 },
+    { label: "Negative marking rules configured", valid: !negativeMarkingEnabled || negativeMarkingRate > 0 },
+    { label: "Passing benchmark configured", valid: passingPercentage > 0 },
+    { label: "Shortlisting Cutoff policy defined", valid: !!cutoffType && cutoffValue > 0 },
+    { label: "Merit ranking & tie-break configured", valid: !!primaryCriterion && !!tieBreakerRule },
+    { label: "Proctoring & violation limits set", valid: !isProctored || (cameraRequired && fullscreenRequired) },
+    { label: "Examination schedule configured", valid: durationMinutes >= 15 },
+    { label: "Candidate rules established", valid: maxAttempts >= 1 },
+  ];
+  const allChecksPass = checklist.every((c) => c.valid);
+
+  const selectedDrive = drives.find((d) => d.id === selectedDriveId);
+
   return (
     <RoleGuard allowedRole="recruiter">
-      <div className="space-y-6 max-w-6xl mx-auto pb-16">
-        {/* Top bar */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <Link href="/dashboard/recruiter/assessments">
-              <Button variant="outline" size="sm" leftIcon={<ArrowLeft className="w-4 h-4" />}>
-                Assessments
-              </Button>
-            </Link>
-            <div>
-              <h1 className="text-xl sm:text-2xl font-extrabold text-foreground tracking-tight">
-                {editId ? "Edit Assessment Draft" : "Assessment Builder"}
-              </h1>
-              <p className="text-xs text-muted-foreground">
-                Step {currentStep} of 8: {STEPS[currentStep - 1].name}
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleSaveDraft}
-              disabled={isSaving || !title}
-            >
-              {isSaving ? "Saving..." : "Save Draft"}
-            </Button>
-            {currentStep < 8 ? (
-              <Button
-                variant="gradient"
-                size="sm"
-                onClick={() => setCurrentStep((prev) => Math.min(8, prev + 1))}
-                rightIcon={<ArrowRight className="w-4 h-4" />}
+      <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 pb-20">
+        {/* Top Header */}
+        <header className="sticky top-0 z-30 border-b border-neutral-200 dark:border-neutral-800 bg-white/95 dark:bg-neutral-900/95 backdrop-blur px-6 py-4">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Link
+                href="/dashboard/recruiter/assessments"
+                className="p-2 text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
               >
-                Next Step
-              </Button>
-            ) : (
+                <ArrowLeft className="w-5 h-5" />
+              </Link>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h1 className="text-xl font-bold text-neutral-900 dark:text-white">
+                    {title || "New Recruitment Examination"}
+                  </h1>
+                  <Badge variant="outline" className="text-xs bg-amber-50 dark:bg-amber-950/40 text-amber-600 border-amber-200">
+                    RPSC EXAM BLUEPRINT
+                  </Badge>
+                  <Badge variant="outline" className="text-xs text-neutral-500">
+                    DRAFT (v1)
+                  </Badge>
+                </div>
+                <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
+                  Structured Paper Pattern • Blueprint Distribution • Controlled Merit & Cutoff
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
               <Button
-                variant="gradient"
+                variant="outline"
+                size="sm"
+                onClick={handleSaveDraft}
+                disabled={isSaving}
+                className="text-xs font-semibold"
+              >
+                {isSaving ? "Saving..." : "Save Draft"}
+              </Button>
+              <Button
                 size="sm"
                 onClick={handlePublishAssessment}
-                disabled={isPublishing}
-                leftIcon={<Send className="w-4 h-4" />}
+                disabled={isPublishing || selectedQuestionIds.length === 0}
+                className="text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white"
               >
-                {isPublishing ? "Publishing..." : "Confirm & Publish"}
+                <Send className="w-3.5 h-3.5 mr-1.5" />
+                {isPublishing ? "Publishing..." : "Publish Examination"}
               </Button>
-            )}
+            </div>
           </div>
-        </div>
 
-        {/* Step Indicator Bar */}
-        <Card className="p-3 border-border bg-card overflow-x-auto">
-          <div className="flex items-center justify-between min-w-[700px] gap-2">
-            {STEPS.map((step) => {
-              const Icon = step.icon;
-              const isCompleted = currentStep > step.id;
-              const isCurrent = currentStep === step.id;
+          {/* Stepper Bar */}
+          <div className="max-w-7xl mx-auto mt-4 overflow-x-auto pb-1 scrollbar-thin">
+            <div className="flex items-center gap-1.5 min-w-max">
+              {STEPS.map((s, idx) => {
+                const Icon = s.icon;
+                const isActive = currentStep === s.id;
+                const isPast = currentStep > s.id;
 
-              return (
-                <button
-                  key={step.id}
-                  onClick={() => setCurrentStep(step.id)}
-                  className={`flex items-center gap-2 py-2 px-3 rounded-xl text-xs font-bold transition-all ${
-                    isCurrent
-                      ? "bg-purple-600 text-white shadow-md shadow-purple-600/20"
-                      : isCompleted
-                      ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-                      : "text-muted-foreground hover:bg-muted"
-                  }`}
-                >
-                  <div
-                    className={`w-6 h-6 rounded-lg flex items-center justify-center text-xs font-extrabold ${
-                      isCurrent
-                        ? "bg-white/20 text-white"
-                        : isCompleted
-                        ? "bg-emerald-500/20 text-emerald-600 dark:text-emerald-400"
-                        : "bg-muted text-muted-foreground"
+                return (
+                  <button
+                    key={s.id}
+                    onClick={() => setCurrentStep(s.id)}
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                      isActive
+                        ? "bg-primary-600 text-white shadow-sm font-semibold"
+                        : isPast
+                        ? "bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 hover:bg-neutral-200 dark:hover:bg-neutral-700"
+                        : "text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300"
                     }`}
                   >
-                    {isCompleted ? <Check className="w-3.5 h-3.5" /> : step.id}
-                  </div>
-                  <span>{step.name}</span>
-                </button>
-              );
-            })}
-          </div>
-        </Card>
-
-        {/* Live Summary Bar */}
-        <div className="p-3 rounded-2xl bg-purple-500/10 border border-purple-500/20 text-xs flex flex-wrap items-center justify-between gap-3 font-semibold">
-          <div className="flex items-center gap-3">
-            <span className="text-foreground font-bold">
-              {title || "Untitled Assessment"}
-            </span>
-            <span className="text-muted-foreground">•</span>
-            <span className="text-purple-600 dark:text-purple-400">
-              {selectedQuestions.length} Questions Selected
-            </span>
-            <span className="text-muted-foreground">•</span>
-            <span>Duration: {durationMinutes} mins</span>
-            <span className="text-muted-foreground">•</span>
-            <span>Total: {totalCalculatedMarks} Marks</span>
-          </div>
-
-          <div>
-            {isProctored ? (
-              <Badge variant="purple" size="sm" className="gap-1 font-bold">
-                <Shield className="w-3 h-3" /> Proctored Mode Active
-              </Badge>
-            ) : (
-              <Badge variant="blue" size="sm">
-                Standard Mode
-              </Badge>
-            )}
-          </div>
-        </div>
-
-        {/* STEP 1: Basic Information */}
-        {currentStep === 1 && (
-          <Card className="p-6 border-border bg-card space-y-6">
-            <div>
-              <h2 className="text-lg font-bold text-foreground">Step 1: Basic Information</h2>
-              <p className="text-xs text-muted-foreground">
-                Set the foundational identity, duration, and target recruitment drive for this test.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              <div className="space-y-1.5 md:col-span-2">
-                <label className="text-xs font-bold text-foreground uppercase tracking-wider">
-                  Assessment Title *
-                </label>
-                <input
-                  type="text"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="e.g. Core Algorithms & Distributed Systems Test"
-                  className="w-full px-3.5 py-2 rounded-xl border border-border bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-purple-500/40"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-foreground uppercase tracking-wider">
-                  Associated Recruitment Drive *
-                </label>
-                <select
-                  value={selectedDriveId}
-                  onChange={(e) => setSelectedDriveId(e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl border border-border bg-background text-sm text-foreground focus:outline-none"
-                >
-                  <option value="">Select a recruitment drive...</option>
-                  {drives.map((d) => (
-                    <option key={d.id} value={d.id}>
-                      {d.title} ({d.company})
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-foreground uppercase tracking-wider">
-                  Assessment Category
-                </label>
-                <select
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value as QuestionCategory)}
-                  className="w-full px-3.5 py-2 rounded-xl border border-border bg-background text-sm text-foreground focus:outline-none"
-                >
-                  <option value="Technical">Technical</option>
-                  <option value="Aptitude">Aptitude</option>
-                  <option value="Communication">Communication</option>
-                  <option value="Domain">Domain</option>
-                  <option value="Mixed">Mixed</option>
-                </select>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-foreground uppercase tracking-wider">
-                  Allocated Duration (Minutes) *
-                </label>
-                <input
-                  type="number"
-                  min={5}
-                  max={240}
-                  value={durationMinutes}
-                  onChange={(e) => setDurationMinutes(Number(e.target.value))}
-                  className="w-full px-3.5 py-2 rounded-xl border border-border bg-background text-sm text-foreground focus:outline-none"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-foreground uppercase tracking-wider">
-                  Description
-                </label>
-                <input
-                  type="text"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Brief summary shown to candidates and evaluation roster"
-                  className="w-full px-3.5 py-2 rounded-xl border border-border bg-background text-sm text-foreground focus:outline-none"
-                />
-              </div>
-
-              <div className="space-y-1.5 md:col-span-2">
-                <label className="text-xs font-bold text-foreground uppercase tracking-wider">
-                  Candidate Examination Instructions
-                </label>
-                <textarea
-                  rows={3}
-                  value={instructions}
-                  onChange={(e) => setInstructions(e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl border border-border bg-background text-xs text-foreground focus:outline-none"
-                />
-              </div>
-            </div>
-          </Card>
-        )}
-
-        {/* STEP 2: Assessment Settings */}
-        {currentStep === 2 && (
-          <Card className="p-6 border-border bg-card space-y-6">
-            <div>
-              <h2 className="text-lg font-bold text-foreground">Step 2: Assessment Settings</h2>
-              <p className="text-xs text-muted-foreground">
-                Configure randomization, navigation constraints, timeout triggers, and instant result visibility.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="p-4 rounded-xl border border-border bg-background flex items-center justify-between">
-                <div>
-                  <h4 className="font-bold text-sm text-foreground">Negative Marking</h4>
-                  <p className="text-xs text-muted-foreground">Deduct configured negative marks for incorrect objective answers</p>
-                </div>
-                <input
-                  type="checkbox"
-                  checked={negativeMarkingEnabled}
-                  onChange={(e) => setNegativeMarkingEnabled(e.target.checked)}
-                  className="w-4 h-4 rounded text-purple-600 focus:ring-purple-500"
-                />
-              </div>
-
-              <div className="p-4 rounded-xl border border-border bg-background flex items-center justify-between">
-                <div>
-                  <h4 className="font-bold text-sm text-foreground">Randomize Questions</h4>
-                  <p className="text-xs text-muted-foreground">Generate deterministic randomized question order per attempt</p>
-                </div>
-                <input
-                  type="checkbox"
-                  checked={randomizeQuestions}
-                  onChange={(e) => setRandomizeQuestions(e.target.checked)}
-                  className="w-4 h-4 rounded text-purple-600 focus:ring-purple-500"
-                />
-              </div>
-
-              <div className="p-4 rounded-xl border border-border bg-background flex items-center justify-between">
-                <div>
-                  <h4 className="font-bold text-sm text-foreground">Allow Back Navigation</h4>
-                  <p className="text-xs text-muted-foreground">Permit candidates to return to previous questions and change answers</p>
-                </div>
-                <input
-                  type="checkbox"
-                  checked={allowBackNavigation}
-                  onChange={(e) => setAllowBackNavigation(e.target.checked)}
-                  className="w-4 h-4 rounded text-purple-600 focus:ring-purple-500"
-                />
-              </div>
-
-              <div className="p-4 rounded-xl border border-border bg-background flex items-center justify-between">
-                <div>
-                  <h4 className="font-bold text-sm text-foreground">Auto-Submit on Timeout</h4>
-                  <p className="text-xs text-muted-foreground">Authoritatively submit exam when server timer expires</p>
-                </div>
-                <input
-                  type="checkbox"
-                  checked={autoSubmitOnTimeout}
-                  onChange={(e) => setAutoSubmitOnTimeout(e.target.checked)}
-                  className="w-4 h-4 rounded text-purple-600 focus:ring-purple-500"
-                />
-              </div>
-
-              <div className="p-4 rounded-xl border border-border bg-background flex items-center justify-between">
-                <div>
-                  <h4 className="font-bold text-sm text-foreground">Show Results Immediately</h4>
-                  <p className="text-xs text-muted-foreground">Allow candidates to view score & evaluated review upon submission</p>
-                </div>
-                <input
-                  type="checkbox"
-                  checked={showResultImmediately}
-                  onChange={(e) => setShowResultImmediately(e.target.checked)}
-                  className="w-4 h-4 rounded text-purple-600 focus:ring-purple-500"
-                />
-              </div>
-
-              <div className="p-4 rounded-xl border border-border bg-background flex items-center justify-between">
-                <div>
-                  <h4 className="font-bold text-sm text-foreground">Attempts Allowed</h4>
-                  <p className="text-xs text-muted-foreground">Strictly limits maximum attempts candidate can perform</p>
-                </div>
-                <span className="font-bold text-sm text-foreground px-3 py-1 bg-muted rounded-lg">1 Attempt</span>
-              </div>
-            </div>
-          </Card>
-        )}
-
-        {/* STEP 3: Question Bank & Selection */}
-        {currentStep === 3 && (
-          <Card className="p-6 border-border bg-card space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div>
-                <h2 className="text-lg font-bold text-foreground">Step 3: Question Bank & Selection</h2>
-                <p className="text-xs text-muted-foreground">
-                  Combine verified StudentHub System questions, your Company Bank, and your Recruiter questions into a balanced exam.
-                </p>
-              </div>
-
-              <div className="flex flex-wrap items-center gap-1.5 p-1 bg-muted rounded-xl">
-                <button
-                  onClick={() => setQuestionBankTab("all")}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                    questionBankTab === "all" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
-                  }`}
-                >
-                  All Sources
-                </button>
-                <button
-                  onClick={() => setQuestionBankTab("system")}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                    questionBankTab === "system" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
-                  }`}
-                >
-                  StudentHub Bank
-                </button>
-                <button
-                  onClick={() => setQuestionBankTab("company")}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                    questionBankTab === "company" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
-                  }`}
-                >
-                  Company Bank
-                </button>
-                <button
-                  onClick={() => setQuestionBankTab("recruiter")}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                    questionBankTab === "recruiter" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
-                  }`}
-                >
-                  My Questions
-                </button>
-                <button
-                  onClick={() => setQuestionBankTab("create")}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                    questionBankTab === "create" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
-                  }`}
-                >
-                  + Create New
-                </button>
-              </div>
-            </div>
-
-            {/* Questions Picker */}
-            {questionBankTab !== "create" ? (
-              <div className="space-y-3">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                  <div className="relative flex-1 max-w-sm">
-                    <Search className="w-3.5 h-3.5 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" />
-                    <input
-                      type="text"
-                      value={pickerSearch}
-                      onChange={(e) => setPickerSearch(e.target.value)}
-                      placeholder="Search questions in bank..."
-                      className="w-full pl-8 pr-3 py-1.5 rounded-lg border border-border bg-background text-xs text-foreground focus:outline-none"
-                    />
-                  </div>
-
-                  <div className="text-xs text-muted-foreground flex items-center gap-3">
-                    <span>
-                      {
-                        availableQuestions.filter((q) => {
-                          if (questionBankTab === "system") return q.ownerType === "SYSTEM";
-                          if (questionBankTab === "company") return q.ownerType === "COMPANY";
-                          if (questionBankTab === "recruiter") return q.ownerType === "RECRUITER";
-                          return true;
-                        }).length
-                      }{" "}
-                      questions available
-                    </span>
-                    <span className="font-bold text-purple-600 dark:text-purple-400">
-                      {selectedQuestionIds.length} Selected
-                    </span>
-                  </div>
-                </div>
-
-                <div className="divide-y divide-border border border-border rounded-xl overflow-hidden max-h-96 overflow-y-auto bg-background">
-                  {availableQuestions
-                    .filter((q) => {
-                      if (questionBankTab === "system") return q.ownerType === "SYSTEM";
-                      if (questionBankTab === "company") return q.ownerType === "COMPANY";
-                      if (questionBankTab === "recruiter") return q.ownerType === "RECRUITER";
-                      return true;
-                    })
-                    .filter((q) => {
-                      if (!pickerSearch.trim()) return true;
-                      const s = pickerSearch.toLowerCase();
-                      return q.questionText.toLowerCase().includes(s) || q.topic.toLowerCase().includes(s);
-                    })
-                    .map((q) => {
-                      const isSelected = selectedQuestionIds.includes(q.id);
-
-                      return (
-                        <div
-                          key={q.id}
-                          onClick={() => toggleQuestionSelection(q.id)}
-                          className={`p-3.5 flex items-start gap-3 cursor-pointer transition-colors ${
-                            isSelected ? "bg-purple-500/10 dark:bg-purple-950/30" : "hover:bg-muted/40"
-                          }`}
-                        >
-                          <input
-                            type="checkbox"
-                            checked={isSelected}
-                            onChange={() => {}}
-                            className="w-4 h-4 rounded text-purple-600 mt-0.5"
-                          />
-                          <div className="flex-1 min-w-0">
-                            <div className="flex flex-wrap items-center gap-1.5 mb-1">
-                              <Badge
-                                variant={
-                                  q.ownerType === "SYSTEM"
-                                    ? "purple"
-                                    : q.ownerType === "COMPANY"
-                                    ? "blue"
-                                    : "emerald"
-                                }
-                                size="sm"
-                                className="text-[10px] font-bold"
-                              >
-                                {q.ownerType}
-                              </Badge>
-                              <Badge variant="outline" size="sm" className="text-[10px]">
-                                {q.type.replace("_", " ")}
-                              </Badge>
-                              <Badge
-                                variant={
-                                  q.difficulty === "EASY"
-                                    ? "emerald"
-                                    : q.difficulty === "MEDIUM"
-                                    ? "blue"
-                                    : "rose"
-                                }
-                                size="sm"
-                                className="text-[10px]"
-                              >
-                                {q.difficulty}
-                              </Badge>
-                              <span className="text-xs font-semibold text-muted-foreground">{q.topic}</span>
-                              <span className="text-xs text-muted-foreground ml-auto font-bold text-foreground">
-                                {q.marks} Marks
-                              </span>
-                            </div>
-                            <p className="text-xs font-medium text-foreground leading-relaxed">{q.questionText}</p>
-                          </div>
-                        </div>
-                      );
-                    })}
-                </div>
-              </div>
-            ) : (
-              /* Inline Question Creator */
-              <div className="p-4 rounded-xl border border-border bg-background space-y-4">
-                <h4 className="font-bold text-sm text-foreground">Create Question Directly in Assessment</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="md:col-span-2 space-y-1">
-                    <label className="text-xs font-bold text-foreground">Question Text *</label>
-                    <input
-                      type="text"
-                      value={inlineQText}
-                      onChange={(e) => setInlineQText(e.target.value)}
-                      placeholder="e.g. What HTTP method is typically used to update a resource idempotently?"
-                      className="w-full px-3 py-2 rounded-lg border border-border bg-card text-xs text-foreground"
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-foreground">Question Type</label>
-                    <select
-                      value={inlineQType}
-                      onChange={(e) => setInlineQType(e.target.value as QuestionType)}
-                      className="w-full px-3 py-2 rounded-lg border border-border bg-card text-xs text-foreground"
+                    <span
+                      className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] ${
+                        isActive
+                          ? "bg-white text-primary-600 font-bold"
+                          : isPast
+                          ? "bg-emerald-500 text-white"
+                          : "bg-neutral-200 dark:bg-neutral-700 text-neutral-500"
+                      }`}
                     >
-                      <option value="SINGLE_CHOICE">Single Choice (MCQ)</option>
-                      <option value="MULTIPLE_CHOICE">Multiple Choice</option>
-                      <option value="TRUE_FALSE">True / False</option>
-                      <option value="SHORT_ANSWER">Short Answer</option>
-                    </select>
+                      {isPast ? <Check className="w-2.5 h-2.5" /> : s.id}
+                    </span>
+                    <span>{s.name}</span>
+                    {idx < STEPS.length - 1 && (
+                      <span className="text-neutral-300 dark:text-neutral-700 ml-1">/</span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </header>
+
+        {/* Main Content Area */}
+        <main className="max-w-7xl mx-auto px-6 py-8">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            {/* Main Step Workspace */}
+            <div className="lg:col-span-3 space-y-6">
+              {/* STEP 1: Basic Information */}
+              {currentStep === 1 && (
+                <Card className="p-6 space-y-6">
+                  <div>
+                    <h2 className="text-lg font-bold text-neutral-900 dark:text-white">Step 1: Examination Basic Details</h2>
+                    <p className="text-xs text-neutral-500">Provide official identity and scope for this recruitment examination.</p>
                   </div>
 
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-foreground">Topic</label>
-                    <input
-                      type="text"
-                      value={inlineTopic}
-                      onChange={(e) => setInlineTopic(e.target.value)}
-                      className="w-full px-3 py-2 rounded-lg border border-border bg-card text-xs text-foreground"
-                    />
-                  </div>
-
-                  {inlineQType !== "SHORT_ANSWER" && (
-                    <div className="md:col-span-2 space-y-2">
-                      <label className="text-xs font-bold text-foreground">Options</label>
-                      {inlineOptions.map((opt, idx) => (
-                        <div key={idx} className="flex items-center gap-2">
-                          <span className="w-5 text-xs font-bold text-muted-foreground">{String.fromCharCode(65 + idx)}.</span>
-                          <input
-                            type="text"
-                            value={opt}
-                            onChange={(e) => {
-                              const updated = [...inlineOptions];
-                              updated[idx] = e.target.value;
-                              setInlineOptions(updated);
-                            }}
-                            className="flex-1 px-3 py-1.5 rounded-lg border border-border bg-card text-xs text-foreground"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => setInlineCorrectAnswer(opt)}
-                            className={`px-2 py-1 rounded text-[11px] font-bold ${
-                              inlineCorrectAnswer === opt
-                                ? "bg-emerald-500 text-white"
-                                : "bg-muted text-muted-foreground hover:bg-emerald-500/20"
-                            }`}
-                          >
-                            {inlineCorrectAnswer === opt ? "Correct ✓" : "Set Correct"}
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {inlineQType === "SHORT_ANSWER" && (
-                    <div className="md:col-span-2 space-y-1">
-                      <label className="text-xs font-bold text-foreground">Expected Correct Answer *</label>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-xs font-semibold text-neutral-700 dark:text-neutral-300 mb-1.5">
+                        Examination Name *
+                      </label>
                       <input
                         type="text"
-                        value={inlineCorrectAnswer}
-                        onChange={(e) => setInlineCorrectAnswer(e.target.value)}
-                        placeholder="Target exact keyword/text"
-                        className="w-full px-3 py-2 rounded-lg border border-border bg-card text-xs text-foreground"
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        placeholder="e.g., Senior Backend Engineer Technical Examination"
+                        className="w-full px-3.5 py-2 text-sm rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 focus:outline-none focus:ring-2 focus:ring-primary-500"
                       />
                     </div>
-                  )}
 
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-foreground">Marks</label>
-                    <input
-                      type="number"
-                      min={1}
-                      value={inlineMarks}
-                      onChange={(e) => setInlineMarks(Number(e.target.value))}
-                      className="w-full px-3 py-2 rounded-lg border border-border bg-card text-xs text-foreground"
-                    />
-                  </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-semibold text-neutral-700 dark:text-neutral-300 mb-1.5">
+                          Examination Type
+                        </label>
+                        <select
+                          value={examinationType}
+                          onChange={(e) => setExaminationType(e.target.value)}
+                          className="w-full px-3.5 py-2 text-sm rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        >
+                          <option value="Screening Test">Screening Test</option>
+                          <option value="Technical Examination">Technical Examination</option>
+                          <option value="Aptitude Examination">Aptitude Examination</option>
+                          <option value="Final Assessment">Final Assessment</option>
+                          <option value="Custom">Custom Assessment</option>
+                        </select>
+                      </div>
 
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-foreground">Negative Marks</label>
-                    <input
-                      type="number"
-                      min={0}
-                      step={0.25}
-                      value={inlineNegMarks}
-                      onChange={(e) => setInlineNegMarks(Number(e.target.value))}
-                      className="w-full px-3 py-2 rounded-lg border border-border bg-card text-xs text-foreground"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex justify-end pt-2">
-                  <Button variant="gradient" size="sm" onClick={handleCreateInlineQuestion}>
-                    Save Question to Assessment
-                  </Button>
-                </div>
-              </div>
-            )}
-          </Card>
-        )}
-
-        {/* STEP 4: Scoring */}
-        {currentStep === 4 && (
-          <Card className="p-6 border-border bg-card space-y-6">
-            <div>
-              <h2 className="text-lg font-bold text-foreground">Step 4: Scoring Configuration</h2>
-              <p className="text-xs text-muted-foreground">
-                Set benchmarks, passing percentage, and review the cumulative scoring breakdown.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-              <div className="p-4 rounded-xl border border-border bg-background text-center">
-                <p className="text-xs font-bold text-muted-foreground uppercase">Total Marks</p>
-                <p className="text-3xl font-extrabold text-foreground mt-1">{totalCalculatedMarks} pts</p>
-                <p className="text-[11px] text-muted-foreground mt-1">Sum of all {selectedQuestions.length} selected questions</p>
-              </div>
-
-              <div className="p-4 rounded-xl border border-border bg-background text-center">
-                <p className="text-xs font-bold text-muted-foreground uppercase">Passing Benchmark</p>
-                <p className="text-3xl font-extrabold text-purple-600 dark:text-purple-400 mt-1">{passingMarks} pts</p>
-                <p className="text-[11px] text-muted-foreground mt-1">Based on {passingPercentage}% requirement</p>
-              </div>
-
-              <div className="p-4 rounded-xl border border-border bg-background text-center">
-                <p className="text-xs font-bold text-muted-foreground uppercase">Negative Marking</p>
-                <p className="text-3xl font-extrabold text-amber-500 mt-1">{negativeMarkingEnabled ? "ENABLED" : "DISABLED"}</p>
-                <p className="text-[11px] text-muted-foreground mt-1">Configured per question</p>
-              </div>
-
-              <div className="md:col-span-3 space-y-2 p-4 rounded-xl bg-muted/40 border border-border">
-                <div className="flex justify-between text-xs font-bold">
-                  <span>Passing Percentage: {passingPercentage}%</span>
-                  <span>Benchmark: {passingMarks} / {totalCalculatedMarks} Marks</span>
-                </div>
-                <input
-                  type="range"
-                  min={35}
-                  max={95}
-                  value={passingPercentage}
-                  onChange={(e) => setPassingPercentage(Number(e.target.value))}
-                  className="w-full accent-purple-600"
-                />
-              </div>
-            </div>
-          </Card>
-        )}
-
-        {/* STEP 5: Proctoring */}
-        {currentStep === 5 && (
-          <Card className="p-6 border-border bg-card space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div>
-                <h2 className="text-lg font-bold text-foreground">Step 5: Proctoring & Integrity Engine</h2>
-                <p className="text-xs text-muted-foreground">
-                  Configure browser permission verifications and strictness thresholds.
-                </p>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-muted-foreground">Proctored Mode:</span>
-                <button
-                  type="button"
-                  onClick={() => setIsProctored(!isProctored)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                    isProctored
-                      ? "bg-purple-600 text-white shadow-sm"
-                      : "bg-muted text-muted-foreground"
-                  }`}
-                >
-                  {isProctored ? "STRICT PROCTORED [ON]" : "STANDARD [OFF]"}
-                </button>
-              </div>
-            </div>
-
-            {isProctored ? (
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="p-4 rounded-xl border border-border bg-background flex items-center justify-between">
-                    <div>
-                      <h4 className="font-bold text-sm text-foreground">Webcam Stream Required</h4>
-                      <p className="text-xs text-muted-foreground">Live camera video track must remain active</p>
-                    </div>
-                    <input
-                      type="checkbox"
-                      checked={cameraRequired}
-                      onChange={(e) => setCameraRequired(e.target.checked)}
-                      className="w-4 h-4 rounded text-purple-600"
-                    />
-                  </div>
-
-                  <div className="p-4 rounded-xl border border-border bg-background flex items-center justify-between">
-                    <div>
-                      <h4 className="font-bold text-sm text-foreground">Microphone Audio Required</h4>
-                      <p className="text-xs text-muted-foreground">Microphone audio track monitoring active</p>
-                    </div>
-                    <input
-                      type="checkbox"
-                      checked={microphoneRequired}
-                      onChange={(e) => setMicrophoneRequired(e.target.checked)}
-                      className="w-4 h-4 rounded text-purple-600"
-                    />
-                  </div>
-
-                  <div className="p-4 rounded-xl border border-border bg-background flex items-center justify-between">
-                    <div>
-                      <h4 className="font-bold text-sm text-foreground">Entire Desktop Screen Share</h4>
-                      <p className="text-xs text-muted-foreground">Candidate must share entire display, not single tab</p>
-                    </div>
-                    <input
-                      type="checkbox"
-                      checked={entireScreenRequired}
-                      onChange={(e) => setEntireScreenRequired(e.target.checked)}
-                      className="w-4 h-4 rounded text-purple-600"
-                    />
-                  </div>
-
-                  <div className="p-4 rounded-xl border border-border bg-background flex items-center justify-between">
-                    <div>
-                      <h4 className="font-bold text-sm text-foreground">Fullscreen Enforcement</h4>
-                      <p className="text-xs text-muted-foreground">Exam will pause if candidate exits fullscreen</p>
-                    </div>
-                    <input
-                      type="checkbox"
-                      checked={fullscreenRequired}
-                      onChange={(e) => setFullscreenRequired(e.target.checked)}
-                      className="w-4 h-4 rounded text-purple-600"
-                    />
-                  </div>
-
-                  <div className="p-4 rounded-xl border border-border bg-background space-y-2">
-                    <label className="text-xs font-bold text-foreground">Max Allowed Window / Tab Violations</label>
-                    <select
-                      value={maxWindowViolations}
-                      onChange={(e) => setMaxWindowViolations(Number(e.target.value))}
-                      className="w-full px-3 py-1.5 rounded-lg border border-border bg-card text-xs text-foreground"
-                    >
-                      <option value={1}>1 Violation (Strict)</option>
-                      <option value={2}>2 Violations (Recommended)</option>
-                      <option value={3}>3 Violations (Lenient)</option>
-                    </select>
-                  </div>
-
-                  <div className="p-4 rounded-xl border border-border bg-background flex items-center justify-between">
-                    <div>
-                      <h4 className="font-bold text-sm text-foreground">Auto-Terminate on Limit</h4>
-                      <p className="text-xs text-muted-foreground">Immediately terminate attempt when violation limit reached</p>
-                    </div>
-                    <input
-                      type="checkbox"
-                      checked={terminateOnViolationLimit}
-                      onChange={(e) => setTerminateOnViolationLimit(e.target.checked)}
-                      className="w-4 h-4 rounded text-purple-600"
-                    />
-                  </div>
-                </div>
-
-                <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-800 dark:text-amber-300 flex items-start gap-2.5">
-                  <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
-                  <p>
-                    <strong>Integrity Signal Disclosure:</strong> Web browsers cannot detect third-party OS background apps directly. Violations are triggered via standard Page Visibility, focus/blur, and WebRTC track interruption signals.
-                  </p>
-                </div>
-              </div>
-            ) : (
-              <p className="text-xs text-muted-foreground italic">Standard mode does not require media stream hardware checks.</p>
-            )}
-          </Card>
-        )}
-
-        {/* STEP 6: Candidate Rules */}
-        {currentStep === 6 && (
-          <Card className="p-6 border-border bg-card space-y-6">
-            <div>
-              <h2 className="text-lg font-bold text-foreground">Step 6: Candidate Rules & Environment Verification</h2>
-              <p className="text-xs text-muted-foreground">
-                Review the rules and hardware requirements presented to candidates before they can launch the exam.
-              </p>
-            </div>
-
-            <div className="space-y-3">
-              <div className="p-4 rounded-xl bg-muted/40 border border-border space-y-2 text-xs">
-                <h4 className="font-bold text-sm text-foreground">Hardware & Network Pre-Flight Checklist:</h4>
-                <ul className="space-y-1.5 text-muted-foreground list-disc pl-4">
-                  <li><strong>Webcam:</strong> Must have functional video track and clear illumination.</li>
-                  <li><strong>Microphone:</strong> Audio input stream must register audio activity.</li>
-                  <li><strong>Screen Capture:</strong> Candidate must share their entire monitor display.</li>
-                  <li><strong>Fullscreen:</strong> Assessment interface will lock to full viewport before start.</li>
-                </ul>
-              </div>
-
-              <div className="p-4 rounded-xl bg-muted/40 border border-border space-y-2 text-xs">
-                <h4 className="font-bold text-sm text-foreground">Integrity Escalation Matrix:</h4>
-                <div className="grid grid-cols-3 gap-3 text-center">
-                  <div className="p-2.5 rounded-lg bg-yellow-500/10 border border-yellow-500/20">
-                    <p className="font-bold text-yellow-600 dark:text-yellow-400">Violation 1</p>
-                    <p className="text-[11px] text-muted-foreground">Yellow Warning Alert</p>
-                  </div>
-                  <div className="p-2.5 rounded-lg bg-orange-500/10 border border-orange-500/20">
-                    <p className="font-bold text-orange-600 dark:text-orange-400">Violation 2</p>
-                    <p className="text-[11px] text-muted-foreground">Final Red Warning</p>
-                  </div>
-                  <div className="p-2.5 rounded-lg bg-rose-500/10 border border-rose-500/20">
-                    <p className="font-bold text-rose-600 dark:text-rose-400">Violation 3</p>
-                    <p className="text-[11px] text-muted-foreground">Automatic Termination</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </Card>
-        )}
-
-        {/* STEP 7: Interactive Preview */}
-        {currentStep === 7 && (
-          <Card className="p-6 border-border bg-card space-y-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-lg font-bold text-foreground">Step 7: Interactive Recruiter Preview</h2>
-                <p className="text-xs text-muted-foreground">
-                  Experience how your questions and options will render inside the student examination room.
-                </p>
-              </div>
-
-              <Badge variant="purple" size="sm">
-                Recruiter Preview Mode
-              </Badge>
-            </div>
-
-            {selectedQuestions.length === 0 ? (
-              <p className="text-xs text-muted-foreground">No questions selected. Go to Step 3 to add questions.</p>
-            ) : (
-              <div className="space-y-4">
-                {selectedQuestions.map((q, idx) => (
-                  <div key={q.id} className="p-4 rounded-xl border border-border bg-background space-y-3">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="font-extrabold text-purple-600 dark:text-purple-400">Question {idx + 1}</span>
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline" size="sm">
-                          {q.type}
-                        </Badge>
-                        <span className="font-bold text-foreground">{q.marks} Marks</span>
-                        {negativeMarkingEnabled && q.negativeMarks > 0 && (
-                          <span className="text-rose-500">(-{q.negativeMarks} Neg)</span>
-                        )}
+                      <div>
+                        <label className="block text-xs font-semibold text-neutral-700 dark:text-neutral-300 mb-1.5">
+                          Assessment Category
+                        </label>
+                        <select
+                          value={category}
+                          onChange={(e) => setCategory(e.target.value as QuestionCategory)}
+                          className="w-full px-3.5 py-2 text-sm rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        >
+                          <option value="Technical">Technical</option>
+                          <option value="Aptitude">Aptitude</option>
+                          <option value="Communication">Communication</option>
+                          <option value="Domain">Domain Knowledge</option>
+                          <option value="General">General Knowledge</option>
+                          <option value="Mixed">Mixed Disciplines</option>
+                        </select>
                       </div>
                     </div>
 
-                    <p className="text-sm font-bold text-foreground">{q.questionText}</p>
+                    <div>
+                      <label className="block text-xs font-semibold text-neutral-700 dark:text-neutral-300 mb-1.5">
+                        Examination Description
+                      </label>
+                      <textarea
+                        rows={2}
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        placeholder="Brief overview of evaluation scope, covered syllabus, and competency requirements."
+                        className="w-full px-3.5 py-2 text-sm rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      />
+                    </div>
 
-                    {q.options && q.options.length > 0 ? (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
-                        {q.options.map((opt, oIdx) => {
-                          const isCorrect = Array.isArray(q.correctAnswer)
-                            ? q.correctAnswer.includes(opt)
-                            : q.correctAnswer === opt;
+                    <div>
+                      <label className="block text-xs font-semibold text-neutral-700 dark:text-neutral-300 mb-1.5">
+                        Candidate Examination Instructions
+                      </label>
+                      <textarea
+                        rows={3}
+                        value={instructions}
+                        onChange={(e) => setInstructions(e.target.value)}
+                        className="w-full px-3.5 py-2 text-sm rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      />
+                    </div>
+                  </div>
+                </Card>
+              )}
 
+              {/* STEP 2: Recruitment Drive */}
+              {currentStep === 2 && (
+                <Card className="p-6 space-y-6">
+                  <div>
+                    <h2 className="text-lg font-bold text-neutral-900 dark:text-white">Step 2: Link Recruitment Drive</h2>
+                    <p className="text-xs text-neutral-500">Attach this examination to an active campus or lateral hiring drive.</p>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-xs font-semibold text-neutral-700 dark:text-neutral-300 mb-1.5">
+                        Target Recruitment Drive *
+                      </label>
+                      <select
+                        value={selectedDriveId}
+                        onChange={(e) => setSelectedDriveId(e.target.value)}
+                        className="w-full px-3.5 py-2 text-sm rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 focus:outline-none focus:ring-2 focus:ring-primary-500 font-medium"
+                      >
+                        <option value="" disabled>Select a Recruitment Drive</option>
+                        {drives.map((d) => (
+                          <option key={d.id} value={d.id}>
+                            {d.title} ({(d as any).companyName || d.company}) — {d.status}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {selectedDrive && (
+                      <div className="p-4 rounded-xl border border-primary-100 dark:border-primary-950/60 bg-primary-50/40 dark:bg-primary-950/20 space-y-2 text-xs">
+                        <div className="flex items-center justify-between">
+                          <span className="font-semibold text-neutral-800 dark:text-neutral-200">{selectedDrive.title}</span>
+                          <Badge variant="outline" className="bg-white dark:bg-neutral-900 text-primary-600 border-primary-200">
+                            {selectedDrive.status}
+                          </Badge>
+                        </div>
+                        <p className="text-neutral-600 dark:text-neutral-400">{selectedDrive.description}</p>
+                        <div className="grid grid-cols-3 gap-2 pt-2 border-t border-primary-100 dark:border-primary-900/40 font-mono text-[11px]">
+                          <div>Positions: <span className="font-bold">{(selectedDrive as any).vacancies || (selectedDrive as any).totalPositions || 5}</span></div>
+                          <div>Role: <span className="font-bold">{(selectedDrive as any).jobType || (selectedDrive as any).roleTitle || "Full-time"}</span></div>
+                          <div>Drive ID: <span className="text-neutral-500">{selectedDrive.id}</span></div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </Card>
+              )}
+
+              {/* STEP 3: Exam Pattern */}
+              {currentStep === 3 && (
+                <Card className="p-6 space-y-6">
+                  <div>
+                    <h2 className="text-lg font-bold text-neutral-900 dark:text-white">Step 3: Examination Pattern Specification</h2>
+                    <p className="text-xs text-neutral-500">Define the global structure, total marks, paper duration, and passing threshold.</p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                      <label className="block text-xs font-semibold text-neutral-700 dark:text-neutral-300 mb-1.5">
+                        Total Questions Target
+                      </label>
+                      <input
+                        type="number"
+                        value={totalQuestionsPattern}
+                        onChange={(e) => setTotalQuestionsPattern(parseInt(e.target.value) || 0)}
+                        className="w-full px-3.5 py-2 text-sm rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 focus:outline-none focus:ring-2 focus:ring-primary-500 font-mono"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-neutral-700 dark:text-neutral-300 mb-1.5">
+                        Total Maximum Marks
+                      </label>
+                      <input
+                        type="number"
+                        value={totalMarksPattern}
+                        onChange={(e) => setTotalMarksPattern(parseInt(e.target.value) || 0)}
+                        className="w-full px-3.5 py-2 text-sm rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 focus:outline-none focus:ring-2 focus:ring-primary-500 font-mono"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-neutral-700 dark:text-neutral-300 mb-1.5">
+                        Examination Duration (Minutes)
+                      </label>
+                      <input
+                        type="number"
+                        value={durationMinutes}
+                        onChange={(e) => setDurationMinutes(parseInt(e.target.value) || 0)}
+                        className="w-full px-3.5 py-2 text-sm rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 focus:outline-none focus:ring-2 focus:ring-primary-500 font-mono"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-neutral-700 dark:text-neutral-300 mb-1.5">
+                        Minimum Passing Benchmark (%)
+                      </label>
+                      <input
+                        type="number"
+                        value={passingPercentage}
+                        onChange={(e) => setPassingPercentage(parseInt(e.target.value) || 0)}
+                        className="w-full px-3.5 py-2 text-sm rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 focus:outline-none focus:ring-2 focus:ring-primary-500 font-mono"
+                      />
+                      <span className="text-[11px] text-neutral-400">Qualifying threshold required to be considered on merit list.</span>
+                    </div>
+                  </div>
+
+                  <div className="p-4 rounded-xl bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 flex items-center justify-between text-xs">
+                    <div>
+                      <span className="font-semibold text-neutral-800 dark:text-neutral-200">Current Pattern Summary:</span>
+                      <p className="text-neutral-500">{totalQuestionsPattern} Questions • {totalMarksPattern} Marks • {durationMinutes} Mins • Passing at {passingPercentage}% ({Math.round((totalMarksPattern * passingPercentage) / 100)} marks)</p>
+                    </div>
+                    <Badge variant="outline" className="text-primary-600 border-primary-200 bg-white dark:bg-neutral-800">
+                      Balanced
+                    </Badge>
+                  </div>
+                </Card>
+              )}
+
+              {/* STEP 4: Sections Builder */}
+              {currentStep === 4 && (
+                <Card className="p-6 space-y-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h2 className="text-lg font-bold text-neutral-900 dark:text-white">Step 4: Section Structure & Allocation</h2>
+                      <p className="text-xs text-neutral-500">Create examination sections, assign marks, negative rates, and sectional cutoffs.</p>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        const newId = `sec_${Date.now()}`;
+                        setSections([
+                          ...sections,
+                          {
+                            id: newId,
+                            name: `Section ${sections.length + 1}`,
+                            totalQuestions: 10,
+                            totalMarks: 20,
+                            negativeMarksPerQuestion: 0.33,
+                            cutoffMarks: 8,
+                            orderIndex: sections.length + 1,
+                            easyCount: 3,
+                            mediumCount: 5,
+                            hardCount: 2,
+                          },
+                        ]);
+                      }}
+                      className="text-xs"
+                    >
+                      <Plus className="w-3.5 h-3.5 mr-1" /> Add Section
+                    </Button>
+                  </div>
+
+                  <div className="space-y-4">
+                    {sections.map((sec, idx) => (
+                      <div
+                        key={sec.id}
+                        className="p-4 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 space-y-3"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="w-6 h-6 rounded-full bg-primary-50 dark:bg-primary-950 text-primary-600 font-bold text-xs flex items-center justify-center">
+                              {idx + 1}
+                            </span>
+                            <input
+                              type="text"
+                              value={sec.name}
+                              onChange={(e) => {
+                                const copy = [...sections];
+                                copy[idx].name = e.target.value;
+                                setSections(copy);
+                              }}
+                              className="font-semibold text-sm bg-transparent border-b border-dashed border-neutral-300 dark:border-neutral-700 px-1 focus:outline-none focus:border-primary-500"
+                            />
+                          </div>
+
+                          {sections.length > 1 && (
+                            <button
+                              onClick={() => setSections(sections.filter((s) => s.id !== sec.id))}
+                              className="text-red-500 hover:text-red-600 p-1"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          )}
+                        </div>
+
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                          <div>
+                            <label className="text-[11px] text-neutral-500 block mb-1">Questions</label>
+                            <input
+                              type="number"
+                              value={sec.totalQuestions}
+                              onChange={(e) => {
+                                const copy = [...sections];
+                                copy[idx].totalQuestions = parseInt(e.target.value) || 0;
+                                setSections(copy);
+                              }}
+                              className="w-full px-2.5 py-1.5 border rounded-lg dark:bg-neutral-800 dark:border-neutral-700 font-mono"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-[11px] text-neutral-500 block mb-1">Max Marks</label>
+                            <input
+                              type="number"
+                              value={sec.totalMarks}
+                              onChange={(e) => {
+                                const copy = [...sections];
+                                copy[idx].totalMarks = parseInt(e.target.value) || 0;
+                                setSections(copy);
+                              }}
+                              className="w-full px-2.5 py-1.5 border rounded-lg dark:bg-neutral-800 dark:border-neutral-700 font-mono"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-[11px] text-neutral-500 block mb-1">Neg / Wrong</label>
+                            <input
+                              type="number"
+                              step="0.01"
+                              value={sec.negativeMarksPerQuestion}
+                              onChange={(e) => {
+                                const copy = [...sections];
+                                copy[idx].negativeMarksPerQuestion = parseFloat(e.target.value) || 0;
+                                setSections(copy);
+                              }}
+                              className="w-full px-2.5 py-1.5 border rounded-lg dark:bg-neutral-800 dark:border-neutral-700 font-mono"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-[11px] text-neutral-500 block mb-1">Section Cutoff</label>
+                            <input
+                              type="number"
+                              value={sec.cutoffMarks || 0}
+                              onChange={(e) => {
+                                const copy = [...sections];
+                                copy[idx].cutoffMarks = parseInt(e.target.value) || 0;
+                                setSections(copy);
+                              }}
+                              className="w-full px-2.5 py-1.5 border rounded-lg dark:bg-neutral-800 dark:border-neutral-700 font-mono"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Section Balancer Alert */}
+                  <div className={`p-4 rounded-xl border text-xs flex items-center justify-between ${
+                    sectionTotalQuestions === totalQuestionsPattern && sectionTotalMarks === totalMarksPattern
+                      ? "bg-emerald-50 dark:bg-emerald-950/20 border-emerald-200 text-emerald-800 dark:text-emerald-300"
+                      : "bg-amber-50 dark:bg-amber-950/20 border-amber-200 text-amber-800 dark:text-amber-300"
+                  }`}>
+                    <div>
+                      <span className="font-semibold">Section Consistency Status: </span>
+                      {sectionTotalQuestions === totalQuestionsPattern && sectionTotalMarks === totalMarksPattern ? (
+                        <span>Perfect alignment ({sectionTotalQuestions} questions / {sectionTotalMarks} marks).</span>
+                      ) : (
+                        <span>
+                          Sections have {sectionTotalQuestions}/{totalQuestionsPattern} questions and {sectionTotalMarks}/{totalMarksPattern} marks.
+                        </span>
+                      )}
+                    </div>
+                    <Badge variant="outline" className={sectionTotalQuestions === totalQuestionsPattern ? "border-emerald-300 text-emerald-700" : "border-amber-300 text-amber-700"}>
+                      {sectionTotalQuestions === totalQuestionsPattern ? "VERIFIED" : "MISALIGNED"}
+                    </Badge>
+                  </div>
+                </Card>
+              )}
+
+              {/* STEP 5: Question Blueprint */}
+              {currentStep === 5 && (
+                <Card className="p-6 space-y-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h2 className="text-lg font-bold text-neutral-900 dark:text-white">Step 5: Question Paper Blueprint</h2>
+                      <p className="text-xs text-neutral-500">Configure Easy, Medium, and Hard question distributions per section.</p>
+                    </div>
+                    <Button
+                      size="sm"
+                      onClick={handleGenerateFromBlueprint}
+                      disabled={isGeneratingBlueprint}
+                      className="text-xs bg-primary-600 hover:bg-primary-700 text-white"
+                    >
+                      <Sparkles className="w-3.5 h-3.5 mr-1.5" />
+                      {isGeneratingBlueprint ? "Validating & Generating..." : "Generate Paper from Blueprint"}
+                    </Button>
+                  </div>
+
+                  <div className="space-y-4">
+                    {sections.map((sec, idx) => (
+                      <div key={sec.id} className="p-4 rounded-xl border border-neutral-200 dark:border-neutral-800 space-y-3">
+                        <div className="flex items-center justify-between">
+                          <span className="font-semibold text-sm">{sec.name} ({sec.totalQuestions} Questions)</span>
+                          <span className="text-xs text-neutral-500">
+                            Allocated: {(sec.easyCount || 0) + (sec.mediumCount || 0) + (sec.hardCount || 0)} / {sec.totalQuestions}
+                          </span>
+                        </div>
+
+                        <div className="grid grid-cols-3 gap-4 text-xs">
+                          <div>
+                            <label className="text-[11px] text-emerald-600 font-semibold block mb-1">Easy Questions</label>
+                            <input
+                              type="number"
+                              value={sec.easyCount || 0}
+                              onChange={(e) => {
+                                const copy = [...sections];
+                                copy[idx].easyCount = parseInt(e.target.value) || 0;
+                                setSections(copy);
+                              }}
+                              className="w-full px-2.5 py-1.5 border rounded-lg dark:bg-neutral-800 dark:border-neutral-700 font-mono"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-[11px] text-amber-600 font-semibold block mb-1">Medium Questions</label>
+                            <input
+                              type="number"
+                              value={sec.mediumCount || 0}
+                              onChange={(e) => {
+                                const copy = [...sections];
+                                copy[idx].mediumCount = parseInt(e.target.value) || 0;
+                                setSections(copy);
+                              }}
+                              className="w-full px-2.5 py-1.5 border rounded-lg dark:bg-neutral-800 dark:border-neutral-700 font-mono"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-[11px] text-rose-600 font-semibold block mb-1">Hard Questions</label>
+                            <input
+                              type="number"
+                              value={sec.hardCount || 0}
+                              onChange={(e) => {
+                                const copy = [...sections];
+                                copy[idx].hardCount = parseInt(e.target.value) || 0;
+                                setSections(copy);
+                              }}
+                              className="w-full px-2.5 py-1.5 border rounded-lg dark:bg-neutral-800 dark:border-neutral-700 font-mono"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="p-4 rounded-xl bg-blue-50/50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900/40 text-xs text-blue-800 dark:text-blue-300">
+                    <div className="flex items-start gap-2">
+                      <Info className="w-4 h-4 mt-0.5 shrink-0" />
+                      <div>
+                        <span className="font-semibold">Blueprint Pool Validation Policy: </span>
+                        The backend verifies Question Bank pools before paper generation. If matching pools have fewer questions than your blueprint requires, generation will prevent publishing with an explanatory error.
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+              )}
+
+              {/* STEP 6: Question Bank */}
+              {currentStep === 6 && (
+                <Card className="p-6 space-y-6">
+                  <div>
+                    <h2 className="text-lg font-bold text-neutral-900 dark:text-white">Step 6: Question Bank & Selection</h2>
+                    <p className="text-xs text-neutral-500">
+                      Search, preview, and attach questions from StudentHub System Bank, Company Bank, or create custom questions.
+                    </p>
+                  </div>
+
+                  {/* Question Bank Tabs */}
+                  <div className="flex items-center justify-between border-b border-neutral-200 dark:border-neutral-800 pb-3">
+                    <div className="flex items-center gap-2">
+                      {[
+                        { key: "all", label: "All Questions" },
+                        { key: "system", label: "StudentHub System" },
+                        { key: "company", label: "Company Bank" },
+                        { key: "recruiter", label: "My Questions" },
+                        { key: "create", label: "+ Add Question" },
+                      ].map((t) => (
+                        <button
+                          key={t.key}
+                          onClick={() => setQuestionBankTab(t.key as any)}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                            questionBankTab === t.key
+                              ? "bg-primary-50 dark:bg-primary-950/60 text-primary-600 font-semibold"
+                              : "text-neutral-500 hover:text-neutral-900 dark:hover:text-white"
+                          }`}
+                        >
+                          {t.label}
+                        </button>
+                      ))}
+                    </div>
+
+                    <span className="text-xs text-neutral-500 font-mono">
+                      Selected: {selectedQuestionIds.length} questions
+                    </span>
+                  </div>
+
+                  {questionBankTab === "create" ? (
+                    /* Inline Question Form */
+                    <div className="p-4 rounded-xl border border-neutral-200 dark:border-neutral-800 space-y-4 text-xs">
+                      <h3 className="font-bold text-sm">Add Question to Recruiter Bank</h3>
+                      <div>
+                        <label className="font-semibold block mb-1">Question Text</label>
+                        <textarea
+                          rows={2}
+                          value={inlineQText}
+                          onChange={(e) => setInlineQText(e.target.value)}
+                          placeholder="e.g. In Postgres, what is the default transaction isolation level?"
+                          className="w-full px-3 py-2 border rounded-lg dark:bg-neutral-800 dark:border-neutral-700"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-3 gap-3">
+                        <div>
+                          <label className="font-semibold block mb-1">Type</label>
+                          <select
+                            value={inlineQType}
+                            onChange={(e) => setInlineQType(e.target.value as any)}
+                            className="w-full px-2.5 py-1.5 border rounded-lg dark:bg-neutral-800 dark:border-neutral-700"
+                          >
+                            <option value="SINGLE_CHOICE">Single Choice</option>
+                            <option value="MULTIPLE_CHOICE">Multiple Choice</option>
+                            <option value="TRUE_FALSE">True/False</option>
+                            <option value="SHORT_ANSWER">Short Answer</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="font-semibold block mb-1">Difficulty</label>
+                          <select
+                            value={inlineDifficulty}
+                            onChange={(e) => setInlineDifficulty(e.target.value as any)}
+                            className="w-full px-2.5 py-1.5 border rounded-lg dark:bg-neutral-800 dark:border-neutral-700"
+                          >
+                            <option value="EASY">Easy</option>
+                            <option value="MEDIUM">Medium</option>
+                            <option value="HARD">Hard</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="font-semibold block mb-1">Marks (+ / -)</label>
+                          <div className="flex gap-2">
+                            <input
+                              type="number"
+                              value={inlineMarks}
+                              onChange={(e) => setInlineMarks(parseInt(e.target.value) || 1)}
+                              className="w-1/2 px-2.5 py-1.5 border rounded-lg dark:bg-neutral-800 dark:border-neutral-700"
+                            />
+                            <input
+                              type="number"
+                              step="0.1"
+                              value={inlineNegMarks}
+                              onChange={(e) => setInlineNegMarks(parseFloat(e.target.value) || 0)}
+                              className="w-1/2 px-2.5 py-1.5 border rounded-lg dark:bg-neutral-800 dark:border-neutral-700"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <Button size="sm" onClick={handleCreateInlineQuestion} className="bg-primary-600 text-white">
+                        Save to Question Bank
+                      </Button>
+                    </div>
+                  ) : (
+                    /* Question List */
+                    <div className="space-y-3 max-h-96 overflow-y-auto pr-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Search className="w-4 h-4 text-neutral-400" />
+                        <input
+                          type="text"
+                          placeholder="Search questions by keyword, topic, or tag..."
+                          value={pickerSearch}
+                          onChange={(e) => setPickerSearch(e.target.value)}
+                          className="w-full text-xs px-3 py-1.5 border rounded-lg dark:bg-neutral-800 dark:border-neutral-700"
+                        />
+                      </div>
+
+                      {availableQuestions
+                        .filter((q) => {
+                          if (questionBankTab === "system" && q.ownerType !== "SYSTEM") return false;
+                          if (questionBankTab === "company" && q.ownerType !== "COMPANY") return false;
+                          if (questionBankTab === "recruiter" && q.ownerType !== "RECRUITER") return false;
+                          if (pickerSearch) {
+                            const query = pickerSearch.toLowerCase();
+                            return (
+                              q.questionText.toLowerCase().includes(query) ||
+                              (q.topic && q.topic.toLowerCase().includes(query))
+                            );
+                          }
+                          return true;
+                        })
+                        .map((q) => {
+                          const isSelected = selectedQuestionIds.includes(q.id);
                           return (
                             <div
-                              key={oIdx}
-                              className={`p-2.5 rounded-lg border text-xs flex items-center justify-between ${
-                                isCorrect
-                                  ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 font-semibold"
-                                  : "border-border bg-card text-muted-foreground"
+                              key={q.id}
+                              onClick={() => toggleQuestionSelection(q.id)}
+                              className={`p-3.5 rounded-xl border text-xs cursor-pointer transition-all ${
+                                isSelected
+                                  ? "border-primary-500 bg-primary-50/20 dark:bg-primary-950/20"
+                                  : "border-neutral-200 dark:border-neutral-800 hover:border-neutral-300"
                               }`}
                             >
-                              <span>
-                                <strong className="mr-2">{String.fromCharCode(65 + oIdx)}.</strong>
-                                {opt}
-                              </span>
-                              {isCorrect && <Check className="w-3.5 h-3.5 text-emerald-600" />}
+                              <div className="flex items-start justify-between gap-3">
+                                <div className="space-y-1">
+                                  <div className="flex items-center gap-2">
+                                    <Badge variant="outline" className="text-[10px]">
+                                      {q.ownerType === "SYSTEM" ? "StudentHub" : q.ownerType}
+                                    </Badge>
+                                    <Badge
+                                      variant="outline"
+                                      className={`text-[10px] ${
+                                        q.difficulty === "HARD"
+                                          ? "text-rose-600 border-rose-200"
+                                          : q.difficulty === "MEDIUM"
+                                          ? "text-amber-600 border-amber-200"
+                                          : "text-emerald-600 border-emerald-200"
+                                      }`}
+                                    >
+                                      {q.difficulty}
+                                    </Badge>
+                                    <span className="font-mono text-neutral-400">+{q.marks} / -{q.negativeMarks}</span>
+                                  </div>
+                                  <p className="font-medium text-neutral-900 dark:text-neutral-100">{q.questionText}</p>
+                                </div>
+                                <input
+                                  type="checkbox"
+                                  checked={isSelected}
+                                  onChange={() => {}}
+                                  className="w-4 h-4 rounded text-primary-600 focus:ring-primary-500 mt-1"
+                                />
+                              </div>
                             </div>
                           );
                         })}
+                    </div>
+                  )}
+                </Card>
+              )}
+
+              {/* STEP 7: Scoring */}
+              {currentStep === 7 && (
+                <Card className="p-6 space-y-6">
+                  <div>
+                    <h2 className="text-lg font-bold text-neutral-900 dark:text-white">Step 7: Scoring Architecture</h2>
+                    <p className="text-xs text-neutral-500">Configure question-level and sectional evaluation dynamics.</p>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="p-4 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900">
+                      <span className="text-neutral-500 text-xs block mb-1">Max Paper Score</span>
+                      <span className="text-2xl font-bold font-mono text-neutral-900 dark:text-white">{sectionTotalMarks} Marks</span>
+                    </div>
+                    <div className="p-4 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900">
+                      <span className="text-neutral-500 text-xs block mb-1">Passing Benchmark</span>
+                      <span className="text-2xl font-bold font-mono text-emerald-600">{passingMarks} Marks ({passingPercentage}%)</span>
+                    </div>
+                    <div className="p-4 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900">
+                      <span className="text-neutral-500 text-xs block mb-1">Sections</span>
+                      <span className="text-2xl font-bold font-mono text-primary-600">{sections.length} Active</span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <h3 className="text-xs font-bold text-neutral-700 dark:text-neutral-300">Section Scoring Distribution:</h3>
+                    {sections.map((s) => (
+                      <div key={s.id} className="flex items-center justify-between p-3 rounded-lg border border-neutral-200 dark:border-neutral-800 text-xs">
+                        <span className="font-semibold">{s.name}</span>
+                        <div className="flex items-center gap-4 font-mono text-neutral-500">
+                          <span>{s.totalQuestions} Questions</span>
+                          <span>{s.totalMarks} Marks</span>
+                          <span>Cutoff: {s.cutoffMarks}</span>
+                        </div>
                       </div>
-                    ) : (
-                      <div className="p-2.5 rounded-lg border border-border bg-muted/40 text-xs text-muted-foreground italic">
-                        Expected Answer: {String(q.correctAnswer)}
+                    ))}
+                  </div>
+                </Card>
+              )}
+
+              {/* STEP 8: Negative Marking */}
+              {currentStep === 8 && (
+                <Card className="p-6 space-y-6">
+                  <div>
+                    <h2 className="text-lg font-bold text-neutral-900 dark:text-white">Step 8: Negative Marking Configuration</h2>
+                    <p className="text-xs text-neutral-500">Penalize speculative guessing in formal recruitment examinations.</p>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between p-4 rounded-xl border border-neutral-200 dark:border-neutral-800">
+                      <div>
+                        <span className="font-semibold text-sm block">Enable Negative Marking</span>
+                        <span className="text-xs text-neutral-500">Deduct marks for incorrect answers. Unanswered questions award 0.</span>
+                      </div>
+                      <input
+                        type="checkbox"
+                        checked={negativeMarkingEnabled}
+                        onChange={(e) => setNegativeMarkingEnabled(e.target.checked)}
+                        className="w-5 h-5 rounded text-primary-600"
+                      />
+                    </div>
+
+                    {negativeMarkingEnabled && (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="text-xs font-semibold block mb-1">Negative Marking Type</label>
+                          <select
+                            value={negativeMarkingType}
+                            onChange={(e) => setNegativeMarkingType(e.target.value as any)}
+                            className="w-full px-3.5 py-2 text-sm border rounded-lg dark:bg-neutral-800 dark:border-neutral-700"
+                          >
+                            <option value="PERCENTAGE">Percentage of Question Marks (RPSC Standard)</option>
+                            <option value="FIXED">Fixed Marks Deduction</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="text-xs font-semibold block mb-1">
+                            {negativeMarkingType === "PERCENTAGE" ? "Negative Deduction Rate (0.33 = 1/3rd)" : "Fixed Deduction per Question"}
+                          </label>
+                          <input
+                            type="number"
+                            step="0.01"
+                            value={negativeMarkingRate}
+                            onChange={(e) => setNegativeMarkingRate(parseFloat(e.target.value) || 0)}
+                            className="w-full px-3.5 py-2 text-sm border rounded-lg dark:bg-neutral-800 dark:border-neutral-700 font-mono"
+                          />
+                        </div>
                       </div>
                     )}
 
-                    {q.explanation && (
-                      <div className="p-2.5 rounded-lg bg-muted/50 border border-border/60 text-[11px] text-muted-foreground">
-                        <strong>Explanation:</strong> {q.explanation}
+                    <div className="p-4 rounded-xl bg-amber-50/50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/40 text-xs text-amber-800 dark:text-amber-300">
+                      <span className="font-semibold">Evaluation Formula Preview: </span>
+                      Correct Answer = <span className="font-mono font-bold">+Marks</span> •
+                      Wrong Answer = <span className="font-mono font-bold">-{negativeMarkingEnabled ? `${negativeMarkingRate} × Marks` : "0"}</span> •
+                      Unanswered = <span className="font-mono font-bold">0 Marks</span>
+                    </div>
+                  </div>
+                </Card>
+              )}
+
+              {/* STEP 9: Cutoff Rules */}
+              {currentStep === 9 && (
+                <Card className="p-6 space-y-6">
+                  <div>
+                    <h2 className="text-lg font-bold text-neutral-900 dark:text-white">Step 9: Shortlisting Cutoff Specification</h2>
+                    <p className="text-xs text-neutral-500">
+                      Differentiate between basic qualifying benchmark and shortlist cutoff for selection pipeline.
+                    </p>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="text-xs font-semibold block mb-1.5">Cutoff Rule Type *</label>
+                        <select
+                          value={cutoffType}
+                          onChange={(e) => setCutoffType(e.target.value as CutoffType)}
+                          className="w-full px-3.5 py-2 text-sm border rounded-lg dark:bg-neutral-800 dark:border-neutral-700"
+                        >
+                          <option value="TOP_PERCENTAGE">Top Percentage (e.g. Top 20% on Merit)</option>
+                          <option value="TOP_N">Top N Candidates (e.g. Top 50)</option>
+                          <option value="FIXED_SCORE">Fixed Absolute Score Cutoff</option>
+                          <option value="PERCENTAGE">Percentage Benchmark Cutoff</option>
+                          <option value="SECTIONAL">Sectional Thresholds Only</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="text-xs font-semibold block mb-1.5">
+                          Cutoff Threshold Value {cutoffType === "TOP_PERCENTAGE" || cutoffType === "PERCENTAGE" ? "(%)" : ""}
+                        </label>
+                        <input
+                          type="number"
+                          value={cutoffValue}
+                          onChange={(e) => setCutoffValue(parseInt(e.target.value) || 0)}
+                          className="w-full px-3.5 py-2 text-sm border rounded-lg dark:bg-neutral-800 dark:border-neutral-700 font-mono"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="p-4 rounded-xl bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-xs space-y-1">
+                      <span className="font-semibold text-neutral-800 dark:text-neutral-200">Rule Explanation:</span>
+                      <p className="text-neutral-500">
+                        {cutoffType === "TOP_PERCENTAGE" && `Candidates who pass minimum ${passingPercentage}% benchmark will be ranked, and the top ${cutoffValue}% will clear the shortlisting cutoff.`}
+                        {cutoffType === "TOP_N" && `The top ${cutoffValue} highest scoring candidates who meet passing benchmark will clear the shortlisting cutoff.`}
+                        {cutoffType === "FIXED_SCORE" && `Candidates scoring ${cutoffValue} or higher will clear the shortlisting cutoff.`}
+                        {cutoffType === "PERCENTAGE" && `Candidates scoring ${cutoffValue}% or higher will clear the shortlisting cutoff.`}
+                        {cutoffType === "SECTIONAL" && `Candidates must clear all individual sectional cutoffs to be shortlisted.`}
+                      </p>
+                    </div>
+                  </div>
+                </Card>
+              )}
+
+              {/* STEP 10: Merit & Ranking */}
+              {currentStep === 10 && (
+                <Card className="p-6 space-y-6">
+                  <div>
+                    <h2 className="text-lg font-bold text-neutral-900 dark:text-white">Step 10: Merit & Tie-Breaking Policy</h2>
+                    <p className="text-xs text-neutral-500">Configure how candidates are sorted and how identical scores are resolved.</p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-xs font-semibold block mb-1.5">Primary Ranking Metric</label>
+                      <select
+                        value={primaryCriterion}
+                        onChange={(e) => setPrimaryCriterion(e.target.value as any)}
+                        className="w-full px-3.5 py-2 text-sm border rounded-lg dark:bg-neutral-800 dark:border-neutral-700"
+                      >
+                        <option value="TOTAL_SCORE">Total Examination Score (Highest First)</option>
+                        <option value="ACCURACY">Candidate Accuracy Ratio</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="text-xs font-semibold block mb-1.5">Secondary Section Criterion</label>
+                      <select
+                        value={secondarySectionId}
+                        onChange={(e) => setSecondarySectionId(e.target.value)}
+                        className="w-full px-3.5 py-2 text-sm border rounded-lg dark:bg-neutral-800 dark:border-neutral-700"
+                      >
+                        {sections.map((s) => (
+                          <option key={s.id} value={s.id}>
+                            Section Score: {s.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="text-xs font-semibold block mb-1.5">Final Tie-Breaker Rule</label>
+                      <select
+                        value={tieBreakerRule}
+                        onChange={(e) => setTieBreakerRule(e.target.value as any)}
+                        className="w-full px-3.5 py-2 text-sm border rounded-lg dark:bg-neutral-800 dark:border-neutral-700"
+                      >
+                        <option value="SUBMISSION_TIME">Earlier Submission Timestamp (RPSC Standard)</option>
+                        <option value="FEWEST_INCORRECT">Fewest Negative/Incorrect Answers</option>
+                        <option value="ACCURACY">Higher Question Accuracy</option>
+                      </select>
+                    </div>
+                  </div>
+                </Card>
+              )}
+
+              {/* STEP 11: Proctoring */}
+              {currentStep === 11 && (
+                <Card className="p-6 space-y-6">
+                  <div>
+                    <h2 className="text-lg font-bold text-neutral-900 dark:text-white">Step 11: Proctoring & Integrity Architecture</h2>
+                    <p className="text-xs text-neutral-500">Configure real-time monitoring and configurable violation thresholds.</p>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between p-4 rounded-xl border border-neutral-200 dark:border-neutral-800">
+                      <div>
+                        <span className="font-semibold text-sm block">Proctored Examination Mode</span>
+                        <span className="text-xs text-neutral-500">Requires camera, microphone, and full-screen enforcement.</span>
+                      </div>
+                      <input
+                        type="checkbox"
+                        checked={isProctored}
+                        onChange={(e) => setIsProctored(e.target.checked)}
+                        className="w-5 h-5 rounded text-primary-600"
+                      />
+                    </div>
+
+                    {isProctored && (
+                      <div className="space-y-3">
+                        <div className="grid grid-cols-2 gap-3 text-xs">
+                          <label className="flex items-center gap-2 p-3 border rounded-lg">
+                            <input type="checkbox" checked={cameraRequired} onChange={(e) => setCameraRequired(e.target.checked)} />
+                            <span>Camera Required</span>
+                          </label>
+                          <label className="flex items-center gap-2 p-3 border rounded-lg">
+                            <input type="checkbox" checked={microphoneRequired} onChange={(e) => setMicrophoneRequired(e.target.checked)} />
+                            <span>Microphone Required</span>
+                          </label>
+                          <label className="flex items-center gap-2 p-3 border rounded-lg">
+                            <input type="checkbox" checked={entireScreenRequired} onChange={(e) => setEntireScreenRequired(e.target.checked)} />
+                            <span>Entire Screen Required</span>
+                          </label>
+                          <label className="flex items-center gap-2 p-3 border rounded-lg">
+                            <input type="checkbox" checked={fullscreenRequired} onChange={(e) => setFullscreenRequired(e.target.checked)} />
+                            <span>Fullscreen Required</span>
+                          </label>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4 pt-2">
+                          <div>
+                            <label className="text-xs font-semibold block mb-1">Max Tab/Window Violations</label>
+                            <input
+                              type="number"
+                              value={maxWindowViolations}
+                              onChange={(e) => setMaxWindowViolations(parseInt(e.target.value) || 1)}
+                              className="w-full px-3 py-1.5 border rounded-lg dark:bg-neutral-800 dark:border-neutral-700 font-mono text-xs"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-xs font-semibold block mb-1">Max Fullscreen Exits</label>
+                            <input
+                              type="number"
+                              value={maxFullscreenViolations}
+                              onChange={(e) => setMaxFullscreenViolations(parseInt(e.target.value) || 1)}
+                              className="w-full px-3 py-1.5 border rounded-lg dark:bg-neutral-800 dark:border-neutral-700 font-mono text-xs"
+                            />
+                          </div>
+                        </div>
                       </div>
                     )}
                   </div>
-                ))}
-              </div>
-            )}
-          </Card>
-        )}
+                </Card>
+              )}
 
-        {/* STEP 8: Publish */}
-        {currentStep === 8 && (
-          <Card className="p-8 border-border bg-card text-center space-y-6">
-            <div className="w-16 h-16 rounded-2xl bg-purple-500/10 text-purple-600 dark:text-purple-400 mx-auto flex items-center justify-center">
-              <Send className="w-8 h-8" />
+              {/* STEP 12: Schedule */}
+              {currentStep === 12 && (
+                <Card className="p-6 space-y-6">
+                  <div>
+                    <h2 className="text-lg font-bold text-neutral-900 dark:text-white">Step 12: Examination Schedule & Entry Window</h2>
+                    <p className="text-xs text-neutral-500">Specify controlled examination window, duration, and late entry policy.</p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                    <div>
+                      <label className="font-semibold block mb-1">Examination Date</label>
+                      <input
+                        type="date"
+                        value={examDate}
+                        onChange={(e) => setExamDate(e.target.value)}
+                        className="w-full px-3 py-2 border rounded-lg dark:bg-neutral-800 dark:border-neutral-700"
+                      />
+                    </div>
+                    <div>
+                      <label className="font-semibold block mb-1">Late Entry Grace Period (Minutes)</label>
+                      <input
+                        type="number"
+                        value={lateEntryGraceMinutes}
+                        onChange={(e) => setLateEntryGraceMinutes(parseInt(e.target.value) || 0)}
+                        className="w-full px-3 py-2 border rounded-lg dark:bg-neutral-800 dark:border-neutral-700 font-mono"
+                      />
+                    </div>
+                    <div>
+                      <label className="font-semibold block mb-1">Entry Window Start (Time)</label>
+                      <input
+                        type="time"
+                        value={windowStart}
+                        onChange={(e) => setWindowStart(e.target.value)}
+                        className="w-full px-3 py-2 border rounded-lg dark:bg-neutral-800 dark:border-neutral-700"
+                      />
+                    </div>
+                    <div>
+                      <label className="font-semibold block mb-1">Entry Window End (Time)</label>
+                      <input
+                        type="time"
+                        value={windowEnd}
+                        onChange={(e) => setWindowEnd(e.target.value)}
+                        className="w-full px-3 py-2 border rounded-lg dark:bg-neutral-800 dark:border-neutral-700"
+                      />
+                    </div>
+                  </div>
+                </Card>
+              )}
+
+              {/* STEP 13: Candidate Rules */}
+              {currentStep === 13 && (
+                <Card className="p-6 space-y-6">
+                  <div>
+                    <h2 className="text-lg font-bold text-neutral-900 dark:text-white">Step 13: Candidate Rules & Security</h2>
+                    <p className="text-xs text-neutral-500">Control paper stability, randomization, and score visibility.</p>
+                  </div>
+
+                  <div className="space-y-3 text-xs">
+                    <label className="flex items-center justify-between p-3.5 border rounded-xl">
+                      <div>
+                        <span className="font-semibold block">Randomize Question Sequence</span>
+                        <span className="text-neutral-500">Stable per attempt; candidate paper sequence will not change on refresh.</span>
+                      </div>
+                      <input type="checkbox" checked={randomizeQuestions} onChange={(e) => setRandomizeQuestions(e.target.checked)} />
+                    </label>
+                    <label className="flex items-center justify-between p-3.5 border rounded-xl">
+                      <div>
+                        <span className="font-semibold block">Randomize Option Order</span>
+                        <span className="text-neutral-500">Shuffles MCQ choices per candidate session.</span>
+                      </div>
+                      <input type="checkbox" checked={randomizeOptions} onChange={(e) => setRandomizeOptions(e.target.checked)} />
+                    </label>
+                    <label className="flex items-center justify-between p-3.5 border rounded-xl">
+                      <div>
+                        <span className="font-semibold block">Allow Back Navigation Across Questions</span>
+                        <span className="text-neutral-500">Enables candidates to review and revise previously answered questions.</span>
+                      </div>
+                      <input type="checkbox" checked={allowBackNavigation} onChange={(e) => setAllowBackNavigation(e.target.checked)} />
+                    </label>
+                    <label className="flex items-center justify-between p-3.5 border rounded-xl">
+                      <div>
+                        <span className="font-semibold block">Auto-Submit on Duration Expiry</span>
+                        <span className="text-neutral-500">Automatically finalizes attempt when timer hits 0.</span>
+                      </div>
+                      <input type="checkbox" checked={autoSubmitOnTimeout} onChange={(e) => setAutoSubmitOnTimeout(e.target.checked)} />
+                    </label>
+                  </div>
+                </Card>
+              )}
+
+              {/* STEP 14: Preview */}
+              {currentStep === 14 && (
+                <Card className="p-6 space-y-6">
+                  <div>
+                    <h2 className="text-lg font-bold text-neutral-900 dark:text-white">Step 14: Examination Preview</h2>
+                    <p className="text-xs text-neutral-500">Comprehensive paper pattern blueprint review prior to formal publish.</p>
+                  </div>
+
+                  <div className="p-5 rounded-2xl bg-neutral-900 text-white space-y-4">
+                    <div className="flex items-center justify-between border-b border-neutral-800 pb-3">
+                      <div>
+                        <span className="text-xs text-neutral-400 font-mono">STUDENTHUB OFFICIAL RECRUITMENT EXAMINATION</span>
+                        <h3 className="text-lg font-bold">{title}</h3>
+                      </div>
+                      <Badge className="bg-primary-600 text-white border-none">{examinationType}</Badge>
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 font-mono text-xs text-neutral-300">
+                      <div>Total Questions: <span className="text-white font-bold">{selectedQuestionIds.length || sectionTotalQuestions}</span></div>
+                      <div>Total Marks: <span className="text-white font-bold">{sectionTotalMarks}</span></div>
+                      <div>Duration: <span className="text-white font-bold">{durationMinutes} Mins</span></div>
+                      <div>Negative Rate: <span className="text-white font-bold">-{negativeMarkingRate}x</span></div>
+                    </div>
+
+                    <div className="space-y-2 pt-2 border-t border-neutral-800 text-xs">
+                      <span className="font-semibold text-neutral-400">Sections Blueprint:</span>
+                      {sections.map((s, i) => (
+                        <div key={s.id} className="flex justify-between items-center text-neutral-300">
+                          <span>{i + 1}. {s.name}</span>
+                          <span className="font-mono text-neutral-400">
+                            {s.totalQuestions} Questions ({s.easyCount || 0}E / {s.mediumCount || 0}M / {s.hardCount || 0}H) • {s.totalMarks} Marks
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </Card>
+              )}
+
+              {/* STEP 15: Publish */}
+              {currentStep === 15 && (
+                <Card className="p-6 space-y-6">
+                  <div>
+                    <h2 className="text-lg font-bold text-neutral-900 dark:text-white">Step 15: Readiness Checklist & Publish</h2>
+                    <p className="text-xs text-neutral-500">Ensure all mandatory requirements are validated before examination goes live.</p>
+                  </div>
+
+                  <div className="space-y-2.5">
+                    {checklist.map((item, idx) => (
+                      <div
+                        key={idx}
+                        className={`flex items-center justify-between p-3 rounded-xl border text-xs ${
+                          item.valid
+                            ? "bg-emerald-50/40 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-900/40 text-emerald-800 dark:text-emerald-300"
+                            : "bg-rose-50/40 dark:bg-rose-950/20 border-rose-200 dark:border-rose-900/40 text-rose-800 dark:text-rose-300"
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          {item.valid ? <CheckCircle2 className="w-4 h-4 text-emerald-600" /> : <AlertCircle className="w-4 h-4 text-rose-600" />}
+                          <span className="font-medium">{item.label}</span>
+                        </div>
+                        <Badge variant="outline" className={item.valid ? "border-emerald-300 text-emerald-700" : "border-rose-300 text-rose-700"}>
+                          {item.valid ? "READY" : "INCOMPLETE"}
+                        </Badge>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="pt-4 flex items-center justify-end gap-3 border-t border-neutral-200 dark:border-neutral-800">
+                    <Button variant="outline" onClick={handleSaveDraft} disabled={isSaving}>
+                      Save as Draft
+                    </Button>
+                    <Button
+                      onClick={handlePublishAssessment}
+                      disabled={isPublishing || !allChecksPass}
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold"
+                    >
+                      <Send className="w-4 h-4 mr-1.5" />
+                      {isPublishing ? "Publishing Examination..." : "Publish & Lock Version"}
+                    </Button>
+                  </div>
+                </Card>
+              )}
+
+              {/* Stepper Navigation Buttons */}
+              <div className="flex items-center justify-between pt-4 border-t border-neutral-200 dark:border-neutral-800">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentStep(Math.max(1, currentStep - 1))}
+                  disabled={currentStep === 1}
+                  className="text-xs"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5 mr-1" /> Previous Step
+                </Button>
+
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-neutral-400">Step {currentStep} of {STEPS.length}</span>
+                  <Button
+                    size="sm"
+                    onClick={() => setCurrentStep(Math.min(STEPS.length, currentStep + 1))}
+                    disabled={currentStep === STEPS.length}
+                    className="text-xs bg-neutral-900 hover:bg-neutral-800 dark:bg-white dark:text-neutral-900 text-white"
+                  >
+                    Next Step <ArrowRight className="w-3.5 h-3.5 ml-1" />
+                  </Button>
+                </div>
+              </div>
             </div>
 
-            <div className="max-w-md mx-auto space-y-2">
-              <h2 className="text-xl font-extrabold text-foreground">Ready to Publish Assessment?</h2>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Publishing will freeze all {selectedQuestions.length} questions into an immutable version snapshot. Future edits in the question bank will not affect active examination attempts.
-              </p>
-            </div>
+            {/* Live Exam Blueprint Summary Panel (Right Column) */}
+            <div className="lg:col-span-1 space-y-4">
+              <Card className="p-4 space-y-4 sticky top-24">
+                <div className="flex items-center justify-between border-b border-neutral-200 dark:border-neutral-800 pb-2">
+                  <span className="font-bold text-xs uppercase tracking-wider text-neutral-700 dark:text-neutral-300">
+                    Exam Blueprint
+                  </span>
+                  <Badge variant="outline" className="text-[10px] font-mono">
+                    v1 DRAFT
+                  </Badge>
+                </div>
 
-            <div className="p-4 rounded-xl bg-muted/50 border border-border max-w-md mx-auto text-xs space-y-2 text-left">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Assessment Title:</span>
-                <strong className="text-foreground">{title}</strong>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Duration:</span>
-                <strong className="text-foreground">{durationMinutes} Minutes</strong>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Questions Snapshot:</span>
-                <strong className="text-foreground">{selectedQuestions.length} Questions</strong>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Passing Score:</span>
-                <strong className="text-foreground">{passingMarks} / {totalCalculatedMarks} pts ({passingPercentage}%)</strong>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Proctoring Mode:</span>
-                <strong className="text-foreground">{isProctored ? "Strict Proctored" : "Standard"}</strong>
-              </div>
-            </div>
+                <div className="space-y-2.5 text-xs">
+                  <div className="flex justify-between">
+                    <span className="text-neutral-500">Drive:</span>
+                    <span className="font-semibold text-right truncate max-w-[120px]">{selectedDrive?.title || "Not selected"}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-neutral-500">Type:</span>
+                    <span className="font-semibold">{examinationType}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-neutral-500">Duration:</span>
+                    <span className="font-mono font-semibold">{durationMinutes} Mins</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-neutral-500">Sections:</span>
+                    <span className="font-mono font-semibold">{sections.length}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-neutral-500">Total Marks:</span>
+                    <span className="font-mono font-bold text-neutral-900 dark:text-white">{sectionTotalMarks}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-neutral-500">Passing:</span>
+                    <span className="font-mono font-semibold text-emerald-600">{passingMarks} Marks ({passingPercentage}%)</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-neutral-500">Cutoff:</span>
+                    <span className="font-mono font-semibold text-primary-600">{cutoffType} ({cutoffValue}%)</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-neutral-500">Negative Rate:</span>
+                    <span className="font-mono font-semibold text-rose-600">-{negativeMarkingRate}x</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-neutral-500">Questions:</span>
+                    <span className="font-mono font-semibold">{selectedQuestionIds.length} attached</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-neutral-500">Proctoring:</span>
+                    <span className="font-semibold">{isProctored ? "Proctored (Active)" : "Standard"}</span>
+                  </div>
+                </div>
 
-            <div className="flex items-center justify-center gap-3 pt-2">
-              <Button variant="outline" size="md" onClick={() => setCurrentStep(7)}>
-                Review Questions
-              </Button>
-              <Button
-                variant="gradient"
-                size="md"
-                onClick={handlePublishAssessment}
-                disabled={isPublishing}
-                leftIcon={<CheckCircle2 className="w-4 h-4" />}
-              >
-                {isPublishing ? "Freezing & Publishing..." : "Confirm & Publish Assessment"}
-              </Button>
+                <div className="pt-3 border-t border-neutral-200 dark:border-neutral-800 space-y-2">
+                  <span className="text-[11px] font-semibold text-neutral-500 block">Section Breakdown:</span>
+                  {sections.map((sec, idx) => (
+                    <div key={sec.id} className="text-[11px] flex justify-between text-neutral-600 dark:text-neutral-400">
+                      <span className="truncate max-w-[130px]">{idx + 1}. {sec.name}</span>
+                      <span className="font-mono">{sec.totalMarks}M</span>
+                    </div>
+                  ))}
+                </div>
+              </Card>
             </div>
-          </Card>
-        )}
+          </div>
+        </main>
       </div>
     </RoleGuard>
   );
