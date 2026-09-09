@@ -264,7 +264,7 @@ export default function AdminUsersPage() {
                           </div>
                         ) : u.college ? (
                           <div className="flex items-center gap-1.5">
-                            <GraduationCap className="w-3.5 h-3.5 text-purple-500" />
+                            <GraduationCap className="w-3.5 h-3.5 text-blue-500" />
                             <span>{u.college}</span>
                           </div>
                         ) : (
@@ -273,7 +273,7 @@ export default function AdminUsersPage() {
                       </td>
                       <td className="py-3 px-4">
                         {isSuspended ? (
-                          <div className="inline-flex items-center gap-1 text-[11px] font-semibold text-rose-600 dark:text-rose-400 bg-rose-500/10 px-2 py-0.5 rounded-md border border-rose-500/20">
+                          <div className="inline-flex items-center gap-1 text-[11px] font-semibold text-rose-600 dark:text-rose-400 bg-primary/10 px-2 py-0.5 rounded-md border border-rose-500/20">
                             <ShieldAlert className="w-3 h-3" />
                             Suspended
                           </div>
@@ -302,7 +302,7 @@ export default function AdminUsersPage() {
                             <Button
                               variant="outline"
                               size="sm"
-                              className="text-emerald-600 border-emerald-500/30 hover:bg-emerald-500/10"
+                              className="text-emerald-600 border-blue-500/30 hover:bg-emerald-500/10"
                               onClick={() => handleOpenAction(u, "REACTIVATE")}
                             >
                               Reactivate
@@ -312,7 +312,7 @@ export default function AdminUsersPage() {
                               variant="outline"
                               size="sm"
                               disabled={isSelf}
-                              className="text-rose-600 border-rose-500/30 hover:bg-rose-500/10 disabled:opacity-40"
+                              className="text-rose-600 border-rose-500/30 hover:bg-primary/10 disabled:opacity-40"
                               onClick={() => handleOpenAction(u, "SUSPEND")}
                             >
                               Suspend
@@ -340,7 +340,7 @@ export default function AdminUsersPage() {
                 ) : actionType === "REACTIVATE" ? (
                   <CheckCircle2 className="w-5 h-5 text-emerald-500" />
                 ) : (
-                  <Shield className="w-5 h-5 text-purple-500" />
+                  <Shield className="w-5 h-5 text-blue-500" />
                 )}
                 <h3 className="font-bold text-base text-foreground">
                   {actionType === "SUSPEND"

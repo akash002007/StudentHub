@@ -75,7 +75,7 @@ export default function RecruiterCompanyProfilePage() {
         {/* Banner and Profile Card */}
         <div className="rounded-3xl border border-border bg-card overflow-hidden shadow-sm">
           {/* Cover Banner */}
-          <div className="h-44 sm:h-52 w-full relative bg-gradient-to-r from-purple-900 via-indigo-900 to-blue-900 overflow-hidden">
+          <div className="h-44 sm:h-52 w-full relative bg-gradient-to-r from-blue-700 via-blue-600 to-blue-800 text-white overflow-hidden">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={recruiterCompany.bannerImage}
@@ -115,7 +115,7 @@ export default function RecruiterCompanyProfilePage() {
                   rel="noreferrer"
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-border bg-muted/50 hover:bg-muted text-xs font-semibold text-foreground transition-colors"
                 >
-                  <Globe className="w-3.5 h-3.5 text-purple-500" />
+                  <Globe className="w-3.5 h-3.5 text-blue-500" />
                   <span>Visit Website</span>
                   <ExternalLink className="w-3 h-3 opacity-60" />
                 </a>
@@ -136,7 +136,7 @@ export default function RecruiterCompanyProfilePage() {
               </p>
               <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground pt-1">
                 <span className="flex items-center gap-1">
-                  <Building2 className="w-3.5 h-3.5 text-purple-500" />
+                  <Building2 className="w-3.5 h-3.5 text-blue-500" />
                   {recruiterCompany.industry}
                 </span>
                 <span>•</span>
@@ -205,7 +205,7 @@ export default function RecruiterCompanyProfilePage() {
                       </h4>
                       <p className="text-[11px] text-muted-foreground mt-0.5">
                         {listing.department} • {listing.location} •{" "}
-                        <span className="font-semibold text-purple-600 dark:text-purple-400">
+                        <span className="font-semibold text-blue-600 dark:text-blue-400">
                           {listing.stipend}
                         </span>
                       </p>
@@ -244,7 +244,7 @@ export default function RecruiterCompanyProfilePage() {
             {/* Tech Stack */}
             <Card className="p-6 border-border/80 bg-card space-y-4">
               <div className="flex items-center gap-2">
-                <Layers className="w-4 h-4 text-purple-500" />
+                <Layers className="w-4 h-4 text-blue-500" />
                 <h3 className="font-bold text-base text-foreground">Engineering Tech Stack</h3>
               </div>
 
@@ -314,7 +314,7 @@ export default function RecruiterCompanyProfilePage() {
                 rows={3}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="w-full p-3 rounded-xl bg-card border border-border text-xs text-foreground focus:outline-none focus:border-purple-500"
+                className="w-full p-3 rounded-xl bg-card border border-border text-xs text-foreground focus:outline-none focus:border-blue-500"
               />
             </div>
             <div>
@@ -325,7 +325,7 @@ export default function RecruiterCompanyProfilePage() {
                 rows={3}
                 value={about}
                 onChange={(e) => setAbout(e.target.value)}
-                className="w-full p-3 rounded-xl bg-card border border-border text-xs text-foreground focus:outline-none focus:border-purple-500"
+                className="w-full p-3 rounded-xl bg-card border border-border text-xs text-foreground focus:outline-none focus:border-blue-500"
               />
             </div>
 

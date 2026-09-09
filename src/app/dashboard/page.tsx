@@ -87,12 +87,12 @@ export default function DashboardHomePage() {
   return (
     <div className="space-y-8">
       {/* Dynamic Greeting & Career Overview Banner */}
-      <div className="relative rounded-3xl p-6 sm:p-8 bg-gradient-to-br from-purple-900/20 via-card to-blue-900/15 border border-purple-500/20 shadow-sm overflow-hidden">
+      <div className="relative rounded-3xl p-6 sm:p-8 bg-surface-container border border-outline-variant shadow-[0_1px_4px_rgba(0,0,0,0.02)] overflow-hidden">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2">
             <div className="flex items-center gap-2">
               <Badge variant="gradient" size="sm" className="font-semibold">
-                <Sparkles className="w-3 h-3 text-purple-600 dark:text-purple-400" />
+                <Sparkles className="w-3 h-3 text-blue-600 dark:text-blue-400" />
                 Candidate Recruitment Hub
               </Badge>
               <span className="text-xs text-muted-foreground">
@@ -121,17 +121,17 @@ export default function DashboardHomePage() {
           <div className="p-4 rounded-2xl bg-card/80 border border-border/80 backdrop-blur-md shrink-0 w-full md:w-72 space-y-2.5 shadow-xs">
             <div className="flex items-center justify-between text-xs font-semibold">
               <span className="text-foreground">Profile Strength</span>
-              <span className="text-purple-600 dark:text-purple-400 font-bold">85%</span>
+              <span className="text-blue-600 dark:text-blue-400 font-bold">85%</span>
             </div>
             <div className="w-full h-2 rounded-full bg-muted overflow-hidden">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-purple-600 to-blue-600 transition-all duration-500"
+                className="h-full rounded-full bg-primary transition-all duration-500"
                 style={{ width: "85%" }}
               />
             </div>
             <p className="text-[11px] text-muted-foreground flex items-center justify-between">
               <span>Verified Academic Records</span>
-              <Link href="/dashboard/profile" className="text-purple-600 font-semibold hover:underline">
+              <Link href="/dashboard/profile" className="text-blue-600 font-semibold hover:underline">
                 Profile &rarr;
               </Link>
             </p>
@@ -144,8 +144,9 @@ export default function DashboardHomePage() {
 
       {/* Quick Statistics Overview Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-        <Link href="/dashboard/applications">
-          <Card hoverEffect className="p-5 border-border/80 bg-card cursor-pointer">
+        <Link href="/dashboard/applications" className="group">
+          <Card hoverEffect className="p-5 border border-outline-variant bg-surface-container-lowest cursor-pointer shadow-[0_1px_4px_rgba(0,0,0,0.02)] hover:shadow-md transition-all relative overflow-hidden h-full">
+            <div className="absolute inset-0 bg-blue-500/10 blur-3xl -z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 Active Applications
@@ -158,18 +159,19 @@ export default function DashboardHomePage() {
               {kpis.activeApplicationsCount}
             </div>
             <p className="text-[11px] text-muted-foreground mt-1 flex items-center gap-1">
-              <span className="text-purple-600 dark:text-purple-400 font-semibold">In Selection Pipeline</span>
+              <span className="text-blue-600 dark:text-blue-400 font-semibold">In Selection Pipeline</span>
             </p>
           </Card>
         </Link>
 
-        <Link href="/dashboard/assessments">
-          <Card hoverEffect className="p-5 border-border/80 bg-card cursor-pointer">
+        <Link href="/dashboard/assessments" className="group">
+          <Card hoverEffect className="p-5 border border-outline-variant bg-surface-container-lowest cursor-pointer shadow-[0_1px_4px_rgba(0,0,0,0.02)] hover:shadow-md transition-all relative overflow-hidden h-full">
+            <div className="absolute inset-0 bg-blue-500/10 blur-3xl -z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 Assessments
               </span>
-              <div className="w-8 h-8 rounded-xl bg-purple-500/10 text-purple-500 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center">
                 <FileText className="w-4 h-4" />
               </div>
             </div>
@@ -177,13 +179,14 @@ export default function DashboardHomePage() {
               {kpis.upcomingAssessmentsCount}
             </div>
             <p className="text-[11px] text-muted-foreground mt-1 flex items-center gap-1">
-              <span className="text-purple-500 font-semibold">Coding & Technical Tests</span>
+              <span className="text-blue-500 font-semibold">Coding & Technical Tests</span>
             </p>
           </Card>
         </Link>
 
-        <Link href="/dashboard/interviews">
-          <Card hoverEffect className="p-5 border-border/80 bg-card cursor-pointer">
+        <Link href="/dashboard/interviews" className="group">
+          <Card hoverEffect className="p-5 border border-outline-variant bg-surface-container-lowest cursor-pointer shadow-[0_1px_4px_rgba(0,0,0,0.02)] hover:shadow-md transition-all relative overflow-hidden h-full">
+            <div className="absolute inset-0 bg-blue-500/10 blur-3xl -z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 Interviews Scheduled
@@ -201,8 +204,9 @@ export default function DashboardHomePage() {
           </Card>
         </Link>
 
-        <Link href="/dashboard/results">
-          <Card hoverEffect className="p-5 border-border/80 bg-card cursor-pointer">
+        <Link href="/dashboard/results" className="group">
+          <Card hoverEffect className="p-5 border border-outline-variant bg-surface-container-lowest cursor-pointer shadow-[0_1px_4px_rgba(0,0,0,0.02)] hover:shadow-md transition-all relative overflow-hidden h-full">
+            <div className="absolute inset-0 bg-blue-500/10 blur-3xl -z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 Selections & Merit
@@ -246,8 +250,9 @@ export default function DashboardHomePage() {
               <Card
                 key={drive.id}
                 hoverEffect
-                className="p-5 border-border bg-card space-y-3.5 transition-all"
+                className="p-5 border border-outline-variant bg-surface-container-lowest space-y-3.5 shadow-[0_1px_4px_rgba(0,0,0,0.02)] hover:shadow-md transition-all relative overflow-hidden group z-0"
               >
+                <div className="absolute inset-0 bg-blue-500/10 blur-3xl -z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 rounded-xl overflow-hidden bg-muted border border-border shrink-0 p-1 flex items-center justify-center">
@@ -268,7 +273,7 @@ export default function DashboardHomePage() {
                       </h3>
                       <p className="text-xs text-muted-foreground mt-0.5 font-medium">
                         {drive.company} • {drive.location} ({drive.workMode}) •{" "}
-                        <span className="font-semibold text-purple-600 dark:text-purple-400">
+                        <span className="font-semibold text-blue-600 dark:text-blue-400">
                           {drive.salaryStipend}
                         </span>
                       </p>
@@ -311,11 +316,11 @@ export default function DashboardHomePage() {
         <div className="lg:col-span-5 space-y-6">
           {/* Upcoming Events Box */}
           {upcomingEvents.length > 0 && (
-            <Card className="p-5 border-border bg-card space-y-4">
+            <Card className="p-5 border border-outline-variant bg-surface-container-lowest space-y-4 shadow-[0_1px_4px_rgba(0,0,0,0.02)] relative overflow-hidden z-0">
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="font-bold text-sm text-foreground flex items-center gap-2">
-                    <Calendar className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                    <Calendar className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                     Upcoming Recruitment Schedule
                   </h3>
                   <p className="text-xs text-muted-foreground">Assigned tests &amp; interview rounds</p>
@@ -325,11 +330,11 @@ export default function DashboardHomePage() {
               <div className="space-y-3">
                 {upcomingEvents.map((evt: any) => (
                   <Link key={evt.id} href={evt.link}>
-                    <div className="p-3 rounded-2xl bg-muted/40 border border-border flex items-center justify-between text-xs hover:border-purple-500/40 transition-colors cursor-pointer">
+                    <div className="p-3 rounded-2xl bg-muted/40 border border-border flex items-center justify-between text-xs hover:border-blue-500/40 transition-colors cursor-pointer">
                       <div className="space-y-0.5">
                         <div className="font-bold text-foreground">{evt.title}</div>
                         <div className="text-[11px] text-muted-foreground">{evt.subtitle}</div>
-                        <div className="text-[10px] text-purple-600 dark:text-purple-400 font-semibold">
+                        <div className="text-[10px] text-blue-600 dark:text-blue-400 font-semibold">
                           {evt.date} {evt.time ? `• ${evt.time}` : ""}
                         </div>
                       </div>
@@ -345,7 +350,7 @@ export default function DashboardHomePage() {
           )}
 
           {/* Active Applications Mini-Tracker */}
-          <Card className="p-5 border-border bg-card space-y-4">
+          <Card className="p-5 border border-outline-variant bg-surface-container-lowest space-y-4 shadow-[0_1px_4px_rgba(0,0,0,0.02)] relative overflow-hidden z-0">
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="font-bold text-sm text-foreground">Application Pipeline</h3>

@@ -133,7 +133,7 @@ export default function CandidateScreeningPage() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 text-xs font-semibold text-purple-600 dark:text-purple-400 mb-1">
+            <div className="flex items-center gap-2 text-xs font-semibold text-blue-600 dark:text-blue-400 mb-1">
               <Sparkles className="w-3.5 h-3.5" />
               <span>Screening Engine</span>
             </div>
@@ -190,7 +190,7 @@ export default function CandidateScreeningPage() {
               onClick={() => setActiveTab("ALL")}
               className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
                 activeTab === "ALL"
-                  ? "bg-purple-600 text-white shadow-xs"
+                  ? "bg-blue-600 text-white shadow-xs"
                   : "bg-muted text-muted-foreground hover:text-foreground"
               }`}
             >
@@ -203,7 +203,7 @@ export default function CandidateScreeningPage() {
             <select
               value={selectedDriveId}
               onChange={(e) => setSelectedDriveId(e.target.value)}
-              className="h-9 px-3 text-xs rounded-xl bg-card border border-border focus:outline-none focus:border-purple-500"
+              className="h-9 px-3 text-xs rounded-xl bg-card border border-border focus:outline-none focus:border-blue-500"
             >
               <option value="all">All Drives</option>
               {drives.map((d) => (
@@ -220,7 +220,7 @@ export default function CandidateScreeningPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Filter screening..."
-                className="w-full h-9 pl-9 pr-3 text-xs rounded-xl bg-card border border-border focus:outline-none focus:border-purple-500"
+                className="w-full h-9 pl-9 pr-3 text-xs rounded-xl bg-card border border-border focus:outline-none focus:border-blue-500"
               />
             </div>
           </div>
@@ -242,7 +242,7 @@ export default function CandidateScreeningPage() {
             {displayedList.map((app) => (
               <Card
                 key={app.id}
-                className="p-5 border-border/80 hover:border-purple-500/40 transition-all bg-card flex flex-col justify-between space-y-4 shadow-xs"
+                className="p-5 border-border/80 hover:border-blue-500/40 transition-all bg-card flex flex-col justify-between space-y-4 shadow-xs"
               >
                 {/* Candidate top info */}
                 <div className="space-y-3">
@@ -254,7 +254,7 @@ export default function CandidateScreeningPage() {
                         <div className="text-[11px] text-muted-foreground">
                           {app.degree} • {app.university}
                         </div>
-                        <div className="text-[11px] text-purple-600 dark:text-purple-400 font-semibold mt-0.5">
+                        <div className="text-[11px] text-blue-600 dark:text-blue-400 font-semibold mt-0.5">
                           {app.driveTitle}
                         </div>
                       </div>
@@ -265,10 +265,10 @@ export default function CandidateScreeningPage() {
                         <span
                           className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold ${
                             app.eligibility.status === "ELIGIBLE"
-                              ? "bg-emerald-500/10 text-emerald-600 border border-emerald-500/30"
+                              ? "bg-emerald-500/10 text-emerald-600 border border-blue-500/30"
                               : app.eligibility.status === "REQUIRES_MANUAL_REVIEW"
-                              ? "bg-amber-500/10 text-amber-600 border border-amber-500/30"
-                              : "bg-rose-500/10 text-rose-600 border border-rose-500/30"
+                              ? "bg-amber-500/10 text-amber-600 border border-blue-500/30"
+                              : "bg-primary/10 text-rose-600 border border-rose-500/30"
                           }`}
                         >
                           {app.eligibility.status === "ELIGIBLE" ? (

@@ -30,7 +30,7 @@ export function CommunityShowcase() {
           {displayCommunities.map((comm) => (
             <Card key={comm.id} hoverEffect className="p-6 border-border/80 bg-card flex flex-col justify-between">
               <div>
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500/20 to-blue-500/20 border border-purple-500/30 flex items-center justify-center text-purple-600 dark:text-purple-400 mb-4">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-700 to-blue-800 to-blue-500/20 border border-blue-500/30 flex items-center justify-center text-blue-600 dark:text-blue-400 mb-4">
                   {comm.category === "AI & ML" ? (
                     <Brain className="w-6 h-6" />
                   ) : comm.category === "Web Development" ? (
@@ -55,7 +55,7 @@ export function CommunityShowcase() {
 
               <div className="pt-4 border-t border-border/60 flex items-center justify-between text-xs text-muted-foreground">
                 <span className="flex items-center gap-1">
-                  <Users className="w-3.5 h-3.5 text-purple-500" />
+                  <Users className="w-3.5 h-3.5 text-blue-500" />
                   {comm.membersCount.toLocaleString()} members
                 </span>
                 <span className="flex items-center gap-1">

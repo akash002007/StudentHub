@@ -132,7 +132,7 @@ export function LeetCodeInsights({
 
       {/* Sync Failure Banner if sync failed */}
       {connection.syncStatus === "FAILED" && (
-        <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-xs text-rose-600 dark:text-rose-400 flex items-center gap-2">
+        <div className="p-3.5 rounded-xl bg-primary/10 border border-rose-500/20 text-xs text-rose-600 dark:text-rose-400 flex items-center gap-2">
           <AlertTriangle className="w-4 h-4 shrink-0" />
           <span>
             {connection.error || "Sync failed. Try again."} (Previous valid statistics have been preserved.)
@@ -243,7 +243,7 @@ export function LeetCodeInsights({
                 </div>
                 <div className="w-full h-2 rounded-full bg-muted overflow-hidden">
                   <div
-                    className="h-full bg-rose-500 rounded-full transition-all"
+                    className="h-full bg-primary rounded-full transition-all"
                     style={{ width: `${hardPct}%` }}
                   />
                 </div>

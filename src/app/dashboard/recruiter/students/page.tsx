@@ -203,7 +203,7 @@ export default function RecruiterFindStudentsPage() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 text-xs font-semibold text-purple-600 dark:text-purple-400 mb-1">
+            <div className="flex items-center gap-2 text-xs font-semibold text-blue-600 dark:text-blue-400 mb-1">
               <Sparkles className="w-3.5 h-3.5" />
               <span>Talent Discovery &amp; Career DNA</span>
             </div>
@@ -324,7 +324,7 @@ export default function RecruiterFindStudentsPage() {
               <button
                 type="button"
                 onClick={resetFilters}
-                className="flex items-center gap-1 text-xs text-purple-600 dark:text-purple-400 hover:underline font-semibold"
+                className="flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 hover:underline font-semibold"
               >
                 <X className="w-3.5 h-3.5" />
                 Reset all filters
@@ -369,7 +369,7 @@ export default function RecruiterFindStudentsPage() {
                     onClick={() => toggleShortlistCandidate(student.id)}
                     className={`p-2 rounded-xl transition-all ${
                       student.isShortlisted
-                        ? "bg-purple-600 text-white shadow-sm"
+                        ? "bg-blue-600 text-white shadow-sm"
                         : "bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/80"
                     }`}
                     title={student.isShortlisted ? "Remove from shortlist" : "Add to shortlist"}
@@ -380,7 +380,7 @@ export default function RecruiterFindStudentsPage() {
 
                 {/* Stream & GPA pill */}
                 <div className="flex items-center justify-between text-xs p-2 rounded-xl bg-muted/40 border border-border/50 gap-2">
-                  <span className="font-semibold text-purple-600 dark:text-purple-400 text-[11px] truncate">
+                  <span className="font-semibold text-blue-600 dark:text-blue-400 text-[11px] truncate">
                     {student.academicStream || student.status}
                   </span>
                   <span className="font-bold text-emerald-600 dark:text-emerald-400 shrink-0">
@@ -436,7 +436,7 @@ export default function RecruiterFindStudentsPage() {
                 {student.projects && student.projects.length > 0 && (
                   <div className="pt-2 border-t border-border/40 text-[11px] text-muted-foreground flex items-center justify-between">
                     <span className="flex items-center gap-1 truncate mr-2">
-                      <Code2 className="w-3.5 h-3.5 text-purple-500 shrink-0" />
+                      <Code2 className="w-3.5 h-3.5 text-blue-500 shrink-0" />
                       <strong className="text-foreground truncate">
                         {student.projects[0].title}
                       </strong>

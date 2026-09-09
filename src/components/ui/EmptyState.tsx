@@ -27,7 +27,7 @@ export function EmptyState({
         className
       )}
     >
-      <div className="w-12 h-12 rounded-2xl bg-purple-500/10 dark:bg-purple-500/20 text-purple-600 dark:text-purple-400 flex items-center justify-center mb-4">
+      <div className="w-12 h-12 rounded-2xl bg-blue-500/10 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-4">
         {icon || <FolderSearch className="w-6 h-6" />}
       </div>
       <h4 className="text-base font-semibold text-foreground mb-1">{title}</h4>

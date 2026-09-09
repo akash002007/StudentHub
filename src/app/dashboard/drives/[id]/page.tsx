@@ -116,7 +116,7 @@ export default function StudentDriveDetailPage({
     return (
       <RoleGuard allowedRole="student">
         <div className="py-24 text-center">
-          <div className="inline-block w-8 h-8 border-3 border-purple-600 border-t-transparent rounded-full animate-spin mb-3" />
+          <div className="inline-block w-8 h-8 border-3 border-blue-600 border-t-transparent rounded-full animate-spin mb-3" />
           <p className="text-xs text-muted-foreground">Loading recruitment drive details...</p>
         </div>
       </RoleGuard>
@@ -187,7 +187,7 @@ export default function StudentDriveDetailPage({
 
               <div className="min-w-0 space-y-1">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-xs font-bold text-purple-600 dark:text-purple-400">
+                  <span className="text-xs font-bold text-blue-600 dark:text-blue-400">
                     {drive.company}
                   </span>
                   <span className="text-muted-foreground text-xs">•</span>
@@ -241,7 +241,7 @@ export default function StudentDriveDetailPage({
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 pt-6 border-t border-border/80">
             <div className="p-3 rounded-xl bg-muted/40 text-xs">
               <span className="text-muted-foreground block text-[11px]">Salary / Stipend</span>
-              <strong className="text-foreground text-sm font-bold text-purple-600 dark:text-purple-400">
+              <strong className="text-foreground text-sm font-bold text-blue-600 dark:text-blue-400">
                 {drive.salaryStipend}
               </strong>
             </div>
@@ -249,7 +249,7 @@ export default function StudentDriveDetailPage({
             <div className="p-3 rounded-xl bg-muted/40 text-xs">
               <span className="text-muted-foreground block text-[11px]">Location & Mode</span>
               <strong className="text-foreground text-xs font-semibold flex items-center gap-1 mt-0.5">
-                <MapPin className="w-3.5 h-3.5 text-purple-500 shrink-0" />
+                <MapPin className="w-3.5 h-3.5 text-blue-500 shrink-0" />
                 {drive.location} ({drive.workMode})
               </strong>
             </div>
@@ -283,7 +283,7 @@ export default function StudentDriveDetailPage({
             {/* Overview & Description */}
             <Card className="p-6 border-border bg-card space-y-4">
               <h2 className="text-base font-bold text-foreground flex items-center gap-2">
-                <FileText className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                <FileText className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                 Role Overview & Responsibilities
               </h2>
 
@@ -299,7 +299,7 @@ export default function StudentDriveDetailPage({
                   {drive.eligibilityCriteria.requiredSkills.map((skill) => (
                     <span
                       key={skill}
-                      className="px-3 py-1 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 text-xs font-semibold"
+                      className="px-3 py-1 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 text-xs font-semibold"
                     >
                       {skill}
                     </span>
@@ -312,7 +312,7 @@ export default function StudentDriveDetailPage({
             <Card className="p-6 border-border bg-card space-y-4">
               <div className="flex items-center justify-between">
                 <h2 className="text-base font-bold text-foreground flex items-center gap-2">
-                  <Layers className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                  <Layers className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                   Selection Pipeline & Stages
                 </h2>
                 <span className="text-xs text-muted-foreground font-medium">
@@ -328,7 +328,7 @@ export default function StudentDriveDetailPage({
                       key={stage.id}
                       className={`p-4 rounded-2xl border transition-all ${
                         isCurrent
-                          ? "bg-purple-500/10 border-purple-500/40 ring-1 ring-purple-500/20"
+                          ? "bg-blue-500/10 border-blue-500/40 ring-1 ring-blue-500/20"
                           : "bg-muted/30 border-border"
                       }`}
                     >
@@ -371,7 +371,7 @@ export default function StudentDriveDetailPage({
             <Card className="p-5 border-border bg-card space-y-4 shadow-sm">
               <div className="flex items-center justify-between">
                 <h3 className="font-bold text-sm text-foreground flex items-center gap-2">
-                  <GraduationCap className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                  <GraduationCap className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                   Eligibility Verification
                 </h3>
 
@@ -444,7 +444,7 @@ export default function StudentDriveDetailPage({
             {/* Required Documents Checklist */}
             <Card className="p-5 border-border bg-card space-y-3.5">
               <h3 className="font-bold text-sm text-foreground flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                <ShieldCheck className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                 Required Application Documents
               </h3>
 
@@ -464,7 +464,7 @@ export default function StudentDriveDetailPage({
                   {studentProfileSummary?.hasResume ? (
                     <CheckCircle2 className="w-4 h-4 text-emerald-500" />
                   ) : (
-                    <Link href="/dashboard/profile" className="text-purple-600 font-bold hover:underline">
+                    <Link href="/dashboard/profile" className="text-blue-600 font-bold hover:underline">
                       Upload Resume &rarr;
                     </Link>
                   )}
@@ -505,7 +505,7 @@ export default function StudentDriveDetailPage({
               <div className="p-4 rounded-2xl bg-muted/50 border border-border text-xs space-y-1.5 text-left max-w-sm mx-auto">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Application ID:</span>
-                  <strong className="text-purple-600 dark:text-purple-400 font-mono font-bold">
+                  <strong className="text-blue-600 dark:text-blue-400 font-mono font-bold">
                     {submittedApplicationId}
                   </strong>
                 </div>
@@ -535,9 +535,9 @@ export default function StudentDriveDetailPage({
             </div>
           ) : (
             <div className="space-y-4 text-xs sm:text-sm">
-              <div className="p-4 rounded-2xl bg-purple-500/10 border border-purple-500/20 space-y-2">
+              <div className="p-4 rounded-2xl bg-blue-500/10 border border-blue-500/20 space-y-2">
                 <h4 className="font-bold text-foreground flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                  <Sparkles className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                   Application Package Summary
                 </h4>
                 <p className="text-xs text-muted-foreground leading-relaxed">
@@ -568,7 +568,7 @@ export default function StudentDriveDetailPage({
                   onChange={(e) => setCandidateNotes(e.target.value)}
                   placeholder="Share any relevant projects, publications, or notes..."
                   rows={3}
-                  className="w-full p-3 rounded-xl bg-background border border-border text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
+                  className="w-full p-3 rounded-xl bg-background border border-border text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                 />
               </div>
 

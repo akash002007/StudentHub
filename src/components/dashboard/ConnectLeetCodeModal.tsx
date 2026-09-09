@@ -188,7 +188,7 @@ export function ConnectLeetCodeModal({
             />
 
             {errorMessage && (
-              <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-xs text-rose-600 dark:text-rose-400 font-semibold flex items-center gap-2">
+              <div className="p-3 rounded-xl bg-primary/10 border border-rose-500/20 text-xs text-rose-600 dark:text-rose-400 font-semibold flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 shrink-0" />
                 <span>{errorMessage}</span>
               </div>
@@ -227,7 +227,7 @@ export function ConnectLeetCodeModal({
         {/* STEP 2: Account Ownership Verification */}
         {step === 2 && (
           <div className="space-y-4">
-            <div className="p-4 rounded-2xl bg-amber-500/10 dark:bg-amber-950/40 border border-amber-500/30 space-y-3">
+            <div className="p-4 rounded-2xl bg-amber-500/10 dark:bg-amber-950/40 border border-blue-500/30 space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-foreground dark:text-slate-100 flex items-center gap-1.5">
                   <ShieldCheck className="w-4 h-4 text-amber-500" /> Your Single-Use Verification Code
@@ -238,7 +238,7 @@ export function ConnectLeetCodeModal({
               </div>
 
               {/* Copyable Code Card */}
-              <div className="flex items-center justify-between p-3 rounded-xl bg-card dark:bg-[#161924] border border-amber-500/30">
+              <div className="flex items-center justify-between p-3 rounded-xl bg-card dark:bg-[#161924] border border-blue-500/30">
                 <code className="text-sm font-extrabold text-amber-600 dark:text-amber-400 tracking-wider font-mono">
                   {verificationToken}
                 </code>
@@ -285,7 +285,7 @@ export function ConnectLeetCodeModal({
             </div>
 
             {errorMessage && (
-              <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-xs text-rose-600 dark:text-rose-400 font-semibold flex items-center gap-2">
+              <div className="p-3 rounded-xl bg-primary/10 border border-rose-500/20 text-xs text-rose-600 dark:text-rose-400 font-semibold flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 shrink-0" />
                 <span>{errorMessage}</span>
               </div>

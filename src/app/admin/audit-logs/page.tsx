@@ -65,7 +65,7 @@ export default function AdminAuditLogsPage() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
-              <FileText className="w-4 h-4 text-purple-500" />
+              <FileText className="w-4 h-4 text-blue-500" />
               <p className="text-sm font-bold text-foreground">Audit Log Trail (Immutable)</p>
             </div>
             <p className="mt-1 text-xs text-muted-foreground">

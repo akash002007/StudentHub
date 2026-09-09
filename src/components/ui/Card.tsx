@@ -18,7 +18,7 @@ export function Card({
       className={cn(
         "rounded-2xl border border-border bg-card text-card-foreground shadow-sm transition-all duration-200",
         glass && "glass-panel",
-        hoverEffect && "hover:border-purple-500/40 hover:shadow-md hover:-translate-y-0.5",
+        hoverEffect && "hover:border-blue-500/40 hover:shadow-md hover:-translate-y-0.5",
         className
       )}
       {...props}

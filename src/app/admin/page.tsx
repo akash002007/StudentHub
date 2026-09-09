@@ -119,13 +119,13 @@ export default function AdminOverviewPage() {
           label="Companies"
           value={metrics ? (metrics.totalCompanies || 0).toString() : "—"}
           hint="Employer partners"
-          icon={<Building2 className="w-4 h-4 text-purple-500" />}
+          icon={<Building2 className="w-4 h-4 text-blue-500" />}
         />
         <StatCard
           label="Active Drives"
           value={metrics ? (metrics.activeDrives || 0).toString() : "—"}
           hint="Recruiting funnels"
-          icon={<Layers className="w-4 h-4 text-indigo-500" />}
+          icon={<Layers className="w-4 h-4 text-blue-500" />}
         />
         <StatCard
           label="Flagged Reports"
@@ -209,7 +209,7 @@ export default function AdminOverviewPage() {
           <div>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <FileText className="w-4 h-4 text-purple-500" />
+                <FileText className="w-4 h-4 text-blue-500" />
                 <h2 className="text-sm font-bold text-foreground">Recent Audit Stream</h2>
               </div>
               <Link href="/admin/audit-logs" className="text-[11px] text-blue-500 hover:underline">

@@ -121,7 +121,7 @@ export function GitHubInsights({ userId, onSyncClick, isSyncingManual }: GitHubI
   if (isLoading) {
     return (
       <Card className="p-8 border-border/80 bg-card flex flex-col items-center justify-center space-y-3">
-        <RefreshCw className="w-6 h-6 text-purple-500 animate-spin" />
+        <RefreshCw className="w-6 h-6 text-blue-500 animate-spin" />
         <p className="text-xs text-muted-foreground font-medium">Loading GitHub insights &amp; repository data...</p>
       </Card>
     );
@@ -148,7 +148,7 @@ export function GitHubInsights({ userId, onSyncClick, isSyncingManual }: GitHubI
               className="w-10 h-10 rounded-full border border-border/80 object-cover"
             />
           ) : (
-            <div className="w-10 h-10 rounded-full bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-500">
+            <div className="w-10 h-10 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-500">
               <Github className="w-5 h-5" />
             </div>
           )}
@@ -189,9 +189,9 @@ export function GitHubInsights({ userId, onSyncClick, isSyncingManual }: GitHubI
 
       {/* STATE 1: SYNCING BANNER */}
       {isSyncing && (
-        <div className="p-4 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-between gap-4 text-xs text-purple-600 dark:text-purple-300">
+        <div className="p-4 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-between gap-4 text-xs text-blue-600 dark:text-blue-300">
           <div className="flex items-center gap-3">
-            <RefreshCw className="w-4 h-4 text-purple-500 animate-spin shrink-0" />
+            <RefreshCw className="w-4 h-4 text-blue-500 animate-spin shrink-0" />
             <div>
               <span className="font-bold text-foreground">Synchronizing GitHub Repositories...</span>
               <p className="text-muted-foreground mt-0.5">
@@ -204,7 +204,7 @@ export function GitHubInsights({ userId, onSyncClick, isSyncingManual }: GitHubI
 
       {/* STATE 2: FAILED BANNER */}
       {isFailed && (
-        <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-between gap-4 text-xs text-rose-600 dark:text-rose-400">
+        <div className="p-4 rounded-2xl bg-primary/10 border border-rose-500/20 flex items-center justify-between gap-4 text-xs text-rose-600 dark:text-rose-400">
           <div className="flex items-center gap-3">
             <AlertCircle className="w-4 h-4 text-rose-500 shrink-0" />
             <div>
@@ -214,7 +214,7 @@ export function GitHubInsights({ userId, onSyncClick, isSyncingManual }: GitHubI
               </p>
             </div>
           </div>
-          <Button variant="outline" size="sm" onClick={onSyncClick} className="text-xs shrink-0 border-rose-500/30 hover:bg-rose-500/10 text-rose-600 dark:text-rose-400">
+          <Button variant="outline" size="sm" onClick={onSyncClick} className="text-xs shrink-0 border-rose-500/30 hover:bg-primary/10 text-rose-600 dark:text-rose-400">
             Retry Sync
           </Button>
         </div>
@@ -232,7 +232,7 @@ export function GitHubInsights({ userId, onSyncClick, isSyncingManual }: GitHubI
               Click the sync button to fetch your public repositories, analyze code languages, and extract Project Intelligence for your candidate profile.
             </p>
           </div>
-          <Button variant="primary" size="sm" onClick={onSyncClick} className="text-xs font-semibold bg-purple-600 hover:bg-purple-700 text-white">
+          <Button variant="primary" size="sm" onClick={onSyncClick} className="text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white">
             <RefreshCw className="w-3.5 h-3.5 mr-1.5" /> Sync GitHub Data
           </Button>
         </Card>
@@ -246,7 +246,7 @@ export function GitHubInsights({ userId, onSyncClick, isSyncingManual }: GitHubI
             <Card hoverEffect className="p-4 border-border/80 bg-card space-y-1">
               <div className="flex items-center justify-between text-muted-foreground">
                 <span className="text-xs font-medium">Repositories</span>
-                <FolderGit2 className="w-4 h-4 text-purple-500" />
+                <FolderGit2 className="w-4 h-4 text-blue-500" />
               </div>
               <p className="text-2xl font-extrabold text-foreground">{overview.totalRepositories}</p>
               <p className="text-[11px] text-muted-foreground">Synchronized repos</p>
@@ -336,7 +336,7 @@ export function GitHubInsights({ userId, onSyncClick, isSyncingManual }: GitHubI
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="font-bold text-base text-foreground flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-purple-500" /> Detected Projects (Project Intelligence)
+                    <Sparkles className="w-4 h-4 text-blue-500" /> Detected Projects (Project Intelligence)
                   </h3>
                   <p className="text-xs text-muted-foreground">Automated project extraction based on repository activity and topics</p>
                 </div>
@@ -365,7 +365,7 @@ export function GitHubInsights({ userId, onSyncClick, isSyncingManual }: GitHubI
                         {project.technologies.slice(0, 4).map((tech) => (
                           <span
                             key={tech}
-                            className="px-2 py-0.5 rounded-md bg-purple-500/10 text-purple-600 dark:text-purple-400 text-[10px] font-semibold border border-purple-500/20"
+                            className="px-2 py-0.5 rounded-md bg-blue-500/10 text-blue-600 dark:text-blue-400 text-[10px] font-semibold border border-blue-500/20"
                           >
                             {tech}
                           </span>
@@ -381,7 +381,7 @@ export function GitHubInsights({ userId, onSyncClick, isSyncingManual }: GitHubI
                             href={project.githubUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-purple-600 dark:text-purple-400 hover:underline flex items-center gap-1 font-semibold"
+                            className="text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 font-semibold"
                           >
                             View on GitHub <ExternalLink className="w-3 h-3" />
                           </a>
@@ -399,7 +399,7 @@ export function GitHubInsights({ userId, onSyncClick, isSyncingManual }: GitHubI
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="font-bold text-base text-foreground flex items-center gap-2">
-                  <FolderGit2 className="w-4 h-4 text-purple-500" /> Synchronized Repositories
+                  <FolderGit2 className="w-4 h-4 text-blue-500" /> Synchronized Repositories
                 </h3>
                 <p className="text-xs text-muted-foreground">Public repositories fetched from @{profile?.username}</p>
               </div>
@@ -417,7 +417,7 @@ export function GitHubInsights({ userId, onSyncClick, isSyncingManual }: GitHubI
                         href={repo.htmlUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="font-bold text-sm text-foreground hover:text-purple-500 hover:underline flex items-center gap-1.5 truncate"
+                        className="font-bold text-sm text-foreground hover:text-blue-500 hover:underline flex items-center gap-1.5 truncate"
                       >
                         <FolderGit2 className="w-4 h-4 text-muted-foreground shrink-0" />
                         <span className="truncate">{repo.name}</span>
@@ -451,7 +451,7 @@ export function GitHubInsights({ userId, onSyncClick, isSyncingManual }: GitHubI
                       <div className="flex items-center gap-3">
                         {repo.language && (
                           <span className="flex items-center gap-1 font-medium text-foreground text-[11px]">
-                            <span className="w-2 h-2 rounded-full bg-purple-500" /> {repo.language}
+                            <span className="w-2 h-2 rounded-full bg-blue-500" /> {repo.language}
                           </span>
                         )}
                         <span className="flex items-center gap-1 text-[11px]">
@@ -466,7 +466,7 @@ export function GitHubInsights({ userId, onSyncClick, isSyncingManual }: GitHubI
                         href={repo.htmlUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-purple-600 dark:text-purple-400 hover:underline flex items-center gap-1 text-[11px] font-semibold"
+                        className="text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 text-[11px] font-semibold"
                       >
                         View <ExternalLink className="w-3 h-3" />
                       </a>

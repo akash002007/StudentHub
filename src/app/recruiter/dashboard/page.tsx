@@ -80,7 +80,7 @@ export default function RecruiterDashboard() {
                       <button 
                         disabled={updating === app.id}
                         onClick={() => updateStatus(app.id, 'SHORTLISTED')} 
-                        className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors disabled:opacity-50" 
+                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors disabled:opacity-50" 
                         title="Shortlist"
                       >
                         <CheckCircle className="w-5 h-5" />

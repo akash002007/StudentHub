@@ -125,15 +125,15 @@ export default function RecruiterDashboardHomePage() {
     <RoleGuard allowedRole="recruiter">
       <div className="space-y-8">
         {/* Workspace Hero Header */}
-        <div className="relative rounded-3xl p-6 sm:p-8 bg-gradient-to-br from-indigo-950/40 via-card to-purple-950/30 border border-purple-500/20 shadow-sm overflow-hidden">
+        <div className="relative rounded-3xl p-6 sm:p-8 bg-gradient-to-br from-blue-950/40 via-card to-blue-950/30 border border-blue-500/20 shadow-sm overflow-hidden">
           <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="space-y-2">
               <div className="flex flex-wrap items-center gap-2">
                 <Badge variant="gradient" size="sm" className="font-semibold">
-                  <Sparkles className="w-3 h-3 text-purple-400" />
+                  <Sparkles className="w-3 h-3 text-blue-400" />
                   Structured Recruitment Portal
                 </Badge>
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-blue-500/30">
                   <ShieldCheck className="w-3 h-3" />
                   RPSC-Style Rigor
                 </span>
@@ -163,7 +163,7 @@ export default function RecruiterDashboardHomePage() {
 
         {/* 6 Real Database KPI Metrics */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5">
-          <Card className="p-4 bg-card border-border/80 hover:border-purple-500/40 transition-all shadow-xs">
+          <Card className="p-4 bg-card border-border/80 hover:border-blue-500/40 transition-all shadow-xs">
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
                 Active Drives
@@ -180,12 +180,12 @@ export default function RecruiterDashboardHomePage() {
             </div>
           </Card>
 
-          <Card className="p-4 bg-card border-border/80 hover:border-purple-500/40 transition-all shadow-xs">
+          <Card className="p-4 bg-card border-border/80 hover:border-blue-500/40 transition-all shadow-xs">
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
                 Applications
               </span>
-              <div className="w-7 h-7 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+              <div className="w-7 h-7 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center">
                 <GitPullRequest className="w-3.5 h-3.5" />
               </div>
             </div>
@@ -197,7 +197,7 @@ export default function RecruiterDashboardHomePage() {
             </div>
           </Card>
 
-          <Card className="p-4 bg-card border-border/80 hover:border-purple-500/40 transition-all shadow-xs">
+          <Card className="p-4 bg-card border-border/80 hover:border-blue-500/40 transition-all shadow-xs">
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
                 Eligible
@@ -214,16 +214,16 @@ export default function RecruiterDashboardHomePage() {
             </div>
           </Card>
 
-          <Card className="p-4 bg-card border-border/80 hover:border-purple-500/40 transition-all shadow-xs">
+          <Card className="p-4 bg-card border-border/80 hover:border-blue-500/40 transition-all shadow-xs">
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
                 Shortlisted
               </span>
-              <div className="w-7 h-7 rounded-lg bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center">
+              <div className="w-7 h-7 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center">
                 <UserCheck className="w-3.5 h-3.5" />
               </div>
             </div>
-            <div className="mt-2.5 text-2xl font-black text-purple-600 dark:text-purple-400">
+            <div className="mt-2.5 text-2xl font-black text-blue-600 dark:text-blue-400">
               {kpis.shortlistedCandidatesCount}
             </div>
             <div className="text-[10px] text-muted-foreground mt-0.5 flex items-center gap-1">
@@ -231,7 +231,7 @@ export default function RecruiterDashboardHomePage() {
             </div>
           </Card>
 
-          <Card className="p-4 bg-card border-border/80 hover:border-purple-500/40 transition-all shadow-xs">
+          <Card className="p-4 bg-card border-border/80 hover:border-blue-500/40 transition-all shadow-xs">
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
                 Interviews
@@ -248,12 +248,12 @@ export default function RecruiterDashboardHomePage() {
             </div>
           </Card>
 
-          <Card className="p-4 bg-card border-border/80 hover:border-purple-500/40 transition-all shadow-xs">
+          <Card className="p-4 bg-card border-border/80 hover:border-blue-500/40 transition-all shadow-xs">
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
                 Selected
               </span>
-              <div className="w-7 h-7 rounded-lg bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center">
+              <div className="w-7 h-7 rounded-lg bg-primary/10 text-rose-600 dark:text-rose-400 flex items-center justify-center">
                 <Award className="w-3.5 h-3.5" />
               </div>
             </div>
@@ -271,7 +271,7 @@ export default function RecruiterDashboardHomePage() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
             <div>
               <div className="flex items-center gap-2">
-                <Layers className="w-4 h-4 text-purple-500" />
+                <Layers className="w-4 h-4 text-blue-500" />
                 <h2 className="text-base font-bold text-foreground">
                   Structured Recruitment Workflow Funnel
                 </h2>
@@ -282,7 +282,7 @@ export default function RecruiterDashboardHomePage() {
             </div>
             <Link
               href="/dashboard/recruiter/selection"
-              className="text-xs font-semibold text-purple-600 dark:text-purple-400 hover:underline flex items-center gap-1"
+              className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
             >
               Stage Manager <ChevronRight className="w-3.5 h-3.5" />
             </Link>
@@ -300,31 +300,31 @@ export default function RecruiterDashboardHomePage() {
                 step: "2. Applications",
                 label: `${kpis.totalApplicationsCount} Applied`,
                 sub: "Pipeline intake",
-                color: "border-indigo-500/30 bg-indigo-500/5",
+                color: "border-blue-500/30 bg-blue-500/5",
               },
               {
                 step: "3. Eligibility Check",
                 label: `${kpis.eligibleCandidatesCount} Eligible`,
                 sub: "Criteria verified",
-                color: "border-emerald-500/30 bg-emerald-500/5",
+                color: "border-blue-500/30 bg-emerald-500/5",
               },
               {
                 step: "4. Assessment Round",
                 label: `${kpis.shortlistedCandidatesCount} In Test`,
                 sub: "Score recording",
-                color: "border-purple-500/30 bg-purple-500/5",
+                color: "border-blue-500/30 bg-blue-500/5",
               },
               {
                 step: "5. Interview Round",
                 label: `${kpis.interviewsCount} Scheduled`,
                 sub: "Evaluations",
-                color: "border-amber-500/30 bg-amber-500/5",
+                color: "border-blue-500/30 bg-amber-500/5",
               },
               {
                 step: "6. Merit & Selection",
                 label: `${kpis.selectedCandidatesCount} Selected`,
                 sub: "Locked results",
-                color: "border-rose-500/30 bg-rose-500/5",
+                color: "border-rose-500/30 bg-primary/5",
               },
             ].map((f, i) => (
               <div key={i} className={`p-3 rounded-2xl border ${f.color} space-y-1`}>
@@ -345,7 +345,7 @@ export default function RecruiterDashboardHomePage() {
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-base font-bold text-foreground flex items-center gap-2">
-                  <Briefcase className="w-4 h-4 text-purple-500" />
+                  <Briefcase className="w-4 h-4 text-blue-500" />
                   Active Recruitment Drives
                 </h2>
                 <p className="text-xs text-muted-foreground">
@@ -354,7 +354,7 @@ export default function RecruiterDashboardHomePage() {
               </div>
               <Link
                 href="/dashboard/recruiter/drives"
-                className="text-xs font-semibold text-purple-600 dark:text-purple-400 hover:underline flex items-center gap-1"
+                className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
               >
                 View All ({activeDrives.length}) <ChevronRight className="w-3.5 h-3.5" />
               </Link>
@@ -364,7 +364,7 @@ export default function RecruiterDashboardHomePage() {
               {activeDrives.map((drive) => (
                 <Card
                   key={drive.id}
-                  className="p-5 border-border/80 hover:border-purple-500/40 transition-all bg-card flex flex-col justify-between space-y-4"
+                  className="p-5 border-border/80 hover:border-blue-500/40 transition-all bg-card flex flex-col justify-between space-y-4"
                 >
                   <div className="space-y-2">
                     <div className="flex items-start justify-between gap-2">
@@ -402,7 +402,7 @@ export default function RecruiterDashboardHomePage() {
                         <div className="font-extrabold">{drive.eligibleCount}</div>
                         <div className="text-[10px]">Eligible</div>
                       </div>
-                      <div className="p-2 rounded-xl bg-purple-500/10 text-purple-600">
+                      <div className="p-2 rounded-xl bg-blue-500/10 text-blue-600">
                         <div className="font-extrabold">{drive.shortlistedCount}</div>
                         <div className="text-[10px]">Shortlisted</div>
                       </div>
@@ -411,7 +411,7 @@ export default function RecruiterDashboardHomePage() {
                     <div className="flex items-center justify-between gap-2 pt-1">
                       <Link
                         href={`/dashboard/recruiter/screening?driveId=${drive.id}`}
-                        className="text-xs font-bold text-purple-600 dark:text-purple-400 hover:underline"
+                        className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline"
                       >
                         Screen Candidates →
                       </Link>
@@ -433,12 +433,12 @@ export default function RecruiterDashboardHomePage() {
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <h2 className="text-base font-bold text-foreground flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-purple-500" />
+                  <Calendar className="w-4 h-4 text-blue-500" />
                   Upcoming Interviews
                 </h2>
                 <Link
                   href="/dashboard/recruiter/interviews"
-                  className="text-xs font-semibold text-purple-600 dark:text-purple-400 hover:underline"
+                  className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline"
                 >
                   Manage
                 </Link>
@@ -451,7 +451,7 @@ export default function RecruiterDashboardHomePage() {
                   </Card>
                 ) : (
                   upcomingInterviews.map((int) => (
-                    <Card key={int.id} className="p-3.5 bg-card border-border hover:border-purple-500/30 transition-all">
+                    <Card key={int.id} className="p-3.5 bg-card border-border hover:border-blue-500/30 transition-all">
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex items-center gap-2.5">
                           <Avatar src={int.candidateAvatar} alt={int.candidateName} size="sm" />
@@ -475,7 +475,7 @@ export default function RecruiterDashboardHomePage() {
                             href={int.meetingLink}
                             target="_blank"
                             rel="noreferrer"
-                            className="inline-flex items-center gap-1 text-purple-600 hover:underline font-semibold"
+                            className="inline-flex items-center gap-1 text-blue-600 hover:underline font-semibold"
                           >
                             <Video className="w-3 h-3" /> Meet
                           </a>
@@ -491,12 +491,12 @@ export default function RecruiterDashboardHomePage() {
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <h2 className="text-base font-bold text-foreground flex items-center gap-2">
-                  <FileText className="w-4 h-4 text-purple-500" />
+                  <FileText className="w-4 h-4 text-blue-500" />
                   Recent Audit Trail
                 </h2>
                 <Link
                   href="/dashboard/recruiter/audit-logs"
-                  className="text-xs font-semibold text-purple-600 dark:text-purple-400 hover:underline"
+                  className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline"
                 >
                   All Logs
                 </Link>
@@ -527,7 +527,7 @@ export default function RecruiterDashboardHomePage() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <div className="flex items-center gap-2">
-                <GitPullRequest className="w-4 h-4 text-purple-500" />
+                <GitPullRequest className="w-4 h-4 text-blue-500" />
                 <h2 className="text-base font-bold text-foreground">Recent Candidate Applications</h2>
               </div>
               <p className="text-xs text-muted-foreground mt-0.5">
@@ -536,7 +536,7 @@ export default function RecruiterDashboardHomePage() {
             </div>
             <Link
               href="/dashboard/recruiter/applications"
-              className="text-xs font-semibold text-purple-600 dark:text-purple-400 hover:underline flex items-center gap-1"
+              className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
             >
               View Full Pipeline ({kpis.totalApplicationsCount}) <ChevronRight className="w-3.5 h-3.5" />
             </Link>
@@ -574,10 +574,10 @@ export default function RecruiterDashboardHomePage() {
                         <span
                           className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
                             app.eligibility.status === "ELIGIBLE"
-                              ? "bg-emerald-500/10 text-emerald-600 border border-emerald-500/30"
+                              ? "bg-emerald-500/10 text-emerald-600 border border-blue-500/30"
                               : app.eligibility.status === "REQUIRES_MANUAL_REVIEW"
-                              ? "bg-amber-500/10 text-amber-600 border border-amber-500/30"
-                              : "bg-rose-500/10 text-rose-600 border border-rose-500/30"
+                              ? "bg-amber-500/10 text-amber-600 border border-blue-500/30"
+                              : "bg-primary/10 text-rose-600 border border-rose-500/30"
                           }`}
                         >
                           {app.eligibility.status === "ELIGIBLE" ? (

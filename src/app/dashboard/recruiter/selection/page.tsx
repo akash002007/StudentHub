@@ -203,7 +203,7 @@ export default function SelectionProcessPage() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 text-xs font-semibold text-purple-600 dark:text-purple-400 mb-1">
+            <div className="flex items-center gap-2 text-xs font-semibold text-blue-600 dark:text-blue-400 mb-1">
               <Sparkles className="w-3.5 h-3.5" />
               <span>Multi-Stage Selection Pipeline</span>
             </div>
@@ -220,7 +220,7 @@ export default function SelectionProcessPage() {
             <select
               value={selectedDriveId}
               onChange={(e) => setSelectedDriveId(e.target.value)}
-              className="h-9 px-3 text-xs font-bold rounded-xl bg-card border border-border focus:outline-none focus:border-purple-500"
+              className="h-9 px-3 text-xs font-bold rounded-xl bg-card border border-border focus:outline-none focus:border-blue-500"
             >
               {drives.map((d) => (
                 <option key={d.id} value={d.id}>
@@ -243,7 +243,7 @@ export default function SelectionProcessPage() {
             onClick={() => setActiveTab("pipeline")}
             className={`px-3.5 py-1.5 rounded-xl transition-all ${
               activeTab === "pipeline"
-                ? "bg-purple-600 text-white shadow-xs"
+                ? "bg-blue-600 text-white shadow-xs"
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
@@ -253,7 +253,7 @@ export default function SelectionProcessPage() {
             onClick={() => setActiveTab("assessments")}
             className={`px-3.5 py-1.5 rounded-xl transition-all ${
               activeTab === "assessments"
-                ? "bg-purple-600 text-white shadow-xs"
+                ? "bg-blue-600 text-white shadow-xs"
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
@@ -263,7 +263,7 @@ export default function SelectionProcessPage() {
             onClick={() => setActiveTab("evaluations")}
             className={`px-3.5 py-1.5 rounded-xl transition-all ${
               activeTab === "evaluations"
-                ? "bg-purple-600 text-white shadow-xs"
+                ? "bg-blue-600 text-white shadow-xs"
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
@@ -288,7 +288,7 @@ export default function SelectionProcessPage() {
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-lg bg-purple-600 text-white font-black text-xs flex items-center justify-center">
+                        <div className="w-6 h-6 rounded-lg bg-blue-600 text-white font-black text-xs flex items-center justify-center">
                           {stage.order}
                         </div>
                         <h2 className="font-extrabold text-xs text-foreground truncate">{stage.name}</h2>
@@ -328,7 +328,7 @@ export default function SelectionProcessPage() {
                             {(app.assessmentScore !== undefined || app.interviewScore !== undefined) && (
                               <div className="flex gap-2 text-[10px] font-mono">
                                 {app.assessmentScore !== undefined && (
-                                  <span className="text-purple-600 dark:text-purple-400">
+                                  <span className="text-blue-600 dark:text-blue-400">
                                     Test: {app.assessmentScore}/100
                                   </span>
                                 )}
@@ -344,7 +344,7 @@ export default function SelectionProcessPage() {
                             {nextStage && (
                               <button
                                 onClick={() => handleAdvanceStage(app.id, nextStage)}
-                                className="w-full h-7 rounded-lg text-[11px] font-bold bg-purple-600 hover:bg-purple-700 text-white flex items-center justify-center gap-1 transition-colors"
+                                className="w-full h-7 rounded-lg text-[11px] font-bold bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center gap-1 transition-colors"
                               >
                                 Advance to Stage {nextStage.order} <ArrowRight className="w-3 h-3" />
                               </button>
@@ -416,8 +416,8 @@ export default function SelectionProcessPage() {
                             <span
                               className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
                                 isPassed
-                                  ? "bg-emerald-500/10 text-emerald-600 border border-emerald-500/30"
-                                  : "bg-rose-500/10 text-rose-600 border border-rose-500/30"
+                                  ? "bg-emerald-500/10 text-emerald-600 border border-blue-500/30"
+                                  : "bg-primary/10 text-rose-600 border border-rose-500/30"
                               }`}
                             >
                               {isPassed ? "PASS" : "FAIL"}
@@ -497,7 +497,7 @@ export default function SelectionProcessPage() {
                       <td className="px-4 py-3.5 font-mono font-bold text-foreground">
                         {int.evaluation ? `${int.evaluation.communicationScore}/100` : "—"}
                       </td>
-                      <td className="px-4 py-3.5 font-mono font-bold text-purple-600 dark:text-purple-400">
+                      <td className="px-4 py-3.5 font-mono font-bold text-blue-600 dark:text-blue-400">
                         {int.evaluation ? `${int.evaluation.overallScore}/100` : "—"}
                       </td>
                       <td className="px-4 py-3.5">
@@ -505,10 +505,10 @@ export default function SelectionProcessPage() {
                           <span
                             className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
                               int.evaluation.recommendation === "RECOMMEND"
-                                ? "bg-emerald-500/10 text-emerald-600 border border-emerald-500/30"
+                                ? "bg-emerald-500/10 text-emerald-600 border border-blue-500/30"
                                 : int.evaluation.recommendation === "HOLD"
-                                ? "bg-amber-500/10 text-amber-600 border border-amber-500/30"
-                                : "bg-rose-500/10 text-rose-600 border border-rose-500/30"
+                                ? "bg-amber-500/10 text-amber-600 border border-blue-500/30"
+                                : "bg-primary/10 text-rose-600 border border-rose-500/30"
                             }`}
                           >
                             {int.evaluation.recommendation}
@@ -563,7 +563,7 @@ export default function SelectionProcessPage() {
                 max="100"
                 value={assessmentScoreInput}
                 onChange={(e) => setAssessmentScoreInput(e.target.value)}
-                className="w-full h-10 px-3 text-sm rounded-xl bg-card border border-border focus:outline-none focus:border-purple-500"
+                className="w-full h-10 px-3 text-sm rounded-xl bg-card border border-border focus:outline-none focus:border-blue-500"
               />
             </div>
 

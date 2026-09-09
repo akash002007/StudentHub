@@ -171,7 +171,7 @@ export default function RecruitmentResultsPage() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 text-xs font-semibold text-purple-600 dark:text-purple-400 mb-1">
+            <div className="flex items-center gap-2 text-xs font-semibold text-blue-600 dark:text-blue-400 mb-1">
               <Sparkles className="w-3.5 h-3.5" />
               <span>Official Merit List & Publication</span>
             </div>
@@ -187,7 +187,7 @@ export default function RecruitmentResultsPage() {
             <select
               value={selectedDriveId}
               onChange={(e) => setSelectedDriveId(e.target.value)}
-              className="h-9 px-3 text-xs font-bold rounded-xl bg-card border border-border focus:outline-none focus:border-purple-500"
+              className="h-9 px-3 text-xs font-bold rounded-xl bg-card border border-border focus:outline-none focus:border-blue-500"
             >
               {drives.map((d) => (
                 <option key={d.id} value={d.id}>
@@ -205,19 +205,19 @@ export default function RecruitmentResultsPage() {
 
         {/* Results Banner & Lock State */}
         {resultsData?.isLocked ? (
-          <div className="p-4 rounded-2xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-between gap-4">
+          <div className="p-4 rounded-2xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-purple-600 text-white flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0">
                 <Lock className="w-5 h-5" />
               </div>
               <div>
-                <div className="text-sm font-extrabold text-purple-900 dark:text-purple-200 flex items-center gap-2">
+                <div className="text-sm font-extrabold text-blue-900 dark:text-blue-200 flex items-center gap-2">
                   Official Results Published & Locked
                   <Badge variant="purple" size="sm">
                     IMMUTABLE AUDIT TRAIL
                   </Badge>
                 </div>
-                <div className="text-xs text-purple-800/80 dark:text-purple-300/80 mt-0.5">
+                <div className="text-xs text-blue-800/80 dark:text-blue-300/80 mt-0.5">
                   Published by {resultsData.publishedBy} on{" "}
                   {new Date(resultsData.publishedAt).toLocaleString()}
                 </div>
@@ -231,7 +231,7 @@ export default function RecruitmentResultsPage() {
             </div>
           </div>
         ) : (
-          <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="p-4 rounded-2xl bg-amber-500/10 border border-blue-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0">
                 <Award className="w-5 h-5" />
@@ -280,7 +280,7 @@ export default function RecruitmentResultsPage() {
               <span className="px-2.5 py-1 rounded-lg bg-amber-500/10 text-amber-600 font-bold">
                 {waitlistedCount} Waitlisted
               </span>
-              <span className="px-2.5 py-1 rounded-lg bg-rose-500/10 text-rose-600 font-bold">
+              <span className="px-2.5 py-1 rounded-lg bg-primary/10 text-rose-600 font-bold">
                 {rejectedCount} Rejected
               </span>
             </div>
@@ -321,7 +321,7 @@ export default function RecruitmentResultsPage() {
                             cand.rank === 1
                               ? "bg-amber-400 text-amber-950 font-black shadow-xs"
                               : cand.rank <= (activeDrive?.openingsCount || 5)
-                              ? "bg-purple-600 text-white font-bold"
+                              ? "bg-blue-600 text-white font-bold"
                               : "bg-muted text-muted-foreground"
                           }`}
                         >
@@ -349,7 +349,7 @@ export default function RecruitmentResultsPage() {
                         {cand.interviewScore} / 100
                       </td>
 
-                      <td className="px-4 py-3.5 font-mono font-black text-purple-600 dark:text-purple-400 text-sm">
+                      <td className="px-4 py-3.5 font-mono font-black text-blue-600 dark:text-blue-400 text-sm">
                         {cand.finalScore} / 100
                       </td>
 
@@ -357,10 +357,10 @@ export default function RecruitmentResultsPage() {
                         <span
                           className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
                             cand.selectionStatus === "SELECTED"
-                              ? "bg-emerald-500/10 text-emerald-600 border border-emerald-500/30"
+                              ? "bg-emerald-500/10 text-emerald-600 border border-blue-500/30"
                               : cand.selectionStatus === "WAITLISTED"
-                              ? "bg-amber-500/10 text-amber-600 border border-amber-500/30"
-                              : "bg-rose-500/10 text-rose-600 border border-rose-500/30"
+                              ? "bg-amber-500/10 text-amber-600 border border-blue-500/30"
+                              : "bg-primary/10 text-rose-600 border border-rose-500/30"
                           }`}
                         >
                           {cand.selectionStatus}
@@ -423,7 +423,7 @@ export default function RecruitmentResultsPage() {
           maxWidth="lg"
         >
           <div className="space-y-4">
-            <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-xs space-y-1.5 text-amber-900 dark:text-amber-200">
+            <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-blue-500/30 text-xs space-y-1.5 text-amber-900 dark:text-amber-200">
               <div className="font-bold flex items-center gap-1.5">
                 <AlertTriangle className="w-4 h-4 text-amber-600" />
                 Critical Result Publication Notice
@@ -443,7 +443,7 @@ export default function RecruitmentResultsPage() {
                 <div className="text-lg font-black">{waitlistedCount}</div>
                 <div className="text-[11px] font-semibold">Waitlisted</div>
               </div>
-              <div className="p-3 rounded-xl bg-rose-500/10 text-rose-600">
+              <div className="p-3 rounded-xl bg-primary/10 text-rose-600">
                 <div className="text-lg font-black">{rejectedCount}</div>
                 <div className="text-[11px] font-semibold">Rejected</div>
               </div>
@@ -451,14 +451,14 @@ export default function RecruitmentResultsPage() {
 
             <div className="space-y-1.5 pt-2">
               <label className="text-xs font-bold text-foreground">
-                Type <strong className="text-purple-600">PUBLISH</strong> to confirm:
+                Type <strong className="text-blue-600">PUBLISH</strong> to confirm:
               </label>
               <input
                 type="text"
                 value={publishConfirmationText}
                 onChange={(e) => setPublishConfirmationText(e.target.value)}
                 placeholder="PUBLISH"
-                className="w-full h-10 px-3 text-sm rounded-xl bg-card border border-border focus:outline-none focus:border-purple-500 font-mono"
+                className="w-full h-10 px-3 text-sm rounded-xl bg-card border border-border focus:outline-none focus:border-blue-500 font-mono"
               />
             </div>
 

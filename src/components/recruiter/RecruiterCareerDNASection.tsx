@@ -150,15 +150,15 @@ export function RecruiterCareerDNASection({
     if (!dna && !studentId) return null;
 
     return (
-      <div className={`p-3 rounded-2xl bg-purple-500/5 dark:bg-purple-950/20 border border-purple-500/20 space-y-2 text-xs ${className}`}>
+      <div className={`p-3 rounded-2xl bg-blue-500/5 dark:bg-blue-950/20 border border-blue-500/20 space-y-2 text-xs ${className}`}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-purple-600 text-white font-extrabold flex items-center justify-center text-xs shrink-0 shadow-xs">
+            <div className="w-8 h-8 rounded-full bg-blue-600 text-white font-extrabold flex items-center justify-center text-xs shrink-0 shadow-xs">
               {normalizedScore ?? "--"}
             </div>
             <div>
               <span className="font-bold text-foreground block text-[11px]">Career DNA</span>
-              <span className="text-[10px] text-purple-600 dark:text-purple-400 font-semibold">
+              <span className="text-[10px] text-blue-600 dark:text-blue-400 font-semibold">
                 {rating}
               </span>
             </div>
@@ -172,7 +172,7 @@ export function RecruiterCareerDNASection({
         </div>
 
         {dna?.primaryStrength && (
-          <div className="pt-1.5 border-t border-purple-500/10 flex items-center justify-between text-[11px] text-muted-foreground">
+          <div className="pt-1.5 border-t border-blue-500/10 flex items-center justify-between text-[11px] text-muted-foreground">
             <span>Strength:</span>
             <span className="font-semibold text-foreground truncate max-w-[130px]" title={dna.primaryStrength}>
               {dna.primaryStrength}
@@ -184,14 +184,14 @@ export function RecruiterCareerDNASection({
           type="button"
           onClick={handleToggle}
           aria-expanded={isExpanded}
-          className="w-full flex items-center justify-center gap-1 h-7 text-[11px] font-semibold text-purple-600 dark:text-purple-400 hover:bg-purple-500/10 rounded-lg transition-colors mt-1 focus:outline-none focus:ring-1 focus:ring-purple-500"
+          className="w-full flex items-center justify-center gap-1 h-7 text-[11px] font-semibold text-blue-600 dark:text-blue-400 hover:bg-blue-500/10 rounded-lg transition-colors mt-1 focus:outline-none focus:ring-1 focus:ring-blue-500"
         >
           <span>{isExpanded ? "Hide Career DNA" : "View Career DNA"}</span>
           {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
         </button>
 
         {isExpanded && (
-          <div className="pt-2 border-t border-purple-500/20 space-y-2 animate-fadeIn">
+          <div className="pt-2 border-t border-blue-500/20 space-y-2 animate-fadeIn">
             {dna?.summary && (
               <p className="text-[11px] text-muted-foreground leading-relaxed italic bg-card/60 p-2 rounded-xl border border-border/50">
                 "{dna.summary}"
@@ -205,7 +205,7 @@ export function RecruiterCareerDNASection({
                   {topSkillsList.map((skill) => (
                     <span
                       key={skill}
-                      className="px-1.5 py-0.5 rounded bg-purple-500/10 text-purple-600 dark:text-purple-400 font-semibold text-[10px] border border-purple-500/20"
+                      className="px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-600 dark:text-blue-400 font-semibold text-[10px] border border-blue-500/20"
                     >
                       {skill}
                     </span>
@@ -219,7 +219,7 @@ export function RecruiterCareerDNASection({
                 type="button"
                 variant="outline"
                 size="sm"
-                className="w-full h-7 text-[11px] font-semibold text-purple-600 dark:text-purple-400 mt-1"
+                className="w-full h-7 text-[11px] font-semibold text-blue-600 dark:text-blue-400 mt-1"
                 onClick={() => onOpenFullModal(dna)}
               >
                 View Full Audit Modal &rarr;
@@ -233,11 +233,11 @@ export function RecruiterCareerDNASection({
 
   // Full / Expandable Candidate Section Mode
   return (
-    <Card className={`overflow-hidden border border-purple-500/20 bg-gradient-to-br from-card via-card to-purple-950/10 ${className}`}>
+    <Card className={`overflow-hidden border border-blue-500/20 bg-gradient-to-br from-card via-card to-blue-950/10 ${className}`}>
       {/* Header Banner */}
       <div className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border/60">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-600 dark:text-purple-400 shrink-0">
+          <div className="w-10 h-10 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-600 dark:text-blue-400 shrink-0">
             <Dna className="w-5 h-5" />
           </div>
           <div>
@@ -270,7 +270,7 @@ export function RecruiterCareerDNASection({
             size="sm"
             onClick={handleToggle}
             aria-expanded={isExpanded}
-            className="text-xs font-semibold text-purple-600 dark:text-purple-400 border-purple-500/30 hover:bg-purple-500/10"
+            className="text-xs font-semibold text-blue-600 dark:text-blue-400 border-blue-500/30 hover:bg-blue-500/10"
           >
             {isExpanded ? (
               <>
@@ -293,7 +293,7 @@ export function RecruiterCareerDNASection({
           {/* Loading State */}
           {isLoading && (
             <div className="py-8 text-center space-y-3">
-              <RefreshCw className="w-6 h-6 animate-spin text-purple-500 mx-auto" />
+              <RefreshCw className="w-6 h-6 animate-spin text-blue-500 mx-auto" />
               <p className="text-xs text-muted-foreground font-medium">Loading Career DNA...</p>
             </div>
           )}
@@ -321,12 +321,12 @@ export function RecruiterCareerDNASection({
               {/* Score & Confidence Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div className="p-3.5 rounded-2xl bg-muted/40 border border-border/60 flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-xl bg-purple-600 text-white font-black flex items-center justify-center text-base shrink-0 shadow-xs">
+                  <div className="w-12 h-12 rounded-xl bg-blue-600 text-white font-black flex items-center justify-center text-base shrink-0 shadow-xs">
                     {normalizedScore ?? "--"}
                   </div>
                   <div>
                     <span className="text-[10px] uppercase font-bold text-muted-foreground block">Overall Score</span>
-                    <span className="text-xs font-extrabold text-purple-600 dark:text-purple-400">{rating} Profile</span>
+                    <span className="text-xs font-extrabold text-blue-600 dark:text-blue-400">{rating} Profile</span>
                   </div>
                 </div>
 
@@ -348,7 +348,7 @@ export function RecruiterCareerDNASection({
               {/* Technical Assessment Summary */}
               {dna.summary && (
                 <div className="space-y-1.5">
-                  <span className="text-xs font-bold text-purple-600 dark:text-purple-400 uppercase tracking-wider flex items-center gap-1.5">
+                  <span className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider flex items-center gap-1.5">
                     <Sparkles className="w-3.5 h-3.5" /> Technical Summary
                   </span>
                   <p className="text-xs text-muted-foreground leading-relaxed italic bg-muted/30 p-3.5 rounded-2xl border border-border/40">
@@ -361,7 +361,7 @@ export function RecruiterCareerDNASection({
               {dna.dimensions && (
                 <div className="space-y-2">
                   <span className="text-xs font-bold text-foreground uppercase tracking-wider flex items-center gap-1.5">
-                    <Layers className="w-3.5 h-3.5 text-purple-500" /> Dimension Ratings
+                    <Layers className="w-3.5 h-3.5 text-blue-500" /> Dimension Ratings
                   </span>
                   <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 text-xs">
                     <div className="p-2.5 rounded-xl bg-card border border-border/60 text-center">
@@ -398,7 +398,7 @@ export function RecruiterCareerDNASection({
                     {topSkillsList.map((skill) => (
                       <span
                         key={skill}
-                        className="px-2.5 py-1 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 font-semibold text-xs border border-purple-500/20"
+                        className="px-2.5 py-1 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 font-semibold text-xs border border-blue-500/20"
                       >
                         {skill}
                       </span>
@@ -411,14 +411,14 @@ export function RecruiterCareerDNASection({
               {dna.evidences && dna.evidences.length > 0 && (
                 <div className="space-y-2">
                   <span className="text-xs font-bold text-foreground uppercase tracking-wider flex items-center gap-1.5">
-                    <FolderGit2 className="w-3.5 h-3.5 text-purple-500" /> Evidence Trail
+                    <FolderGit2 className="w-3.5 h-3.5 text-blue-500" /> Evidence Trail
                   </span>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                     {dna.evidences.slice(0, 4).map((ev, idx) => (
                       <div key={ev.id || idx} className="p-3 rounded-xl bg-muted/40 border border-border/40 space-y-1 text-xs">
                         <div className="flex items-center justify-between font-bold text-foreground">
                           <span className="truncate">{ev.repositoryName || "Repository"}</span>
-                          <span className="text-[10px] text-purple-500 font-semibold">{ev.type || "Evidence"}</span>
+                          <span className="text-[10px] text-blue-500 font-semibold">{ev.type || "Evidence"}</span>
                         </div>
                         {ev.reason && (
                           <p className="text-[11px] text-muted-foreground line-clamp-2 leading-relaxed">
@@ -455,7 +455,7 @@ export function RecruiterCareerDNASection({
                     variant="ghost"
                     size="sm"
                     onClick={() => onOpenFullModal(dna)}
-                    className="text-xs font-semibold text-purple-600 dark:text-purple-400 hover:bg-purple-500/10"
+                    className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:bg-blue-500/10"
                   >
                     Open Complete Assessment Modal &rarr;
                   </Button>

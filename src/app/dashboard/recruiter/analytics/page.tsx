@@ -32,8 +32,8 @@ export default function RecruiterAnalyticsPage() {
 
   const funnelStages = [
     { label: "Total Views", count: totalViews, pct: 100, color: "bg-blue-600" },
-    { label: "Applications Received", count: totalApps, pct: 28, color: "bg-indigo-600" },
-    { label: "Shortlisted", count: 21, pct: 11, color: "bg-purple-600" },
+    { label: "Applications Received", count: totalApps, pct: 28, color: "bg-blue-600" },
+    { label: "Shortlisted", count: 21, pct: 11, color: "bg-blue-600" },
     { label: "Interviews Scheduled", count: 8, pct: 4.2, color: "bg-amber-600" },
     { label: "Offers Extended", count: 4, pct: 2.1, color: "bg-emerald-600" },
   ];
@@ -62,7 +62,7 @@ export default function RecruiterAnalyticsPage() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 text-xs font-semibold text-purple-600 dark:text-purple-400 mb-1">
+            <div className="flex items-center gap-2 text-xs font-semibold text-blue-600 dark:text-blue-400 mb-1">
               <Sparkles className="w-3.5 h-3.5" />
               <span>Hiring Insights</span>
             </div>
@@ -116,7 +116,7 @@ export default function RecruiterAnalyticsPage() {
               <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 Application Rate
               </span>
-              <div className="w-8 h-8 rounded-xl bg-purple-500/10 text-purple-500 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center">
                 <TrendingUp className="w-4 h-4" />
               </div>
             </div>
@@ -189,7 +189,7 @@ export default function RecruiterAnalyticsPage() {
                       <span className="text-foreground">{stage.label}</span>
                       <div className="flex items-center gap-2">
                         <span className="text-muted-foreground">{stage.count} candidates</span>
-                        <span className="text-purple-600 dark:text-purple-400 font-bold">
+                        <span className="text-blue-600 dark:text-blue-400 font-bold">
                           {stage.pct}%
                         </span>
                       </div>
@@ -218,7 +218,7 @@ export default function RecruiterAnalyticsPage() {
                     Colleges generating highest candidate volume
                   </p>
                 </div>
-                <GraduationCap className="w-4 h-4 text-purple-500" />
+                <GraduationCap className="w-4 h-4 text-blue-500" />
               </div>
 
               <div className="space-y-3 pt-1">
@@ -234,7 +234,7 @@ export default function RecruiterAnalyticsPage() {
                     </div>
                     <div className="w-full h-1.5 rounded-full bg-muted overflow-hidden">
                       <div
-                        className="h-full rounded-full bg-gradient-to-r from-purple-600 to-blue-600"
+                        className="h-full rounded-full bg-primary"
                         style={{ width: `${college.pct * 3.5}%` }}
                       />
                     </div>
@@ -303,7 +303,7 @@ export default function RecruiterAnalyticsPage() {
                       </td>
                       <td className="py-3.5 pr-4 text-foreground">{intern.viewsCount}</td>
                       <td className="py-3.5 pr-4 text-foreground">{intern.applicationsCount}</td>
-                      <td className="py-3.5 pr-4 text-purple-600 dark:text-purple-400 font-bold">
+                      <td className="py-3.5 pr-4 text-blue-600 dark:text-blue-400 font-bold">
                         {intern.shortlistedCount}
                       </td>
                       <td className="py-3.5 pr-4 font-semibold text-foreground">

@@ -78,10 +78,10 @@ export function CareerDNACapabilities() {
               className="p-5 border-border/80 bg-card space-y-3 flex flex-col justify-between"
             >
               <div className="space-y-2.5">
-                <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-500 shrink-0">
+                <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-500 shrink-0">
                   <Icon className="w-5 h-5" />
                 </div>
-                <h4 className="font-bold text-xs text-purple-600 dark:text-purple-400 uppercase tracking-wider">
+                <h4 className="font-bold text-xs text-blue-600 dark:text-blue-400 uppercase tracking-wider">
                   {cap.title}
                 </h4>
                 <p className="text-xs text-muted-foreground leading-relaxed">

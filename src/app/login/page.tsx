@@ -97,7 +97,7 @@ export default function LoginPage() {
           {/* Brand header */}
           <div className="text-center space-y-2">
             <Link href="/" className="inline-flex items-center gap-2 mb-2">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center text-white shadow-md shadow-purple-500/20">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-700 to-blue-800 to-blue-600 flex items-center justify-center text-white shadow-md shadow-blue-500/20">
                 <Sparkles className="w-5 h-5" />
               </div>
               <span className="font-bold text-xl tracking-tight text-foreground">
@@ -123,7 +123,7 @@ export default function LoginPage() {
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              <GraduationCap className="w-4 h-4 text-purple-500" />
+              <GraduationCap className="w-4 h-4 text-blue-500" />
               <span>Student</span>
             </button>
             <button
@@ -185,7 +185,7 @@ export default function LoginPage() {
                   <label className="block text-xs font-semibold text-foreground/80 tracking-wide uppercase">
                     Password
                   </label>
-                  <span className="text-xs text-purple-600 dark:text-purple-400 hover:underline cursor-pointer">
+                  <span className="text-xs text-blue-600 dark:text-blue-400 hover:underline cursor-pointer">
                     Forgot password?
                   </span>
                 </div>
@@ -200,7 +200,7 @@ export default function LoginPage() {
               </div>
 
               {errorMsg && (
-                <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-xs text-rose-600 dark:text-rose-400">
+                <div className="p-3 rounded-xl bg-primary/10 border border-rose-500/20 text-xs text-rose-600 dark:text-rose-400">
                   {errorMsg}
                 </div>
               )}
@@ -208,7 +208,7 @@ export default function LoginPage() {
               <Button
                 type="submit"
                 variant="gradient"
-                className="w-full h-11 text-sm font-semibold justify-center shadow-md shadow-purple-600/20"
+                className="w-full h-11 text-sm font-semibold justify-center shadow-md shadow-blue-600/20"
                 isLoading={isLoading}
                 rightIcon={<ArrowRight className="w-4 h-4" />}
               >
@@ -256,7 +256,7 @@ export default function LoginPage() {
           {/* Bottom Switch to Sign up */}
           <p className="text-center text-xs sm:text-sm text-muted-foreground">
             Don&apos;t have an account yet?{" "}
-            <Link href="/signup" className="font-semibold text-purple-600 dark:text-purple-400 hover:underline">
+            <Link href="/signup" className="font-semibold text-blue-600 dark:text-blue-400 hover:underline">
               Create an account
             </Link>
           </p>

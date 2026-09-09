@@ -11,7 +11,7 @@ export function CareerDevSection() {
       number: "01",
       title: "Build a Proof-of-Work Profile",
       description: "Link real projects, hackathon achievements, and verified skills instead of sending identical PDF resumes.",
-      icon: <Laptop className="w-5 h-5 text-purple-500" />,
+      icon: <Laptop className="w-5 h-5 text-blue-500" />,
     },
     {
       number: "02",
@@ -63,7 +63,7 @@ export function CareerDevSection() {
                 </p>
               </div>
 
-              <div className="mt-6 pt-4 border-t border-border/60 flex items-center text-xs font-semibold text-purple-600 dark:text-purple-400">
+              <div className="mt-6 pt-4 border-t border-border/60 flex items-center text-xs font-semibold text-blue-600 dark:text-blue-400">
                 <span>Phase {step.number} Ready</span>
               </div>
             </div>

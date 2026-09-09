@@ -66,7 +66,7 @@ export function InternshipSpotlight() {
 
                 {/* Role Title */}
                 <div>
-                  <h3 className="font-bold text-base text-foreground tracking-tight hover:text-purple-600 transition-colors">
+                  <h3 className="font-bold text-base text-foreground tracking-tight hover:text-blue-600 transition-colors">
                     {intern.title}
                   </h3>
                   <p className="text-xs text-muted-foreground line-clamp-2 mt-1">
@@ -84,7 +84,7 @@ export function InternshipSpotlight() {
                       {skill}
                     </span>
                   ))}
-                  <span className="px-2 py-0.5 rounded-md bg-purple-500/10 text-purple-600 dark:text-purple-400 text-[11px] font-semibold border border-purple-500/20">
+                  <span className="px-2 py-0.5 rounded-md bg-blue-500/10 text-blue-600 dark:text-blue-400 text-[11px] font-semibold border border-blue-500/20">
                     {intern.stipend}
                   </span>
                 </div>
@@ -97,7 +97,7 @@ export function InternshipSpotlight() {
                   {intern.duration}
                 </span>
                 <Link href="/login">
-                  <span className="font-semibold text-purple-600 dark:text-purple-400 hover:underline flex items-center gap-1">
+                  <span className="font-semibold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1">
                     Apply Now &rarr;
                   </span>
                 </Link>

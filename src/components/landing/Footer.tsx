@@ -12,7 +12,7 @@ export function Footer() {
           {/* Brand Col */}
           <div className="col-span-2 space-y-4">
             <Link href="/" className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center text-white shadow-sm">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-700 to-blue-800 to-blue-600 flex items-center justify-center text-white shadow-sm">
                 <Sparkles className="w-4 h-4" />
               </div>
               <span className="font-bold text-lg text-foreground tracking-tight">

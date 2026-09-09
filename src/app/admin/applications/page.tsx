@@ -218,7 +218,7 @@ export default function AdminApplicationsPage() {
                         <div>
                           <p className="font-semibold text-foreground">{app.studentName}</p>
                           <p className="text-[11px] text-muted-foreground flex items-center gap-1">
-                            <GraduationCap className="w-3 h-3 text-purple-500" />
+                            <GraduationCap className="w-3 h-3 text-blue-500" />
                             {app.university}
                           </p>
                         </div>
@@ -277,7 +277,7 @@ export default function AdminApplicationsPage() {
           <Card className="w-full max-w-md p-6 bg-card border-border shadow-xl space-y-4">
             <div className="flex items-center justify-between pb-2 border-b border-border">
               <div className="flex items-center gap-2">
-                <AlertTriangle className="w-5 h-5 text-purple-500" />
+                <AlertTriangle className="w-5 h-5 text-blue-500" />
                 <h3 className="font-bold text-base text-foreground">
                   Update Status: {selectedApp.studentName}
                 </h3>

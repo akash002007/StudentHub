@@ -259,7 +259,7 @@ export default function CreateRecruitmentDrivePage() {
           <div className="space-y-1">
             <Link
               href="/dashboard/recruiter/drives"
-              className="text-xs font-semibold text-purple-600 hover:underline flex items-center gap-1"
+              className="text-xs font-semibold text-blue-600 hover:underline flex items-center gap-1"
             >
               <ArrowLeft className="w-3.5 h-3.5" /> Back to Drives
             </Link>
@@ -285,9 +285,9 @@ export default function CreateRecruitmentDrivePage() {
               onClick={() => handleProceed(s.num as any)}
               className={`p-3 rounded-2xl border text-left transition-all ${
                 step === s.num
-                  ? "bg-purple-600 text-white border-purple-600 shadow-sm"
+                  ? "bg-blue-600 text-white border-blue-600 shadow-sm"
                   : step > s.num
-                  ? "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/30"
+                  ? "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/30"
                   : "bg-card text-muted-foreground border-border"
               }`}
             >
@@ -301,7 +301,7 @@ export default function CreateRecruitmentDrivePage() {
         {step === 1 && (
           <Card className="p-6 space-y-5 bg-card border-border shadow-sm">
             <div className="flex items-center gap-2 border-b border-border pb-3">
-              <Briefcase className="w-5 h-5 text-purple-500" />
+              <Briefcase className="w-5 h-5 text-blue-500" />
               <h2 className="text-base font-extrabold text-foreground">
                 Step 1: Role Overview & Employment Terms
               </h2>
@@ -346,7 +346,7 @@ export default function CreateRecruitmentDrivePage() {
                 <select
                   value={employmentType}
                   onChange={(e) => setEmploymentType(e.target.value as any)}
-                  className="w-full h-10 px-3 text-xs rounded-xl bg-card border border-border focus:outline-none focus:border-purple-500"
+                  className="w-full h-10 px-3 text-xs rounded-xl bg-card border border-border focus:outline-none focus:border-blue-500"
                 >
                   <option value="FULL_TIME">Full-Time</option>
                   <option value="INTERNSHIP">Internship</option>
@@ -360,7 +360,7 @@ export default function CreateRecruitmentDrivePage() {
                 <select
                   value={workMode}
                   onChange={(e) => setWorkMode(e.target.value as any)}
-                  className="w-full h-10 px-3 text-xs rounded-xl bg-card border border-border focus:outline-none focus:border-purple-500"
+                  className="w-full h-10 px-3 text-xs rounded-xl bg-card border border-border focus:outline-none focus:border-blue-500"
                 >
                   <option value="HYBRID">Hybrid</option>
                   <option value="REMOTE">Remote</option>
@@ -413,7 +413,7 @@ export default function CreateRecruitmentDrivePage() {
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Describe key responsibilities, team impact, and required technical depth..."
-                  className="w-full p-3 text-xs rounded-xl bg-card border border-border focus:outline-none focus:border-purple-500"
+                  className="w-full p-3 text-xs rounded-xl bg-card border border-border focus:outline-none focus:border-blue-500"
                 />
                 {errors.description && (
                   <p className="text-[11px] text-rose-500 font-semibold">{errors.description}</p>
@@ -433,7 +433,7 @@ export default function CreateRecruitmentDrivePage() {
         {step === 2 && (
           <Card className="p-6 space-y-5 bg-card border-border shadow-sm">
             <div className="flex items-center gap-2 border-b border-border pb-3">
-              <ShieldCheck className="w-5 h-5 text-purple-500" />
+              <ShieldCheck className="w-5 h-5 text-blue-500" />
               <div>
                 <h2 className="text-base font-extrabold text-foreground">
                   Step 2: Structured Eligibility Engine Builder
@@ -508,7 +508,7 @@ export default function CreateRecruitmentDrivePage() {
                         }
                         className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
                           gradYears.includes(yr)
-                            ? "bg-purple-600 text-white"
+                            ? "bg-blue-600 text-white"
                             : "bg-muted text-muted-foreground"
                         }`}
                       >
@@ -540,7 +540,7 @@ export default function CreateRecruitmentDrivePage() {
                   {requiredSkills.map((skill) => (
                     <span
                       key={skill}
-                      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/30"
+                      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/30"
                     >
                       {skill}
                       <button
@@ -607,7 +607,7 @@ export default function CreateRecruitmentDrivePage() {
         {step === 3 && (
           <Card className="p-6 space-y-5 bg-card border-border shadow-sm">
             <div className="flex items-center gap-2 border-b border-border pb-3">
-              <Layers className="w-5 h-5 text-purple-500" />
+              <Layers className="w-5 h-5 text-blue-500" />
               <div>
                 <h2 className="text-base font-extrabold text-foreground">
                   Step 3: Multi-Stage Pipeline & Weighted Merit Formula
@@ -628,7 +628,7 @@ export default function CreateRecruitmentDrivePage() {
                     className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-border flex items-center justify-between gap-3 text-xs"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-7 h-7 rounded-xl bg-purple-600 text-white font-extrabold flex items-center justify-center shrink-0">
+                      <div className="w-7 h-7 rounded-xl bg-blue-600 text-white font-extrabold flex items-center justify-center shrink-0">
                         {stg.order}
                       </div>
                       <div>
@@ -648,9 +648,9 @@ export default function CreateRecruitmentDrivePage() {
             </div>
 
             {/* Weighted Merit Formula */}
-            <div className="p-4 rounded-2xl bg-purple-500/5 border border-purple-500/20 space-y-3">
+            <div className="p-4 rounded-2xl bg-blue-500/5 border border-blue-500/20 space-y-3">
               <div className="flex items-center gap-2">
-                <Award className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                <Award className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                 <span className="text-xs font-bold text-foreground">
                   Transparent Merit Ranking Formula
                 </span>
@@ -672,7 +672,7 @@ export default function CreateRecruitmentDrivePage() {
                       setAssessmentWeight(val);
                       setInterviewWeight(100 - val);
                     }}
-                    className="w-full accent-purple-600"
+                    className="w-full accent-blue-600"
                   />
                 </div>
 
@@ -691,12 +691,12 @@ export default function CreateRecruitmentDrivePage() {
                       setInterviewWeight(val);
                       setAssessmentWeight(100 - val);
                     }}
-                    className="w-full accent-purple-600"
+                    className="w-full accent-blue-600"
                   />
                 </div>
               </div>
 
-              <div className="p-2.5 rounded-xl bg-card border border-border text-center font-mono text-xs font-bold text-purple-600 dark:text-purple-400">
+              <div className="p-2.5 rounded-xl bg-card border border-border text-center font-mono text-xs font-bold text-blue-600 dark:text-blue-400">
                 Final Score = (Assessment × {assessmentWeight}%) + (Interview × {interviewWeight}%)
               </div>
             </div>

@@ -285,7 +285,7 @@ export default function InternshipsPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search by role, company, skills (Python, C++, JS)..."
-                className="w-full h-10 pl-10 pr-10 bg-card border border-border rounded-xl text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all"
+                className="w-full h-10 pl-10 pr-10 bg-card border border-border rounded-xl text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
               />
               {searchQuery && (
                 <button
@@ -307,7 +307,7 @@ export default function InternshipsPage() {
                   onClick={() => setActiveFormat(format)}
                   className={`px-3 py-1.5 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all shrink-0 border ${
                     activeFormat.toLowerCase() === format.toLowerCase()
-                      ? "bg-purple-600 text-white border-purple-600 shadow-xs"
+                      ? "bg-blue-600 text-white border-blue-600 shadow-xs"
                       : "bg-card text-muted-foreground border-border hover:text-foreground hover:bg-muted"
                   }`}
                 >
@@ -326,7 +326,7 @@ export default function InternshipsPage() {
                 onClick={() => setActiveDiscipline(opt.id)}
                 className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors shrink-0 border ${
                   activeDiscipline === opt.id
-                    ? "bg-purple-500/15 border-purple-500 text-purple-600 dark:text-purple-400 font-semibold shadow-xs"
+                    ? "bg-blue-500/15 border-blue-500 text-blue-600 dark:text-blue-400 font-semibold shadow-xs"
                     : "bg-card/50 border-border text-muted-foreground hover:text-foreground hover:bg-muted"
                 }`}
               >
@@ -342,7 +342,7 @@ export default function InternshipsPage() {
         {/* Internships Cards Grid */}
         {isLoading && internships.length === 0 ? (
           <div className="py-24 flex flex-col items-center justify-center space-y-3 text-muted-foreground">
-            <Loader2 className="w-8 h-8 animate-spin text-purple-500" />
+            <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
             <p className="text-sm">Fetching verified student opportunities...</p>
           </div>
         ) : internships.length === 0 ? (
@@ -373,8 +373,9 @@ export default function InternshipsPage() {
                 <Card
                   key={intern.id}
                   hoverEffect
-                  className="p-6 border-border/80 bg-card flex flex-col justify-between space-y-4 shadow-sm hover:shadow-md transition-shadow"
+                  className="p-6 border border-outline-variant bg-surface-container-lowest flex flex-col justify-between space-y-4 shadow-[0_1px_4px_rgba(0,0,0,0.02)] hover:shadow-md transition-all relative overflow-hidden group z-0"
                 >
+                  <div className="absolute inset-0 bg-blue-500/10 blur-3xl -z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   <div className="space-y-4">
                     {/* Top Bar: Company, Title, Match, Bookmark */}
                     <div className="flex items-start justify-between gap-3">
@@ -402,9 +403,9 @@ export default function InternshipsPage() {
                       </div>
 
                       <div className="flex items-center gap-1.5 shrink-0">
-                        <Badge variant="emerald" size="sm" className="font-bold">
+                        <span className="px-space-xs py-space-2xs rounded-full bg-blue-50 text-blue-600 font-label-sm text-label-sm font-bold">
                           {matchVal}% Match
-                        </Badge>
+                        </span>
                         <button
                           id={`bookmark-btn-${intern.id}`}
                           onClick={() => handleToggleSave(intern.id)}
@@ -415,7 +416,7 @@ export default function InternshipsPage() {
                           <Bookmark
                             className={`w-4 h-4 transition-transform ${
                               intern.isSaved
-                                ? "fill-purple-600 text-purple-600 scale-110"
+                                ? "fill-blue-600 text-blue-600 scale-110"
                                 : ""
                             }`}
                           />
@@ -425,9 +426,9 @@ export default function InternshipsPage() {
 
                     {/* Stipend and Meta Badges */}
                     <div className="flex flex-wrap items-center gap-2 text-xs">
-                      <Badge variant="purple" size="sm" className="font-bold">
+                      <span className="px-space-xs py-space-2xs rounded-md bg-secondary-container text-on-secondary-container text-[11px] font-bold">
                         {displayPay}
-                      </Badge>
+                      </span>
                       <span className="px-2.5 py-0.5 rounded-md bg-muted text-muted-foreground text-[11px] font-medium border border-border/50">
                         {displayFormat}
                       </span>
@@ -437,8 +438,8 @@ export default function InternshipsPage() {
                     </div>
 
                     {/* Why this matches you section */}
-                    <div className="p-3 rounded-xl bg-purple-500/5 dark:bg-purple-950/20 border border-purple-500/20 text-xs space-y-1.5">
-                      <div className="flex items-center gap-1.5 font-bold text-purple-600 dark:text-purple-400 text-[11px]">
+                    <div className="p-3 rounded-xl bg-surface-container border border-outline-variant text-xs space-y-1.5 relative overflow-hidden">
+                      <div className="flex items-center gap-1.5 font-bold text-primary text-[11px] relative z-10">
                         <Sparkles className="w-3.5 h-3.5 shrink-0" />
                         <span>Why this matches you:</span>
                       </div>
@@ -640,7 +641,7 @@ export default function InternshipsPage() {
                   value={applicationNote}
                   onChange={(e) => setApplicationNote(e.target.value)}
                   placeholder="Mention relevant coursework, project repositories, or why you're passionate about this engineering team..."
-                  className="w-full p-3 rounded-xl bg-card border border-border text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20"
+                  className="w-full p-3 rounded-xl bg-card border border-border text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                 />
               </div>
 

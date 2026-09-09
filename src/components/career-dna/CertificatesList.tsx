@@ -109,7 +109,7 @@ export function CertificatesList() {
               <div className="flex items-center gap-3 pt-2 text-[11px] font-semibold text-muted-foreground">
                 <span className="text-emerald-500 font-bold">{certificateDNA.verifiedCount} Verified</span>
                 <span>•</span>
-                <span className="text-purple-500 font-bold">{certificateDNA.partiallyVerifiedCount} Partially Verified</span>
+                <span className="text-blue-500 font-bold">{certificateDNA.partiallyVerifiedCount} Partially Verified</span>
                 <span>•</span>
                 <span>{certificateDNA.totalCertificates} Total</span>
               </div>

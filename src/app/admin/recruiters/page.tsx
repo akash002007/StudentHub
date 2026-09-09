@@ -222,7 +222,7 @@ export default function AdminRecruitersPage() {
                       </td>
                       <td className="py-3 px-4">
                         {isSuspended ? (
-                          <div className="inline-flex items-center gap-1 text-[11px] font-semibold text-rose-600 dark:text-rose-400 bg-rose-500/10 px-2 py-0.5 rounded-md border border-rose-500/20">
+                          <div className="inline-flex items-center gap-1 text-[11px] font-semibold text-rose-600 dark:text-rose-400 bg-primary/10 px-2 py-0.5 rounded-md border border-rose-500/20">
                             <ShieldAlert className="w-3 h-3" />
                             Suspended
                           </div>
@@ -243,7 +243,7 @@ export default function AdminRecruitersPage() {
                           <Button
                             variant="outline"
                             size="sm"
-                            className="text-emerald-600 border-emerald-500/30 hover:bg-emerald-500/10"
+                            className="text-emerald-600 border-blue-500/30 hover:bg-emerald-500/10"
                             onClick={() => handleOpenAction(r, "ACTIVE")}
                           >
                             Reactivate
@@ -252,7 +252,7 @@ export default function AdminRecruitersPage() {
                           <Button
                             variant="outline"
                             size="sm"
-                            className="text-rose-600 border-rose-500/30 hover:bg-rose-500/10"
+                            className="text-rose-600 border-rose-500/30 hover:bg-primary/10"
                             onClick={() => handleOpenAction(r, "SUSPENDED")}
                           >
                             Suspend

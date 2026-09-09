@@ -167,7 +167,7 @@ export default function StudentDetailPage({
           {/* Academic Details Card */}
           <Card className="p-5 border-border/80 bg-card space-y-4">
             <div className="flex items-center gap-2">
-              <GraduationCap className="w-4 h-4 text-purple-500" />
+              <GraduationCap className="w-4 h-4 text-blue-500" />
               <h3 className="text-sm font-bold text-foreground">Academic Information</h3>
             </div>
 
@@ -227,7 +227,7 @@ export default function StudentDetailPage({
                   {verificationReq.document && (
                     <div className="p-2.5 rounded-lg bg-card border border-border flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <FileText className="w-4 h-4 text-purple-600" />
+                        <FileText className="w-4 h-4 text-blue-600" />
                         <div>
                           <p className="font-semibold text-foreground">{verificationReq.document.fileName}</p>
                           <p className="text-[11px] text-muted-foreground">{verificationReq.document.fileSize} • {verificationReq.document.documentType}</p>
@@ -239,7 +239,7 @@ export default function StudentDetailPage({
                     </div>
                   )}
                   {verificationReq.rejectionReason && (
-                    <div className="p-2.5 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-700 dark:text-rose-300">
+                    <div className="p-2.5 rounded-lg bg-primary/10 border border-rose-500/20 text-rose-700 dark:text-rose-300">
                       <strong>Rejection Reason:</strong> {verificationReq.rejectionReason}
                     </div>
                   )}
@@ -293,7 +293,7 @@ export default function StudentDetailPage({
               {student.skills.map((s) => (
                 <span
                   key={s}
-                  className="px-2.5 py-1 rounded-lg bg-purple-500/10 text-purple-700 dark:text-purple-300 border border-purple-500/20 text-xs font-semibold"
+                  className="px-2.5 py-1 rounded-lg bg-blue-500/10 text-blue-700 dark:text-blue-300 border border-blue-500/20 text-xs font-semibold"
                 >
                   {s}
                 </span>

@@ -12,8 +12,8 @@ export function CareerDNACTA() {
   const ctaLink = isAuthenticated ? "/dashboard" : "/signup";
 
   return (
-    <div className="relative rounded-3xl p-8 sm:p-12 bg-gradient-to-br from-purple-900/30 via-card to-blue-900/20 border border-purple-500/30 text-center space-y-6 overflow-hidden shadow-xl">
-      <div className="absolute inset-0 bg-purple-500/10 blur-3xl pointer-events-none" />
+    <div className="relative rounded-3xl p-8 sm:p-12 bg-gradient-to-br from-blue-700 to-blue-800 via-card to-blue-900/20 border border-blue-500/30 text-center space-y-6 overflow-hidden shadow-xl">
+      <div className="absolute inset-0 bg-blue-500/10 blur-3xl pointer-events-none" />
 
       <div className="relative z-10 space-y-3 max-w-2xl mx-auto">
         <Badge variant="purple" size="sm" className="font-semibold px-3 py-1">
@@ -29,7 +29,7 @@ export function CareerDNACTA() {
           Connect your work, understand your strengths, and turn your progress into evidence recruiters can trust.
         </p>
 
-        <div className="pt-2 text-xs sm:text-sm italic text-purple-600 dark:text-purple-300 font-semibold space-y-1">
+        <div className="pt-2 text-xs sm:text-sm italic text-blue-600 dark:text-blue-300 font-semibold space-y-1">
           <p>"Don't just list what you've done. Show what it proves."</p>
           <p className="text-muted-foreground font-normal text-xs">
             StudentHub Career DNA turns your work into evidence, your evidence into insight, and your insight into your next opportunity.
@@ -39,7 +39,7 @@ export function CareerDNACTA() {
 
       <div className="relative z-10 flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
         <Link href={ctaLink}>
-          <Button variant="primary" size="lg" className="bg-purple-600 hover:bg-purple-700 text-white font-bold text-sm px-6">
+          <Button variant="primary" size="lg" className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm px-6">
             <Dna className="w-4 h-4 mr-2" /> Build My Career DNA <ArrowRight className="w-4 h-4 ml-2" />
           </Button>
         </Link>

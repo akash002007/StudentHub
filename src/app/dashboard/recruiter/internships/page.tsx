@@ -94,7 +94,7 @@ export default function RecruiterInternshipsPage() {
         {/* Page Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 text-xs font-semibold text-purple-600 dark:text-purple-400 mb-1">
+            <div className="flex items-center gap-2 text-xs font-semibold text-blue-600 dark:text-blue-400 mb-1">
               <Sparkles className="w-3.5 h-3.5" />
               <span>Job Listings Hub</span>
             </div>
@@ -179,7 +179,7 @@ export default function RecruiterInternshipsPage() {
                     </h3>
                     <p className="text-xs text-muted-foreground mt-0.5">
                       {internship.department} • {internship.location} •{" "}
-                      <span className="font-semibold text-purple-600 dark:text-purple-400">
+                      <span className="font-semibold text-blue-600 dark:text-blue-400">
                         {internship.stipend}
                       </span>
                     </p>
@@ -216,7 +216,7 @@ export default function RecruiterInternshipsPage() {
                       <span className="text-[10px] text-muted-foreground block uppercase font-semibold">
                         Shortlisted
                       </span>
-                      <strong className="text-purple-600 dark:text-purple-400 text-sm font-extrabold">
+                      <strong className="text-blue-600 dark:text-blue-400 text-sm font-extrabold">
                         {internship.shortlistedCount}
                       </strong>
                     </div>
@@ -335,7 +335,7 @@ export default function RecruiterInternshipsPage() {
                 </div>
                 <div className="p-3 rounded-xl bg-card border border-border">
                   <span className="text-[11px] text-muted-foreground block">Compensation</span>
-                  <strong className="text-purple-600 dark:text-purple-400">
+                  <strong className="text-blue-600 dark:text-blue-400">
                     {selectedInternship.stipend}
                   </strong>
                 </div>
@@ -395,7 +395,7 @@ export default function RecruiterInternshipsPage() {
                 rows={3}
                 value={editDescription}
                 onChange={(e) => setEditDescription(e.target.value)}
-                className="w-full p-3 rounded-xl bg-card border border-border text-xs text-foreground focus:outline-none focus:border-purple-500"
+                className="w-full p-3 rounded-xl bg-card border border-border text-xs text-foreground focus:outline-none focus:border-blue-500"
               />
             </div>
             <div className="flex justify-end gap-2 pt-2">

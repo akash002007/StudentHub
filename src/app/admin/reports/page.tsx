@@ -109,7 +109,7 @@ export default function AdminReportsPage() {
   const getTargetIcon = (type: ReportTargetType) => {
     switch (type) {
       case "DRIVE":
-        return <Layers className="w-4 h-4 text-purple-500" />;
+        return <Layers className="w-4 h-4 text-blue-500" />;
       case "USER":
         return <User className="w-4 h-4 text-blue-500" />;
       case "COMPANY":
@@ -138,7 +138,7 @@ export default function AdminReportsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-2xl bg-card border border-border/80 shadow-xs">
         <div>
           <div className="flex items-center gap-2">
-            <span className="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
+            <span className="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-primary/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
               Trust &amp; Safety Moderation
             </span>
             <span className="text-xs text-muted-foreground">{reports.length} Reports Logged</span>

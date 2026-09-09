@@ -67,7 +67,7 @@ export default function StudentResultsPage() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 text-xs font-semibold text-purple-600 dark:text-purple-400 mb-1">
+            <div className="flex items-center gap-2 text-xs font-semibold text-blue-600 dark:text-blue-400 mb-1">
               <Sparkles className="w-3.5 h-3.5" />
               <span>Official Outcomes</span>
             </div>
@@ -89,7 +89,7 @@ export default function StudentResultsPage() {
         {/* Results List */}
         {isLoading ? (
           <div className="py-16 text-center">
-            <div className="inline-block w-8 h-8 border-3 border-purple-600 border-t-transparent rounded-full animate-spin mb-3" />
+            <div className="inline-block w-8 h-8 border-3 border-blue-600 border-t-transparent rounded-full animate-spin mb-3" />
             <p className="text-xs text-muted-foreground">Loading recruitment results...</p>
           </div>
         ) : results.length === 0 ? (
@@ -116,9 +116,9 @@ export default function StudentResultsPage() {
                   key={res.resultId}
                   className={`p-6 sm:p-8 border rounded-3xl transition-all ${
                     isSelected
-                      ? "bg-gradient-to-br from-emerald-500/10 via-card to-purple-500/10 border-emerald-500/40 shadow-sm"
+                      ? "bg-gradient-to-br from-emerald-500/10 via-card to-blue-500/10 border-emerald-500/40 shadow-sm"
                       : isWaitlisted
-                      ? "bg-gradient-to-br from-purple-500/10 via-card to-blue-500/10 border-purple-500/40 shadow-sm"
+                      ? "bg-gradient-to-br from-blue-700 to-blue-800 via-card to-blue-500/10 border-blue-500/40 shadow-sm"
                       : "bg-card border-border shadow-xs"
                   }`}
                 >
@@ -131,7 +131,7 @@ export default function StudentResultsPage() {
                             isSelected
                               ? "bg-gradient-to-br from-emerald-500 to-teal-600"
                               : isWaitlisted
-                              ? "bg-gradient-to-br from-purple-600 to-blue-600"
+                              ? "bg-gradient-to-br from-blue-700 to-blue-800 to-blue-600"
                               : "bg-muted text-muted-foreground"
                           }`}
                         >
@@ -193,7 +193,7 @@ export default function StudentResultsPage() {
                           We are pleased to inform you that following your outstanding performance across the technical assessment and engineering interview rounds, you have been selected for this position. The company onboarding team will reach out with the formal letter and joining details.
                         </div>
                       ) : isWaitlisted ? (
-                        <div className="p-4 rounded-2xl bg-purple-500/10 border border-purple-500/20 text-purple-800 dark:text-purple-200">
+                        <div className="p-4 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-blue-800 dark:text-blue-200">
                           You are currently placed on the official waitlist (Merit Rank #{res.rank}). If primary selected candidates decline or additional vacancies become available, offers will be extended strictly in order of merit rank.
                         </div>
                       ) : (
@@ -221,7 +221,7 @@ export default function StudentResultsPage() {
 
                       <div className="p-3.5 rounded-2xl bg-card border border-border/80 text-xs">
                         <span className="text-muted-foreground block text-[11px]">Final Merit Score</span>
-                        <strong className="text-base font-extrabold text-purple-600 dark:text-purple-400">
+                        <strong className="text-base font-extrabold text-blue-600 dark:text-blue-400">
                           {res.finalScore} / 100
                         </strong>
                       </div>

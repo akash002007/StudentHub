@@ -271,7 +271,7 @@ export default function SignupPage() {
           {/* Header Branding */}
           <div className="text-center space-y-2">
             <Link href="/" className="inline-flex items-center gap-2 mb-1">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center text-white shadow-md shadow-purple-500/20">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-700 to-blue-800 to-blue-600 flex items-center justify-center text-white shadow-md shadow-blue-500/20">
                 <Sparkles className="w-5 h-5" />
               </div>
               <span className="font-bold text-xl tracking-tight text-foreground">
@@ -304,7 +304,7 @@ export default function SignupPage() {
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              <GraduationCap className="w-4 h-4 text-purple-500" />
+              <GraduationCap className="w-4 h-4 text-blue-500" />
               <span>Student Account</span>
             </button>
             <button
@@ -413,7 +413,7 @@ export default function SignupPage() {
                 <Button
                   type="submit"
                   variant="gradient"
-                  className="w-full h-11 text-sm font-semibold justify-center shadow-md shadow-purple-600/20 cursor-pointer mt-2"
+                  className="w-full h-11 text-sm font-semibold justify-center shadow-md shadow-blue-600/20 cursor-pointer mt-2"
                   isLoading={isLoading}
                   rightIcon={<ArrowRight className="w-4 h-4" />}
                 >
@@ -440,18 +440,18 @@ export default function SignupPage() {
                           disabled={isUpcoming}
                           className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold shrink-0 transition-all ${
                             isCurrent
-                              ? "bg-purple-600 text-white shadow-sm shadow-purple-600/30"
+                              ? "bg-blue-600 text-white shadow-sm shadow-blue-600/30"
                               : isCompleted
-                              ? "bg-purple-500/10 text-purple-600 dark:text-purple-400 hover:bg-purple-500/20 cursor-pointer"
+                              ? "bg-blue-500/10 text-blue-600 dark:text-blue-400 hover:bg-blue-500/20 cursor-pointer"
                               : "text-muted-foreground opacity-50 cursor-not-allowed"
                           }`}
                         >
                           <div
                             className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold ${
                               isCurrent
-                                ? "bg-white text-purple-600"
+                                ? "bg-white text-blue-600"
                                 : isCompleted
-                                ? "bg-purple-600 text-white"
+                                ? "bg-blue-600 text-white"
                                 : "bg-muted text-muted-foreground"
                             }`}
                           >
@@ -463,7 +463,7 @@ export default function SignupPage() {
                         {idx < stepsList.length - 1 && (
                           <div
                             className={`h-0.5 flex-1 min-w-[12px] rounded-full mx-1 ${
-                              isCompleted ? "bg-purple-600/50" : "bg-border"
+                              isCompleted ? "bg-blue-600/50" : "bg-border"
                             }`}
                           />
                         )}
@@ -492,7 +492,7 @@ export default function SignupPage() {
 
                     <div className="space-y-1">
                       <h2 className="text-base font-bold text-foreground flex items-center gap-2">
-                        <User className="w-4 h-4 text-purple-500" />
+                        <User className="w-4 h-4 text-blue-500" />
                         <span>1. Personal & Contact Information</span>
                       </h2>
                       <p className="text-xs text-muted-foreground">
@@ -648,7 +648,7 @@ export default function SignupPage() {
                         <select
                           value={companySize}
                           onChange={(e) => setCompanySize(e.target.value)}
-                          className="w-full h-10 px-3 rounded-xl bg-card border border-border text-xs text-foreground focus:outline-none focus:border-purple-500"
+                          className="w-full h-10 px-3 rounded-xl bg-card border border-border text-xs text-foreground focus:outline-none focus:border-blue-500"
                         >
                           <option>1 - 10 employees</option>
                           <option>11 - 50 employees</option>
@@ -667,7 +667,7 @@ export default function SignupPage() {
                         <select
                           value={companyType}
                           onChange={(e) => setCompanyType(e.target.value)}
-                          className="w-full h-10 px-3 rounded-xl bg-card border border-border text-xs text-foreground focus:outline-none focus:border-purple-500"
+                          className="w-full h-10 px-3 rounded-xl bg-card border border-border text-xs text-foreground focus:outline-none focus:border-blue-500"
                         >
                           <option>Technology & Software</option>
                           <option>FinTech</option>
@@ -715,7 +715,7 @@ export default function SignupPage() {
                             onClick={() => setRecruiterRole(r)}
                             className={`px-3 py-2 rounded-xl text-xs font-medium border transition-all cursor-pointer ${
                               recruiterRole === r
-                                ? "bg-purple-600/15 text-purple-600 dark:text-purple-400 border-purple-500/40 font-bold shadow-xs"
+                                ? "bg-blue-600/15 text-blue-600 dark:text-blue-400 border-blue-500/40 font-bold shadow-xs"
                                 : "bg-muted/40 text-muted-foreground border-border/80 hover:text-foreground hover:bg-muted/70"
                             }`}
                           >
@@ -745,13 +745,13 @@ export default function SignupPage() {
                               onClick={() => toggleUsage(usage)}
                               className={`flex items-center gap-2.5 p-3 rounded-xl text-xs font-medium text-left border transition-all cursor-pointer ${
                                 isChecked
-                                  ? "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/30 font-semibold"
+                                  ? "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/30 font-semibold"
                                   : "bg-muted/40 text-muted-foreground border-border/80 hover:text-foreground hover:bg-muted/70"
                               }`}
                             >
                               <div
                                 className={`w-4 h-4 rounded-md flex items-center justify-center text-white text-[10px] font-bold ${
-                                  isChecked ? "bg-purple-600" : "border border-border"
+                                  isChecked ? "bg-blue-600" : "border border-border"
                                 }`}
                               >
                                 {isChecked && "✓"}
@@ -773,7 +773,7 @@ export default function SignupPage() {
                   <div className="space-y-5 animate-in fade-in duration-200">
                     <div className="space-y-1">
                       <h2 className="text-base font-bold text-foreground flex items-center gap-2">
-                        <Lock className="w-4 h-4 text-purple-500" />
+                        <Lock className="w-4 h-4 text-blue-500" />
                         <span>4. Account Security</span>
                       </h2>
                       <p className="text-xs text-muted-foreground">
@@ -884,7 +884,7 @@ export default function SignupPage() {
                     </div>
 
                     {errors.global && (
-                      <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-xs text-rose-600 dark:text-rose-400 flex items-center gap-2">
+                      <div className="p-3 rounded-xl bg-primary/10 border border-rose-500/20 text-xs text-rose-600 dark:text-rose-400 flex items-center gap-2">
                         <AlertCircle className="w-4 h-4 shrink-0" />
                         <span>{errors.global}</span>
                       </div>
@@ -894,13 +894,13 @@ export default function SignupPage() {
                     <div className="p-4 rounded-xl bg-muted/40 border border-border/70 space-y-3">
                       <div className="flex items-center justify-between">
                         <div className="text-xs font-bold text-foreground uppercase tracking-wider flex items-center gap-1.5">
-                          <User className="w-3.5 h-3.5 text-purple-500" />
+                          <User className="w-3.5 h-3.5 text-blue-500" />
                           <span>Personal Information</span>
                         </div>
                         <button
                           type="button"
                           onClick={() => handleJumpToStep(1)}
-                          className="text-xs font-semibold text-purple-600 dark:text-purple-400 hover:underline flex items-center gap-1 cursor-pointer"
+                          className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 cursor-pointer"
                         >
                           <Edit2 className="w-3 h-3" />
                           <span>Edit</span>
@@ -936,7 +936,7 @@ export default function SignupPage() {
                         <button
                           type="button"
                           onClick={() => handleJumpToStep(2)}
-                          className="text-xs font-semibold text-purple-600 dark:text-purple-400 hover:underline flex items-center gap-1 cursor-pointer"
+                          className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 cursor-pointer"
                         >
                           <Edit2 className="w-3 h-3" />
                           <span>Edit</span>
@@ -976,7 +976,7 @@ export default function SignupPage() {
                         <button
                           type="button"
                           onClick={() => handleJumpToStep(3)}
-                          className="text-xs font-semibold text-purple-600 dark:text-purple-400 hover:underline flex items-center gap-1 cursor-pointer"
+                          className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 cursor-pointer"
                         >
                           <Edit2 className="w-3 h-3" />
                           <span>Edit</span>
@@ -993,7 +993,7 @@ export default function SignupPage() {
                             {recruiterUsage.map((g) => (
                               <span
                                 key={g}
-                                className="px-2 py-0.5 rounded-md bg-purple-500/10 text-purple-600 dark:text-purple-400 text-[11px] font-medium border border-purple-500/20"
+                                className="px-2 py-0.5 rounded-md bg-blue-500/10 text-blue-600 dark:text-blue-400 text-[11px] font-medium border border-blue-500/20"
                               >
                                 {g}
                               </span>
@@ -1007,13 +1007,13 @@ export default function SignupPage() {
                     <div className="p-4 rounded-xl bg-muted/40 border border-border/70 space-y-3">
                       <div className="flex items-center justify-between">
                         <div className="text-xs font-bold text-foreground uppercase tracking-wider flex items-center gap-1.5">
-                          <Lock className="w-3.5 h-3.5 text-purple-500" />
+                          <Lock className="w-3.5 h-3.5 text-blue-500" />
                           <span>Security Credentials</span>
                         </div>
                         <button
                           type="button"
                           onClick={() => handleJumpToStep(4)}
-                          className="text-xs font-semibold text-purple-600 dark:text-purple-400 hover:underline flex items-center gap-1 cursor-pointer"
+                          className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 cursor-pointer"
                         >
                           <Edit2 className="w-3 h-3" />
                           <span>Edit</span>
@@ -1052,7 +1052,7 @@ export default function SignupPage() {
                       variant="gradient"
                       size="sm"
                       onClick={handleNextStep}
-                      className="shadow-sm shadow-purple-600/20 cursor-pointer"
+                      className="shadow-sm shadow-blue-600/20 cursor-pointer"
                     >
                       <span>
                         {currentStep === 1
@@ -1071,7 +1071,7 @@ export default function SignupPage() {
                       size="sm"
                       onClick={handleRecruiterSubmit}
                       isLoading={isLoading}
-                      className="shadow-md shadow-purple-600/25 cursor-pointer font-bold px-5"
+                      className="shadow-md shadow-blue-600/25 cursor-pointer font-bold px-5"
                     >
                       Create Employer Suite Account &rarr;
                     </Button>
@@ -1086,7 +1086,7 @@ export default function SignupPage() {
             Already have an account?{" "}
             <Link
               href="/login"
-              className="font-semibold text-purple-600 dark:text-purple-400 hover:underline"
+              className="font-semibold text-blue-600 dark:text-blue-400 hover:underline"
             >
               Sign in here
             </Link>

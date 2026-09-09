@@ -143,10 +143,10 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
           }}
           className={cn(
             "min-h-10 w-full rounded-xl bg-card dark:bg-[#161924] border border-border dark:border-[#2a3042] px-3 py-1.5 text-xs text-foreground dark:text-slate-100 transition-all duration-200 cursor-pointer flex items-center justify-between gap-2",
-            "hover:border-purple-500/50 dark:hover:border-[#3d465e] focus:outline-none focus:border-purple-500 dark:focus:border-purple-400 focus:ring-2 focus:ring-purple-500/20 dark:focus:ring-purple-500/30",
+            "hover:border-blue-500/50 dark:hover:border-[#3d465e] focus:outline-none focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-blue-500/30",
             disabled && "opacity-50 bg-muted dark:disabled:bg-muted/40 cursor-not-allowed",
             error && "border-rose-500 dark:border-rose-500 focus:border-rose-500 focus:ring-rose-500/20",
-            isOpen && "border-purple-500 dark:border-purple-400 ring-2 ring-purple-500/20 dark:ring-purple-500/30"
+            isOpen && "border-blue-500 dark:border-blue-400 ring-2 ring-blue-500/20 dark:ring-blue-500/30"
           )}
         >
           <div className="flex flex-wrap items-center gap-1.5 flex-1 max-w-[calc(100%-48px)]">
@@ -162,7 +162,7 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
                   return (
                     <span
                       key={val}
-                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-purple-500/15 text-purple-600 dark:text-purple-300 font-medium text-[11px] border border-purple-500/25 max-w-[200px] truncate"
+                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-blue-500/15 text-blue-600 dark:text-blue-300 font-medium text-[11px] border border-blue-500/25 max-w-[200px] truncate"
                     >
                       <span className="truncate">{labelText}</span>
                       <button
@@ -200,7 +200,7 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
             <ChevronDown
               className={cn(
                 "w-4 h-4 transition-transform duration-200 text-muted-foreground dark:text-slate-400",
-                isOpen && "rotate-180 text-purple-500 dark:text-purple-400"
+                isOpen && "rotate-180 text-blue-500 dark:text-blue-400"
               )}
             />
           </div>
@@ -254,7 +254,7 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
                       className={cn(
                         "flex items-center justify-between px-3 py-2 rounded-xl text-xs cursor-pointer transition-colors",
                         isSelected
-                          ? "bg-purple-500/15 text-purple-600 dark:text-purple-300 font-semibold"
+                          ? "bg-blue-500/15 text-blue-600 dark:text-blue-300 font-semibold"
                           : "text-foreground dark:text-slate-200 hover:bg-muted/60 dark:hover:bg-muted/40"
                       )}
                     >
@@ -263,7 +263,7 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
                         className={cn(
                           "w-4 h-4 rounded-md border flex items-center justify-center transition-all shrink-0",
                           isSelected
-                            ? "bg-purple-600 border-purple-600 text-white"
+                            ? "bg-blue-600 border-blue-600 text-white"
                             : "border-border/80 dark:border-[#384157] bg-card dark:bg-[#12141c]"
                         )}
                       >
@@ -282,7 +282,7 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
                 <button
                   type="button"
                   onClick={clearAll}
-                  className="text-purple-600 dark:text-purple-400 font-semibold hover:underline"
+                  className="text-blue-600 dark:text-blue-400 font-semibold hover:underline"
                 >
                   Clear all
                 </button>

@@ -59,7 +59,7 @@ export function StudentsTable({ rows }: { rows: AdminStudentRecord[] }) {
                   <div className="flex items-center gap-2">
                     <div className="w-16 h-1.5 rounded-full bg-muted overflow-hidden">
                       <div
-                        className="h-full rounded-full bg-gradient-to-r from-purple-500 to-blue-500"
+                        className="h-full rounded-full bg-primary"
                         style={{ width: `${row.profileCompletion}%` }}
                       />
                     </div>

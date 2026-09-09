@@ -99,7 +99,7 @@ export default function RecruitmentDrivesPage() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 text-xs font-semibold text-purple-600 dark:text-purple-400 mb-1">
+            <div className="flex items-center gap-2 text-xs font-semibold text-blue-600 dark:text-blue-400 mb-1">
               <Sparkles className="w-3.5 h-3.5" />
               <span>Drive Management</span>
             </div>
@@ -135,7 +135,7 @@ export default function RecruitmentDrivesPage() {
                 onClick={() => setSelectedStatusTab(tab.id)}
                 className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
                   selectedStatusTab === tab.id
-                    ? "bg-purple-600 text-white shadow-xs"
+                    ? "bg-blue-600 text-white shadow-xs"
                     : "bg-muted text-muted-foreground hover:text-foreground"
                 }`}
               >
@@ -152,7 +152,7 @@ export default function RecruitmentDrivesPage() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search drives by title, role, location..."
-              className="w-full h-9 pl-9 pr-3.5 rounded-xl bg-card border border-border text-xs focus:outline-none focus:border-purple-500"
+              className="w-full h-9 pl-9 pr-3.5 rounded-xl bg-card border border-border text-xs focus:outline-none focus:border-blue-500"
             />
           </div>
         </div>
@@ -178,7 +178,7 @@ export default function RecruitmentDrivesPage() {
             {filteredDrives.map((drive) => (
               <Card
                 key={drive.id}
-                className="p-6 border-border/80 hover:border-purple-500/40 transition-all bg-card flex flex-col justify-between space-y-5 shadow-xs"
+                className="p-6 border-border/80 hover:border-blue-500/40 transition-all bg-card flex flex-col justify-between space-y-5 shadow-xs"
               >
                 {/* Header info */}
                 <div className="space-y-3">
@@ -186,10 +186,10 @@ export default function RecruitmentDrivesPage() {
                     <span
                       className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${
                         drive.status === "RESULTS_PUBLISHED"
-                          ? "bg-purple-500/10 text-purple-600 border border-purple-500/30"
+                          ? "bg-blue-500/10 text-blue-600 border border-blue-500/30"
                           : drive.status === "CLOSED"
                           ? "bg-slate-500/10 text-slate-600 border border-slate-500/30"
-                          : "bg-emerald-500/10 text-emerald-600 border border-emerald-500/30"
+                          : "bg-emerald-500/10 text-emerald-600 border border-blue-500/30"
                       }`}
                     >
                       {drive.status.replace(/_/g, " ")}
@@ -204,7 +204,7 @@ export default function RecruitmentDrivesPage() {
                     <h2 className="text-lg font-black text-foreground tracking-tight line-clamp-1">
                       {drive.title}
                     </h2>
-                    <p className="text-xs text-purple-600 dark:text-purple-400 font-semibold mt-0.5">
+                    <p className="text-xs text-blue-600 dark:text-blue-400 font-semibold mt-0.5">
                       {drive.position} • {drive.department}
                     </p>
                   </div>
@@ -240,11 +240,11 @@ export default function RecruitmentDrivesPage() {
                       <div className="text-base font-black">{drive.eligibleCount}</div>
                       <div className="text-[10px]">Eligible</div>
                     </div>
-                    <div className="p-2 rounded-xl bg-purple-500/10 text-purple-600">
+                    <div className="p-2 rounded-xl bg-blue-500/10 text-blue-600">
                       <div className="text-base font-black">{drive.shortlistedCount}</div>
                       <div className="text-[10px]">Shortlist</div>
                     </div>
-                    <div className="p-2 rounded-xl bg-rose-500/10 text-rose-600">
+                    <div className="p-2 rounded-xl bg-primary/10 text-rose-600">
                       <div className="text-base font-black">{drive.selectedCount}</div>
                       <div className="text-[10px]">Selected</div>
                     </div>

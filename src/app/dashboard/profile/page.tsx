@@ -357,7 +357,7 @@ export default function ProfilePage() {
       {/* Profile Banner & Header Card */}
       <div className="rounded-3xl border border-border bg-card overflow-hidden shadow-sm">
         {/* Decorative Top Gradient Banner */}
-        <div className="h-32 sm:h-44 bg-gradient-to-r from-purple-900/60 via-indigo-900/40 to-blue-900/60 relative">
+        <div className="h-32 sm:h-44 bg-gradient-to-r from-blue-700 via-blue-600 to-blue-800 text-white relative">
           <div className="absolute top-4 right-4 flex items-center gap-2">
             <Badge variant="emerald" size="sm" className="font-semibold shadow-xs">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse mr-1" />
@@ -385,7 +385,7 @@ export default function ProfilePage() {
               </p>
               <div className="flex flex-wrap items-center gap-3 pt-1 text-xs text-muted-foreground">
                 <span className="flex items-center gap-1">
-                  <GraduationCap className="w-3.5 h-3.5 text-purple-500" />
+                  <GraduationCap className="w-3.5 h-3.5 text-blue-500" />
                   {student?.university || "Stanford University"} &apos;26
                 </span>
                 <span className="flex items-center gap-1">
@@ -446,10 +446,10 @@ export default function ProfilePage() {
                 <div className="p-4 rounded-xl bg-muted/40 border border-border/60 flex flex-col sm:flex-row sm:items-start justify-between gap-3">
                   <div className="space-y-1.5">
                     <div className="font-bold text-base text-foreground flex items-center gap-2">
-                      <GraduationCap className="w-4 h-4 text-purple-600 dark:text-purple-400 shrink-0" />
+                      <GraduationCap className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
                       <span>{student?.university || "Stanford University"}</span>
                     </div>
-                    <div className="text-sm font-semibold text-purple-600 dark:text-purple-400">
+                    <div className="text-sm font-semibold text-blue-600 dark:text-blue-400">
                       {student?.degree || "B.S. in Computer Science"}{" "}
                       {(student?.specialization || student?.branch) && (
                         <span className="text-muted-foreground font-normal">
@@ -491,7 +491,7 @@ export default function ProfilePage() {
                 onChange={(e) => setNewSkillInput(e.target.value)}
                 onKeyDown={handleAddSkill}
                 placeholder="Add any skill (e.g. Financial Modeling, PCR, Figma, Python)..."
-                className="w-full h-9 px-3 rounded-xl bg-muted border border-border text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-purple-500"
+                className="w-full h-9 px-3 rounded-xl bg-muted border border-border text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-blue-500"
               />
 
               {/* Quick skill suggestions */}
@@ -517,7 +517,7 @@ export default function ProfilePage() {
                         key={suggestion}
                         type="button"
                         onClick={() => handleAddSkillDirect(suggestion)}
-                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 dark:text-purple-400 text-[11px] font-medium border border-purple-500/20 transition-colors"
+                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400 text-[11px] font-medium border border-blue-500/20 transition-colors"
                       >
                         <Plus className="w-2.5 h-2.5" />
                         <span>{suggestion}</span>
@@ -571,7 +571,7 @@ export default function ProfilePage() {
                 {student?.socialLinks?.portfolio && (
                   <div className="p-2.5 rounded-xl bg-muted/40 border border-border/60 flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <Globe className="w-4 h-4 text-purple-500" />
+                      <Globe className="w-4 h-4 text-blue-500" />
                       <span className="font-medium">{student.socialLinks.portfolio.replace("https://", "")}</span>
                     </div>
                     <Badge variant="emerald" size="sm">Portfolio</Badge>
@@ -658,7 +658,7 @@ export default function ProfilePage() {
                         href={proj.documentUrl}
                         target="_blank"
                         rel="noreferrer"
-                        className="flex items-center gap-1 text-purple-600 dark:text-purple-400 font-semibold hover:underline"
+                        className="flex items-center gap-1 text-blue-600 dark:text-blue-400 font-semibold hover:underline"
                       >
                         <FileText className="w-3.5 h-3.5" /> Report / Doc
                       </a>
@@ -668,7 +668,7 @@ export default function ProfilePage() {
                         href={proj.liveUrl}
                         target="_blank"
                         rel="noreferrer"
-                        className="flex items-center gap-1 text-purple-600 dark:text-purple-400 font-semibold hover:underline"
+                        className="flex items-center gap-1 text-blue-600 dark:text-blue-400 font-semibold hover:underline"
                       >
                         <ExternalLink className="w-3.5 h-3.5" /> Live Demo
                       </a>
@@ -705,7 +705,7 @@ export default function ProfilePage() {
             <Card className="p-6 border-border/80 bg-card space-y-5">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-2xl bg-muted/40 border border-border/60">
                 <div className="flex items-center gap-3.5">
-                  <div className="w-12 h-12 rounded-xl bg-purple-500/10 text-purple-600 flex items-center justify-center shrink-0">
+                  <div className="w-12 h-12 rounded-xl bg-blue-500/10 text-blue-600 flex items-center justify-center shrink-0">
                     <FileText className="w-6 h-6" />
                   </div>
                   <div>
@@ -750,9 +750,9 @@ export default function ProfilePage() {
                     uploadedAt: "Just now",
                   });
                 }}
-                className="p-8 border-2 border-dashed border-border hover:border-purple-500 rounded-2xl bg-card hover:bg-purple-500/5 transition-all text-center cursor-pointer flex flex-col items-center justify-center group"
+                className="p-8 border-2 border-dashed border-border hover:border-blue-500 rounded-2xl bg-card hover:bg-blue-500/5 transition-all text-center cursor-pointer flex flex-col items-center justify-center group"
               >
-                <UploadCloud className="w-8 h-8 text-purple-500 mb-2 group-hover:scale-110 transition-transform" />
+                <UploadCloud className="w-8 h-8 text-blue-500 mb-2 group-hover:scale-110 transition-transform" />
                 <div className="text-xs sm:text-sm font-semibold text-foreground">
                   Click to replace current resume file
                 </div>
@@ -817,7 +817,7 @@ export default function ProfilePage() {
               </div>
               <div className="text-xs text-muted-foreground space-y-1 pt-1">
                 <div>Issued: Jan 2025 • Credential ID: AWS-SAA-8492041</div>
-                <span className="text-purple-600 dark:text-purple-400 font-semibold hover:underline inline-flex items-center gap-1 cursor-pointer">
+                <span className="text-blue-600 dark:text-blue-400 font-semibold hover:underline inline-flex items-center gap-1 cursor-pointer">
                   Verify Credential <ExternalLink className="w-3 h-3" />
                 </span>
               </div>
@@ -840,7 +840,7 @@ export default function ProfilePage() {
               </div>
               <div className="text-xs text-muted-foreground space-y-1 pt-1">
                 <div>Issued: Sep 2024 • Credential ID: META-FED-9938210</div>
-                <span className="text-purple-600 dark:text-purple-400 font-semibold hover:underline inline-flex items-center gap-1 cursor-pointer">
+                <span className="text-blue-600 dark:text-blue-400 font-semibold hover:underline inline-flex items-center gap-1 cursor-pointer">
                   Verify Credential <ExternalLink className="w-3 h-3" />
                 </span>
               </div>
@@ -889,7 +889,7 @@ export default function ProfilePage() {
               <select
                 value={editAcademicStream}
                 onChange={(e) => handleStreamChange(e.target.value)}
-                className="w-full h-10 px-3 rounded-xl bg-card dark:bg-[#161924] border border-border dark:border-[#2a3042] text-xs text-foreground dark:text-slate-100 focus:outline-none focus:border-purple-500 dark:focus:border-purple-400 font-medium cursor-pointer transition-colors"
+                className="w-full h-10 px-3 rounded-xl bg-card dark:bg-[#161924] border border-border dark:border-[#2a3042] text-xs text-foreground dark:text-slate-100 focus:outline-none focus:border-blue-500 dark:focus:border-blue-400 font-medium cursor-pointer transition-colors"
               >
                 {ACADEMIC_HIERARCHY.map((st) => (
                   <option key={st.id} value={st.name} className="bg-card text-foreground dark:bg-[#161924] dark:text-slate-100">
@@ -903,7 +903,7 @@ export default function ProfilePage() {
                   placeholder="Enter custom academic stream..."
                   value={customStream}
                   onChange={(e) => setCustomStream(e.target.value)}
-                  className="w-full mt-2 h-9 px-3 rounded-xl bg-card dark:bg-[#161924] border border-border dark:border-[#2a3042] text-xs text-foreground dark:text-slate-100 placeholder:text-muted-foreground/60 dark:placeholder:text-slate-400/75 focus:outline-none focus:border-purple-500"
+                  className="w-full mt-2 h-9 px-3 rounded-xl bg-card dark:bg-[#161924] border border-border dark:border-[#2a3042] text-xs text-foreground dark:text-slate-100 placeholder:text-muted-foreground/60 dark:placeholder:text-slate-400/75 focus:outline-none focus:border-blue-500"
                   required
                 />
               )}
@@ -918,7 +918,7 @@ export default function ProfilePage() {
               <select
                 value={editDegree}
                 onChange={(e) => handleDegreeChange(e.target.value)}
-                className="w-full h-10 px-3 rounded-xl bg-card dark:bg-[#161924] border border-border dark:border-[#2a3042] text-xs text-foreground dark:text-slate-100 focus:outline-none focus:border-purple-500 dark:focus:border-purple-400 font-medium cursor-pointer transition-colors"
+                className="w-full h-10 px-3 rounded-xl bg-card dark:bg-[#161924] border border-border dark:border-[#2a3042] text-xs text-foreground dark:text-slate-100 focus:outline-none focus:border-blue-500 dark:focus:border-blue-400 font-medium cursor-pointer transition-colors"
               >
                 {getProgramsForStream(editAcademicStream).map((deg) => (
                   <option key={deg.id} value={deg.name} className="bg-card text-foreground dark:bg-[#161924] dark:text-slate-100">
@@ -932,7 +932,7 @@ export default function ProfilePage() {
                   placeholder="Enter custom degree..."
                   value={customDegree}
                   onChange={(e) => setCustomDegree(e.target.value)}
-                  className="w-full mt-2 h-9 px-3 rounded-xl bg-card dark:bg-[#161924] border border-border dark:border-[#2a3042] text-xs text-foreground dark:text-slate-100 placeholder:text-muted-foreground/60 dark:placeholder:text-slate-400/75 focus:outline-none focus:border-purple-500"
+                  className="w-full mt-2 h-9 px-3 rounded-xl bg-card dark:bg-[#161924] border border-border dark:border-[#2a3042] text-xs text-foreground dark:text-slate-100 placeholder:text-muted-foreground/60 dark:placeholder:text-slate-400/75 focus:outline-none focus:border-blue-500"
                   required
                 />
               )}
@@ -945,7 +945,7 @@ export default function ProfilePage() {
               <select
                 value={editSpecialization}
                 onChange={(e) => handleSpecializationChange(e.target.value)}
-                className="w-full h-10 px-3 rounded-xl bg-card dark:bg-[#161924] border border-border dark:border-[#2a3042] text-xs text-foreground dark:text-slate-100 focus:outline-none focus:border-purple-500 dark:focus:border-purple-400 font-medium cursor-pointer transition-colors"
+                className="w-full h-10 px-3 rounded-xl bg-card dark:bg-[#161924] border border-border dark:border-[#2a3042] text-xs text-foreground dark:text-slate-100 focus:outline-none focus:border-blue-500 dark:focus:border-blue-400 font-medium cursor-pointer transition-colors"
               >
                 {getSpecializationsForProgram(editAcademicStream, editDegree).map((spec) => (
                   <option key={spec} value={spec} className="bg-card text-foreground dark:bg-[#161924] dark:text-slate-100">
@@ -959,7 +959,7 @@ export default function ProfilePage() {
                   placeholder="Enter custom specialization/branch..."
                   value={customSpecialization}
                   onChange={(e) => setCustomSpecialization(e.target.value)}
-                  className="w-full mt-2 h-9 px-3 rounded-xl bg-card border border-border text-xs text-foreground focus:outline-none focus:border-purple-500"
+                  className="w-full mt-2 h-9 px-3 rounded-xl bg-card border border-border text-xs text-foreground focus:outline-none focus:border-blue-500"
                   required
                 />
               )}
@@ -1002,7 +1002,7 @@ export default function ProfilePage() {
               rows={3}
               value={editBio}
               onChange={(e) => setEditBio(e.target.value)}
-              className="w-full p-3 rounded-xl bg-card border border-border text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20"
+              className="w-full p-3 rounded-xl bg-card border border-border text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
             />
           </div>
 
@@ -1070,7 +1070,7 @@ export default function ProfilePage() {
                   onClick={() => setNewType(type)}
                   className={`py-1.5 px-2 rounded-lg text-[11px] font-medium border text-center transition-colors ${
                     newType === type
-                      ? "bg-purple-500/10 border-purple-500 text-purple-600 dark:text-purple-400 font-semibold"
+                      ? "bg-blue-500/10 border-blue-500 text-blue-600 dark:text-blue-400 font-semibold"
                       : "border-border/60 text-muted-foreground hover:bg-muted"
                   }`}
                 >
@@ -1118,7 +1118,7 @@ export default function ProfilePage() {
               value={newDesc}
               onChange={(e) => setNewDesc(e.target.value)}
               placeholder="Summarize the core problem, methodology applied, and demonstrated outcomes."
-              className="w-full p-3 rounded-xl bg-card border border-border text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20"
+              className="w-full p-3 rounded-xl bg-card border border-border text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
             />
           </div>
 

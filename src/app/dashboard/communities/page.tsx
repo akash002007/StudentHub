@@ -129,7 +129,7 @@ export default function CommunitiesPage() {
               onClick={() => setSelectedCategory(cat.id)}
               className={`px-3 py-1.5 rounded-xl text-xs font-semibold uppercase tracking-wider shrink-0 transition-colors border ${
                 selectedCategory === cat.id
-                  ? "bg-purple-600 text-white border-purple-600 shadow-xs"
+                  ? "bg-blue-600 text-white border-blue-600 shadow-xs"
                   : "bg-card text-muted-foreground border-border hover:text-foreground hover:bg-muted"
               }`}
             >
@@ -145,7 +145,7 @@ export default function CommunitiesPage() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search communities..."
-            className="w-full h-9 pl-9 pr-3 rounded-xl bg-card border border-border text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-purple-500"
+            className="w-full h-9 pl-9 pr-3 rounded-xl bg-card border border-border text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-blue-500"
           />
         </div>
       </div>
@@ -168,13 +168,13 @@ export default function CommunitiesPage() {
                   onClick={() => setSelectedCommunity(comm)}
                   className={`p-4 border-border/80 bg-card cursor-pointer transition-all ${
                     isSelected
-                      ? "ring-2 ring-purple-500/50 bg-purple-500/5 dark:bg-purple-950/20"
+                      ? "ring-2 ring-blue-500/50 bg-blue-500/5 dark:bg-blue-950/20"
                       : ""
                   }`}
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-muted border border-border/60 flex items-center justify-center text-purple-600 dark:text-purple-400 shrink-0">
+                      <div className="w-10 h-10 rounded-xl bg-muted border border-border/60 flex items-center justify-center text-blue-600 dark:text-blue-400 shrink-0">
                         {getCategoryIcon(comm.category)}
                       </div>
                       <div>
@@ -206,7 +206,7 @@ export default function CommunitiesPage() {
 
                   <div className="pt-3 mt-3 border-t border-border/60 flex items-center justify-between text-[11px] text-muted-foreground">
                     <span className="flex items-center gap-1">
-                      <Users2 className="w-3.5 h-3.5 text-purple-500" />
+                      <Users2 className="w-3.5 h-3.5 text-blue-500" />
                       {comm.membersCount.toLocaleString()} members
                     </span>
                     <span className="flex items-center gap-1">
@@ -226,7 +226,7 @@ export default function CommunitiesPage() {
           <Card className="p-6 border-border/80 bg-card space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center gap-3.5">
-                <div className="w-12 h-12 rounded-2xl bg-purple-500/10 text-purple-600 flex items-center justify-center">
+                <div className="w-12 h-12 rounded-2xl bg-blue-500/10 text-blue-600 flex items-center justify-center">
                   {getCategoryIcon(activeCommunity.category)}
                 </div>
                 <div>
@@ -289,7 +289,7 @@ export default function CommunitiesPage() {
                   </div>
 
                   <div>
-                    <h4 className="font-bold text-sm text-foreground hover:text-purple-600 transition-colors">
+                    <h4 className="font-bold text-sm text-foreground hover:text-blue-600 transition-colors">
                       {post.title}
                     </h4>
                     <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
@@ -313,7 +313,7 @@ export default function CommunitiesPage() {
                       onClick={() => upvotePost(activeCommunity.id, post.id)}
                       className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border transition-colors ${
                         post.hasUpvoted
-                          ? "bg-purple-500/10 border-purple-500/40 text-purple-600 dark:text-purple-400 font-bold"
+                          ? "bg-blue-500/10 border-blue-500/40 text-blue-600 dark:text-blue-400 font-bold"
                           : "border-border hover:bg-muted text-muted-foreground"
                       }`}
                     >
@@ -365,7 +365,7 @@ export default function CommunitiesPage() {
               value={postContent}
               onChange={(e) => setPostContent(e.target.value)}
               placeholder="Share the problem you solved, code snippet notes, or question details..."
-              className="w-full p-3 rounded-xl bg-card border border-border text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20"
+              className="w-full p-3 rounded-xl bg-card border border-border text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
               required
             />
           </div>

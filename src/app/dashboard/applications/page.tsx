@@ -108,7 +108,7 @@ export default function StudentApplicationsPage() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 text-xs font-semibold text-purple-600 dark:text-purple-400 mb-1">
+            <div className="flex items-center gap-2 text-xs font-semibold text-blue-600 dark:text-blue-400 mb-1">
               <Sparkles className="w-3.5 h-3.5" />
               <span>Application Pipeline Tracker</span>
             </div>
@@ -156,7 +156,7 @@ export default function StudentApplicationsPage() {
                 onClick={() => setSelectedStatusTab(tab.id)}
                 className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
                   selectedStatusTab === tab.id
-                    ? "bg-purple-600 text-white shadow-xs"
+                    ? "bg-blue-600 text-white shadow-xs"
                     : "bg-muted text-muted-foreground hover:text-foreground"
                 }`}
               >
@@ -172,7 +172,7 @@ export default function StudentApplicationsPage() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search by drive title, company, or Application ID..."
-              className="w-full h-10 pl-9 pr-3.5 rounded-xl bg-background border border-border text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
+              className="w-full h-10 pl-9 pr-3.5 rounded-xl bg-background border border-border text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
             />
           </div>
         </div>
@@ -180,7 +180,7 @@ export default function StudentApplicationsPage() {
         {/* Application Cards List */}
         {isLoading ? (
           <div className="py-16 text-center">
-            <div className="inline-block w-8 h-8 border-3 border-purple-600 border-t-transparent rounded-full animate-spin mb-3" />
+            <div className="inline-block w-8 h-8 border-3 border-blue-600 border-t-transparent rounded-full animate-spin mb-3" />
             <p className="text-xs text-muted-foreground">Loading your recruitment applications...</p>
           </div>
         ) : filteredApplications.length === 0 ? (
@@ -255,7 +255,7 @@ export default function StudentApplicationsPage() {
                       <div className="flex items-center justify-between text-[11px] text-muted-foreground">
                         <span>Recruitment Progress</span>
                         <span className="font-semibold text-foreground">
-                          Current Stage: <strong className="text-purple-600 dark:text-purple-400">{app.currentStageName}</strong>
+                          Current Stage: <strong className="text-blue-600 dark:text-blue-400">{app.currentStageName}</strong>
                         </span>
                       </div>
 
@@ -271,9 +271,9 @@ export default function StudentApplicationsPage() {
                               key={stage.id}
                               className={`p-2 rounded-xl border text-[11px] font-semibold flex items-center gap-2 transition-all ${
                                 isPast
-                                  ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-700 dark:text-emerald-300"
+                                  ? "bg-emerald-500/10 border-blue-500/30 text-emerald-700 dark:text-emerald-300"
                                   : isPresent
-                                  ? "bg-purple-500/15 border-purple-500/50 text-purple-700 dark:text-purple-300 ring-1 ring-purple-500/30 font-bold"
+                                  ? "bg-blue-500/15 border-blue-500/50 text-blue-700 dark:text-blue-300 ring-1 ring-blue-500/30 font-bold"
                                   : "bg-muted/40 border-border/60 text-muted-foreground"
                               }`}
                             >
@@ -282,7 +282,7 @@ export default function StudentApplicationsPage() {
                                   isPast
                                     ? "bg-emerald-600 text-white"
                                     : isPresent
-                                    ? "bg-purple-600 text-white animate-pulse"
+                                    ? "bg-blue-600 text-white animate-pulse"
                                     : "bg-muted text-muted-foreground"
                                 }`}
                               >
@@ -310,7 +310,7 @@ export default function StudentApplicationsPage() {
                         </span>
                       )}
                       {app.rank && (
-                        <span className="px-2 py-0.5 rounded-lg bg-purple-500/10 text-purple-600 dark:text-purple-400 font-bold">
+                        <span className="px-2 py-0.5 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400 font-bold">
                           Merit Rank: #{app.rank}
                         </span>
                       )}
@@ -363,7 +363,7 @@ export default function StudentApplicationsPage() {
                 </div>
                 <div>
                   <span className="text-muted-foreground">Status:</span>{" "}
-                  <strong className="text-purple-600 dark:text-purple-400 font-bold">
+                  <strong className="text-blue-600 dark:text-blue-400 font-bold">
                     {selectedAppForTimeline.status}
                   </strong>
                 </div>
@@ -374,7 +374,7 @@ export default function StudentApplicationsPage() {
                 {selectedAppForTimeline.history && selectedAppForTimeline.history.length > 0 ? (
                   selectedAppForTimeline.history.map((event, idx) => (
                     <div key={idx} className="relative space-y-1 text-xs">
-                      <div className="absolute -left-6 top-0.5 w-3 h-3 rounded-full bg-purple-600 ring-4 ring-background" />
+                      <div className="absolute -left-6 top-0.5 w-3 h-3 rounded-full bg-blue-600 ring-4 ring-background" />
 
                       <div className="flex items-center justify-between gap-2">
                         <span className="font-bold text-foreground">{event.status.replace("_", " ")}</span>

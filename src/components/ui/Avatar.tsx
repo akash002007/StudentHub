@@ -43,7 +43,7 @@ export function Avatar({
           "rounded-full overflow-hidden flex items-center justify-center font-medium select-none ring-2 ring-background",
           sizeStyles[size],
           !src || imageError
-            ? "bg-gradient-to-br from-purple-600 to-indigo-700 text-white"
+            ? "bg-gradient-to-br from-blue-700 to-blue-800 to-blue-700 text-white"
             : "bg-muted"
         )}
       >

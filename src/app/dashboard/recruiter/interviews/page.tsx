@@ -208,7 +208,7 @@ export default function RecruiterInterviewsPage() {
         {/* Page Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 text-xs font-semibold text-purple-600 dark:text-purple-400 mb-1">
+            <div className="flex items-center gap-2 text-xs font-semibold text-blue-600 dark:text-blue-400 mb-1">
               <Sparkles className="w-3.5 h-3.5" />
               <span>Interview Operations</span>
             </div>
@@ -225,7 +225,7 @@ export default function RecruiterInterviewsPage() {
             variant="gradient"
             size="sm"
             onClick={handleOpenScheduleModal}
-            className="shadow-md shadow-purple-600/20 cursor-pointer"
+            className="shadow-md shadow-blue-600/20 cursor-pointer"
           >
             <PlusCircle className="w-4 h-4 mr-2" />
             Schedule Interview
@@ -241,8 +241,8 @@ export default function RecruiterInterviewsPage() {
             </div>
           </Card>
           <Card className="p-4 border-border bg-card">
-            <div className="text-xs font-medium text-purple-600 dark:text-purple-400">Upcoming Rounds</div>
-            <div className="text-2xl font-extrabold text-purple-600 dark:text-purple-400 mt-1">
+            <div className="text-xs font-medium text-blue-600 dark:text-blue-400">Upcoming Rounds</div>
+            <div className="text-2xl font-extrabold text-blue-600 dark:text-blue-400 mt-1">
               {scheduledCount}
             </div>
           </Card>
@@ -269,7 +269,7 @@ export default function RecruiterInterviewsPage() {
               placeholder="Search candidate, role, or interviewer..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full h-10 pl-9 pr-4 rounded-xl bg-card border border-border text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-purple-500"
+              className="w-full h-10 pl-9 pr-4 rounded-xl bg-card border border-border text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-blue-500"
             />
           </div>
 
@@ -277,7 +277,7 @@ export default function RecruiterInterviewsPage() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="h-10 px-3 rounded-xl bg-card border border-border text-xs text-foreground focus:outline-none focus:border-purple-500"
+              className="h-10 px-3 rounded-xl bg-card border border-border text-xs text-foreground focus:outline-none focus:border-blue-500"
             >
               <option value="all">All Statuses</option>
               <option value="scheduled">Scheduled</option>
@@ -289,7 +289,7 @@ export default function RecruiterInterviewsPage() {
             <select
               value={typeFilter}
               onChange={(e) => setTypeFilter(e.target.value)}
-              className="h-10 px-3 rounded-xl bg-card border border-border text-xs text-foreground focus:outline-none focus:border-purple-500"
+              className="h-10 px-3 rounded-xl bg-card border border-border text-xs text-foreground focus:outline-none focus:border-blue-500"
             >
               <option value="all">All Types</option>
               <option value="technical">Technical</option>
@@ -321,7 +321,7 @@ export default function RecruiterInterviewsPage() {
               return (
                 <div
                   key={interview.id}
-                  className="p-4 sm:p-5 rounded-2xl border border-border bg-card hover:border-purple-500/30 transition-all space-y-4"
+                  className="p-4 sm:p-5 rounded-2xl border border-border bg-card hover:border-blue-500/30 transition-all space-y-4"
                 >
                   <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                     {/* Candidate Info */}
@@ -353,8 +353,8 @@ export default function RecruiterInterviewsPage() {
                               isDone
                                 ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
                                 : isCancelled
-                                ? "bg-rose-500/10 text-rose-600"
-                                : "bg-purple-500/10 text-purple-600 dark:text-purple-400"
+                                ? "bg-primary/10 text-rose-600"
+                                : "bg-blue-500/10 text-blue-600 dark:text-blue-400"
                             }`}
                           >
                             {interview.status}
@@ -362,7 +362,7 @@ export default function RecruiterInterviewsPage() {
                         </div>
                         <div className="text-xs text-muted-foreground flex items-center gap-2">
                           <span className="flex items-center gap-1">
-                            <GraduationCap className="w-3.5 h-3.5 text-purple-500" />
+                            <GraduationCap className="w-3.5 h-3.5 text-blue-500" />
                             {interview.candidateUniversity}
                           </span>
                           <span>&bull;</span>
@@ -377,7 +377,7 @@ export default function RecruiterInterviewsPage() {
                     {/* Schedule Time & Details */}
                     <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
                       <div className="flex items-center gap-1.5 bg-muted/60 px-3 py-1.5 rounded-xl border border-border/60">
-                        <Calendar className="w-3.5 h-3.5 text-purple-500" />
+                        <Calendar className="w-3.5 h-3.5 text-blue-500" />
                         <span className="font-semibold text-foreground">{interview.date}</span>
                       </div>
                       <div className="flex items-center gap-1.5 bg-muted/60 px-3 py-1.5 rounded-xl border border-border/60">
@@ -413,7 +413,7 @@ export default function RecruiterInterviewsPage() {
                         variant="outline"
                         size="sm"
                         onClick={() => handleOpenCandidateProfile(interview)}
-                        className="text-xs h-8 cursor-pointer text-purple-600 dark:text-purple-400 hover:bg-purple-500/10"
+                        className="text-xs h-8 cursor-pointer text-blue-600 dark:text-blue-400 hover:bg-blue-500/10"
                       >
                         Profile &amp; Career DNA
                       </Button>
@@ -424,7 +424,7 @@ export default function RecruiterInterviewsPage() {
                             href={interview.meetingLink}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-semibold text-xs transition-colors shadow-xs"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs transition-colors shadow-xs"
                           >
                             <Video className="w-3.5 h-3.5" />
                             <span>Join Meeting</span>
@@ -456,7 +456,7 @@ export default function RecruiterInterviewsPage() {
                             variant="ghost"
                             size="sm"
                             onClick={() => cancelInterview(interview.id, "Candidate requested reschedule / conflicting cohort")}
-                            className="text-xs h-8 text-rose-600 hover:bg-rose-500/10 cursor-pointer"
+                            className="text-xs h-8 text-rose-600 hover:bg-primary/10 cursor-pointer"
                           >
                             Cancel
                           </Button>
@@ -498,7 +498,7 @@ export default function RecruiterInterviewsPage() {
               <select
                 value={candidateId}
                 onChange={(e) => setCandidateId(e.target.value)}
-                className="w-full h-10 px-3 rounded-xl bg-card border border-border text-xs text-foreground focus:outline-none focus:border-purple-500"
+                className="w-full h-10 px-3 rounded-xl bg-card border border-border text-xs text-foreground focus:outline-none focus:border-blue-500"
                 required
               >
                 {recruiterApplicants.map((app) => (
@@ -517,7 +517,7 @@ export default function RecruiterInterviewsPage() {
                 <select
                   value={interviewType}
                   onChange={(e) => setInterviewType(e.target.value as InterviewType)}
-                  className="w-full h-10 px-3 rounded-xl bg-card border border-border text-xs text-foreground focus:outline-none focus:border-purple-500"
+                  className="w-full h-10 px-3 rounded-xl bg-card border border-border text-xs text-foreground focus:outline-none focus:border-blue-500"
                 >
                   <option value="Phone">Phone Screen</option>
                   <option value="Video">Video Call</option>
@@ -535,7 +535,7 @@ export default function RecruiterInterviewsPage() {
                 <select
                   value={duration}
                   onChange={(e) => setDuration(e.target.value)}
-                  className="w-full h-10 px-3 rounded-xl bg-card border border-border text-xs text-foreground focus:outline-none focus:border-purple-500"
+                  className="w-full h-10 px-3 rounded-xl bg-card border border-border text-xs text-foreground focus:outline-none focus:border-blue-500"
                 >
                   <option value="30 mins">30 mins</option>
                   <option value="45 mins">45 mins</option>
@@ -587,7 +587,7 @@ export default function RecruiterInterviewsPage() {
                 onChange={(e) => setNotes(e.target.value)}
                 rows={2}
                 placeholder="e.g. Focus on systems architecture and live code walkthrough."
-                className="w-full p-3 rounded-xl bg-card border border-border text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-purple-500"
+                className="w-full p-3 rounded-xl bg-card border border-border text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-blue-500"
               />
             </div>
 
@@ -661,7 +661,7 @@ export default function RecruiterInterviewsPage() {
                 onChange={(e) => setFeedbackText(e.target.value)}
                 rows={4}
                 placeholder="Candidate demonstrated strong algorithmic problem solving and clear communication..."
-                className="w-full p-3 rounded-xl bg-card border border-border text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-purple-500"
+                className="w-full p-3 rounded-xl bg-card border border-border text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-blue-500"
                 required
               />
             </div>

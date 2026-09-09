@@ -137,7 +137,7 @@ export function UpdateResumeModal({
 
         {/* Modal Header */}
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-500 shrink-0">
+          <div className="w-12 h-12 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-500 shrink-0">
             <FileText className="w-6 h-6" />
           </div>
           <div>
@@ -182,12 +182,12 @@ export function UpdateResumeModal({
 
         {/* Processing Tracker */}
         {isUploading && (
-          <div className="p-4 rounded-2xl bg-purple-500/10 border border-purple-500/20 space-y-3 text-xs">
+          <div className="p-4 rounded-2xl bg-blue-500/10 border border-blue-500/20 space-y-3 text-xs">
             <div className="flex items-center justify-between font-bold text-foreground">
               <span className="flex items-center gap-2">
-                <RefreshCw className="w-4 h-4 text-purple-500 animate-spin" /> Processing Resume DNA Pipeline
+                <RefreshCw className="w-4 h-4 text-blue-500 animate-spin" /> Processing Resume DNA Pipeline
               </span>
-              <span className="text-purple-500 uppercase text-[10px] font-semibold">{uploadStep}</span>
+              <span className="text-blue-500 uppercase text-[10px] font-semibold">{uploadStep}</span>
             </div>
 
             <div className="space-y-1.5 text-[11px] text-muted-foreground">
@@ -211,7 +211,7 @@ export function UpdateResumeModal({
         {!isUploading && (
           <div
             onClick={() => fileInputRef.current?.click()}
-            className="p-6 rounded-2xl border-2 border-dashed border-border hover:border-purple-500/50 bg-muted/20 hover:bg-purple-500/5 transition-all text-center cursor-pointer space-y-2"
+            className="p-6 rounded-2xl border-2 border-dashed border-border hover:border-blue-500/50 bg-muted/20 hover:bg-blue-500/5 transition-all text-center cursor-pointer space-y-2"
           >
             <input
               type="file"
@@ -220,7 +220,7 @@ export function UpdateResumeModal({
               accept=".pdf,.docx,.doc"
               className="hidden"
             />
-            <div className="w-10 h-10 rounded-xl bg-purple-500/10 mx-auto flex items-center justify-center text-purple-500">
+            <div className="w-10 h-10 rounded-xl bg-blue-500/10 mx-auto flex items-center justify-center text-blue-500">
               <Upload className="w-5 h-5" />
             </div>
             <div className="space-y-0.5">
@@ -234,7 +234,7 @@ export function UpdateResumeModal({
 
         {/* Error Notification */}
         {errorMessage && (
-          <p className="text-xs font-semibold text-rose-600 dark:text-rose-400 bg-rose-500/10 p-2.5 rounded-xl border border-rose-500/20">
+          <p className="text-xs font-semibold text-rose-600 dark:text-rose-400 bg-primary/10 p-2.5 rounded-xl border border-rose-500/20">
             • {errorMessage}
           </p>
         )}
@@ -256,7 +256,7 @@ export function UpdateResumeModal({
             size="sm"
             onClick={handleStartUpload}
             disabled={!selectedFile || isUploading}
-            className="text-xs bg-purple-600 hover:bg-purple-700 text-white font-semibold"
+            className="text-xs bg-blue-600 hover:bg-blue-700 text-white font-semibold"
           >
             {isUploading ? "Processing..." : showConfirm ? "Replace Resume" : "Upload & Analyze"}
           </Button>

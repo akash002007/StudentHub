@@ -86,7 +86,7 @@ export default function MessagesPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search conversations..."
-                className="w-full h-9 pl-9 pr-3 rounded-xl bg-card border border-border text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-purple-500"
+                className="w-full h-9 pl-9 pr-3 rounded-xl bg-card border border-border text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-blue-500"
               />
             </div>
           </div>
@@ -102,7 +102,7 @@ export default function MessagesPage() {
                   className={cn(
                     "p-3.5 flex items-start gap-3 cursor-pointer transition-colors relative",
                     isSelected
-                      ? "bg-purple-500/10 dark:bg-purple-950/30"
+                      ? "bg-blue-500/10 dark:bg-blue-950/30"
                       : "hover:bg-muted/60"
                   )}
                 >
@@ -133,7 +133,7 @@ export default function MessagesPage() {
                   </div>
 
                   {conv.lastMessage.isUnread && (
-                    <span className="w-2 h-2 rounded-full bg-purple-600 shrink-0 self-center" />
+                    <span className="w-2 h-2 rounded-full bg-blue-600 shrink-0 self-center" />
                   )}
                 </div>
               );
@@ -216,7 +216,7 @@ export default function MessagesPage() {
                       className={cn(
                         "p-3.5 rounded-2xl text-xs sm:text-sm leading-relaxed shadow-xs",
                         msg.isSelf
-                          ? "bg-purple-600 text-white rounded-tr-none"
+                          ? "bg-blue-600 text-white rounded-tr-none"
                           : "bg-card border border-border text-foreground rounded-tl-none"
                       )}
                     >
@@ -224,7 +224,7 @@ export default function MessagesPage() {
                     </div>
                     <span className="text-[10px] text-muted-foreground mt-1 px-1 flex items-center gap-1">
                       {msg.timestamp}
-                      {msg.isSelf && <CheckCheck className="w-3 h-3 text-purple-500" />}
+                      {msg.isSelf && <CheckCheck className="w-3 h-3 text-blue-500" />}
                     </span>
                   </div>
                 ))}
@@ -240,7 +240,7 @@ export default function MessagesPage() {
                   value={inputText}
                   onChange={(e) => setInputText(e.target.value)}
                   placeholder={`Message ${activeConv.participant.name.split(" ")[0]}...`}
-                  className="flex-1 h-10 px-4 rounded-xl bg-muted/60 border border-border text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20"
+                  className="flex-1 h-10 px-4 rounded-xl bg-muted/60 border border-border text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                 />
                 <Button
                   type="submit"

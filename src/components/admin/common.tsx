@@ -117,7 +117,7 @@ export function ErrorState({
   return (
     <Card className="p-8 border-rose-200/60 dark:border-rose-900/30 bg-rose-50/60 dark:bg-rose-950/10">
       <div className="flex items-start gap-3">
-        <div className="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center">
+        <div className="w-10 h-10 rounded-xl bg-primary/10 text-rose-600 dark:text-rose-400 flex items-center justify-center">
           <AlertTriangle className="w-5 h-5" />
         </div>
         <div className="flex-1">

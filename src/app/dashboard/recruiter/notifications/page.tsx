@@ -39,7 +39,7 @@ export default function RecruiterNotificationsPage() {
   const getNotificationIcon = (type: string) => {
     switch (type) {
       case "application":
-        return <GitPullRequest className="w-4 h-4 text-purple-500" />;
+        return <GitPullRequest className="w-4 h-4 text-blue-500" />;
       case "interview":
         return <Calendar className="w-4 h-4 text-blue-500" />;
       case "internship":
@@ -47,7 +47,7 @@ export default function RecruiterNotificationsPage() {
       case "message":
         return <MessageSquare className="w-4 h-4 text-emerald-500" />;
       default:
-        return <Sparkles className="w-4 h-4 text-purple-500" />;
+        return <Sparkles className="w-4 h-4 text-blue-500" />;
     }
   };
 
@@ -57,7 +57,7 @@ export default function RecruiterNotificationsPage() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 text-xs font-semibold text-purple-600 dark:text-purple-400 mb-1">
+            <div className="flex items-center gap-2 text-xs font-semibold text-blue-600 dark:text-blue-400 mb-1">
               <Sparkles className="w-3.5 h-3.5" />
               <span>Hiring Activity</span>
             </div>
@@ -91,7 +91,7 @@ export default function RecruiterNotificationsPage() {
             onClick={() => setFilter("all")}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
               filter === "all"
-                ? "bg-purple-600 text-white shadow-xs"
+                ? "bg-blue-600 text-white shadow-xs"
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
@@ -102,7 +102,7 @@ export default function RecruiterNotificationsPage() {
             onClick={() => setFilter("unread")}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
               filter === "unread"
-                ? "bg-purple-600 text-white shadow-xs"
+                ? "bg-blue-600 text-white shadow-xs"
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
@@ -119,7 +119,7 @@ export default function RecruiterNotificationsPage() {
                 hoverEffect
                 className={`p-4 sm:p-5 border-border/80 bg-card flex items-start gap-4 transition-all ${
                   !notif.isRead
-                    ? "bg-purple-500/5 dark:bg-purple-950/20 border-purple-500/30"
+                    ? "bg-blue-500/5 dark:bg-blue-950/20 border-blue-500/30"
                     : ""
                 }`}
               >
@@ -146,7 +146,7 @@ export default function RecruiterNotificationsPage() {
                       <Link
                         href={notif.actionUrl}
                         onClick={() => markRecruiterNotificationAsRead(notif.id)}
-                        className="inline-flex items-center gap-1 text-xs text-purple-600 dark:text-purple-400 font-semibold hover:underline"
+                        className="inline-flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 font-semibold hover:underline"
                       >
                         <span>View Details</span>
                         <ArrowRight className="w-3 h-3" />

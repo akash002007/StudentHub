@@ -86,7 +86,7 @@ export default function AdminSettingsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-2xl bg-card border border-border/80 shadow-xs">
         <div>
           <div className="flex items-center gap-2">
-            <span className="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20">
+            <span className="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
               Platform Configuration
             </span>
             <span className="text-xs text-muted-foreground">Production Hardened</span>
@@ -110,7 +110,7 @@ export default function AdminSettingsPage() {
       {/* Security Policies */}
       <Card className="p-5 border-border/80 bg-card space-y-4">
         <div className="flex items-center gap-2 pb-2 border-b border-border">
-          <Shield className="w-5 h-5 text-purple-500" />
+          <Shield className="w-5 h-5 text-blue-500" />
           <h3 className="font-bold text-sm text-foreground">Platform Security &amp; Access Controls</h3>
         </div>
 

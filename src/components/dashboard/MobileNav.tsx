@@ -139,21 +139,21 @@ export function MobileNav() {
               className={cn(
                 "relative flex flex-col items-center justify-center py-1 px-1 rounded-xl text-[10px] font-medium transition-colors flex-1",
                 isActive
-                  ? "text-purple-600 dark:text-purple-400 font-bold"
+                  ? "text-blue-600 dark:text-blue-400 font-bold"
                   : "text-muted-foreground hover:text-foreground"
               )}
             >
               <div className="relative">
                 <Icon className="w-5 h-5 mb-0.5" />
                 {typeof tab.badge === "number" && (
-                  <span className="absolute -top-1 -right-2 w-3.5 h-3.5 rounded-full bg-purple-600 text-white text-[9px] font-bold flex items-center justify-center">
+                  <span className="absolute -top-1 -right-2 w-3.5 h-3.5 rounded-full bg-blue-600 text-white text-[9px] font-bold flex items-center justify-center">
                     {tab.badge}
                   </span>
                 )}
               </div>
               <span className="truncate">{tab.label}</span>
               {isActive && (
-                <span className="absolute -bottom-1 w-1 h-1 rounded-full bg-purple-600 dark:bg-purple-400" />
+                <span className="absolute -bottom-1 w-1 h-1 rounded-full bg-blue-600 dark:bg-blue-400" />
               )}
             </Link>
           );
@@ -180,7 +180,7 @@ export function MobileNav() {
           <div className="relative bg-card border-t border-border rounded-t-3xl p-6 shadow-2xl space-y-4 animate-slide-up z-10">
             <div className="flex items-center justify-between pb-3 border-b border-border/60">
               <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-purple-600" />
+                <Sparkles className="w-4 h-4 text-blue-600" />
                 <span className="font-bold text-sm text-foreground">
                   {isRecruiter ? "Recruiter Navigation" : "More Options"}
                 </span>
@@ -198,7 +198,7 @@ export function MobileNav() {
                 <Link
                   href="/dashboard/recruiter/post-internship"
                   onClick={() => setIsMoreOpen(false)}
-                  className="p-3 rounded-xl bg-purple-500/10 hover:bg-purple-500/20 flex items-center gap-2.5 text-purple-600 dark:text-purple-400 border border-purple-500/30"
+                  className="p-3 rounded-xl bg-blue-500/10 hover:bg-blue-500/20 flex items-center gap-2.5 text-blue-600 dark:text-blue-400 border border-blue-500/30"
                 >
                   <PlusCircle className="w-4 h-4" />
                   <span>Post Internship</span>
@@ -208,7 +208,7 @@ export function MobileNav() {
                   onClick={() => setIsMoreOpen(false)}
                   className="p-3 rounded-xl bg-muted/60 hover:bg-muted flex items-center gap-2.5 text-foreground border border-border/50"
                 >
-                  <Bookmark className="w-4 h-4 text-purple-500" />
+                  <Bookmark className="w-4 h-4 text-blue-500" />
                   <span>Shortlisted</span>
                 </Link>
                 <Link
@@ -232,7 +232,7 @@ export function MobileNav() {
                   onClick={() => setIsMoreOpen(false)}
                   className="p-3 rounded-xl bg-muted/60 hover:bg-muted flex items-center gap-2.5 text-foreground border border-border/50"
                 >
-                  <Building2 className="w-4 h-4 text-indigo-500" />
+                  <Building2 className="w-4 h-4 text-blue-500" />
                   <span>Company Profile</span>
                 </Link>
                 <Link
@@ -240,7 +240,7 @@ export function MobileNav() {
                   onClick={() => setIsMoreOpen(false)}
                   className="p-3 rounded-xl bg-muted/60 hover:bg-muted flex items-center gap-2.5 text-foreground border border-border/50"
                 >
-                  <User className="w-4 h-4 text-purple-500" />
+                  <User className="w-4 h-4 text-blue-500" />
                   <span>Recruiter Profile</span>
                 </Link>
                 <Link
@@ -318,7 +318,7 @@ export function MobileNav() {
                   onClick={() => setIsMoreOpen(false)}
                   className="p-3 rounded-xl bg-muted/60 hover:bg-muted flex items-center gap-2.5 text-foreground border border-border/50"
                 >
-                  <Users2 className="w-4 h-4 text-purple-500" />
+                  <Users2 className="w-4 h-4 text-blue-500" />
                   <span>Communities</span>
                 </Link>
                 <Link
@@ -398,7 +398,7 @@ export function MobileNav() {
                   setIsMoreOpen(false);
                   router.push("/login");
                 }}
-                className="w-full p-3 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 font-semibold text-xs flex items-center justify-center gap-2 border border-rose-500/20 hover:bg-rose-500/20 transition-colors"
+                className="w-full p-3 rounded-xl bg-primary/10 text-rose-600 dark:text-rose-400 font-semibold text-xs flex items-center justify-center gap-2 border border-rose-500/20 hover:bg-primary/20 transition-colors"
               >
                 <LogOut className="w-4 h-4" />
                 <span>Sign Out of StudentHub</span>

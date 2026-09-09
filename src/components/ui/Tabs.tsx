@@ -38,7 +38,7 @@ export function Tabs({
               className={cn(
                 "relative pb-3 text-sm font-medium transition-colors flex items-center gap-2",
                 isActive
-                  ? "text-purple-600 dark:text-purple-400 font-semibold"
+                  ? "text-blue-600 dark:text-blue-400 font-semibold"
                   : "text-muted-foreground hover:text-foreground"
               )}
             >
@@ -49,7 +49,7 @@ export function Tabs({
                   className={cn(
                     "text-xs px-1.5 py-0.5 rounded-full font-medium",
                     isActive
-                      ? "bg-purple-100 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300"
+                      ? "bg-blue-100 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300"
                       : "bg-muted text-muted-foreground"
                   )}
                 >
@@ -59,7 +59,7 @@ export function Tabs({
               {isActive && (
                 <motion.div
                   layoutId="activeTabLine"
-                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-purple-600 dark:bg-purple-400"
+                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 dark:bg-blue-400"
                   transition={{ type: "spring", stiffness: 400, damping: 30 }}
                 />
               )}
@@ -106,7 +106,7 @@ export function Tabs({
                 className={cn(
                   "relative z-10 text-[11px] px-1.5 py-0.2 rounded-full font-medium",
                   isActive
-                    ? "bg-purple-500/10 text-purple-600 dark:text-purple-400"
+                    ? "bg-blue-500/10 text-blue-600 dark:text-blue-400"
                     : "bg-background/80 text-muted-foreground"
                 )}
               >

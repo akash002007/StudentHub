@@ -259,7 +259,7 @@ export default function AdminCompaniesPage() {
                         <Badge variant="amber">Pending</Badge>
                       )}
                       {c.verificationTier && c.verificationTier !== "UNVERIFIED" && (
-                        <span className="text-[10px] uppercase font-bold text-purple-600 dark:text-purple-400">
+                        <span className="text-[10px] uppercase font-bold text-blue-600 dark:text-blue-400">
                           {c.verificationTier}
                         </span>
                       )}
@@ -276,7 +276,7 @@ export default function AdminCompaniesPage() {
                       <span>{c.recruiterCount || 0} Recruiters</span>
                     </div>
                     <div className="flex items-center gap-1.5">
-                      <Briefcase className="w-3.5 h-3.5 text-purple-500" />
+                      <Briefcase className="w-3.5 h-3.5 text-blue-500" />
                       <span>{c.activeDrivesCount || 0} Active Drives</span>
                     </div>
                   </div>
@@ -294,7 +294,7 @@ export default function AdminCompaniesPage() {
                   )}
 
                   {c.suspensionReason && (
-                    <div className="mt-2.5 p-2 rounded-lg bg-rose-500/10 border border-rose-500/20 text-[11px] text-rose-600 dark:text-rose-400">
+                    <div className="mt-2.5 p-2 rounded-lg bg-primary/10 border border-rose-500/20 text-[11px] text-rose-600 dark:text-rose-400">
                       <strong>Suspension Note:</strong> {c.suspensionReason}
                     </div>
                   )}
@@ -305,7 +305,7 @@ export default function AdminCompaniesPage() {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="text-emerald-600 border-emerald-500/30 hover:bg-emerald-500/10"
+                      className="text-emerald-600 border-blue-500/30 hover:bg-emerald-500/10"
                       onClick={() => handleOpenStatusModal(c, "VERIFIED")}
                     >
                       <CheckCircle2 className="w-3 h-3 mr-1" />
@@ -316,7 +316,7 @@ export default function AdminCompaniesPage() {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="text-rose-600 border-rose-500/30 hover:bg-rose-500/10"
+                      className="text-rose-600 border-rose-500/30 hover:bg-primary/10"
                       onClick={() => handleOpenStatusModal(c, "SUSPENDED")}
                     >
                       <ShieldAlert className="w-3 h-3 mr-1" />
@@ -327,7 +327,7 @@ export default function AdminCompaniesPage() {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="text-emerald-600 border-emerald-500/30 hover:bg-emerald-500/10"
+                      className="text-emerald-600 border-blue-500/30 hover:bg-emerald-500/10"
                       onClick={() => handleOpenStatusModal(c, "VERIFIED")}
                     >
                       Reactivate

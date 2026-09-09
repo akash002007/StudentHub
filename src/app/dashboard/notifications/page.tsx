@@ -68,13 +68,13 @@ export default function NotificationsPage() {
       case "application":
         return <GitPullRequest className="w-4 h-4 text-blue-500" />;
       case "internship":
-        return <Briefcase className="w-4 h-4 text-purple-500" />;
+        return <Briefcase className="w-4 h-4 text-blue-500" />;
       case "message":
         return <Send className="w-4 h-4 text-emerald-500" />;
       case "community":
         return <Users2 className="w-4 h-4 text-amber-500" />;
       default:
-        return <Sparkles className="w-4 h-4 text-purple-500" />;
+        return <Sparkles className="w-4 h-4 text-blue-500" />;
     }
   };
 
@@ -137,7 +137,7 @@ export default function NotificationsPage() {
               }}
               className={`p-4 sm:p-5 flex items-start justify-between gap-4 hover:bg-muted/40 transition-colors cursor-pointer ${
                 !notif.isRead
-                  ? "bg-purple-500/5 dark:bg-purple-950/20 border-l-4 border-l-purple-600"
+                  ? "bg-blue-500/5 dark:bg-blue-950/20 border-l-4 border-l-blue-600"
                   : ""
               }`}
             >
@@ -152,7 +152,7 @@ export default function NotificationsPage() {
                       {notif.title}
                     </h3>
                     {!notif.isRead && (
-                      <span className="w-2 h-2 rounded-full bg-purple-600 inline-block" />
+                      <span className="w-2 h-2 rounded-full bg-blue-600 inline-block" />
                     )}
                   </div>
                   <p className="text-xs text-muted-foreground leading-relaxed">
@@ -165,7 +165,7 @@ export default function NotificationsPage() {
               </div>
 
               {notif.actionUrl && (
-                <div className="self-center hidden sm:flex items-center text-xs font-semibold text-purple-600 dark:text-purple-400 gap-1 shrink-0">
+                <div className="self-center hidden sm:flex items-center text-xs font-semibold text-blue-600 dark:text-blue-400 gap-1 shrink-0">
                   <span>View</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </div>

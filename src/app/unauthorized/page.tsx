@@ -5,7 +5,7 @@ export default function UnauthorizedPage() {
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
       <div className="max-w-md w-full text-center space-y-6 bg-card border border-border rounded-2xl p-8 shadow-xl">
-        <div className="w-16 h-16 bg-rose-500/10 rounded-full flex items-center justify-center mx-auto">
+        <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
           <ShieldAlert className="w-8 h-8 text-rose-500" />
         </div>
         

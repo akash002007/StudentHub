@@ -99,7 +99,7 @@ export default function RecruiterMessagesPage() {
       <div className="space-y-6">
         {/* Header */}
         <div>
-          <div className="flex items-center gap-2 text-xs font-semibold text-purple-600 dark:text-purple-400 mb-1">
+          <div className="flex items-center gap-2 text-xs font-semibold text-blue-600 dark:text-blue-400 mb-1">
             <Sparkles className="w-3.5 h-3.5" />
             <span>Candidate Communications</span>
           </div>
@@ -124,7 +124,7 @@ export default function RecruiterMessagesPage() {
                   placeholder="Search candidate conversations..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full h-9 pl-9 pr-3 rounded-xl bg-muted/60 border border-border text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-purple-500"
+                  className="w-full h-9 pl-9 pr-3 rounded-xl bg-muted/60 border border-border text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-blue-500"
                 />
               </div>
             </div>
@@ -139,7 +139,7 @@ export default function RecruiterMessagesPage() {
                     onClick={() => setActiveRecruiterConversationId(conv.id)}
                     className={`p-3.5 flex items-start gap-3 cursor-pointer transition-colors ${
                       isActive
-                        ? "bg-purple-500/10 border-l-4 border-purple-600"
+                        ? "bg-blue-500/10 border-l-4 border-blue-600"
                         : "hover:bg-muted/50"
                     }`}
                   >
@@ -188,7 +188,7 @@ export default function RecruiterMessagesPage() {
                       {activeConversation.participant.name}
                     </h3>
                     <p className="text-xs text-muted-foreground flex items-center gap-1">
-                      <GraduationCap className="w-3 h-3 text-purple-500" />
+                      <GraduationCap className="w-3 h-3 text-blue-500" />
                       <span>{activeConversation.participant.companyOrCollege}</span>
                       <span>•</span>
                       <span>{activeConversation.participant.role}</span>
@@ -202,7 +202,7 @@ export default function RecruiterMessagesPage() {
                     variant="outline"
                     size="sm"
                     onClick={handleOpenCandidateProfile}
-                    className="text-xs h-8 cursor-pointer text-purple-600 dark:text-purple-400 hover:bg-purple-500/10"
+                    className="text-xs h-8 cursor-pointer text-blue-600 dark:text-blue-400 hover:bg-blue-500/10"
                   >
                     Profile &amp; Career DNA
                   </Button>
@@ -231,7 +231,7 @@ export default function RecruiterMessagesPage() {
                       <div
                         className={`p-3.5 rounded-2xl text-xs leading-relaxed ${
                           msg.isSelf
-                            ? "bg-purple-600 text-white rounded-tr-none shadow-sm"
+                            ? "bg-blue-600 text-white rounded-tr-none shadow-sm"
                             : "bg-muted/80 text-foreground border border-border/80 rounded-tl-none"
                         }`}
                       >
@@ -243,7 +243,7 @@ export default function RecruiterMessagesPage() {
                         }`}
                       >
                         <span>{msg.timestamp}</span>
-                        {msg.isSelf && <CheckCheck className="w-3 h-3 text-purple-400" />}
+                        {msg.isSelf && <CheckCheck className="w-3 h-3 text-blue-400" />}
                       </div>
                     </div>
                   </div>
@@ -257,7 +257,7 @@ export default function RecruiterMessagesPage() {
                   placeholder={`Reply to ${activeConversation.participant.name}...`}
                   value={messageInput}
                   onChange={(e) => setMessageInput(e.target.value)}
-                  className="flex-1 h-10 px-3.5 rounded-xl bg-muted/40 border border-border text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20"
+                  className="flex-1 h-10 px-3.5 rounded-xl bg-muted/40 border border-border text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                 />
                 <Button type="submit" variant="gradient" size="sm" className="h-10 px-4">
                   <Send className="w-4 h-4" />

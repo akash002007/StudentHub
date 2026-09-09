@@ -131,7 +131,7 @@ export default function RecruiterShortlistedPage() {
         {/* Page Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 text-xs font-semibold text-purple-600 dark:text-purple-400 mb-1">
+            <div className="flex items-center gap-2 text-xs font-semibold text-blue-600 dark:text-blue-400 mb-1">
               <Sparkles className="w-3.5 h-3.5" />
               <span>Talent Bench</span>
             </div>
@@ -163,8 +163,8 @@ export default function RecruiterShortlistedPage() {
             </div>
           </Card>
           <Card className="p-4 border-border bg-card">
-            <div className="text-xs font-medium text-purple-600 dark:text-purple-400">High Match (&gt;90%)</div>
-            <div className="text-2xl font-extrabold text-purple-600 dark:text-purple-400 mt-1">
+            <div className="text-xs font-medium text-blue-600 dark:text-blue-400">High Match (&gt;90%)</div>
+            <div className="text-2xl font-extrabold text-blue-600 dark:text-blue-400 mt-1">
               {shortlistedList.filter((s) => parseFloat(s.cgpa.split("/")[0]) >= 3.6).length}
             </div>
           </Card>
@@ -185,7 +185,7 @@ export default function RecruiterShortlistedPage() {
               placeholder="Search shortlisted candidates..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full h-10 pl-9 pr-4 rounded-xl bg-card border border-border text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-purple-500"
+              className="w-full h-10 pl-9 pr-4 rounded-xl bg-card border border-border text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-blue-500"
             />
           </div>
 
@@ -193,7 +193,7 @@ export default function RecruiterShortlistedPage() {
             <select
               value={streamFilter}
               onChange={(e) => setStreamFilter(e.target.value)}
-              className="h-10 px-3 rounded-xl bg-card border border-border text-xs text-foreground focus:outline-none focus:border-purple-500"
+              className="h-10 px-3 rounded-xl bg-card border border-border text-xs text-foreground focus:outline-none focus:border-blue-500"
             >
               <option value="all">All Academic Streams</option>
               {allStreams.map((st) => (
@@ -204,7 +204,7 @@ export default function RecruiterShortlistedPage() {
             <select
               value={minCgpaFilter}
               onChange={(e) => setMinCgpaFilter(e.target.value)}
-              className="h-10 px-3 rounded-xl bg-card border border-border text-xs text-foreground focus:outline-none focus:border-purple-500"
+              className="h-10 px-3 rounded-xl bg-card border border-border text-xs text-foreground focus:outline-none focus:border-blue-500"
             >
               <option value="all">Any CGPA</option>
               <option value="3.5">&ge; 3.5 CGPA</option>
@@ -236,18 +236,18 @@ export default function RecruiterShortlistedPage() {
             {filteredCandidates.map((student) => (
               <div
                 key={student.id}
-                className="p-5 rounded-2xl border border-border bg-card hover:border-purple-500/40 transition-all flex flex-col justify-between space-y-4"
+                className="p-5 rounded-2xl border border-border bg-card hover:border-blue-500/40 transition-all flex flex-col justify-between space-y-4"
               >
                 <div>
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-start gap-3">
                       <Avatar src={student.avatar} name={student.name} size="lg" isOnline />
                       <div>
-                        <h3 className="text-sm font-bold text-foreground hover:text-purple-600 transition-colors cursor-pointer" onClick={() => handleOpenCandidate(student)}>
+                        <h3 className="text-sm font-bold text-foreground hover:text-blue-600 transition-colors cursor-pointer" onClick={() => handleOpenCandidate(student)}>
                           {student.name}
                         </h3>
                         <div className="text-xs text-muted-foreground flex items-center gap-1.5 mt-0.5">
-                          <GraduationCap className="w-3.5 h-3.5 text-purple-500" />
+                          <GraduationCap className="w-3.5 h-3.5 text-blue-500" />
                           <span>{student.university}</span>
                         </div>
                         <div className="text-[11px] text-muted-foreground">
@@ -259,7 +259,7 @@ export default function RecruiterShortlistedPage() {
                     <button
                       type="button"
                       onClick={() => toggleShortlistCandidate(student.id)}
-                      className="p-1.5 rounded-lg text-purple-600 bg-purple-500/10 hover:bg-rose-500/10 hover:text-rose-600 transition-colors cursor-pointer"
+                      className="p-1.5 rounded-lg text-blue-600 bg-blue-500/10 hover:bg-primary/10 hover:text-rose-600 transition-colors cursor-pointer"
                       title="Remove from shortlist"
                     >
                       <Bookmark className="w-4 h-4 fill-current" />
@@ -302,7 +302,7 @@ export default function RecruiterShortlistedPage() {
 
                 {/* Card Actions */}
                 <div className="pt-3 border-t border-border/60 flex items-center justify-between gap-2">
-                  <div className="text-xs font-semibold text-purple-600 dark:text-purple-400">
+                  <div className="text-xs font-semibold text-blue-600 dark:text-blue-400">
                     CGPA: {student.cgpa}
                   </div>
 

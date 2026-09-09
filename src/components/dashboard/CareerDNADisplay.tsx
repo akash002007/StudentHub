@@ -87,7 +87,7 @@ export function CareerDNADisplay({ userId }: CareerDNADisplayProps) {
       {/* Section Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-500 shrink-0">
+          <div className="w-10 h-10 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-500 shrink-0">
             <Dna className="w-5 h-5" />
           </div>
           <div>
@@ -110,16 +110,16 @@ export function CareerDNADisplay({ userId }: CareerDNADisplayProps) {
       </div>
 
       {/* Main Score & Confidence Header Card */}
-      <Card hoverEffect className="p-6 border-border/80 bg-gradient-to-br from-card via-card to-purple-500/5 space-y-6">
+      <Card hoverEffect className="p-6 border-border/80 bg-gradient-to-br from-card via-card to-blue-500/5 space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
           {/* Overall Score Circle */}
           <div className="flex items-center gap-4 border-r-0 md:border-r border-border/40 pr-0 md:pr-6">
-            <div className="relative w-24 h-24 rounded-full bg-purple-500/10 border-4 border-purple-500 flex flex-col items-center justify-center text-center shrink-0 shadow-lg shadow-purple-500/10">
+            <div className="relative w-24 h-24 rounded-full bg-blue-500/10 border-4 border-blue-500 flex flex-col items-center justify-center text-center shrink-0 shadow-lg shadow-blue-500/10">
               <span className="text-3xl font-extrabold text-foreground tracking-tight">{overallScore}</span>
-              <span className="text-[10px] font-bold text-purple-500 uppercase tracking-widest">/ 100</span>
+              <span className="text-[10px] font-bold text-blue-500 uppercase tracking-widest">/ 100</span>
             </div>
             <div>
-              <span className="text-xs font-semibold text-purple-500 uppercase tracking-wider">Career DNA Score</span>
+              <span className="text-xs font-semibold text-blue-500 uppercase tracking-wider">Career DNA Score</span>
               <h3 className="text-base font-bold text-foreground mt-0.5">Overall Technical Score</h3>
               <p className="text-xs text-muted-foreground mt-1">
                 Calculated mathematically across 7 evidence dimensions.
@@ -144,7 +144,7 @@ export function CareerDNADisplay({ userId }: CareerDNADisplayProps) {
 
           {/* AI Interpretation Summary */}
           <div className="space-y-2">
-            <div className="flex items-center gap-1.5 text-xs font-bold text-purple-500">
+            <div className="flex items-center gap-1.5 text-xs font-bold text-blue-500">
               <Sparkles className="w-3.5 h-3.5" /> AI Evidence Interpretation
             </div>
             <p className="text-xs text-muted-foreground leading-relaxed italic">
@@ -157,7 +157,7 @@ export function CareerDNADisplay({ userId }: CareerDNADisplayProps) {
         {history && history.length > 0 && (
           <div className="pt-4 border-t border-border/40 flex items-center justify-between text-xs">
             <div className="flex items-center gap-2 text-muted-foreground">
-              <History className="w-4 h-4 text-purple-500" />
+              <History className="w-4 h-4 text-blue-500" />
               <span className="font-semibold text-foreground">Score Evolution:</span>
               <div className="flex items-center gap-2">
                 {history.map((snap, idx) => (
@@ -178,7 +178,7 @@ export function CareerDNADisplay({ userId }: CareerDNADisplayProps) {
       {/* 7 Score Dimensions Breakdown Grid */}
       <div className="space-y-3">
         <h3 className="font-bold text-base text-foreground flex items-center gap-2">
-          <Layers className="w-4 h-4 text-purple-500" /> Score Dimension Breakdown
+          <Layers className="w-4 h-4 text-blue-500" /> Score Dimension Breakdown
         </h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -198,7 +198,7 @@ export function CareerDNADisplay({ userId }: CareerDNADisplayProps) {
               <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
                 <div
                   style={{ width: `${dim.score}%` }}
-                  className="h-full bg-purple-600 dark:bg-purple-500 rounded-full transition-all duration-500"
+                  className="h-full bg-blue-600 dark:bg-blue-500 rounded-full transition-all duration-500"
                 />
               </div>
 
@@ -253,7 +253,7 @@ export function CareerDNADisplay({ userId }: CareerDNADisplayProps) {
           <div className="flex items-center justify-between">
             <div>
               <h3 className="font-bold text-base text-foreground flex items-center gap-2">
-                <FileCode className="w-4 h-4 text-purple-500" /> Physical Evidence Trail ({evidences.length})
+                <FileCode className="w-4 h-4 text-blue-500" /> Physical Evidence Trail ({evidences.length})
               </h3>
               <p className="text-xs text-muted-foreground">Every claim is backed by extracted implementation artifacts</p>
             </div>
@@ -266,7 +266,7 @@ export function CareerDNADisplay({ userId }: CareerDNADisplayProps) {
             {evidences.slice(0, 8).map((ev) => (
               <div key={ev.id} className="p-3 rounded-xl bg-muted/40 border border-border/40 space-y-1.5 text-xs">
                 <div className="flex items-center justify-between">
-                  <span className="font-bold text-purple-600 dark:text-purple-400">{ev.type}</span>
+                  <span className="font-bold text-blue-600 dark:text-blue-400">{ev.type}</span>
                   <span className="text-[10px] font-semibold text-muted-foreground bg-muted px-2 py-0.5 rounded-md">
                     Confidence Math: {Math.round(ev.confidence * 100)}%
                   </span>

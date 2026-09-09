@@ -247,12 +247,12 @@ export function GoogleSignInButton({
         disabled={isLoading}
         aria-label="Continue with Google"
         className={cn(
-          "w-full h-11 px-4 rounded-xl border border-border dark:border-[#2a3042] bg-card dark:bg-[#161924] hover:bg-muted/70 dark:hover:bg-[#1c202e] hover:border-purple-500/40 dark:hover:border-purple-500/30 text-foreground dark:text-slate-100 font-semibold text-xs sm:text-sm transition-all duration-200 flex items-center justify-center gap-3 shadow-xs hover:shadow-sm active:scale-[0.99] disabled:opacity-60 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500/40 cursor-pointer relative z-10"
+          "w-full h-11 px-4 rounded-xl border border-border dark:border-[#2a3042] bg-card dark:bg-[#161924] hover:bg-muted/70 dark:hover:bg-[#1c202e] hover:border-blue-500/40 dark:hover:border-blue-500/30 text-foreground dark:text-slate-100 font-semibold text-xs sm:text-sm transition-all duration-200 flex items-center justify-center gap-3 shadow-xs hover:shadow-sm active:scale-[0.99] disabled:opacity-60 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 cursor-pointer relative z-10"
         )}
       >
         {isLoading ? (
           <>
-            <Loader2 className="w-4 h-4 text-purple-600 dark:text-purple-400 animate-spin shrink-0" />
+            <Loader2 className="w-4 h-4 text-blue-600 dark:text-blue-400 animate-spin shrink-0" />
             <span className="text-muted-foreground text-xs sm:text-sm font-medium">
               Connecting with Google...
             </span>

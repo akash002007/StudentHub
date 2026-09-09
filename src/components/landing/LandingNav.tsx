@@ -33,10 +33,10 @@ export function LandingNav() {
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         {/* Brand Logo */}
         <Link href="/" className="flex items-center gap-2.5 group">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-600 via-indigo-600 to-blue-600 flex items-center justify-center text-white shadow-md shadow-purple-500/20 group-hover:scale-105 transition-transform shrink-0">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-700 to-blue-800 via-blue-600 to-blue-600 flex items-center justify-center text-white shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform shrink-0">
             <Sparkles className="w-5 h-5" />
           </div>
-          <span className="font-bold text-lg tracking-tight text-foreground group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
+          <span className="font-bold text-lg tracking-tight text-foreground group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
             StudentHub
           </span>
         </Link>

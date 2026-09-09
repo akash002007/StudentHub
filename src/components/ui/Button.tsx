@@ -32,7 +32,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       primary:
         "bg-primary text-primary-foreground hover:bg-primary-hover shadow-sm hover:shadow",
       secondary:
-        "bg-secondary text-secondary-foreground hover:bg-secondary/80 border border-border/50",
+        "bg-secondary text-blue-500-foreground hover:bg-secondary/80 border border-border/50",
       outline:
         "border border-border bg-transparent hover:bg-muted text-foreground hover:border-zinc-400 dark:hover:border-zinc-600",
       ghost:
@@ -40,7 +40,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       danger:
         "bg-rose-600 text-white hover:bg-rose-700 shadow-sm shadow-rose-900/20",
       gradient:
-        "bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white shadow-md shadow-purple-500/20",
+        "bg-gradient-to-r from-blue-700 via-blue-600 to-blue-800 text-white hover:from-blue-600 hover:to-blue-800 text-white shadow-md shadow-blue-500/20",
     };
 
     const sizeStyles = {

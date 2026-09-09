@@ -16,7 +16,7 @@ import { Badge } from "@/components/ui/Badge";
 
 const features = [
   {
-    icon: <Briefcase className="w-6 h-6 text-purple-500" />,
+    icon: <Briefcase className="w-6 h-6 text-blue-500" />,
     badge: "Smart Discovery",
     title: "Curated Student Internships",
     description:
@@ -92,7 +92,7 @@ export function FeaturesGrid() {
                   </p>
                 </div>
 
-                <div className="pt-4 border-t border-border/60 flex items-center gap-2 text-xs font-medium text-purple-600 dark:text-purple-400">
+                <div className="pt-4 border-t border-border/60 flex items-center gap-2 text-xs font-medium text-blue-600 dark:text-blue-400">
                   <CheckCircle className="w-4 h-4 text-emerald-500 shrink-0" />
                   <span>{f.highlight}</span>
                 </div>

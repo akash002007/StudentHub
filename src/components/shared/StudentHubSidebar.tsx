@@ -413,21 +413,21 @@ export function StudentHubSidebar({
       <div>
         <div
           className={cn(
-            "h-16 px-4 flex items-center border-b border-border/80 transition-all",
+            "h-16 px-space-base flex items-center bg-surface-container-lowest transition-all",
             isCollapsed ? "justify-center" : "justify-between"
           )}
         >
           <Link href={brandHref} className="flex items-center gap-2.5 min-w-0 group">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center text-white shadow-md shadow-purple-500/20 shrink-0 group-hover:scale-105 transition-transform">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-700 to-blue-800 to-blue-600 flex items-center justify-center text-white shadow-md shadow-blue-500/20 shrink-0 group-hover:scale-105 transition-transform">
               <Sparkles className="w-4 h-4" />
             </div>
             {!isCollapsed && (
               <div className="flex flex-col min-w-0">
-                <span className="font-extrabold text-sm tracking-tight text-foreground leading-none">
+                <span className="font-headline-sm text-headline-sm tracking-tight text-on-surface font-bold">
                   StudentHub
                 </span>
-                <span className="text-[11px] font-semibold text-muted-foreground tracking-tight mt-0.5 truncate">
-                  {brandRoleSubtitle}
+                <span className="px-space-xs py-space-2xs rounded bg-surface-container-high text-primary font-label-sm text-label-sm uppercase tracking-wider mt-0.5 w-max">
+                  {brandRoleSubtitle === "Admin Console" ? "ADMIN" : brandRoleSubtitle === "Recruiter Workspace" ? "REC" : "OS"}
                 </span>
               </div>
             )}
@@ -465,7 +465,7 @@ export function StudentHubSidebar({
         {navGroups.map((group, gIdx) => (
           <div key={gIdx} className="space-y-1">
             {!isCollapsed && group.groupLabel && (
-              <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground/70 px-3 pt-1 pb-0.5">
+              <p className="px-space-sm py-space-2xs text-outline font-label-sm text-label-sm uppercase tracking-wider">
                 {group.groupLabel}
               </p>
             )}
@@ -484,29 +484,29 @@ export function StudentHubSidebar({
                     }}
                     title={isCollapsed ? item.label : undefined}
                     className={cn(
-                      "flex items-center gap-3 px-3 h-10 rounded-xl text-xs font-semibold transition-all group relative",
+                      "flex items-center gap-space-sm px-space-sm py-space-sm transition-all rounded-lg group relative",
                       active
-                        ? "bg-foreground text-background shadow-xs font-bold"
-                        : "text-muted-foreground hover:text-foreground hover:bg-muted/70"
+                        ? "bg-primary text-white font-medium shadow-sm"
+                        : "text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface"
                     )}
                   >
                     <Icon
                       className={cn(
-                        "w-4 h-4 shrink-0 transition-transform group-hover:scale-110",
-                        active ? "text-background" : "text-muted-foreground group-hover:text-foreground"
+                        "w-5 h-5 shrink-0 transition-transform group-hover:scale-110",
+                        active ? "text-white" : "text-on-surface-variant group-hover:text-on-surface"
                       )}
                     />
 
                     {!isCollapsed && (
                       <>
-                        <span className="truncate flex-1">{item.label}</span>
+                        <span className="truncate flex-1 font-label-md text-label-md">{item.label}</span>
                         {item.badge !== undefined && item.badge !== null && (
                           <Badge
                             variant={item.badgeVariant || "purple"}
                             size="sm"
                             className={cn(
-                              "text-[10px] px-1.5 py-0 h-4 font-bold shrink-0",
-                              active && "bg-background text-foreground"
+                              "px-space-xs py-space-2xs rounded-full font-label-sm text-label-sm shrink-0",
+                              active ? "bg-blue-50 text-blue-600" : "bg-surface-container-high text-primary"
                             )}
                           >
                             {item.badge}
@@ -517,7 +517,7 @@ export function StudentHubSidebar({
 
                     {/* Collapsed Badge Dot Indicator */}
                     {isCollapsed && item.badge !== undefined && item.badge !== null && (
-                      <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-purple-600" />
+                      <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-blue-600" />
                     )}
                   </Link>
                 );
@@ -531,24 +531,19 @@ export function StudentHubSidebar({
       <div className="p-3 border-t border-border/80 bg-card/50 space-y-2.5">
         {/* Unified Appearance / Theme Switcher */}
         {!isCollapsed ? (
-          <div className="p-2 rounded-xl bg-muted/40 border border-border/60 flex items-center justify-between">
-            <span className="text-[11px] font-semibold text-muted-foreground flex items-center gap-1.5">
-              {resolvedTheme === "dark" ? (
-                <Moon className="w-3.5 h-3.5 text-purple-400" />
-              ) : (
-                <Sun className="w-3.5 h-3.5 text-amber-500" />
-              )}
-              Appearance
-            </span>
+          <div className="p-space-sm bg-surface-container-low/60 m-space-sm rounded-xl space-y-space-sm shadow-[0_1px_4px_rgba(0,0,0,0.02)]">
+            <div className="flex items-center justify-between">
+              <span className="font-title-card text-title-card text-on-surface">Appearance</span>
+            </div>
 
-            <div className="flex items-center gap-1 bg-background/80 p-0.5 rounded-lg border border-border/60">
+            <div className="flex items-center p-0.5 rounded-lg bg-surface-container">
               <button
                 onClick={() => setTheme("light")}
                 className={cn(
-                  "p-1 rounded-md text-[10px] font-semibold transition-colors",
+                  "px-space-xs py-space-2xs rounded flex items-center transition-colors",
                   theme === "light"
-                    ? "bg-foreground text-background shadow-2xs"
-                    : "text-muted-foreground hover:text-foreground"
+                    ? "bg-surface-container-lowest text-primary shadow-sm"
+                    : "text-outline hover:text-on-surface"
                 )}
                 title="Light mode"
                 aria-label="Light mode"
@@ -558,10 +553,10 @@ export function StudentHubSidebar({
               <button
                 onClick={() => setTheme("dark")}
                 className={cn(
-                  "p-1 rounded-md text-[10px] font-semibold transition-colors",
+                  "px-space-xs py-space-2xs rounded flex items-center transition-colors",
                   theme === "dark"
-                    ? "bg-foreground text-background shadow-2xs"
-                    : "text-muted-foreground hover:text-foreground"
+                    ? "bg-surface-container-lowest text-primary shadow-sm"
+                    : "text-outline hover:text-on-surface"
                 )}
                 title="Dark mode"
                 aria-label="Dark mode"
@@ -571,10 +566,10 @@ export function StudentHubSidebar({
               <button
                 onClick={() => setTheme("system")}
                 className={cn(
-                  "p-1 rounded-md text-[10px] font-semibold transition-colors",
+                  "px-space-xs py-space-2xs rounded flex items-center transition-colors",
                   theme === "system"
-                    ? "bg-foreground text-background shadow-2xs"
-                    : "text-muted-foreground hover:text-foreground"
+                    ? "bg-surface-container-lowest text-primary shadow-sm"
+                    : "text-outline hover:text-on-surface"
                 )}
                 title="System theme"
                 aria-label="System theme"
@@ -594,7 +589,7 @@ export function StudentHubSidebar({
               {resolvedTheme === "dark" ? (
                 <Sun className="w-4 h-4 text-amber-400" />
               ) : (
-                <Moon className="w-4 h-4 text-purple-600" />
+                <Moon className="w-4 h-4 text-blue-600" />
               )}
             </button>
           </div>
@@ -633,7 +628,7 @@ export function StudentHubSidebar({
                   className="inline-flex items-center gap-1 font-semibold text-muted-foreground hover:text-foreground transition-colors"
                   title="Switch Workspace Demo Role"
                 >
-                  <ArrowLeftRight className="w-3 h-3 text-purple-500" />
+                  <ArrowLeftRight className="w-3 h-3 text-blue-500" />
                   <span>Switch Role</span>
                 </button>
               )}

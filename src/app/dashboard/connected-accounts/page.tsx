@@ -436,8 +436,8 @@ export default function ConnectedAccountsPage() {
         </div>
 
         {/* Notice Banner */}
-        <div className="p-4 rounded-2xl bg-purple-500/5 dark:bg-purple-950/20 border border-purple-500/20 flex items-start gap-3 text-xs text-muted-foreground leading-relaxed">
-          <Sparkles className="w-4 h-4 text-purple-500 shrink-0 mt-0.5" />
+        <div className="p-4 rounded-2xl bg-blue-500/5 dark:bg-blue-950/20 border border-blue-500/20 flex items-start gap-3 text-xs text-muted-foreground leading-relaxed">
+          <Sparkles className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
           <div>
             <span className="font-bold text-foreground">GitHub Production Intelligence Integration:</span>{" "}
             GitHub OAuth, background repository synchronization, Skill Intelligence, and Career DNA updates are now active.
@@ -516,7 +516,7 @@ export default function ConnectedAccountsPage() {
                       href={githubConnection.githubProfileUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-purple-600 dark:text-purple-400 hover:underline flex items-center gap-1 font-medium"
+                      className="text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 font-medium"
                     >
                       {githubConnection.githubUsername} <ExternalLink className="w-3 h-3" />
                     </a>
@@ -582,7 +582,7 @@ export default function ConnectedAccountsPage() {
                 <Button
                   variant="primary"
                   size="sm"
-                  className="w-full text-xs font-semibold bg-purple-600 hover:bg-purple-700 text-white"
+                  className="w-full text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white"
                   onClick={handleConnectGithub}
                   disabled={isConnecting}
                 >
@@ -608,7 +608,7 @@ export default function ConnectedAccountsPage() {
             <div className="space-y-3">
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-500 shrink-0">
+                  <div className="w-12 h-12 rounded-2xl bg-primary/10 border border-rose-500/20 flex items-center justify-center text-rose-500 shrink-0">
                     <Trophy className="w-6 h-6" />
                   </div>
                   <div>
@@ -1023,7 +1023,7 @@ export default function ConnectedAccountsPage() {
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 rounded-2xl bg-muted border border-border/60 flex items-center justify-center text-foreground shrink-0">
                       {acc.platform === "linkedin" && <Linkedin className="w-6 h-6 text-blue-500" />}
-                      {acc.platform === "portfolio" && <Globe className="w-6 h-6 text-purple-500" />}
+                      {acc.platform === "portfolio" && <Globe className="w-6 h-6 text-blue-500" />}
                       {acc.platform === "kaggle" && <Database className="w-6 h-6 text-cyan-500" />}
                     </div>
                     <div>

@@ -24,7 +24,7 @@ export function Search({
         placeholder={placeholder}
         className={cn(
           "w-full h-10 pl-10 pr-9 bg-card dark:bg-[#161924] border border-border dark:border-[#2a3042] rounded-xl text-sm text-foreground dark:text-slate-100 placeholder:text-muted-foreground/60 dark:placeholder:text-slate-400/75 transition-all duration-200",
-          "hover:border-purple-500/40 dark:hover:border-[#3d465e] focus:outline-none focus:border-purple-500 dark:focus:border-purple-400 focus:ring-2 focus:ring-purple-500/20 dark:focus:ring-purple-500/30"
+          "hover:border-blue-500/40 dark:hover:border-[#3d465e] focus:outline-none focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-blue-500/30"
         )}
         {...props}
       />

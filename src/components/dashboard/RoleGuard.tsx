@@ -55,7 +55,7 @@ export function RoleGuard({ children, allowedRole, redirectTo }: RoleGuardProps)
   if (!isLoaded) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center space-y-3">
-        <div className="w-10 h-10 rounded-xl bg-purple-600/10 text-purple-600 flex items-center justify-center animate-pulse">
+        <div className="w-10 h-10 rounded-xl bg-blue-600/10 text-blue-600 flex items-center justify-center animate-pulse">
           <Sparkles className="w-5 h-5 animate-spin" />
         </div>
         <p className="text-xs text-muted-foreground font-medium">
@@ -68,7 +68,7 @@ export function RoleGuard({ children, allowedRole, redirectTo }: RoleGuardProps)
   if (!isAuthorized) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center space-y-3">
-        <div className="w-10 h-10 rounded-xl bg-purple-600/10 text-purple-600 flex items-center justify-center animate-pulse">
+        <div className="w-10 h-10 rounded-xl bg-blue-600/10 text-blue-600 flex items-center justify-center animate-pulse">
           <Sparkles className="w-5 h-5 animate-spin" />
         </div>
         <p className="text-xs text-muted-foreground font-medium">

@@ -85,7 +85,7 @@ export function AdminHeader({
             aria-label="Open notifications"
           >
             <Bell className="w-4 h-4" />
-            {unreadCount > 0 ? <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-rose-500" /> : null}
+            {unreadCount > 0 ? <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-primary" /> : null}
           </button>
 
           {isNotifOpen ? (

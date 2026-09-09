@@ -54,7 +54,7 @@ export function GSAPBentoShowcase() {
       id: "01",
       tag: "01 // DISCOVER",
       badge: "Institutional Trust Engine",
-      badgeIcon: <ShieldCheck className="w-4 h-4 text-purple-400" />,
+      badgeIcon: <ShieldCheck className="w-4 h-4 text-blue-400" />,
       title: "Your Student Identity,",
       titleHighlight: "Verified by Proof-of-Work",
       description:
@@ -130,7 +130,7 @@ export function GSAPBentoShowcase() {
       id: "05",
       tag: "05 // GROW",
       badge: "Direct Placement & Fast-Track",
-      badgeIcon: <GraduationCap className="w-4 h-4 text-purple-400" />,
+      badgeIcon: <GraduationCap className="w-4 h-4 text-blue-400" />,
       title: "Your Gateway To",
       titleHighlight: "High-Growth Careers",
       description:
@@ -472,9 +472,9 @@ export function GSAPBentoShowcase() {
           ref={bgParallaxRef}
           className="absolute inset-0 pointer-events-none -z-10 will-change-transform"
         >
-          <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-purple-600/10 dark:bg-purple-500/8 blur-[140px] rounded-full" />
+          <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-blue-600/10 dark:bg-blue-500/8 blur-[140px] rounded-full" />
           <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-blue-600/10 dark:bg-blue-500/8 blur-[140px] rounded-full" />
-          <div className="absolute inset-0 bg-[radial-gradient(#8b5cf6_1px,transparent_1px)] [background-size:24px_24px] opacity-10 dark:opacity-5" />
+          <div className="absolute inset-0 bg-[radial-gradient(#2563eb_1px,transparent_1px)] [background-size:24px_24px] opacity-10 dark:opacity-5" />
         </div>
 
         {/* Main Content Stage Grid */}
@@ -496,7 +496,7 @@ export function GSAPBentoShowcase() {
                 >
                   {/* Step Tag & Badge */}
                   <div className="flex items-center gap-2.5">
-                    <span className="font-mono text-xs font-bold text-purple-600 dark:text-purple-400 px-2.5 py-0.5 rounded-md bg-purple-500/10 border border-purple-500/20 shadow-2xs">
+                    <span className="font-mono text-xs font-bold text-blue-600 dark:text-blue-400 px-2.5 py-0.5 rounded-md bg-blue-500/10 border border-blue-500/20 shadow-2xs">
                       {scene.tag}
                     </span>
                     <Badge variant="outline" size="sm" className="gap-1.5 py-1 backdrop-blur-sm">
@@ -535,7 +535,7 @@ export function GSAPBentoShowcase() {
                       <Button
                         variant="gradient"
                         size="md"
-                        className="h-11 px-6 text-xs sm:text-sm font-semibold shadow-md shadow-purple-600/20"
+                        className="h-11 px-6 text-xs sm:text-sm font-semibold shadow-md shadow-blue-600/20"
                         rightIcon={<ArrowRight className="w-3.5 h-3.5" />}
                       >
                         {scene.ctaText}
@@ -560,11 +560,11 @@ export function GSAPBentoShowcase() {
               {/* Bento Card 1: Student Identity & Verification Core */}
               <div
                 ref={cardPrimaryRef}
-                className="w-full max-w-md p-5 rounded-2xl bg-card/95 dark:bg-card/85 border border-purple-500/30 shadow-2xl backdrop-blur-xl space-y-4 will-change-transform z-20"
+                className="w-full max-w-md p-5 rounded-2xl bg-card/95 dark:bg-card/85 border border-blue-500/30 shadow-2xl backdrop-blur-xl space-y-4 will-change-transform z-20"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-blue-500 p-0.5 shadow-md">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-700 to-blue-800 to-blue-500 p-0.5 shadow-md">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80"
@@ -606,7 +606,7 @@ export function GSAPBentoShowcase() {
                     {["Distributed Systems", "TypeScript", "React", "Next.js", "PyTorch"].map((skill) => (
                       <span
                         key={skill}
-                        className="px-2 py-0.5 rounded-md bg-purple-500/10 text-purple-600 dark:text-purple-300 border border-purple-500/20 text-[11px] font-medium"
+                        className="px-2 py-0.5 rounded-md bg-blue-500/10 text-blue-600 dark:text-blue-300 border border-blue-500/20 text-[11px] font-medium"
                       >
                         {skill}
                       </span>
@@ -643,7 +643,7 @@ export function GSAPBentoShowcase() {
               {/* Bento Card 3: Peer Communities & Mentorship Card (Enters Scene 3) */}
               <div
                 ref={cardTertiaryRef}
-                className="opacity-0 absolute -top-6 -left-2 sm:-left-6 w-[85%] max-w-xs p-3.5 rounded-2xl bg-card/95 dark:bg-card/85 border border-emerald-500/30 shadow-2xl backdrop-blur-xl space-y-2 will-change-transform z-30"
+                className="opacity-0 absolute -top-6 -left-2 sm:-left-6 w-[85%] max-w-xs p-3.5 rounded-2xl bg-card/95 dark:bg-card/85 border border-blue-500/30 shadow-2xl backdrop-blur-xl space-y-2 will-change-transform z-30"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -661,11 +661,11 @@ export function GSAPBentoShowcase() {
               {/* Bento Card 4: AI Internship Match & Placement Card (Enters Scene 4 & 5) */}
               <div
                 ref={cardQuaternaryRef}
-                className="opacity-0 absolute -bottom-8 left-0 sm:left-4 w-[92%] max-w-sm p-4 rounded-2xl bg-card/95 dark:bg-card/85 border border-amber-500/30 shadow-2xl backdrop-blur-xl space-y-3 will-change-transform z-35"
+                className="opacity-0 absolute -bottom-8 left-0 sm:left-4 w-[92%] max-w-sm p-4 rounded-2xl bg-card/95 dark:bg-card/85 border border-blue-500/30 shadow-2xl backdrop-blur-xl space-y-3 will-change-transform z-35"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-lg bg-purple-600 text-white flex items-center justify-center font-black text-sm">
+                    <div className="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center font-black text-sm">
                       S
                     </div>
                     <div>
@@ -674,7 +674,7 @@ export function GSAPBentoShowcase() {
                     </div>
                   </div>
                   <div className="text-right">
-                    <span className="text-xs font-extrabold text-purple-600 dark:text-purple-400 block">$52/hr</span>
+                    <span className="text-xs font-extrabold text-blue-600 dark:text-blue-400 block">$52/hr</span>
                     <span className="text-[9px] text-muted-foreground">Fast-Track Call</span>
                   </div>
                 </div>
@@ -714,7 +714,7 @@ export function GSAPBentoShowcase() {
                   onClick={() => scrollToScene(idx)}
                   aria-label={`Jump to scene ${s.id}`}
                   className={`relative px-2.5 py-1.5 rounded-lg text-xs font-mono font-bold transition-all ${isActive
-                      ? "bg-purple-600 text-white shadow-md shadow-purple-600/30 scale-105"
+                      ? "bg-blue-600 text-white shadow-md shadow-blue-600/30 scale-105"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
                     }`}
                 >
@@ -737,7 +737,7 @@ export function GSAPBentoShowcase() {
 
         {/* Bottom Scroll-Driven Interaction Hint */}
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 text-[11px] font-semibold text-muted-foreground/70 bg-card/60 backdrop-blur-sm px-3.5 py-1 rounded-full border border-border/40">
-          <span className="inline-block w-1.5 h-1.5 rounded-full bg-purple-500 animate-ping" />
+          <span className="inline-block w-1.5 h-1.5 rounded-full bg-blue-500 animate-ping" />
           <span>Scroll to scrub through StudentHub story • Use right indicators anytime</span>
         </div>
       </section>

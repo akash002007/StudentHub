@@ -8,12 +8,12 @@ export default function RecruiterLayout({ children }: { children: React.ReactNod
       <aside className="w-64 bg-white dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800 flex flex-col">
         <div className="p-6 border-b border-slate-200 dark:border-slate-800">
           <h2 className="text-xl font-bold flex items-center gap-2">
-            <Building2 className="w-6 h-6 text-indigo-600" />
+            <Building2 className="w-6 h-6 text-blue-600" />
             Recruiter Hub
           </h2>
         </div>
         <nav className="flex-1 p-4 space-y-2">
-          <Link href="/recruiter/dashboard" className="flex items-center gap-3 px-4 py-2 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-400 rounded-lg">
+          <Link href="/recruiter/dashboard" className="flex items-center gap-3 px-4 py-2 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 rounded-lg">
             <Briefcase className="w-5 h-5" />
             Applications
           </Link>

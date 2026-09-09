@@ -110,7 +110,7 @@ export function CandidateProfileModal({
     >
       <div className="space-y-6 -mt-4">
         {/* Header Hero */}
-        <div className="relative rounded-2xl p-5 bg-gradient-to-br from-purple-900/25 via-muted/60 to-blue-900/20 border border-border/80">
+        <div className="relative rounded-2xl p-5 bg-gradient-to-br from-blue-700 to-blue-800 via-muted/60 to-blue-900/20 border border-border/80">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               <Avatar
@@ -138,14 +138,14 @@ export function CandidateProfileModal({
                   )}
                 </div>
                 <p className="text-xs text-muted-foreground flex items-center gap-1.5 flex-wrap">
-                  <GraduationCap className="w-3.5 h-3.5 text-purple-500" />
+                  <GraduationCap className="w-3.5 h-3.5 text-blue-500" />
                   <span className="font-medium text-foreground/90">{candidate.university}</span>
                   <span>•</span>
                   <span>{candidate.degree} ({candidate.graduationYear})</span>
                   {candidate.specialization && (
                     <>
                       <span>•</span>
-                      <span className="text-purple-600 dark:text-purple-400 font-medium">{candidate.specialization}</span>
+                      <span className="text-blue-600 dark:text-blue-400 font-medium">{candidate.specialization}</span>
                     </>
                   )}
                 </p>
@@ -154,7 +154,7 @@ export function CandidateProfileModal({
                     <MapPin className="w-3 h-3 text-muted-foreground" /> {candidate.location}
                   </span>
                   <span>•</span>
-                  <span className="font-semibold text-purple-600 dark:text-purple-400">
+                  <span className="font-semibold text-blue-600 dark:text-blue-400">
                     CGPA: {candidate.cgpa}
                   </span>
                 </div>
@@ -299,7 +299,7 @@ export function CandidateProfileModal({
                     onClick={() => onStatusChange(st)}
                     className={`py-1.5 px-2 rounded-lg text-xs font-semibold text-center transition-all ${
                       isCurrent
-                        ? "bg-purple-600 text-white shadow-sm ring-2 ring-purple-600/30"
+                        ? "bg-blue-600 text-white shadow-sm ring-2 ring-blue-600/30"
                         : "bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/80"
                     }`}
                   >
@@ -318,7 +318,7 @@ export function CandidateProfileModal({
             onClick={() => setActiveTab("overview")}
             className={`pb-2.5 transition-colors border-b-2 ${
               activeTab === "overview"
-                ? "border-purple-600 text-purple-600 dark:text-purple-400"
+                ? "border-blue-600 text-blue-600 dark:text-blue-400"
                 : "border-transparent text-muted-foreground hover:text-foreground"
             }`}
           >
@@ -329,7 +329,7 @@ export function CandidateProfileModal({
             onClick={() => setActiveTab("career-dna")}
             className={`pb-2.5 transition-colors border-b-2 flex items-center gap-1.5 ${
               activeTab === "career-dna"
-                ? "border-purple-600 text-purple-600 dark:text-purple-400"
+                ? "border-blue-600 text-blue-600 dark:text-blue-400"
                 : "border-transparent text-muted-foreground hover:text-foreground"
             }`}
           >
@@ -341,7 +341,7 @@ export function CandidateProfileModal({
             onClick={() => setActiveTab("projects")}
             className={`pb-2.5 transition-colors border-b-2 ${
               activeTab === "projects"
-                ? "border-purple-600 text-purple-600 dark:text-purple-400"
+                ? "border-blue-600 text-blue-600 dark:text-blue-400"
                 : "border-transparent text-muted-foreground hover:text-foreground"
             }`}
           >
@@ -352,7 +352,7 @@ export function CandidateProfileModal({
             onClick={() => setActiveTab("notes")}
             className={`pb-2.5 transition-colors border-b-2 ${
               activeTab === "notes"
-                ? "border-purple-600 text-purple-600 dark:text-purple-400"
+                ? "border-blue-600 text-blue-600 dark:text-blue-400"
                 : "border-transparent text-muted-foreground hover:text-foreground"
             }`}
           >
@@ -386,7 +386,7 @@ export function CandidateProfileModal({
                 {candidate.skills.map((skill) => (
                   <span
                     key={skill}
-                    className="px-2.5 py-1 rounded-lg bg-purple-500/10 text-purple-600 dark:text-purple-400 font-semibold border border-purple-500/20 text-xs"
+                    className="px-2.5 py-1 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400 font-semibold border border-blue-500/20 text-xs"
                   >
                     {skill}
                   </span>
@@ -423,7 +423,7 @@ export function CandidateProfileModal({
                       className="p-2.5 rounded-xl bg-muted/40 border border-border/60 flex items-center justify-between"
                     >
                       <div className="flex items-center gap-2">
-                        <Award className="w-4 h-4 text-purple-500 shrink-0" />
+                        <Award className="w-4 h-4 text-blue-500 shrink-0" />
                         <div>
                           <div className="font-semibold text-foreground">{cert.name}</div>
                           <div className="text-[10px] text-muted-foreground">
@@ -478,7 +478,7 @@ export function CandidateProfileModal({
                           href={proj.documentUrl}
                           target="_blank"
                           rel="noreferrer"
-                          className="p-1 rounded text-purple-600 dark:text-purple-400 hover:underline flex items-center gap-1 text-[11px]"
+                          className="p-1 rounded text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 text-[11px]"
                         >
                           <FileText className="w-3.5 h-3.5" /> Doc
                         </a>
@@ -488,7 +488,7 @@ export function CandidateProfileModal({
                           href={proj.githubUrl}
                           target="_blank"
                           rel="noreferrer"
-                          className="p-1 rounded text-foreground hover:text-purple-500 flex items-center gap-1 text-[11px]"
+                          className="p-1 rounded text-foreground hover:text-blue-500 flex items-center gap-1 text-[11px]"
                         >
                           <Github className="w-3.5 h-3.5" /> Code
                         </a>
@@ -498,7 +498,7 @@ export function CandidateProfileModal({
                           href={proj.liveUrl}
                           target="_blank"
                           rel="noreferrer"
-                          className="p-1 rounded text-purple-600 dark:text-purple-400 hover:underline flex items-center gap-1 text-[11px]"
+                          className="p-1 rounded text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 text-[11px]"
                         >
                           <ExternalLink className="w-3.5 h-3.5" /> Live
                         </a>
@@ -537,7 +537,7 @@ export function CandidateProfileModal({
                 onChange={(e) => setNoteText(e.target.value)}
                 placeholder="Add private evaluation notes on this candidate (e.g. communication skills, technical interview strengths, follow-up items)..."
                 rows={5}
-                className="w-full p-3 rounded-xl bg-muted/40 border border-border text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-purple-500 resize-none"
+                className="w-full p-3 rounded-xl bg-muted/40 border border-border text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-blue-500 resize-none"
               />
             </div>
             <div className="flex justify-end">

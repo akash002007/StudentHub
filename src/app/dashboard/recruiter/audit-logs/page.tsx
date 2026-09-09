@@ -78,7 +78,7 @@ export default function RecruiterAuditLogsPage() {
         {/* Header Info */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 text-xs font-semibold text-purple-600 dark:text-purple-400 mb-1">
+            <div className="flex items-center gap-2 text-xs font-semibold text-blue-600 dark:text-blue-400 mb-1">
               <ShieldCheck className="w-3.5 h-3.5" />
               <span>Immutable Governance</span>
             </div>
@@ -108,7 +108,7 @@ export default function RecruiterAuditLogsPage() {
             <select
               value={actionFilter}
               onChange={(e) => setActionFilter(e.target.value)}
-              className="h-9 px-3 text-xs rounded-xl bg-card border border-border focus:outline-none focus:border-purple-500"
+              className="h-9 px-3 text-xs rounded-xl bg-card border border-border focus:outline-none focus:border-blue-500"
             >
               <option value="all">All Audit Actions</option>
               <option value="DRIVE_CREATED">Drive Created</option>
@@ -129,7 +129,7 @@ export default function RecruiterAuditLogsPage() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search audit trail by actor, candidate, reason..."
-              className="w-full h-9 pl-9 pr-3 text-xs rounded-xl bg-card border border-border focus:outline-none focus:border-purple-500"
+              className="w-full h-9 pl-9 pr-3 text-xs rounded-xl bg-card border border-border focus:outline-none focus:border-blue-500"
             />
           </div>
         </div>

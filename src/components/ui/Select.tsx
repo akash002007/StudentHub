@@ -55,7 +55,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
             ref={ref}
             className={cn(
               "w-full h-10 rounded-xl bg-card dark:bg-[#161924] border border-border dark:border-[#2a3042] px-3.5 pr-9 text-xs text-foreground dark:text-slate-100 transition-all duration-200 appearance-none cursor-pointer",
-              "hover:border-purple-500/40 dark:hover:border-[#3d465e] focus:outline-none focus:border-purple-500 dark:focus:border-purple-400 focus:ring-2 focus:ring-purple-500/20 dark:focus:ring-purple-500/30",
+              "hover:border-blue-500/40 dark:hover:border-[#3d465e] focus:outline-none focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-blue-500/30",
               "disabled:opacity-50 disabled:bg-muted dark:disabled:bg-muted/40 disabled:cursor-not-allowed",
               leftIcon && "pl-10",
               error && "border-rose-500 dark:border-rose-500 focus:border-rose-500 focus:ring-rose-500/20",

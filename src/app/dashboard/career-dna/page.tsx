@@ -222,7 +222,7 @@ export default function CareerDNAPage() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 text-xs font-semibold text-purple-600 dark:text-purple-400 mb-1">
+            <div className="flex items-center gap-2 text-xs font-semibold text-blue-600 dark:text-blue-400 mb-1">
               <Sparkles className="w-3.5 h-3.5" />
               <span>Career Intelligence Engine</span>
             </div>
@@ -260,7 +260,7 @@ export default function CareerDNAPage() {
               variant="primary"
               size="sm"
               onClick={() => setIsResumeModalOpen(true)}
-              className="text-xs font-bold bg-purple-600 hover:bg-purple-700 text-white"
+              className="text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white"
             >
               <FileText className="w-3.5 h-3.5 mr-1.5" />
               Update Resume
@@ -269,18 +269,18 @@ export default function CareerDNAPage() {
         </div>
 
         {/* 1. HERO OVERALL CAREER DNA SCORE */}
-        <Card hoverEffect className="p-6 sm:p-8 border-purple-500/20 bg-gradient-to-br from-card via-card to-purple-950/20 space-y-6 shadow-xl relative overflow-hidden">
-          <div className="absolute inset-0 bg-purple-500/5 blur-3xl pointer-events-none" />
+        <Card hoverEffect className="p-6 sm:p-8 border-blue-500/20 bg-gradient-to-br from-card via-card to-blue-950/20 space-y-6 shadow-xl relative overflow-hidden">
+          <div className="absolute inset-0 bg-blue-500/5 blur-3xl pointer-events-none" />
 
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center relative z-10">
             {/* Score Badge */}
             <div className="md:col-span-4 flex items-center gap-6">
-              <div className="w-24 h-24 rounded-full bg-purple-500/10 border-4 border-purple-500 flex flex-col items-center justify-center text-center shrink-0 shadow-lg shadow-purple-500/10">
+              <div className="w-24 h-24 rounded-full bg-blue-500/10 border-4 border-blue-500 flex flex-col items-center justify-center text-center shrink-0 shadow-lg shadow-blue-500/10">
                 <span className="text-3xl font-extrabold text-foreground">{overallScore}</span>
-                <span className="text-[10px] font-bold text-purple-500 uppercase tracking-widest">/ 100</span>
+                <span className="text-[10px] font-bold text-blue-500 uppercase tracking-widest">/ 100</span>
               </div>
               <div className="space-y-1">
-                <span className="text-[10px] font-bold text-purple-500 uppercase tracking-widest block">
+                <span className="text-[10px] font-bold text-blue-500 uppercase tracking-widest block">
                   Overall Career DNA Score
                 </span>
                 <Badge variant="emerald" size="md" className="font-bold text-xs">
@@ -294,7 +294,7 @@ export default function CareerDNAPage() {
 
             {/* AI Summary Narrative */}
             <div className="md:col-span-8 space-y-2 border-t md:border-t-0 md:border-l border-border/50 pt-4 md:pt-0 md:pl-6">
-              <div className="flex items-center gap-2 text-xs font-bold text-purple-500 uppercase tracking-wider">
+              <div className="flex items-center gap-2 text-xs font-bold text-blue-500 uppercase tracking-wider">
                 <Dna className="w-4 h-4" /> AI Evidence Assessment
               </div>
               <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed italic bg-muted/30 p-3.5 rounded-2xl border border-border/40">
@@ -324,7 +324,7 @@ export default function CareerDNAPage() {
               return (
                 <Card key={cat.label} hoverEffect className="p-4 border-border/80 bg-card space-y-2 text-center flex flex-col justify-between">
                   <div className="space-y-1.5">
-                    <div className="w-8 h-8 rounded-xl bg-purple-500/10 border border-purple-500/20 mx-auto flex items-center justify-center text-purple-500">
+                    <div className="w-8 h-8 rounded-xl bg-blue-500/10 border border-blue-500/20 mx-auto flex items-center justify-center text-blue-500">
                       <Icon className="w-4 h-4" />
                     </div>
                     <span className="text-[11px] font-bold text-foreground block">{cat.label}</span>
@@ -360,7 +360,7 @@ export default function CareerDNAPage() {
             <Card hoverEffect className="p-4 border-border/80 bg-card space-y-2">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-xs font-bold text-foreground">
-                  <FileText className="w-4 h-4 text-purple-500" /> Resume
+                  <FileText className="w-4 h-4 text-blue-500" /> Resume
                 </div>
                 <Badge variant="emerald" size="sm" className="text-[10px]">
                   {statuses.resume}
@@ -372,7 +372,7 @@ export default function CareerDNAPage() {
             <Card hoverEffect className="p-4 border-border/80 bg-card space-y-2">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-xs font-bold text-foreground">
-                  <Github className="w-4 h-4 text-purple-500" /> GitHub
+                  <Github className="w-4 h-4 text-blue-500" /> GitHub
                 </div>
                 <Badge variant={statuses.github === "ANALYZED" ? "emerald" : "secondary"} size="sm" className="text-[10px]">
                   {statuses.github}
@@ -386,7 +386,7 @@ export default function CareerDNAPage() {
             <Card hoverEffect className="p-4 border-border/80 bg-card space-y-2">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-xs font-bold text-foreground">
-                  <FolderGit2 className="w-4 h-4 text-purple-500" /> Projects
+                  <FolderGit2 className="w-4 h-4 text-blue-500" /> Projects
                 </div>
                 <Badge variant="emerald" size="sm" className="text-[10px]">
                   {statuses.projects}
@@ -398,7 +398,7 @@ export default function CareerDNAPage() {
             <Card hoverEffect className="p-4 border-border/80 bg-card space-y-2">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-xs font-bold text-foreground">
-                  <BookOpen className="w-4 h-4 text-purple-500" /> Education
+                  <BookOpen className="w-4 h-4 text-blue-500" /> Education
                 </div>
                 <Badge variant="emerald" size="sm" className="text-[10px]">
                   {statuses.education}
@@ -421,7 +421,7 @@ export default function CareerDNAPage() {
                 variant="ghost"
                 size="sm"
                 onClick={() => setIsEvidenceModalOpen(true)}
-                className="text-xs font-semibold text-purple-600 dark:text-purple-400 hover:bg-purple-500/10"
+                className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:bg-blue-500/10"
               >
                 View all evidence &rarr;
               </Button>
@@ -432,7 +432,7 @@ export default function CareerDNAPage() {
                 <Card key={ev.id} hoverEffect className="p-4 border-border/70 bg-card space-y-2 text-xs">
                   <div className="flex items-center justify-between font-bold text-foreground">
                     <div className="flex items-center gap-2">
-                      <span className="text-purple-600 dark:text-purple-400">{ev.repositoryName}</span>
+                      <span className="text-blue-600 dark:text-blue-400">{ev.repositoryName}</span>
                       <span className="px-2 py-0.5 rounded bg-muted text-[10px] font-semibold text-muted-foreground">
                         {ev.language}
                       </span>
@@ -450,7 +450,7 @@ export default function CareerDNAPage() {
             {/* Top Strengths */}
             <div className="space-y-3">
               <h3 className="text-base font-bold text-foreground flex items-center gap-2">
-                <Trophy className="w-4 h-4 text-purple-500" /> Top Demonstrated Strengths
+                <Trophy className="w-4 h-4 text-blue-500" /> Top Demonstrated Strengths
               </h3>
 
               <div className="space-y-2">
@@ -458,10 +458,10 @@ export default function CareerDNAPage() {
                   <div key={sk.name} className="p-3 rounded-xl bg-card border border-border/70 space-y-1.5 text-xs">
                     <div className="flex items-center justify-between font-bold text-foreground">
                       <span>{sk.name}</span>
-                      <span className="text-purple-500">{sk.score}%</span>
+                      <span className="text-blue-500">{sk.score}%</span>
                     </div>
                     <div className="w-full h-1.5 rounded-full bg-muted overflow-hidden">
-                      <div className="h-full bg-purple-600 rounded-full" style={{ width: `${sk.score}%` }} />
+                      <div className="h-full bg-blue-600 rounded-full" style={{ width: `${sk.score}%` }} />
                     </div>
                   </div>
                 ))}
@@ -492,7 +492,7 @@ export default function CareerDNAPage() {
         <div className="space-y-4 pt-4 border-t border-border/50">
           <div className="flex items-center justify-between">
             <h3 className="text-base font-bold text-foreground flex items-center gap-2">
-              <ArrowUpRight className="w-4 h-4 text-purple-500" /> Next Best Actions
+              <ArrowUpRight className="w-4 h-4 text-blue-500" /> Next Best Actions
             </h3>
             <span className="text-xs text-muted-foreground">Actionable recommendations to boost Career DNA score</span>
           </div>
@@ -511,7 +511,7 @@ export default function CareerDNAPage() {
                   <p className="text-xs text-muted-foreground leading-relaxed">{rec.reason}</p>
                 </div>
 
-                <div className="pt-2 border-t border-border/40 text-xs text-purple-600 dark:text-purple-400 font-medium">
+                <div className="pt-2 border-t border-border/40 text-xs text-blue-600 dark:text-blue-400 font-medium">
                   → {rec.action}
                 </div>
               </Card>
@@ -548,7 +548,7 @@ export default function CareerDNAPage() {
                       onClick={() => setEvidenceFilter(src)}
                       className={`px-2.5 py-1 rounded-lg font-semibold uppercase text-[10px] ${
                         evidenceFilter === src
-                          ? "bg-purple-600 text-white"
+                          ? "bg-blue-600 text-white"
                           : "bg-muted text-muted-foreground hover:bg-muted/80"
                       }`}
                     >
@@ -574,7 +574,7 @@ export default function CareerDNAPage() {
                 {filteredEvidences.map((ev: any) => (
                   <div key={ev.id} className="p-3.5 rounded-2xl bg-muted/40 border border-border/40 space-y-1.5 text-xs">
                     <div className="flex items-center justify-between font-bold text-foreground">
-                      <span className="text-purple-600 dark:text-purple-400">{ev.repositoryName}</span>
+                      <span className="text-blue-600 dark:text-blue-400">{ev.repositoryName}</span>
                       <Badge variant="emerald" size="sm" className="text-[10px]">
                         {ev.confidence}% Confidence
                       </Badge>

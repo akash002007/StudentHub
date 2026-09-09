@@ -266,7 +266,7 @@ export function ConnectCodeforcesModal({
 
         {/* Modal Header */}
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-500 shrink-0">
+          <div className="w-12 h-12 rounded-2xl bg-primary/10 border border-rose-500/20 flex items-center justify-center text-rose-500 shrink-0">
             <Trophy className="w-6 h-6" />
           </div>
           <div>
@@ -300,7 +300,7 @@ export function ConnectCodeforcesModal({
             />
 
             {errorMessage && (
-              <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-xs text-rose-600 dark:text-rose-400 font-semibold flex items-center gap-2">
+              <div className="p-3 rounded-xl bg-primary/10 border border-rose-500/20 text-xs text-rose-600 dark:text-rose-400 font-semibold flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 shrink-0" />
                 <span>{errorMessage}</span>
               </div>
@@ -339,7 +339,7 @@ export function ConnectCodeforcesModal({
         {/* STEP 2: Account Ownership Verification Challenge */}
         {step === 2 && (
           <div className="space-y-4">
-            <div className="p-4 rounded-2xl bg-rose-500/10 dark:bg-rose-950/40 border border-rose-500/30 space-y-3">
+            <div className="p-4 rounded-2xl bg-primary/10 dark:bg-rose-950/40 border border-rose-500/30 space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-foreground dark:text-slate-100 flex items-center gap-1.5">
                   <ShieldCheck className="w-4 h-4 text-rose-500" /> Your Single-Use Verification Token
@@ -359,7 +359,7 @@ export function ConnectCodeforcesModal({
                   variant="ghost"
                   size="sm"
                   onClick={handleCopyToken}
-                  className="h-7 text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-500/10"
+                  className="h-7 text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-primary/10"
                 >
                   {copiedToken ? (
                     <>
@@ -401,7 +401,7 @@ export function ConnectCodeforcesModal({
 
             {/* In-Flight Verification Status Banner */}
             {isVerifying && (
-              <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-600 dark:text-amber-400 font-medium flex items-center gap-2 animate-pulse">
+              <div className="p-3.5 rounded-xl bg-amber-500/10 border border-blue-500/30 text-xs text-amber-600 dark:text-amber-400 font-medium flex items-center gap-2 animate-pulse">
                 <RefreshCw className="w-4 h-4 animate-spin shrink-0 text-amber-500" />
                 <span>{verificationMessage || "Checking your Codeforces profile..."}</span>
               </div>
@@ -409,7 +409,7 @@ export function ConnectCodeforcesModal({
 
             {/* Temporary Error Notice (Retryable) */}
             {verificationState === "TEMPORARY_ERROR" && errorMessage && (
-              <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-700 dark:text-amber-300 font-medium flex items-center gap-2">
+              <div className="p-3 rounded-xl bg-amber-500/10 border border-blue-500/30 text-xs text-amber-700 dark:text-amber-300 font-medium flex items-center gap-2">
                 <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0" />
                 <div className="space-y-0.5">
                   <p className="font-bold text-amber-800 dark:text-amber-200">Temporary Response Delay</p>
@@ -420,7 +420,7 @@ export function ConnectCodeforcesModal({
 
             {/* Actual Failure Notice */}
             {verificationState === "FAILED" && errorMessage && (
-              <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-xs text-rose-600 dark:text-rose-400 font-semibold flex items-center gap-2">
+              <div className="p-3 rounded-xl bg-primary/10 border border-rose-500/20 text-xs text-rose-600 dark:text-rose-400 font-semibold flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 shrink-0" />
                 <span>{errorMessage}</span>
               </div>

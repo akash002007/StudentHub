@@ -9,11 +9,11 @@ export function CtaSection() {
   return (
     <section className="py-20 sm:py-28 relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-8">
-        <div className="relative rounded-3xl p-8 sm:p-14 bg-gradient-to-br from-purple-900/30 via-card to-blue-900/20 border border-purple-500/30 shadow-2xl text-center flex flex-col items-center overflow-hidden">
+        <div className="relative rounded-3xl p-8 sm:p-14 bg-gradient-to-br from-blue-700 to-blue-800 via-card to-blue-900/20 border border-blue-500/30 shadow-2xl text-center flex flex-col items-center overflow-hidden">
           {/* Ambient Glow */}
-          <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-96 h-48 bg-purple-500/20 blur-[100px] rounded-full pointer-events-none" />
+          <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-96 h-48 bg-blue-500/20 blur-[100px] rounded-full pointer-events-none" />
 
-          <div className="w-12 h-12 rounded-2xl bg-purple-500/20 text-purple-400 flex items-center justify-center mb-6">
+          <div className="w-12 h-12 rounded-2xl bg-blue-500/20 text-blue-400 flex items-center justify-center mb-6">
             <Sparkles className="w-6 h-6" />
           </div>
 
@@ -30,7 +30,7 @@ export function CtaSection() {
               <Button
                 variant="gradient"
                 size="lg"
-                className="w-full sm:w-auto h-13 px-8 text-base shadow-xl shadow-purple-600/30"
+                className="w-full sm:w-auto h-13 px-8 text-base shadow-xl shadow-blue-600/30"
                 rightIcon={<ArrowRight className="w-4 h-4" />}
               >
                 Create Free Account

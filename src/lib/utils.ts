@@ -43,15 +43,15 @@ export function getStatusBadgeStyle(status: ApplicationStatus): {
       return {
         bg: "bg-amber-500/10 dark:bg-amber-500/20",
         text: "text-amber-600 dark:text-amber-400",
-        border: "border-amber-500/20 dark:border-amber-500/30",
+        border: "border-amber-500/20 dark:border-blue-500/30",
         dot: "bg-amber-500",
       };
     case "Shortlisted":
       return {
-        bg: "bg-purple-500/10 dark:bg-purple-500/20",
-        text: "text-purple-600 dark:text-purple-400",
-        border: "border-purple-500/20 dark:border-purple-500/30",
-        dot: "bg-purple-500",
+        bg: "bg-blue-500/10 dark:bg-blue-500/20",
+        text: "text-blue-600 dark:text-blue-400",
+        border: "border-blue-500/20 dark:border-blue-500/30",
+        dot: "bg-blue-500",
       };
     case "Interview":
       return {
@@ -64,15 +64,15 @@ export function getStatusBadgeStyle(status: ApplicationStatus): {
       return {
         bg: "bg-emerald-500/10 dark:bg-emerald-500/20",
         text: "text-emerald-600 dark:text-emerald-400",
-        border: "border-emerald-500/20 dark:border-emerald-500/30",
+        border: "border-emerald-500/20 dark:border-blue-500/30",
         dot: "bg-emerald-500",
       };
     case "Rejected":
       return {
-        bg: "bg-rose-500/10 dark:bg-rose-500/20",
+        bg: "bg-primary/10 dark:bg-primary/20",
         text: "text-rose-600 dark:text-rose-400",
         border: "border-rose-500/20 dark:border-rose-500/30",
-        dot: "bg-rose-500",
+        dot: "bg-primary",
       };
     default:
       return {
@@ -100,8 +100,8 @@ export function getMatchScoreColor(score: number): {
     };
   } else if (score >= 60) {
     return {
-      badge: "text-purple-600 dark:text-purple-400 bg-purple-500/10 border-purple-500/20",
-      bar: "bg-purple-500",
+      badge: "text-blue-600 dark:text-blue-400 bg-blue-500/10 border-blue-500/20",
+      bar: "bg-blue-500",
     };
   } else {
     return {

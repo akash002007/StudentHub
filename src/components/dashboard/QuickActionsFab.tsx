@@ -72,7 +72,7 @@ export function QuickActionsFab() {
       id: "ai",
       label: "Ask StudentHub AI",
       icon: Bot,
-      color: "from-purple-600 to-indigo-600",
+      color: "from-blue-600 to-blue-600",
       onClick: () => {
         setIsOpen(false);
         setIsAiModalOpen(true);
@@ -125,7 +125,7 @@ export function QuickActionsFab() {
       id: "post_internship",
       label: "Post Internship",
       icon: PlusCircle,
-      color: "from-purple-600 to-indigo-600",
+      color: "from-blue-600 to-blue-600",
       onClick: () => {
         setIsOpen(false);
         router.push("/dashboard/recruiter/post-internship");
@@ -165,7 +165,7 @@ export function QuickActionsFab() {
       id: "schedule_interview",
       label: "Schedule Interview",
       icon: Calendar,
-      color: "from-indigo-600 to-purple-600",
+      color: "from-blue-600 to-blue-600",
       onClick: () => {
         setIsOpen(false);
         router.push("/dashboard/recruiter/interviews");
@@ -271,7 +271,7 @@ export function QuickActionsFab() {
                       delay: (actions.length - 1 - index) * 0.04,
                     }}
                     onClick={action.onClick}
-                    className="flex items-center gap-3 py-2 px-3.5 rounded-2xl bg-card border border-border/90 shadow-xl hover:border-purple-500/50 hover:shadow-2xl hover:scale-105 transition-all text-xs font-semibold text-foreground group"
+                    className="flex items-center gap-3 py-2 px-3.5 rounded-2xl bg-card border border-border/90 shadow-xl hover:border-blue-500/50 hover:shadow-2xl hover:scale-105 transition-all text-xs font-semibold text-foreground group"
                   >
                     <span className="text-muted-foreground group-hover:text-foreground transition-colors">
                       {action.label}
@@ -297,8 +297,8 @@ export function QuickActionsFab() {
             isOpen
               ? "bg-zinc-900 dark:bg-zinc-800 rotate-90"
               : isRecruiter
-              ? "bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 shadow-blue-600/30"
-              : "bg-gradient-to-tr from-purple-600 via-indigo-600 to-blue-600 shadow-purple-600/30"
+              ? "bg-gradient-to-tr from-blue-600 via-blue-600 to-blue-600 shadow-blue-600/30"
+              : "bg-gradient-to-tr from-blue-600 via-blue-600 to-blue-600 shadow-blue-600/30"
           }`}
           aria-label={isOpen ? "Close quick actions" : "Open quick actions"}
         >
@@ -328,14 +328,14 @@ export function QuickActionsFab() {
                 }`}
               >
                 {msg.role === "ai" && (
-                  <div className="w-7 h-7 rounded-lg bg-purple-600 text-white flex items-center justify-center shrink-0 text-[10px] font-bold">
+                  <div className="w-7 h-7 rounded-lg bg-blue-600 text-white flex items-center justify-center shrink-0 text-[10px] font-bold">
                     AI
                   </div>
                 )}
                 <div
                   className={`p-3 rounded-2xl max-w-[80%] leading-relaxed ${
                     msg.role === "user"
-                      ? "bg-purple-600 text-white rounded-tr-none"
+                      ? "bg-blue-600 text-white rounded-tr-none"
                       : "bg-card border border-border text-foreground rounded-tl-none"
                   }`}
                 >
@@ -345,9 +345,9 @@ export function QuickActionsFab() {
             ))}
             {isAiTyping && (
               <div className="flex items-center gap-2 text-muted-foreground text-xs p-2">
-                <span className="w-2 h-2 rounded-full bg-purple-500 animate-bounce" />
-                <span className="w-2 h-2 rounded-full bg-purple-500 animate-bounce delay-100" />
-                <span className="w-2 h-2 rounded-full bg-purple-500 animate-bounce delay-200" />
+                <span className="w-2 h-2 rounded-full bg-blue-500 animate-bounce" />
+                <span className="w-2 h-2 rounded-full bg-blue-500 animate-bounce delay-100" />
+                <span className="w-2 h-2 rounded-full bg-blue-500 animate-bounce delay-200" />
               </div>
             )}
           </div>
@@ -358,7 +358,7 @@ export function QuickActionsFab() {
               value={aiPrompt}
               onChange={(e) => setAiPrompt(e.target.value)}
               placeholder="Ask: 'How to prepare for Linear technical interview?'"
-              className="flex-1 h-10 px-3.5 rounded-xl bg-card border border-border text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20"
+              className="flex-1 h-10 px-3.5 rounded-xl bg-card border border-border text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
             />
             <Button
               type="submit"
@@ -419,7 +419,7 @@ export function QuickActionsFab() {
                   onClick={() => setNewProjectType(type)}
                   className={`py-1.5 px-2 rounded-lg text-[11px] font-medium border text-center transition-colors ${
                     newProjectType === type
-                      ? "bg-purple-500/10 border-purple-500 text-purple-600 dark:text-purple-400 font-semibold"
+                      ? "bg-blue-500/10 border-blue-500 text-blue-600 dark:text-blue-400 font-semibold"
                       : "border-border/60 text-muted-foreground hover:bg-muted"
                   }`}
                 >
@@ -445,7 +445,7 @@ export function QuickActionsFab() {
               value={newProjectDesc}
               onChange={(e) => setNewProjectDesc(e.target.value)}
               placeholder="What did you build/investigate, what problem did it solve, and what were the demonstrated outcomes?"
-              className="w-full p-3 rounded-xl bg-card border border-border text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20"
+              className="w-full p-3 rounded-xl bg-card border border-border text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
             />
           </div>
 
@@ -475,9 +475,9 @@ export function QuickActionsFab() {
         <div className="space-y-4">
           <div
             onClick={handleMockResumeUpload}
-            className="p-8 border-2 border-dashed border-border hover:border-purple-500 rounded-2xl bg-muted/30 hover:bg-purple-500/5 transition-all text-center cursor-pointer flex flex-col items-center justify-center group"
+            className="p-8 border-2 border-dashed border-border hover:border-blue-500 rounded-2xl bg-muted/30 hover:bg-blue-500/5 transition-all text-center cursor-pointer flex flex-col items-center justify-center group"
           >
-            <div className="w-12 h-12 rounded-2xl bg-purple-500/10 text-purple-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+            <div className="w-12 h-12 rounded-2xl bg-blue-500/10 text-blue-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
               <UploadCloud className="w-6 h-6" />
             </div>
             <div className="text-sm font-semibold text-foreground">

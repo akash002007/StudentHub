@@ -69,7 +69,7 @@ export function CodeforcesInsights({ userId, onSyncClick, isSyncingManual }: Cod
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border/40">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-500 shrink-0">
+          <div className="w-10 h-10 rounded-2xl bg-primary/10 border border-rose-500/20 flex items-center justify-center text-rose-500 shrink-0">
             <Trophy className="w-5 h-5" />
           </div>
           <div>
@@ -104,7 +104,7 @@ export function CodeforcesInsights({ userId, onSyncClick, isSyncingManual }: Cod
               Codeforces DNA Score
             </span>
             <div className="flex items-center gap-4">
-              <div className="w-20 h-20 rounded-full bg-rose-500/10 border-4 border-rose-500 flex flex-col items-center justify-center text-center shrink-0 shadow-md shadow-rose-500/10">
+              <div className="w-20 h-20 rounded-full bg-primary/10 border-4 border-rose-500 flex flex-col items-center justify-center text-center shrink-0 shadow-md shadow-rose-500/10">
                 <span className="text-2xl font-extrabold text-foreground">{dna?.score || 72}</span>
                 <span className="text-[9px] font-bold text-rose-600 dark:text-rose-400 uppercase">/ 100</span>
               </div>
@@ -152,7 +152,7 @@ export function CodeforcesInsights({ userId, onSyncClick, isSyncingManual }: Cod
                       <span className="text-rose-600 dark:text-rose-400 font-extrabold">{count}</span>
                     </div>
                     <div className="w-full h-1.5 rounded-full bg-muted overflow-hidden">
-                      <div className="h-full bg-rose-500 rounded-full" style={{ width: `${pct}%` }} />
+                      <div className="h-full bg-primary rounded-full" style={{ width: `${pct}%` }} />
                     </div>
                   </div>
                 );
@@ -168,7 +168,7 @@ export function CodeforcesInsights({ userId, onSyncClick, isSyncingManual }: Cod
                 {connection.strongestTags.map((t) => (
                   <span
                     key={t.tag}
-                    className="px-2.5 py-1 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 text-xs font-semibold flex items-center gap-1.5"
+                    className="px-2.5 py-1 rounded-xl bg-primary/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 text-xs font-semibold flex items-center gap-1.5"
                   >
                     <Code2 className="w-3.5 h-3.5" />
                     <span className="capitalize">{t.tag}</span>

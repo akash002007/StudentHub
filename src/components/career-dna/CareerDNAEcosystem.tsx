@@ -35,7 +35,7 @@ export function CareerDNAEcosystem() {
     <div className="space-y-6">
       <div className="text-center max-w-xl mx-auto space-y-2">
         <h3 className="text-xl sm:text-2xl font-extrabold text-foreground tracking-tight flex items-center justify-center gap-2">
-          <Layers className="w-5 h-5 text-purple-500" /> Career DNA Evidence Ecosystem
+          <Layers className="w-5 h-5 text-blue-500" /> Career DNA Evidence Ecosystem
         </h3>
         <p className="text-xs text-muted-foreground leading-relaxed">
           Continuously aggregating verified signals across your entire developer footprint.
@@ -80,7 +80,7 @@ export function CareerDNAEcosystem() {
               <Card key={source.name} hoverEffect className="p-4 border-border/60 bg-card/50 space-y-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 text-foreground font-semibold text-xs">
-                    <Icon className="w-4 h-4 text-purple-500" />
+                    <Icon className="w-4 h-4 text-blue-500" />
                     <span>{source.name}</span>
                   </div>
                   <Badge variant="secondary" size="sm" className="text-[9px]">

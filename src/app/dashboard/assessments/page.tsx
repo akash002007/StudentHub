@@ -61,7 +61,7 @@ export default function StudentAssessmentsPage() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 text-xs font-semibold text-purple-600 dark:text-purple-400 mb-1">
+            <div className="flex items-center gap-2 text-xs font-semibold text-blue-600 dark:text-blue-400 mb-1">
               <Sparkles className="w-3.5 h-3.5" />
               <span>Assessment Hub</span>
             </div>
@@ -83,7 +83,7 @@ export default function StudentAssessmentsPage() {
         {/* Content Section */}
         {isLoading ? (
           <div className="py-16 text-center">
-            <div className="inline-block w-8 h-8 border-3 border-purple-600 border-t-transparent rounded-full animate-spin mb-3" />
+            <div className="inline-block w-8 h-8 border-3 border-blue-600 border-t-transparent rounded-full animate-spin mb-3" />
             <p className="text-xs text-muted-foreground">Loading recruitment assessments...</p>
           </div>
         ) : assessments.length === 0 ? (
@@ -157,7 +157,7 @@ export default function StudentAssessmentsPage() {
                     {/* Test Info Badges */}
                     <div className="flex flex-wrap items-center gap-2 text-xs">
                       <span className="px-2.5 py-1 rounded-lg bg-muted text-muted-foreground font-semibold flex items-center gap-1">
-                        <Calendar className="w-3.5 h-3.5 text-purple-500" />
+                        <Calendar className="w-3.5 h-3.5 text-blue-500" />
                         {ass.date} {ass.time ? `• ${ass.time}` : ""}
                       </span>
                       <span className="px-2.5 py-1 rounded-lg bg-muted text-muted-foreground font-semibold flex items-center gap-1">
@@ -178,12 +178,12 @@ export default function StudentAssessmentsPage() {
 
                     {/* Score summary if evaluated */}
                     {isEvaluated && (
-                      <div className="p-3 rounded-xl bg-purple-500/10 border border-purple-500/20 text-xs flex items-center justify-between">
+                      <div className="p-3 rounded-xl bg-blue-500/10 border border-blue-500/20 text-xs flex items-center justify-between">
                         <span className="font-bold text-foreground flex items-center gap-1.5">
-                          <Award className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                          <Award className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                           Your Score:
                         </span>
-                        <strong className="text-sm font-extrabold text-purple-600 dark:text-purple-400">
+                        <strong className="text-sm font-extrabold text-blue-600 dark:text-blue-400">
                           {ass.candidateScore} / {ass.maxScore}
                         </strong>
                       </div>
@@ -243,8 +243,8 @@ export default function StudentAssessmentsPage() {
 
                 {selectedAssessmentForModal.candidateScore !== undefined && (
                   <div className="flex justify-between pt-2 border-t border-border/60 font-bold">
-                    <span className="text-purple-600 dark:text-purple-400">Recorded Score:</span>
-                    <span className="text-purple-600 dark:text-purple-400">
+                    <span className="text-blue-600 dark:text-blue-400">Recorded Score:</span>
+                    <span className="text-blue-600 dark:text-blue-400">
                       {selectedAssessmentForModal.candidateScore} / {selectedAssessmentForModal.maxScore} (
                       {selectedAssessmentForModal.passed ? "PASSED" : "NOT MET"})
                     </span>

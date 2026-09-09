@@ -107,7 +107,7 @@ export default function StudentRecruitmentDrivesPage() {
         {/* Header Banner */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 text-xs font-semibold text-purple-600 dark:text-purple-400 mb-1">
+            <div className="flex items-center gap-2 text-xs font-semibold text-blue-600 dark:text-blue-400 mb-1">
               <Sparkles className="w-3.5 h-3.5" />
               <span>Recruitment Portal</span>
             </div>
@@ -142,7 +142,7 @@ export default function StudentRecruitmentDrivesPage() {
                 onClick={() => setSelectedStatusTab(tab.id)}
                 className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
                   selectedStatusTab === tab.id
-                    ? "bg-purple-600 text-white shadow-xs"
+                    ? "bg-blue-600 text-white shadow-xs"
                     : "bg-muted text-muted-foreground hover:text-foreground"
                 }`}
               >
@@ -160,7 +160,7 @@ export default function StudentRecruitmentDrivesPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search by position, company, skill (e.g. React, Python), or city..."
-                className="w-full h-10 pl-9 pr-3.5 rounded-xl bg-background border border-border text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all"
+                className="w-full h-10 pl-9 pr-3.5 rounded-xl bg-background border border-border text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
               />
             </div>
 
@@ -168,7 +168,7 @@ export default function StudentRecruitmentDrivesPage() {
               <select
                 value={selectedWorkMode}
                 onChange={(e) => setSelectedWorkMode(e.target.value)}
-                className="w-full h-10 px-3 rounded-xl bg-background border border-border text-xs text-foreground focus:outline-none focus:border-purple-500"
+                className="w-full h-10 px-3 rounded-xl bg-background border border-border text-xs text-foreground focus:outline-none focus:border-blue-500"
               >
                 <option value="all">All Work Modes</option>
                 <option value="REMOTE">Remote</option>
@@ -181,7 +181,7 @@ export default function StudentRecruitmentDrivesPage() {
               <select
                 value={selectedDepartment}
                 onChange={(e) => setSelectedDepartment(e.target.value)}
-                className="w-full h-10 px-3 rounded-xl bg-background border border-border text-xs text-foreground focus:outline-none focus:border-purple-500"
+                className="w-full h-10 px-3 rounded-xl bg-background border border-border text-xs text-foreground focus:outline-none focus:border-blue-500"
               >
                 <option value="all">All Departments</option>
                 {departments.map((dept) => (
@@ -197,7 +197,7 @@ export default function StudentRecruitmentDrivesPage() {
         {/* Drives Grid / List */}
         {isLoading ? (
           <div className="py-16 text-center">
-            <div className="inline-block w-8 h-8 border-3 border-purple-600 border-t-transparent rounded-full animate-spin mb-3" />
+            <div className="inline-block w-8 h-8 border-3 border-blue-600 border-t-transparent rounded-full animate-spin mb-3" />
             <p className="text-xs text-muted-foreground">Loading recruitment drives...</p>
           </div>
         ) : filteredDrives.length === 0 ? (
@@ -232,7 +232,7 @@ export default function StudentRecruitmentDrivesPage() {
                 <Card
                   key={drive.id}
                   hoverEffect
-                  className="p-5 border-border bg-card flex flex-col justify-between space-y-4 transition-all hover:border-purple-500/40"
+                  className="p-5 border-border bg-card flex flex-col justify-between space-y-4 transition-all hover:border-blue-500/40"
                 >
                   <div className="space-y-3.5">
                     {/* Top Row: Company & Status Badges */}
@@ -283,14 +283,14 @@ export default function StudentRecruitmentDrivesPage() {
                     {/* Metadata Badges */}
                     <div className="flex flex-wrap items-center gap-2 text-[11px]">
                       <span className="px-2.5 py-1 rounded-lg bg-muted text-muted-foreground font-semibold flex items-center gap-1">
-                        <MapPin className="w-3 h-3 text-purple-500" />
+                        <MapPin className="w-3 h-3 text-blue-500" />
                         {drive.location} ({drive.workMode})
                       </span>
                       <span className="px-2.5 py-1 rounded-lg bg-muted text-muted-foreground font-semibold flex items-center gap-1">
                         <Briefcase className="w-3 h-3 text-blue-500" />
                         {drive.employmentType.replace("_", " ")}
                       </span>
-                      <span className="px-2.5 py-1 rounded-lg bg-purple-500/10 text-purple-600 dark:text-purple-400 font-bold">
+                      <span className="px-2.5 py-1 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400 font-bold">
                         {drive.salaryStipend}
                       </span>
                     </div>
@@ -304,7 +304,7 @@ export default function StudentRecruitmentDrivesPage() {
                     <div className="p-3 rounded-xl bg-muted/40 border border-border/60 text-xs space-y-2">
                       <div className="flex items-center justify-between font-semibold">
                         <span className="text-muted-foreground flex items-center gap-1.5">
-                          <GraduationCap className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
+                          <GraduationCap className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
                           Eligibility Requirement:
                         </span>
                         {isEligible ? (

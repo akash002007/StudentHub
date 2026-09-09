@@ -265,7 +265,7 @@ export default function AdminRecruitmentDrivesPage() {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="text-rose-600 border-rose-500/30 hover:bg-rose-500/10"
+                      className="text-rose-600 border-rose-500/30 hover:bg-primary/10"
                       onClick={() => handleOpenOverrideModal(d, "CLOSED")}
                     >
                       <Lock className="w-3 h-3 mr-1" />
@@ -275,7 +275,7 @@ export default function AdminRecruitmentDrivesPage() {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="text-emerald-600 border-emerald-500/30 hover:bg-emerald-500/10"
+                      className="text-emerald-600 border-blue-500/30 hover:bg-emerald-500/10"
                       onClick={() => handleOpenOverrideModal(d, "APPLICATIONS_OPEN")}
                     >
                       <Play className="w-3 h-3 mr-1" />

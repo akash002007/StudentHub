@@ -68,7 +68,7 @@ export default function StudentInterviewsPage() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 text-xs font-semibold text-purple-600 dark:text-purple-400 mb-1">
+            <div className="flex items-center gap-2 text-xs font-semibold text-blue-600 dark:text-blue-400 mb-1">
               <Sparkles className="w-3.5 h-3.5" />
               <span>Interview Schedule</span>
             </div>
@@ -90,7 +90,7 @@ export default function StudentInterviewsPage() {
         {/* Interviews Listing */}
         {isLoading ? (
           <div className="py-16 text-center">
-            <div className="inline-block w-8 h-8 border-3 border-purple-600 border-t-transparent rounded-full animate-spin mb-3" />
+            <div className="inline-block w-8 h-8 border-3 border-blue-600 border-t-transparent rounded-full animate-spin mb-3" />
             <p className="text-xs text-muted-foreground">Loading recruitment interview schedule...</p>
           </div>
         ) : interviews.length === 0 ? (
@@ -186,7 +186,7 @@ export default function StudentInterviewsPage() {
                   {/* Metadata Row */}
                   <div className="pt-3 border-t border-border/60 flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
                     <span className="flex items-center gap-1 font-semibold text-foreground">
-                      <Calendar className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
+                      <Calendar className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
                       {int.date}
                     </span>
                     <span className="flex items-center gap-1">

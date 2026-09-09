@@ -176,7 +176,7 @@ export default function RecruiterApplicationsPage() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 text-xs font-semibold text-purple-600 dark:text-purple-400 mb-1">
+            <div className="flex items-center gap-2 text-xs font-semibold text-blue-600 dark:text-blue-400 mb-1">
               <Sparkles className="w-3.5 h-3.5" />
               <span>Pipeline & Tracking</span>
             </div>
@@ -213,7 +213,7 @@ export default function RecruiterApplicationsPage() {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && fetchApplications()}
                 placeholder="Search candidates, skills, university..."
-                className="w-full h-9 pl-9 pr-3 text-xs rounded-xl bg-card border border-border focus:outline-none focus:border-purple-500"
+                className="w-full h-9 pl-9 pr-3 text-xs rounded-xl bg-card border border-border focus:outline-none focus:border-blue-500"
               />
             </div>
 
@@ -222,7 +222,7 @@ export default function RecruiterApplicationsPage() {
               <select
                 value={selectedDriveFilter}
                 onChange={(e) => setSelectedDriveFilter(e.target.value)}
-                className="w-full h-9 px-3 text-xs rounded-xl bg-card border border-border focus:outline-none focus:border-purple-500"
+                className="w-full h-9 px-3 text-xs rounded-xl bg-card border border-border focus:outline-none focus:border-blue-500"
               >
                 <option value="all">All Recruitment Drives</option>
                 {drives.map((d) => (
@@ -238,7 +238,7 @@ export default function RecruiterApplicationsPage() {
               <select
                 value={selectedEligibilityFilter}
                 onChange={(e) => setSelectedEligibilityFilter(e.target.value)}
-                className="w-full h-9 px-3 text-xs rounded-xl bg-card border border-border focus:outline-none focus:border-purple-500"
+                className="w-full h-9 px-3 text-xs rounded-xl bg-card border border-border focus:outline-none focus:border-blue-500"
               >
                 <option value="all">All Eligibility Results</option>
                 <option value="ELIGIBLE">100% Criteria Eligible</option>
@@ -252,7 +252,7 @@ export default function RecruiterApplicationsPage() {
               <select
                 value={selectedStatusFilter}
                 onChange={(e) => setSelectedStatusFilter(e.target.value)}
-                className="w-full h-9 px-3 text-xs rounded-xl bg-card border border-border focus:outline-none focus:border-purple-500"
+                className="w-full h-9 px-3 text-xs rounded-xl bg-card border border-border focus:outline-none focus:border-blue-500"
               >
                 <option value="all">All Application Statuses</option>
                 <option value="SUBMITTED">Submitted</option>
@@ -268,8 +268,8 @@ export default function RecruiterApplicationsPage() {
 
           {/* Bulk Actions Banner */}
           {selectedAppIds.length > 0 && (
-            <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl bg-purple-500/10 border border-purple-500/30 text-xs">
-              <span className="font-bold text-purple-900 dark:text-purple-200">
+            <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl bg-blue-500/10 border border-blue-500/30 text-xs">
+              <span className="font-bold text-blue-900 dark:text-blue-200">
                 {selectedAppIds.length} candidate(s) selected
               </span>
 
@@ -311,7 +311,7 @@ export default function RecruiterApplicationsPage() {
                         applications.length > 0 && selectedAppIds.length === applications.length
                       }
                       onChange={handleToggleSelectAll}
-                      className="rounded accent-purple-600 cursor-pointer"
+                      className="rounded accent-blue-600 cursor-pointer"
                     />
                   </th>
                   <th className="px-4 py-3.5 font-semibold">Candidate</th>
@@ -340,7 +340,7 @@ export default function RecruiterApplicationsPage() {
                     <tr
                       key={app.id}
                       className={`hover:bg-muted/40 transition-colors ${
-                        selectedAppIds.includes(app.id) ? "bg-purple-500/5" : ""
+                        selectedAppIds.includes(app.id) ? "bg-blue-500/5" : ""
                       }`}
                     >
                       <td className="px-4 py-3.5">
@@ -348,7 +348,7 @@ export default function RecruiterApplicationsPage() {
                           type="checkbox"
                           checked={selectedAppIds.includes(app.id)}
                           onChange={() => handleToggleSelectApp(app.id)}
-                          className="rounded accent-purple-600 cursor-pointer"
+                          className="rounded accent-blue-600 cursor-pointer"
                         />
                       </td>
 
@@ -375,10 +375,10 @@ export default function RecruiterApplicationsPage() {
                             <span
                               className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
                                 app.eligibility.status === "ELIGIBLE"
-                                  ? "bg-emerald-500/10 text-emerald-600 border border-emerald-500/30"
+                                  ? "bg-emerald-500/10 text-emerald-600 border border-blue-500/30"
                                   : app.eligibility.status === "REQUIRES_MANUAL_REVIEW"
-                                  ? "bg-amber-500/10 text-amber-600 border border-amber-500/30"
-                                  : "bg-rose-500/10 text-rose-600 border border-rose-500/30"
+                                  ? "bg-amber-500/10 text-amber-600 border border-blue-500/30"
+                                  : "bg-primary/10 text-rose-600 border border-rose-500/30"
                               }`}
                             >
                               {app.eligibility.status === "ELIGIBLE" ? (

@@ -62,7 +62,7 @@ export function RecruiterCareerDNAModal({
 
         {/* Modal Title */}
         <div className="flex items-center gap-3 pr-8">
-          <div className="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-500 shrink-0">
+          <div className="w-12 h-12 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-500 shrink-0">
             <Dna className="w-6 h-6" />
           </div>
           <div>
@@ -85,16 +85,16 @@ export function RecruiterCareerDNAModal({
         </div>
 
         {/* Score & Rating Banner */}
-        <Card hoverEffect className="p-6 border-purple-500/20 bg-gradient-to-br from-card via-card to-purple-950/20 space-y-4">
+        <Card hoverEffect className="p-6 border-blue-500/20 bg-gradient-to-br from-card via-card to-blue-950/20 space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-center">
             {/* Score */}
             <div className="flex items-center gap-4">
-              <div className="w-20 h-20 rounded-full bg-purple-500/10 border-4 border-purple-500 flex flex-col items-center justify-center text-center shrink-0">
+              <div className="w-20 h-20 rounded-full bg-blue-500/10 border-4 border-blue-500 flex flex-col items-center justify-center text-center shrink-0">
                 <span className="text-2xl font-extrabold text-foreground">{score}</span>
-                <span className="text-[9px] font-bold text-purple-500 uppercase">/ 100</span>
+                <span className="text-[9px] font-bold text-blue-500 uppercase">/ 100</span>
               </div>
               <div>
-                <span className="text-[10px] font-bold text-purple-500 uppercase tracking-widest block">Career DNA Score</span>
+                <span className="text-[10px] font-bold text-blue-500 uppercase tracking-widest block">Career DNA Score</span>
                 <Badge variant="emerald" size="sm" className="font-bold text-xs mt-1">
                   {rating}
                 </Badge>
@@ -113,7 +113,7 @@ export function RecruiterCareerDNAModal({
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">Primary Strength:</span>
-                <span className="font-semibold text-purple-600 dark:text-purple-400 truncate max-w-[120px]" title={primaryStrength}>
+                <span className="font-semibold text-blue-600 dark:text-blue-400 truncate max-w-[120px]" title={primaryStrength}>
                   {primaryStrength}
                 </span>
               </div>
@@ -126,7 +126,7 @@ export function RecruiterCareerDNAModal({
                 {topSkills.map((skill: string) => (
                   <span
                     key={skill}
-                    className="px-2 py-0.5 rounded-md bg-purple-500/10 text-purple-600 dark:text-purple-400 font-semibold text-[11px] border border-purple-500/20"
+                    className="px-2 py-0.5 rounded-md bg-blue-500/10 text-blue-600 dark:text-blue-400 font-semibold text-[11px] border border-blue-500/20"
                   >
                     {skill}
                   </span>
@@ -139,7 +139,7 @@ export function RecruiterCareerDNAModal({
         {/* AI Assessment */}
         {summary && (
           <div className="space-y-2">
-            <h4 className="text-xs font-bold text-purple-500 uppercase tracking-wider flex items-center gap-1.5">
+            <h4 className="text-xs font-bold text-blue-500 uppercase tracking-wider flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5" /> AI Assessment Summary
             </h4>
             <p className="text-xs text-muted-foreground leading-relaxed italic bg-muted/30 p-3 rounded-2xl border border-border/40">
@@ -152,7 +152,7 @@ export function RecruiterCareerDNAModal({
         {evidences && evidences.length > 0 && (
           <div className="space-y-3">
             <h4 className="text-xs font-bold text-foreground uppercase tracking-wider flex items-center gap-1.5">
-              <FolderGit2 className="w-3.5 h-3.5 text-purple-500" /> Physical Repository Evidence
+              <FolderGit2 className="w-3.5 h-3.5 text-blue-500" /> Physical Repository Evidence
             </h4>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-56 overflow-y-auto pr-1">
@@ -160,7 +160,7 @@ export function RecruiterCareerDNAModal({
                 <div key={ev.id} className="p-3 rounded-xl bg-muted/40 border border-border/40 space-y-1 text-xs">
                   <div className="flex items-center justify-between font-bold text-foreground">
                     <span className="truncate">{ev.repositoryName}</span>
-                    <span className="text-[10px] text-purple-500 font-semibold">{ev.type}</span>
+                    <span className="text-[10px] text-blue-500 font-semibold">{ev.type}</span>
                   </div>
                   <p className="text-[11px] text-muted-foreground leading-relaxed line-clamp-2">{ev.reason}</p>
                 </div>

@@ -86,19 +86,19 @@ export default function RecruiterProfilePage() {
                 src={recruiter?.avatar}
                 name={recruiter?.name || "Sarah Chen"}
                 size="xl"
-                className="w-20 h-20 sm:w-24 sm:h-24 ring-4 ring-purple-500/20"
+                className="w-20 h-20 sm:w-24 sm:h-24 ring-4 ring-blue-500/20"
               />
               <div className="space-y-1.5">
                 <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
                   <h1 className="text-2xl font-extrabold text-foreground tracking-tight">
                     {recruiter?.name || "Sarah Chen"}
                   </h1>
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-blue-500/30">
                     <ShieldCheck className="w-3.5 h-3.5" />
                     {recruiter?.verificationStatus || "Recruiter Verified"}
                   </span>
                 </div>
-                <div className="text-sm font-semibold text-purple-600 dark:text-purple-400">
+                <div className="text-sm font-semibold text-blue-600 dark:text-blue-400">
                   {recruiter?.title || "University Talent Lead"} &bull; {recruiter?.department || "Early Career Programs"}
                 </div>
                 <div className="text-xs text-muted-foreground flex items-center justify-center sm:justify-start gap-3">
@@ -145,7 +145,7 @@ export default function RecruiterProfilePage() {
               </div>
             </div>
             <div className="p-3.5 rounded-2xl border border-border bg-card text-center">
-              <div className="text-lg sm:text-2xl font-extrabold text-purple-600 dark:text-purple-400">
+              <div className="text-lg sm:text-2xl font-extrabold text-blue-600 dark:text-blue-400">
                 {recruiter?.candidatesReviewed || 1420}
               </div>
               <div className="text-[11px] font-medium text-muted-foreground mt-0.5">
@@ -167,7 +167,7 @@ export default function RecruiterProfilePage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="p-5 rounded-2xl border border-border bg-card space-y-4">
             <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
-              <User className="w-4 h-4 text-purple-500" />
+              <User className="w-4 h-4 text-blue-500" />
               <span>Contact Credentials</span>
             </h3>
             <div className="space-y-2.5 text-xs text-muted-foreground">
@@ -203,7 +203,7 @@ export default function RecruiterProfilePage() {
               </h3>
               <Link
                 href="/dashboard/recruiter/company"
-                className="text-xs font-semibold text-purple-600 dark:text-purple-400 hover:underline flex items-center gap-1"
+                className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
               >
                 View Profile <ExternalLink className="w-3 h-3" />
               </Link>
@@ -272,7 +272,7 @@ export default function RecruiterProfilePage() {
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
                 rows={3}
-                className="w-full p-3 rounded-xl bg-card border border-border text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-purple-500"
+                className="w-full p-3 rounded-xl bg-card border border-border text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-blue-500"
               />
             </div>
 

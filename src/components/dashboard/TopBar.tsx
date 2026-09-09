@@ -75,13 +75,13 @@ export function TopBar() {
     isRecruiter ? "/dashboard/recruiter/company" : "/dashboard/profile";
 
   return (
-    <header className="h-16 border-b border-border bg-card/50 backdrop-blur-xl px-4 sm:px-8 flex items-center justify-between sticky top-0 z-30">
+    <header className="fixed top-0 left-sidebar-width right-0 h-16 bg-surface-container-lowest/90 backdrop-blur-xl z-40 shadow-[0_1px_8px_rgba(0,0,0,0.04)] px-gutter-desktop flex items-center justify-between gap-space-base">
       {/* Left: Dynamic Greeting Snippet & Status */}
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-2">
           <span className="text-sm sm:text-base font-bold text-foreground">
             {greeting},{" "}
-            <span className="text-purple-600 dark:text-purple-400">
+            <span className="text-blue-600 dark:text-blue-400">
               {user?.name ? user.name.split(" ")[0] : isRecruiter ? "Sarah" : "Student"}
             </span>
           </span>
@@ -101,19 +101,17 @@ export function TopBar() {
         <button
           type="button"
           onClick={() => setIsSearchOpen(true)}
-          className="hidden md:flex items-center justify-between gap-3 h-9 px-3.5 rounded-xl bg-muted/40 hover:bg-muted/70 dark:bg-card/70 dark:hover:bg-card/90 border border-border/70 hover:border-purple-500/40 dark:hover:border-purple-500/40 text-xs text-muted-foreground hover:text-foreground shadow-2xs hover:shadow-xs transition-all duration-200 w-56 sm:w-64 md:w-72 lg:w-80 group cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500/50"
+          className="hidden md:flex items-center relative w-full sm:w-64 md:w-80 group cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-container"
           aria-label="Search internships, skills, peers (Press ⌘K or Ctrl+K to open)"
         >
-          <div className="flex items-center gap-2.5 min-w-0 truncate">
-            <Search className="w-3.5 h-3.5 text-muted-foreground/80 group-hover:text-purple-500 transition-colors shrink-0" />
-            <span className="truncate text-xs font-normal text-muted-foreground group-hover:text-foreground transition-colors">
-              {isRecruiter
-                ? "Search candidates, skills, jobs..."
-                : "Search internships, skills, peers..."}
+          <Search className="absolute left-3 w-[18px] h-[18px] text-outline z-10" />
+          <div className="w-full pl-9 pr-16 py-1.5 bg-surface-container-low text-on-surface placeholder:text-outline rounded-lg text-body-sm font-body-sm shadow-[0_1px_2px_rgba(0,0,0,0.03)] text-left h-9 flex items-center">
+            <span className="truncate text-outline">
+              {isRecruiter ? "Search candidates, skills, jobs..." : "Search jobs, companies, skills, drives..."}
             </span>
           </div>
-          <kbd className="hidden lg:inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] font-mono font-medium rounded-md bg-background/80 dark:bg-muted/60 border border-border/80 text-muted-foreground shadow-2xs group-hover:border-purple-500/30 group-hover:text-purple-500 transition-colors shrink-0">
-            <Command className="w-2.5 h-2.5" /> K
+          <kbd className="absolute right-2 px-1.5 py-0.5 rounded bg-surface-container font-label-sm text-label-sm text-outline">
+            ⌘K
           </kbd>
         </button>
 
@@ -136,7 +134,7 @@ export function TopBar() {
           >
             <Bell className="w-4 h-4" />
             {activeUnreadCount > 0 && (
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-card animate-pulse" />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-primary ring-2 ring-card animate-pulse" />
             )}
           </button>
 
@@ -162,7 +160,7 @@ export function TopBar() {
                   <Link
                     href={notificationsPageUrl}
                     onClick={() => setIsNotifOpen(false)}
-                    className="text-xs text-purple-600 dark:text-purple-400 font-semibold hover:underline"
+                    className="text-xs text-blue-600 dark:text-blue-400 font-semibold hover:underline"
                   >
                     View all
                   </Link>
@@ -182,10 +180,10 @@ export function TopBar() {
                         setIsNotifOpen(false);
                       }}
                       className={`p-3.5 text-xs hover:bg-muted/60 transition-colors cursor-pointer flex gap-3 ${
-                        !notif.isRead ? "bg-purple-500/5 dark:bg-purple-950/20" : ""
+                        !notif.isRead ? "bg-blue-500/5 dark:bg-blue-950/20" : ""
                       }`}
                     >
-                      <div className="w-2 h-2 rounded-full bg-purple-500 shrink-0 mt-1.5" />
+                      <div className="w-2 h-2 rounded-full bg-blue-500 shrink-0 mt-1.5" />
                       <div className="flex-1 space-y-1">
                         <div className="font-semibold text-foreground">{notif.title}</div>
                         <p className="text-muted-foreground line-clamp-2 leading-relaxed">
@@ -257,7 +255,7 @@ export function TopBar() {
                     className="w-full flex items-center justify-between p-2 rounded-xl hover:bg-muted text-foreground transition-colors text-left"
                   >
                     <div className="flex items-center gap-2.5">
-                      <Search className="w-4 h-4 text-purple-500" />
+                      <Search className="w-4 h-4 text-blue-500" />
                       <span>Search Student Talent Directory (Stanford, MIT, Berkeley)</span>
                     </div>
                     <Badge variant="purple" size="sm">
@@ -301,7 +299,7 @@ export function TopBar() {
                     className="w-full flex items-center justify-between p-2 rounded-xl hover:bg-muted text-foreground transition-colors text-left"
                   >
                     <div className="flex items-center gap-2.5">
-                      <Briefcase className="w-4 h-4 text-purple-500" />
+                      <Briefcase className="w-4 h-4 text-blue-500" />
                       <span>Browse Software Engineering Internships</span>
                     </div>
                     <Badge variant="purple" size="sm">
