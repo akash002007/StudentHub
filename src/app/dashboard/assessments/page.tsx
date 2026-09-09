@@ -19,6 +19,7 @@ import {
   Shield,
   Filter,
   Search,
+  XCircle,
 } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -44,7 +45,7 @@ interface EnrichedAssessment extends CandidateAssessmentRecord {
   percentage?: number;
 }
 
-type TabCategory = "ALL" | "READY" | "IN_PROGRESS" | "COMPLETED" | "UPCOMING";
+type TabCategory = "ALL" | "READY" | "UPCOMING" | "IN_PROGRESS" | "COMPLETED" | "EXPIRED";
 
 export default function StudentAssessmentsPage() {
   const [assessments, setAssessments] = useState<EnrichedAssessment[]>([]);
@@ -71,16 +72,21 @@ export default function StudentAssessmentsPage() {
     }
   };
 
-  // Helper to categorize each assessment
+  // Helper to categorize each assessment into defined lifecycle states
   const getCategoryForAssessment = (ass: EnrichedAssessment): TabCategory => {
-    const isEvaluated = ass.candidateScore !== undefined || ass.attemptStatus === "SUBMITTED" || ass.attemptStatus === "AUTO_SUBMITTED";
+    const isEvaluated =
+      ass.candidateScore !== undefined ||
+      ass.attemptStatus === "SUBMITTED" ||
+      ass.attemptStatus === "AUTO_SUBMITTED";
     if (isEvaluated) return "COMPLETED";
-    if (ass.attemptStatus === "ACTIVE") return "IN_PROGRESS";
+    if (ass.attemptStatus === "ACTIVE" || ass.attemptStatus === "PAUSED") return "IN_PROGRESS";
 
     const now = Date.now();
-    if (ass.startDateTime) {
-      const startTime = new Date(ass.startDateTime).getTime();
-      if (now < startTime) return "UPCOMING";
+    if (ass.endDateTime && now > new Date(ass.endDateTime).getTime()) {
+      return "EXPIRED";
+    }
+    if (ass.startDateTime && now < new Date(ass.startDateTime).getTime()) {
+      return "UPCOMING";
     }
 
     return "READY";
@@ -104,9 +110,10 @@ export default function StudentAssessmentsPage() {
   const counts: Record<TabCategory, number> = {
     ALL: assessments.length,
     READY: assessments.filter((a) => getCategoryForAssessment(a) === "READY").length,
+    UPCOMING: assessments.filter((a) => getCategoryForAssessment(a) === "UPCOMING").length,
     IN_PROGRESS: assessments.filter((a) => getCategoryForAssessment(a) === "IN_PROGRESS").length,
     COMPLETED: assessments.filter((a) => getCategoryForAssessment(a) === "COMPLETED").length,
-    UPCOMING: assessments.filter((a) => getCategoryForAssessment(a) === "UPCOMING").length,
+    EXPIRED: assessments.filter((a) => getCategoryForAssessment(a) === "EXPIRED").length,
   };
 
   return (
@@ -117,13 +124,13 @@ export default function StudentAssessmentsPage() {
           <div>
             <div className="flex items-center gap-2 text-xs font-semibold text-purple-600 dark:text-purple-400 mb-1">
               <Sparkles className="w-3.5 h-3.5" />
-              <span>Candidate Examination Portal</span>
+              <span>Candidate Examination Workspace</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
-              My Assessments
+            <h1 className="text-2xl sm:text-3xl font-black text-foreground tracking-tight">
+              Assessments
             </h1>
             <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-              Complete assigned technical evaluations, proctored examinations, and view official recruitment scores.
+              Complete assigned evaluations for your recruitment applications and view official results.
             </p>
           </div>
 
@@ -136,15 +143,16 @@ export default function StudentAssessmentsPage() {
 
         {/* Filter Tabs & Search Bar */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
-          {/* Tabs */}
+          {/* Categorized Tabs */}
           <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-muted/40 border border-border/80 overflow-x-auto">
             {(
               [
                 { key: "ALL", label: "All" },
                 { key: "READY", label: "Ready to Take" },
+                { key: "UPCOMING", label: "Upcoming" },
                 { key: "IN_PROGRESS", label: "In Progress" },
                 { key: "COMPLETED", label: "Completed" },
-                { key: "UPCOMING", label: "Upcoming" },
+                { key: "EXPIRED", label: "Expired" },
               ] as { key: TabCategory; label: string }[]
             ).map((tab) => (
               <button
@@ -188,10 +196,10 @@ export default function StudentAssessmentsPage() {
         {isLoading ? (
           <div className="py-20 text-center">
             <div className="inline-block w-8 h-8 border-3 border-purple-600 border-t-transparent rounded-full animate-spin mb-3" />
-            <p className="text-xs text-muted-foreground">Loading recruitment assessments...</p>
+            <p className="text-xs text-muted-foreground">Loading assigned assessments...</p>
           </div>
         ) : filteredAssessments.length === 0 ? (
-          <Card className="p-12 text-center border-dashed border-2 border-border/80">
+          <Card className="p-12 text-center border-dashed border-2 border-border/80 rounded-3xl">
             <FileText className="w-10 h-10 text-muted-foreground/50 mx-auto mb-3" />
             <h3 className="font-bold text-sm text-foreground">
               {searchQuery ? "No matching assessments found" : "No assessments in this category"}
@@ -199,7 +207,7 @@ export default function StudentAssessmentsPage() {
             <p className="text-xs text-muted-foreground mt-1 max-w-sm mx-auto">
               {searchQuery
                 ? "Try clearing your search query or switching tabs."
-                : "Assessments published by recruiters for your applied drives will appear here."}
+                : "Assessments assigned to your candidate profile for active recruitment drives will appear here."}
             </p>
             {searchQuery && (
               <Button
@@ -219,22 +227,26 @@ export default function StudentAssessmentsPage() {
                 ass.candidateScore !== undefined ||
                 ass.attemptStatus === "SUBMITTED" ||
                 ass.attemptStatus === "AUTO_SUBMITTED";
+              const isTerminated = ass.attemptStatus === "TERMINATED";
               const hasPassed = ass.passed;
               const isProctored = ass.hasFullProctoring || ass.mode === "PROCTORED";
               const targetId = ass.assessmentConfigId || ass.id;
-              const isActive = ass.attemptStatus === "ACTIVE";
+              const isActive = ass.attemptStatus === "ACTIVE" || ass.attemptStatus === "PAUSED";
+              const category = getCategoryForAssessment(ass);
+              const isExpired = category === "EXPIRED";
+              const isUpcoming = category === "UPCOMING";
 
               return (
                 <Card
                   key={ass.id}
                   hoverEffect
-                  className="p-5 border-border bg-card space-y-4 flex flex-col justify-between"
+                  className="p-5 border-border bg-card space-y-4 flex flex-col justify-between rounded-3xl shadow-sm"
                 >
                   <div className="space-y-3.5">
                     {/* Header */}
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-10 h-10 rounded-xl bg-muted border border-border p-1 overflow-hidden shrink-0 flex items-center justify-center">
+                        <div className="w-10 h-10 rounded-2xl bg-muted border border-border p-1 overflow-hidden shrink-0 flex items-center justify-center">
                           {ass.companyLogo ? (
                             // eslint-disable-next-line @next/next/no-img-element
                             <img
@@ -251,7 +263,7 @@ export default function StudentAssessmentsPage() {
                             {ass.assessmentName}
                           </h3>
                           <p className="text-xs text-muted-foreground truncate font-medium">
-                            {ass.company} • {ass.driveTitle}
+                            {ass.company} • Part of {ass.driveTitle}
                           </p>
                         </div>
                       </div>
@@ -266,9 +278,21 @@ export default function StudentAssessmentsPage() {
                             Evaluated
                           </Badge>
                         )
+                      ) : isTerminated ? (
+                        <Badge variant="rose" size="sm" className="font-bold shrink-0">
+                          Terminated
+                        </Badge>
                       ) : isActive ? (
                         <Badge variant="blue" size="sm" className="font-bold shrink-0 animate-pulse">
                           In Progress
+                        </Badge>
+                      ) : isExpired ? (
+                        <Badge variant="outline" size="sm" className="font-bold shrink-0 text-rose-500 border-rose-500/30">
+                          Expired
+                        </Badge>
+                      ) : isUpcoming ? (
+                        <Badge variant="lavender" size="sm" className="font-bold shrink-0">
+                          Upcoming
                         </Badge>
                       ) : (
                         <Badge variant="purple" size="sm" className="font-bold shrink-0">
@@ -284,17 +308,17 @@ export default function StudentAssessmentsPage() {
                           <Shield className="w-3 h-3" /> Proctored
                         </Badge>
                       )}
-                      <span className="px-2.5 py-1 rounded-lg bg-muted text-muted-foreground font-semibold flex items-center gap-1">
+                      <span className="px-2.5 py-1 rounded-xl bg-muted text-muted-foreground font-semibold flex items-center gap-1">
                         <Clock className="w-3.5 h-3.5 text-blue-500" />
                         {ass.duration || "45 mins"}
                       </span>
                       {ass.questionCount !== undefined && (
-                        <span className="px-2.5 py-1 rounded-lg bg-muted text-muted-foreground font-semibold flex items-center gap-1">
+                        <span className="px-2.5 py-1 rounded-xl bg-muted text-muted-foreground font-semibold flex items-center gap-1">
                           <FileText className="w-3.5 h-3.5 text-purple-500" />
                           {ass.questionCount} Questions
                         </span>
                       )}
-                      <span className="px-2.5 py-1 rounded-lg bg-muted text-muted-foreground font-semibold">
+                      <span className="px-2.5 py-1 rounded-xl bg-muted text-muted-foreground font-semibold">
                         Passing Mark: {ass.passingScore}/{ass.maxScore}
                       </span>
                     </div>
@@ -308,13 +332,13 @@ export default function StudentAssessmentsPage() {
 
                     {/* Score summary if evaluated */}
                     {isEvaluated && (
-                      <div className="p-3 rounded-xl bg-purple-500/10 border border-purple-500/20 text-xs flex items-center justify-between">
+                      <div className="p-3 rounded-2xl bg-purple-500/10 border border-purple-500/20 text-xs flex items-center justify-between">
                         <span className="font-bold text-foreground flex items-center gap-1.5">
                           <Award className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-                          Final Score:
+                          Recorded Score:
                         </span>
                         <div className="flex items-center gap-2">
-                          <strong className="text-sm font-extrabold text-purple-600 dark:text-purple-400">
+                          <strong className="text-sm font-black text-purple-600 dark:text-purple-400">
                             {ass.candidateScore} / {ass.maxScore}
                           </strong>
                           {ass.percentage !== undefined && (
@@ -331,10 +355,16 @@ export default function StudentAssessmentsPage() {
                   <div className="pt-3 border-t border-border/60 flex flex-wrap items-center justify-between gap-2 text-xs">
                     <span className="text-muted-foreground text-[11px]">
                       {isEvaluated
-                        ? "Evaluation Finalized"
+                        ? "Official Result Available"
+                        : isTerminated
+                        ? "Attempt Terminated"
                         : isActive
-                        ? "Session Active"
-                        : "Environment Ready"}
+                        ? "Exam Session Active"
+                        : isExpired
+                        ? "Testing Window Closed"
+                        : isUpcoming
+                        ? `Opens ${ass.startDateTime ? new Date(ass.startDateTime).toLocaleDateString() : "Soon"}`
+                        : "Ready to Launch"}
                     </span>
 
                     <div className="flex items-center gap-2">
@@ -344,7 +374,19 @@ export default function StudentAssessmentsPage() {
                         </Button>
                       </Link>
 
-                      {!isEvaluated ? (
+                      {isEvaluated ? (
+                        <Link href={`/dashboard/assessments/${targetId}/result`}>
+                          <Button variant="gradient" size="sm" rightIcon={<ArrowRight className="w-3.5 h-3.5" />}>
+                            View Result
+                          </Button>
+                        </Link>
+                      ) : isTerminated ? (
+                        <Link href={`/dashboard/assessments/${targetId}/result`}>
+                          <Button variant="ghost" size="sm" className="text-xs text-rose-500">
+                            View Log
+                          </Button>
+                        </Link>
+                      ) : isExpired ? null : isUpcoming ? null : (
                         <Link href={`/dashboard/assessments/${targetId}/take`}>
                           <Button
                             variant="gradient"
@@ -352,12 +394,6 @@ export default function StudentAssessmentsPage() {
                             rightIcon={<ArrowRight className="w-3.5 h-3.5" />}
                           >
                             {isActive ? "Resume Exam" : "Start Assessment"}
-                          </Button>
-                        </Link>
-                      ) : (
-                        <Link href={`/dashboard/assessments/${targetId}`}>
-                          <Button variant="ghost" size="sm" className="text-xs font-semibold">
-                            View Result
                           </Button>
                         </Link>
                       )}

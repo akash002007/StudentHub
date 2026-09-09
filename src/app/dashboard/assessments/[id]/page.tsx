@@ -331,11 +331,28 @@ export default function StudentAssessmentDetailPage({
         <div className="flex items-center justify-between pt-4 border-t border-border">
           <Link href="/dashboard/assessments">
             <Button variant="outline" size="md">
-              Back to List
+              Back to Assessments
             </Button>
           </Link>
 
-          {!isCompleted && !isTerminated && (
+          {isCompleted ? (
+            <Link href={`/dashboard/assessments/${assessment.id}/result`}>
+              <Button
+                variant="gradient"
+                size="md"
+                className="font-bold px-6"
+                rightIcon={<ArrowRight className="w-4 h-4" />}
+              >
+                View Official Result Breakdown
+              </Button>
+            </Link>
+          ) : isTerminated ? (
+            <Link href={`/dashboard/assessments/${assessment.id}/result`}>
+              <Button variant="outline" size="md" className="font-bold text-rose-500">
+                View Termination Log
+              </Button>
+            </Link>
+          ) : (
             <Link href={`/dashboard/assessments/${assessment.id}/take`}>
               <Button
                 variant="gradient"

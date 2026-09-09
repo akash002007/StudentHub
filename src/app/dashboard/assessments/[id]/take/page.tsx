@@ -666,10 +666,15 @@ export default function CandidateTakeAssessmentPage({
               </div>
             )}
 
-            <div className="pt-2 flex justify-center">
-              <Link href="/dashboard/assessments">
+            <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+              <Link href={`/dashboard/assessments/${resolvedParams.id}/result`}>
                 <Button variant="gradient" size="md">
-                  Return to Assessments Hub
+                  View Official Result & Scorecard
+                </Button>
+              </Link>
+              <Link href="/dashboard/assessments">
+                <Button variant="outline" size="md">
+                  Return to Assessments
                 </Button>
               </Link>
             </div>

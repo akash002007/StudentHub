@@ -24,6 +24,7 @@ import {
   getRecruitmentDriveById,
   saveAssessmentRecord,
 } from "@/lib/recruitment-store";
+import { ServerStore } from "@/lib/server-store";
 
 const ASSESSMENT_DB_FILE = path.join(process.cwd(), ".data", "assessment-store-db.json");
 
@@ -1140,6 +1141,17 @@ export function assignCandidatesToAssessmentConfig(
       };
 
       saveAssessmentRecord(legacyRecord);
+
+      try {
+        ServerStore.addStudentNotification(studentId, {
+          title: "Assessment Assigned",
+          description: `You have been assigned to assessment '${assessment.title}' for drive '${assessment.driveTitle}'.`,
+          type: "application",
+          actionUrl: `/dashboard/assessments/${assessment.id}`,
+        });
+      } catch (err) {
+        console.error("Failed adding assignment notification:", err);
+      }
     }
   });
 
@@ -1472,6 +1484,17 @@ export function recordIntegrityEvent(
       newState: "TERMINATED",
       details: `Assessment automatically terminated due to repeated proctoring violations (${attempt.violationCount} violations logged).`,
     });
+
+    try {
+      ServerStore.addStudentNotification(studentId, {
+        title: "Assessment Session Terminated",
+        description: `Your assessment '${assessment?.title || "Examination"}' was terminated due to integrity policy limit exceeded.`,
+        type: "system",
+        actionUrl: `/dashboard/assessments/${attempt.assessmentId}`,
+      });
+    } catch (err) {
+      console.error("Failed adding student termination notification:", err);
+    }
   }
 
   return { event, actionTaken: action, attempt };
@@ -1596,7 +1619,103 @@ export function submitAssessmentAttempt(
     details: `Candidate completed assessment in ${attempt.durationSecondsTaken}s. Score: ${finalScore}/${assessment.totalMarks} (${attempt.percentage}%). Passed: ${attempt.passed ? "YES" : "NO"}`,
   });
 
+  try {
+    ServerStore.addStudentNotification(attempt.studentId, {
+      title: isAutoTimeout ? "Assessment Auto-Submitted" : "Assessment Submitted Successfully",
+      description: `Your answers for '${assessment.title}' have been evaluated. Score: ${finalScore}/${assessment.totalMarks} (${attempt.passed ? "Passed" : "Did not meet benchmark"}).`,
+      type: "application",
+      actionUrl: `/dashboard/assessments/${assessment.id}/result`,
+    });
+  } catch (err) {
+    console.error("Failed adding student submission notification:", err);
+  }
+
   return { attempt, evaluated: true };
+}
+
+export function getAssessmentResultForCandidate(
+  assessmentId: string,
+  studentId: string
+): {
+  success: boolean;
+  assessment?: any;
+  attempt?: any;
+  breakdown?: any[];
+  error?: string;
+} {
+  const assessment = assessmentStore.assessments.get(assessmentId);
+  if (!assessment) {
+    return { success: false, error: "Assessment not found." };
+  }
+
+  const attempt = Array.from(assessmentStore.attempts.values()).find(
+    (att) => att.assessmentId === assessmentId && (att.studentId === studentId || att.studentId === "student" || att.studentId === "student_123")
+  );
+
+  if (!attempt) {
+    return { success: false, error: "No attempt found for this candidate." };
+  }
+
+  if (attempt.status !== "SUBMITTED" && attempt.status !== "AUTO_SUBMITTED" && attempt.status !== "TERMINATED") {
+    return { success: false, error: "Assessment has not been completed yet." };
+  }
+
+  const showImmediately = assessment.candidateRules?.showResultImmediately ?? true;
+
+  let breakdown: any[] | undefined = undefined;
+  if (showImmediately && (attempt.status === "SUBMITTED" || attempt.status === "AUTO_SUBMITTED")) {
+    const snapshots = assessment.questionSnapshots || [];
+    breakdown = snapshots.map((snap, idx) => {
+      const candAns = attempt.answers[snap.id];
+      return {
+        questionId: snap.id,
+        orderIndex: idx + 1,
+        questionText: snap.questionText,
+        type: snap.type,
+        options: snap.options,
+        marks: snap.marks,
+        negativeMarks: snap.negativeMarks,
+        candidateAnswer: candAns?.answer ?? null,
+        isAnswered: candAns?.isAnswered ?? false,
+        isCorrect: candAns?.isCorrect ?? false,
+        marksAwarded: candAns?.marksAwarded ?? 0,
+        correctAnswer: snap.correctAnswer,
+        explanation: snap.explanation,
+      };
+    });
+  }
+
+  return {
+    success: true,
+    assessment: {
+      id: assessment.id,
+      title: assessment.title,
+      description: assessment.description,
+      driveId: assessment.driveId,
+      driveTitle: assessment.driveTitle,
+      companyName: assessment.companyName,
+      totalMarks: assessment.totalMarks,
+      passingMarks: assessment.passingMarks,
+      passingPercentage: assessment.passingPercentage,
+      durationMinutes: assessment.durationMinutes,
+      mode: assessment.mode,
+      showResultImmediately: showImmediately,
+    },
+    attempt: {
+      id: attempt.id,
+      status: attempt.status,
+      startedAt: attempt.startedAt,
+      submittedAt: attempt.submittedAt,
+      durationSecondsTaken: attempt.durationSecondsTaken,
+      totalScore: attempt.totalScore,
+      percentage: attempt.percentage,
+      passed: attempt.passed,
+      violationCount: attempt.violationCount,
+      integrityStatus: attempt.integrityStatus,
+      terminationReason: attempt.terminationReason,
+    },
+    breakdown,
+  };
 }
 
 // ---------------------------------------------------------------------------
