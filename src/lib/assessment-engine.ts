@@ -613,6 +613,15 @@ function persistAssessmentStoreToDisk(): void {
 export const assessmentStore: AssessmentStoreState =
   globalThis.__STUDENTHUB_ASSESSMENT_STORE__ ?? initializeAssessmentStore();
 
+// Safeguard existing long-running global store if new maps were added
+if (!assessmentStore.questions) assessmentStore.questions = new Map();
+if (!assessmentStore.assessments) assessmentStore.assessments = new Map();
+if (!assessmentStore.attempts) assessmentStore.attempts = new Map();
+if (!assessmentStore.integrityEvents) assessmentStore.integrityEvents = new Map();
+if (!assessmentStore.objections) assessmentStore.objections = new Map();
+if (!assessmentStore.authorizations) assessmentStore.authorizations = new Map();
+if (!assessmentStore.importHistory) assessmentStore.importHistory = new Map();
+
 if (process.env.NODE_ENV !== "production") {
   globalThis.__STUDENTHUB_ASSESSMENT_STORE__ = assessmentStore;
 }
@@ -2675,6 +2684,9 @@ export function recordQuestionImport(
   importRecord: QuestionImportRecord,
   authUser: AuthenticatedUser
 ): QuestionImportRecord {
+  if (!assessmentStore.importHistory) {
+    assessmentStore.importHistory = new Map();
+  }
   assessmentStore.importHistory.set(importRecord.id, importRecord);
   persistAssessmentStoreToDisk();
 
@@ -2695,6 +2707,9 @@ export function recordQuestionImport(
 }
 
 export function getQuestionImportHistory(companyId?: string): QuestionImportRecord[] {
+  if (!assessmentStore.importHistory) {
+    assessmentStore.importHistory = new Map();
+  }
   return Array.from(assessmentStore.importHistory.values())
     .filter((rec) => !companyId || rec.companyId === companyId)
     .sort((a, b) => new Date(b.importedAt).getTime() - new Date(a.importedAt).getTime());

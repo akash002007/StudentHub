@@ -69,8 +69,8 @@ export async function POST(request: NextRequest) {
       importRecord,
       errors: result.errors,
     });
-  } catch (err) {
+  } catch (err: any) {
     console.error("[POST /api/recruiter/questions/import-history] Error:", err);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json({ error: err?.message || "Internal Server Error" }, { status: 500 });
   }
 }

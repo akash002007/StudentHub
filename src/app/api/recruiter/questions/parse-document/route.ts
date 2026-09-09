@@ -163,6 +163,7 @@ export async function POST(request: NextRequest) {
           error:
             "No selectable text found in this document. If this is a scanned document or image-only PDF, Optical Character Recognition (OCR) is required.",
           isScannedPdf: true,
+          debugInfo: (textExtraction as any).debugInfo,
         },
         { status: 422 }
       );

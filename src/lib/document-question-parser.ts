@@ -102,52 +102,151 @@ function extractPdfStreamFallback(buffer: Buffer): string {
 /**
  * Extracts plain text from an uploaded buffer (PDF or Word)
  */
+/**
+ * Primary PDF text extractor using unpdf (serverless/Next.js/Node runtime compatible, zero-worker issue)
+ */
+async function extractPdfTextWithUnpdf(
+  buffer: Buffer
+): Promise<{ text: string; pageCount: number }> {
+  const { extractText, getDocumentProxy } = await import("unpdf");
+  const uint8 = new Uint8Array(buffer);
+  const pdf = await getDocumentProxy(uint8);
+  const pageCount = pdf.numPages || 1;
+  const { text } = await extractText(pdf, { mergePages: true });
+  return { text: text || "", pageCount };
+}
+
+/**
+ * Secondary PDF text extractor using pdfjs-dist legacy Node engine
+ */
+async function extractPdfTextWithPdfJs(
+  buffer: Buffer
+): Promise<{ text: string; pageCount: number }> {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
+
+  // Disable worker in Node.js server environment to avoid missing worker file issues
+  if (pdfjs.GlobalWorkerOptions) {
+    pdfjs.GlobalWorkerOptions.workerSrc = "";
+  }
+
+  const uint8 = new Uint8Array(buffer);
+  const loadingTask = pdfjs.getDocument({
+    data: uint8,
+    useSystemFonts: true,
+    disableFontFace: true,
+    verbosity: 0,
+    isEvalSupported: false,
+  });
+
+  const doc = await loadingTask.promise;
+  const pageCount = doc.numPages || 1;
+  let fullText = "";
+
+  for (let i = 1; i <= pageCount; i++) {
+    const page = await doc.getPage(i);
+    const textContent = await page.getTextContent();
+    let pageText = "";
+    let lastY: number | null = null;
+
+    for (const item of textContent.items) {
+      if ("str" in item) {
+        const currentY = item.transform ? item.transform[5] : null;
+        if (lastY !== null && currentY !== null && Math.abs(currentY - lastY) > 5) {
+          pageText += "\n";
+        } else if (pageText.length > 0 && !pageText.endsWith("\n") && !pageText.endsWith(" ")) {
+          pageText += " ";
+        }
+        pageText += item.str;
+        if ((item as any).hasEOL) {
+          pageText += "\n";
+        }
+        lastY = currentY;
+      }
+    }
+    fullText += pageText + "\n\n";
+  }
+
+  return { text: fullText.trim(), pageCount };
+}
+
+/**
+ * Extracts plain text from an uploaded buffer (PDF or Word)
+ */
 export async function extractTextFromBuffer(
   buffer: Buffer,
   fileName: string
-): Promise<{ text: string; fileType: "PDF" | "DOCX" | "DOC"; isScannedPdf?: boolean }> {
+): Promise<{ text: string; fileType: "PDF" | "DOCX" | "DOC"; isScannedPdf?: boolean; pageCount?: number; parserUsed?: string; debugInfo?: string }> {
   const lowerName = fileName.toLowerCase();
 
   // 1. PDF Extraction
   if (lowerName.endsWith(".pdf") || buffer.slice(0, 5).toString("ascii") === "%PDF-") {
     let extractedText = "";
     let pageCount = 1;
+    let parserUsed = "";
+    const debugErrors: string[] = [];
 
-    // A. Primary: pdf-parse (Supports both v2 class and v1 function exports)
+    // Strategy 1: unpdf (Modern, Webpack/Next.js/Serverless friendly, no worker resolution errors)
     try {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const pdfModule = require("pdf-parse");
-
-      if (pdfModule.PDFParse) {
-        const parser = new pdfModule.PDFParse({ data: buffer });
-        const result = await parser.getText();
-        if (result && typeof result.text === "string") {
-          extractedText = result.text;
-          pageCount = result.total || result.pages?.length || 1;
-        }
-      } else if (typeof pdfModule === "function") {
-        const result = await pdfModule(buffer);
-        if (result && typeof result.text === "string") {
-          extractedText = result.text;
-          pageCount = result.numpages || 1;
-        }
-      } else if (pdfModule.default?.PDFParse) {
-        const parser = new pdfModule.default.PDFParse({ data: buffer });
-        const result = await parser.getText();
-        if (result && typeof result.text === "string") {
-          extractedText = result.text;
-          pageCount = result.total || result.pages?.length || 1;
-        }
+      const unpdfResult = await extractPdfTextWithUnpdf(buffer);
+      if (unpdfResult && unpdfResult.text && unpdfResult.text.trim().length >= 20) {
+        extractedText = unpdfResult.text;
+        pageCount = unpdfResult.pageCount;
+        parserUsed = "unpdf (modern Next.js engine)";
       }
-    } catch (primaryErr: any) {
-      console.warn("[document-parser] Primary pdf-parse failed, checking fallback:", primaryErr?.message || primaryErr);
+    } catch (unpdfErr: any) {
+      debugErrors.push(`unpdf failed: ${unpdfErr?.message || unpdfErr}`);
+      console.warn("[document-parser] Primary unpdf failed, trying secondary parser:", unpdfErr?.message || unpdfErr);
     }
 
-    // B. Secondary Fallback: Direct PDF text stream parser
+    // Strategy 2: pdfjs-dist legacy Node engine
+    if (!extractedText || extractedText.trim().length < 20) {
+      try {
+        const pdfJsResult = await extractPdfTextWithPdfJs(buffer);
+        if (pdfJsResult && pdfJsResult.text && pdfJsResult.text.length >= 20) {
+          extractedText = pdfJsResult.text;
+          pageCount = pdfJsResult.pageCount;
+          parserUsed = "pdfjs-dist/legacy";
+        }
+      } catch (pdfJsErr: any) {
+        debugErrors.push(`pdfjs-dist failed: ${pdfJsErr?.message || pdfJsErr}`);
+        console.warn("[document-parser] Secondary pdfjs-dist failed, trying tertiary parser:", pdfJsErr?.message || pdfJsErr);
+      }
+    }
+
+    // Strategy 2: pdf-parse fallback (v2 class or v1 function)
+    if (!extractedText || extractedText.trim().length < 20) {
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const pdfModule = require("pdf-parse");
+        if (pdfModule.PDFParse) {
+          const parser = new pdfModule.PDFParse({ data: buffer });
+          const result = await parser.getText();
+          if (result && typeof result.text === "string" && result.text.length >= 20) {
+            extractedText = result.text;
+            pageCount = result.total || result.pages?.length || pageCount;
+            parserUsed = "pdf-parse (v2)";
+          }
+        } else if (typeof pdfModule === "function") {
+          const result = await pdfModule(buffer);
+          if (result && typeof result.text === "string" && result.text.length >= 20) {
+            extractedText = result.text;
+            pageCount = result.numpages || pageCount;
+            parserUsed = "pdf-parse (v1)";
+          }
+        }
+      } catch (pdfParseErr: any) {
+        debugErrors.push(`pdf-parse failed: ${pdfParseErr?.message || pdfParseErr}`);
+        console.warn("[document-parser] Fallback pdf-parse failed:", pdfParseErr?.message || pdfParseErr);
+      }
+    }
+
+    // Strategy 3: Direct PDF stream text extractor
     if (!extractedText || extractedText.trim().length < 20) {
       const fallbackText = extractPdfStreamFallback(buffer);
       if (fallbackText && fallbackText.length > extractedText.length) {
         extractedText = fallbackText;
+        parserUsed = "pdf-stream-fallback";
       }
     }
 
@@ -159,6 +258,9 @@ export async function extractTextFromBuffer(
       text: extractedText,
       fileType: "PDF",
       isScannedPdf,
+      pageCount,
+      parserUsed: parserUsed || "none",
+      debugInfo: debugErrors.join(" | "),
     };
   }
 
