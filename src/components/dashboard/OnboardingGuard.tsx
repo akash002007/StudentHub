@@ -22,8 +22,10 @@ export function OnboardingGuard({ children }: { children: React.ReactNode }) {
       return;
     }
 
+    const normRole = (role || "STUDENT").toUpperCase();
+
     // Recruiters and admins don't have student onboarding
-    if (role === "recruiter" || role === "admin") {
+    if (normRole !== "STUDENT") {
       setCanRender(true);
       return;
     }

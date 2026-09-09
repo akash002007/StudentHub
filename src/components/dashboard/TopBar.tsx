@@ -28,6 +28,9 @@ import { getTimeAwareGreeting } from "@/lib/utils";
 export function TopBar() {
   const router = useRouter();
   const { user, role } = useAuth();
+  const normRole = (role || "STUDENT").toUpperCase();
+  const isRecruiter = ["RECRUITER", "COMPANY_ADMIN"].includes(normRole);
+
   const {
     notifications,
     unreadNotificationsCount,
@@ -61,15 +64,15 @@ export function TopBar() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isSearchOpen]);
 
-  const activeNotifications = role === "recruiter" ? recruiterNotifications : notifications;
+  const activeNotifications = isRecruiter ? recruiterNotifications : notifications;
   const activeUnreadCount =
-    role === "recruiter" ? unreadRecruiterNotificationsCount : unreadNotificationsCount;
+    isRecruiter ? unreadRecruiterNotificationsCount : unreadNotificationsCount;
   const recentNotifications = activeNotifications.slice(0, 4);
 
   const notificationsPageUrl =
-    role === "recruiter" ? "/dashboard/recruiter/notifications" : "/dashboard/notifications";
+    isRecruiter ? "/dashboard/recruiter/notifications" : "/dashboard/notifications";
   const profilePageUrl =
-    role === "recruiter" ? "/dashboard/recruiter/company" : "/dashboard/profile";
+    isRecruiter ? "/dashboard/recruiter/company" : "/dashboard/profile";
 
   return (
     <header className="h-16 border-b border-border bg-card/50 backdrop-blur-xl px-4 sm:px-8 flex items-center justify-between sticky top-0 z-30">
@@ -79,16 +82,16 @@ export function TopBar() {
           <span className="text-sm sm:text-base font-bold text-foreground">
             {greeting},{" "}
             <span className="text-purple-600 dark:text-purple-400">
-              {user?.name ? user.name.split(" ")[0] : role === "recruiter" ? "Sarah" : "Student"}
+              {user?.name ? user.name.split(" ")[0] : isRecruiter ? "Sarah" : "Student"}
             </span>
           </span>
         </div>
         <Badge
-          variant={role === "recruiter" ? "gradient" : "lavender"}
+          variant={isRecruiter ? "gradient" : "lavender"}
           size="sm"
           className="hidden sm:inline-flex font-semibold text-[11px]"
         >
-          {role === "recruiter" ? "Stripe University Talent" : "Open to Summer '26"}
+          {isRecruiter ? "Stripe University Talent" : "Open to Summer '26"}
         </Badge>
       </div>
 
@@ -104,7 +107,7 @@ export function TopBar() {
           <div className="flex items-center gap-2.5 min-w-0 truncate">
             <Search className="w-3.5 h-3.5 text-muted-foreground/80 group-hover:text-purple-500 transition-colors shrink-0" />
             <span className="truncate text-xs font-normal text-muted-foreground group-hover:text-foreground transition-colors">
-              {role === "recruiter"
+              {isRecruiter
                 ? "Search candidates, skills, jobs..."
                 : "Search internships, skills, peers..."}
             </span>
@@ -148,7 +151,7 @@ export function TopBar() {
                 <div className="p-4 border-b border-border/60 flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <h4 className="font-bold text-sm text-foreground">
-                      {role === "recruiter" ? "Hiring Alerts" : "Notifications"}
+                      {isRecruiter ? "Hiring Alerts" : "Notifications"}
                     </h4>
                     {activeUnreadCount > 0 && (
                       <Badge variant="rose" size="sm">
@@ -170,7 +173,7 @@ export function TopBar() {
                     <div
                       key={notif.id}
                       onClick={() => {
-                        if (role === "recruiter") {
+                        if (isRecruiter) {
                           markRecruiterNotificationAsRead(notif.id);
                         } else {
                           markNotificationAsRead(notif.id);
@@ -202,7 +205,7 @@ export function TopBar() {
         <Link href={profilePageUrl} className="flex items-center">
           <Avatar
             src={user?.avatar}
-            name={user?.name || (role === "recruiter" ? "Sarah Chen" : "Student")}
+            name={user?.name || (isRecruiter ? "Sarah Chen" : "Student")}
             size="sm"
             isOnline={true}
           />
@@ -225,7 +228,7 @@ export function TopBar() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={
-                  role === "recruiter"
+                  isRecruiter
                     ? "Type to search candidate talent, posted roles, applications..."
                     : "Type to search internships, skills, applications, communities..."
                 }

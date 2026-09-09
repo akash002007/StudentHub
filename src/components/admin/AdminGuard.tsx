@@ -8,7 +8,8 @@ import { useAuth } from "@/context/AuthContext";
 export function AdminGuard({ children }: { children: React.ReactNode }) {
   const { role, isLoaded, isAuthenticated } = useAuth();
   const router = useRouter();
-  const [authorized, setAuthorized] = useState(false);
+  const normRole = (role || "").toUpperCase();
+  const isAdmin = ["ADMIN", "PLATFORM_ADMIN", "SUPER_ADMIN", "VERIFICATION_OFFICER", "COLLEGE_ADMIN"].includes(normRole);
 
   useEffect(() => {
     if (!isLoaded) return;
@@ -18,15 +19,13 @@ export function AdminGuard({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    if (role !== "admin") {
-      router.replace(role === "recruiter" ? "/dashboard/recruiter" : "/dashboard");
+    if (!isAdmin) {
+      router.replace(["RECRUITER", "COMPANY_ADMIN"].includes(normRole) ? "/dashboard/recruiter" : "/dashboard");
       return;
     }
+  }, [isLoaded, isAuthenticated, isAdmin, normRole, router]);
 
-    setAuthorized(true);
-  }, [isLoaded, isAuthenticated, role, router]);
-
-  if (!authorized) {
+  if (!isLoaded || !isAdmin) {
     return (
       <div className="min-h-[70vh] flex flex-col items-center justify-center gap-3">
         <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center animate-pulse">

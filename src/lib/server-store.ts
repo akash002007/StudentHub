@@ -29,17 +29,27 @@ import {
   CertificateDNA,
   HuggingFaceConnectionRecord,
   HuggingFaceDNA,
+  CompanyRecord,
+  CompanyStatus,
+  ModerationReport,
+  ReportStatus,
+  ReportTargetType,
+  AdminUserRecord,
+  AdminUserStatus,
 } from "@/types";
 import { defaultStudentUser, defaultAdminUser, defaultRecruiterUser } from "@/data/mock-users";
 import { verificationRequests as initialVerificationRequests, auditLogs as initialAuditLogs, adminNotifications as initialAdminNotifications } from "@/data/mock-admin-data";
 import { initialMockNotifications } from "@/data/mock-notifications";
 import { isUniversityEmail } from "@/lib/utils";
+import { recruitmentStore } from "@/lib/recruitment-store";
 
 interface StoreState {
   verificationRequests: VerificationRequest[];
   studentProfiles: Map<string, StudentProfile>;
   recruiterProfiles: Map<string, RecruiterProfile>;
   adminProfiles: Map<string, AdminProfile>;
+  companies: Map<string, CompanyRecord>;
+  moderationReports: Map<string, ModerationReport>;
   auditLogs: AuditLogEntry[];
   adminNotifications: AdminNotificationItem[];
   studentNotifications: Map<string, NotificationItem[]>; // userId -> notifications
@@ -226,11 +236,122 @@ function initializeStore(): StoreState {
     }
   });
 
+  const companies = new Map<string, CompanyRecord>();
+  const initialCompanies: CompanyRecord[] = [
+    {
+      id: "comp_stripe",
+      name: "Stripe",
+      website: "https://stripe.com",
+      industry: "Fintech & Payments Infrastructure",
+      size: "5000+ employees",
+      location: "San Francisco, CA (Hybrid)",
+      description: "Financial infrastructure for the internet, powering millions of businesses worldwide.",
+      status: "VERIFIED",
+      verificationTier: "ENTERPRISE",
+      verifiedAt: "2026-01-10T10:00:00.000Z",
+      verifiedBy: "admin_01",
+      createdAt: "2025-11-15T09:00:00.000Z",
+      updatedAt: "2026-02-01T12:00:00.000Z",
+    },
+    {
+      id: "comp_openai",
+      name: "OpenAI",
+      website: "https://openai.com",
+      industry: "Artificial Intelligence & Deep Learning",
+      size: "1000-5000 employees",
+      location: "San Francisco, CA",
+      description: "Pioneering research and practical deployment of artificial general intelligence.",
+      status: "VERIFIED",
+      verificationTier: "ENTERPRISE",
+      verifiedAt: "2026-01-12T14:30:00.000Z",
+      verifiedBy: "admin_01",
+      createdAt: "2025-12-01T08:00:00.000Z",
+      updatedAt: "2026-02-15T16:00:00.000Z",
+    },
+    {
+      id: "comp_vercel",
+      name: "Vercel",
+      website: "https://vercel.com",
+      industry: "Cloud & Frontend Infrastructure",
+      size: "500-1000 employees",
+      location: "Remote",
+      description: "Frontend cloud platform providing speed and developer workflow for the modern web.",
+      status: "VERIFIED",
+      verificationTier: "STANDARD",
+      verifiedAt: "2026-01-20T11:00:00.000Z",
+      verifiedBy: "admin_01",
+      createdAt: "2025-12-10T10:00:00.000Z",
+      updatedAt: "2026-01-20T11:00:00.000Z",
+    },
+    {
+      id: "comp_datadog",
+      name: "Datadog",
+      website: "https://datadoghq.com",
+      industry: "Cloud Observability & Security",
+      size: "5000+ employees",
+      location: "New York, NY",
+      description: "Observability service for cloud-scale applications, monitoring servers, databases, and tools.",
+      status: "VERIFIED",
+      verificationTier: "STANDARD",
+      verifiedAt: "2026-02-05T09:15:00.000Z",
+      verifiedBy: "admin_01",
+      createdAt: "2026-01-05T14:00:00.000Z",
+      updatedAt: "2026-02-05T09:15:00.000Z",
+    },
+    {
+      id: "comp_acme",
+      name: "Acme Innovations",
+      website: "https://acme-example.org",
+      industry: "Consumer Software",
+      size: "10-50 employees",
+      location: "Austin, TX",
+      description: "Early-stage enterprise tech incubator building real-time developer productivity systems.",
+      status: "PENDING",
+      verificationTier: "UNVERIFIED",
+      createdAt: "2026-03-01T09:00:00.000Z",
+      updatedAt: "2026-03-01T09:00:00.000Z",
+    },
+  ];
+  initialCompanies.forEach((c) => companies.set(c.id, c));
+
+  const moderationReports = new Map<string, ModerationReport>();
+  const initialReports: ModerationReport[] = [
+    {
+      id: "rep_001",
+      reporterId: "student_01",
+      reporterName: "Alex Rivera",
+      reporterEmail: "alex.rivera@stanford.edu",
+      targetType: "DRIVE",
+      targetId: "drive_001",
+      targetTitle: "Software Engineering Intern - Summer 2026",
+      reason: "Compensation details require clarification",
+      details: "The posting description lists competitive stipend, but candidate FAQs request explicit monthly currency brackets.",
+      status: "PENDING",
+      createdAt: "2026-03-02T11:20:00.000Z",
+    },
+    {
+      id: "rep_002",
+      reporterId: "recruiter_01",
+      reporterName: "Sarah Chen",
+      reporterEmail: "sarah.chen@techcorp.io",
+      targetType: "USER",
+      targetId: "student_spam_99",
+      targetTitle: "Candidate #9901 (Duplicate Identity)",
+      reason: "Duplicate identity attempt detected",
+      details: "Submitted identical resume under two different student emails within 10 minutes.",
+      status: "PENDING",
+      createdAt: "2026-03-04T15:45:00.000Z",
+    },
+  ];
+  initialReports.forEach((r) => moderationReports.set(r.id, r));
+
   const initialStore: StoreState = {
     verificationRequests,
     studentProfiles,
     recruiterProfiles,
     adminProfiles,
+    companies,
+    moderationReports,
     auditLogs: JSON.parse(JSON.stringify(initialAuditLogs)),
     adminNotifications: JSON.parse(JSON.stringify(initialAdminNotifications)),
     studentNotifications,
@@ -262,6 +383,29 @@ function loadStoreFromDisk(storeObj: StoreState): void {
     if (!raw.trim()) return;
     const data = JSON.parse(raw);
 
+    if (data.companies && Array.isArray(data.companies)) {
+      data.companies.forEach(([key, val]: [string, CompanyRecord]) => {
+        storeObj.companies.set(key, val);
+      });
+    }
+    if (data.moderationReports && Array.isArray(data.moderationReports)) {
+      data.moderationReports.forEach(([key, val]: [string, ModerationReport]) => {
+        storeObj.moderationReports.set(key, val);
+      });
+    }
+    if (data.auditLogs && Array.isArray(data.auditLogs)) {
+      storeObj.auditLogs = data.auditLogs;
+    }
+    if (data.recruiterProfiles && Array.isArray(data.recruiterProfiles)) {
+      data.recruiterProfiles.forEach(([key, val]: [string, RecruiterProfile]) => {
+        storeObj.recruiterProfiles.set(key, val);
+      });
+    }
+    if (data.adminProfiles && Array.isArray(data.adminProfiles)) {
+      data.adminProfiles.forEach(([key, val]: [string, AdminProfile]) => {
+        storeObj.adminProfiles.set(key, val);
+      });
+    }
     if (data.codeforcesConnections && Array.isArray(data.codeforcesConnections)) {
       data.codeforcesConnections.forEach(([key, val]: [string, CodeforcesConnection]) => {
         storeObj.codeforcesConnections.set(key, val);
@@ -335,6 +479,11 @@ export function persistStoreToDisk(): void {
     }
 
     const serializable = {
+      companies: Array.from(store.companies.entries()),
+      moderationReports: Array.from(store.moderationReports.entries()),
+      auditLogs: store.auditLogs,
+      recruiterProfiles: Array.from(store.recruiterProfiles.entries()),
+      adminProfiles: Array.from(store.adminProfiles.entries()),
       codeforcesConnections: Array.from(store.codeforcesConnections.entries()),
       codeforcesDNA: Array.from(store.codeforcesDNA.entries()),
       leetcodeConnections: Array.from(store.leetcodeConnections.entries()),
@@ -368,16 +517,36 @@ export class ServerStore {
   }
 
   static getMetrics(): AdminOverviewMetrics {
-    const totalStudents = store.studentProfiles.size + 12400; // Realistic platform baseline
+    const totalStudents = store.studentProfiles.size;
     const pendingVerification = store.verificationRequests.filter(
       (r) => r.status === "Pending" || r.status === "Under Review"
     ).length;
-    const verifiedStudents = store.verificationRequests.filter((r) => r.status === "Approved").length + 11900;
-    const rejectedApplications = store.verificationRequests.filter((r) => r.status === "Rejected").length + 360;
-    const awaitingInformation = store.verificationRequests.filter((r) => r.status === "Needs Information").length + 45;
+    const verifiedStudents = store.verificationRequests.filter((r) => r.status === "Approved").length;
+    const rejectedApplications = store.verificationRequests.filter((r) => r.status === "Rejected").length;
+    const awaitingInformation = store.verificationRequests.filter((r) => r.status === "Needs Information").length;
 
     const totalDecided = verifiedStudents + rejectedApplications;
-    const verificationRate = totalDecided > 0 ? Number(((verifiedStudents / totalDecided) * 100).toFixed(1)) : 95.6;
+    const verificationRate = totalDecided > 0 ? Number(((verifiedStudents / totalDecided) * 100).toFixed(1)) : 0;
+
+    let activeDrives = 0;
+    let totalApplications = 0;
+    try {
+      if (recruitmentStore && recruitmentStore.drives) {
+        const drives = Array.from(recruitmentStore.drives.values());
+        activeDrives = drives.filter((d) =>
+          ["APPLICATIONS_OPEN", "PUBLISHED", "SCREENING", "SELECTION_IN_PROGRESS"].includes(d.status)
+        ).length;
+      }
+      if (recruitmentStore && recruitmentStore.applications) {
+        totalApplications = recruitmentStore.applications.size;
+      }
+    } catch {
+      // safe fallback
+    }
+
+    const pendingReports = Array.from(store.moderationReports.values()).filter(
+      (r) => r.status === "PENDING" || r.status === "INVESTIGATING"
+    ).length;
 
     return {
       totalStudents,
@@ -385,12 +554,553 @@ export class ServerStore {
       verifiedStudents,
       rejectedApplications,
       verificationRate,
-      avgVerificationTimeHours: 8.7,
-      newRegistrationsToday: 32,
-      newRegistrationsWeek: 248,
+      avgVerificationTimeHours: 4.5,
+      newRegistrationsToday: totalStudents,
+      newRegistrationsWeek: totalStudents,
       awaitingInformation,
-      suspiciousAttempts: 13,
+      suspiciousAttempts: store.verificationRequests.filter((r) => r.riskLevel === "High").length,
+      totalUsers: store.studentProfiles.size + store.recruiterProfiles.size + store.adminProfiles.size,
+      totalCompanies: store.companies.size,
+      totalRecruiters: store.recruiterProfiles.size,
+      activeDrives,
+      totalApplications,
+      pendingReports,
     };
+  }
+
+  static getAllUsers(filters?: { search?: string; role?: string; status?: string }): AdminUserRecord[] {
+    const users: AdminUserRecord[] = [];
+
+    // Students
+    store.studentProfiles.forEach((s) => {
+      const isSuspended = (s as any).account_status === "SUSPENDED" || (s as any).status === "SUSPENDED";
+      const userRole = s.role ? (s.role.toUpperCase() as any) : "STUDENT";
+      users.push({
+        id: s.id,
+        email: s.email,
+        name: s.name,
+        role: userRole,
+        status: isSuspended ? "SUSPENDED" : "ACTIVE",
+        suspensionReason: (s as any).suspensionReason,
+        avatar: s.avatar,
+        createdAt: s.verificationRequest?.submittedAt || "2026-01-01T00:00:00.000Z",
+        college: s.university,
+        verificationStatus: s.verificationStatus || "not_submitted",
+      });
+    });
+
+    // Recruiters
+    store.recruiterProfiles.forEach((r) => {
+      const isSuspended = (r as any).account_status === "SUSPENDED" || (r as any).status === "SUSPENDED";
+      const userRole = r.role ? (r.role.toUpperCase() as any) : "RECRUITER";
+      users.push({
+        id: r.id,
+        email: r.email,
+        name: r.name,
+        role: userRole,
+        status: isSuspended ? "SUSPENDED" : "ACTIVE",
+        suspensionReason: (r as any).suspensionReason,
+        avatar: r.avatar,
+        createdAt: (r as any).createdAt || "2026-01-01T00:00:00.000Z",
+        companyName: r.company,
+      });
+    });
+
+    // Admins
+    store.adminProfiles.forEach((a) => {
+      const isSuspended = (a as any).account_status === "SUSPENDED" || (a as any).status === "SUSPENDED";
+      const normalizedRole = a.role.toUpperCase() === "ADMIN" ? "PLATFORM_ADMIN" : (a.role.toUpperCase() as any);
+      users.push({
+        id: a.id,
+        email: a.email,
+        name: a.name,
+        role: normalizedRole,
+        status: isSuspended ? "SUSPENDED" : "ACTIVE",
+        suspensionReason: (a as any).suspensionReason,
+        avatar: a.avatar,
+        createdAt: (a as any).createdAt || "2026-01-01T00:00:00.000Z",
+      });
+    });
+
+    let result = users;
+
+    if (filters?.search) {
+      const q = filters.search.toLowerCase();
+      result = result.filter(
+        (u) =>
+          u.name.toLowerCase().includes(q) ||
+          u.email.toLowerCase().includes(q) ||
+          (u.college && u.college.toLowerCase().includes(q)) ||
+          (u.companyName && u.companyName.toLowerCase().includes(q))
+      );
+    }
+
+    if (filters?.role && filters.role !== "ALL") {
+      const targetRole = filters.role.toUpperCase();
+      result = result.filter((u) => u.role.toUpperCase() === targetRole);
+    }
+
+    if (filters?.status && filters.status !== "ALL") {
+      const targetStatus = filters.status.toUpperCase();
+      result = result.filter((u) => u.status.toUpperCase() === targetStatus);
+    }
+
+    return result;
+  }
+
+  static getUserRecordById(userId: string): AdminUserRecord | null {
+    const all = this.getAllUsers();
+    return all.find((u) => u.id === userId) || null;
+  }
+
+  static updateUserStatus(
+    actor: { id: string; name: string; role: string },
+    userId: string,
+    status: AdminUserStatus,
+    reason: string
+  ): { success: boolean; error?: string; user?: AdminUserRecord } {
+    if (actor.id === userId && status === "SUSPENDED") {
+      return { success: false, error: "Administrators cannot suspend their own account." };
+    }
+
+    if (!reason || !reason.trim()) {
+      return { success: false, error: "A justification reason is required for status modifications." };
+    }
+
+    let foundUser: any = null;
+    let prevStatus = "ACTIVE";
+
+    if (store.studentProfiles.has(userId)) {
+      foundUser = store.studentProfiles.get(userId);
+      prevStatus = (foundUser as any).account_status === "SUSPENDED" ? "SUSPENDED" : "ACTIVE";
+      (foundUser as any).account_status = status;
+      (foundUser as any).suspensionReason = status === "SUSPENDED" ? reason : undefined;
+      store.studentProfiles.set(userId, foundUser);
+    } else if (store.recruiterProfiles.has(userId)) {
+      foundUser = store.recruiterProfiles.get(userId);
+      prevStatus = (foundUser as any).account_status === "SUSPENDED" ? "SUSPENDED" : "ACTIVE";
+      (foundUser as any).account_status = status;
+      (foundUser as any).suspensionReason = status === "SUSPENDED" ? reason : undefined;
+      store.recruiterProfiles.set(userId, foundUser);
+    } else if (store.adminProfiles.has(userId)) {
+      foundUser = store.adminProfiles.get(userId);
+      prevStatus = (foundUser as any).account_status === "SUSPENDED" ? "SUSPENDED" : "ACTIVE";
+      (foundUser as any).account_status = status;
+      (foundUser as any).suspensionReason = status === "SUSPENDED" ? reason : undefined;
+      store.adminProfiles.set(userId, foundUser);
+    }
+
+    if (!foundUser) {
+      return { success: false, error: `User with ID ${userId} not found.` };
+    }
+
+    persistStoreToDisk();
+
+    this.addAuditLog({
+      admin: actor.name || "Administrator",
+      action: status === "SUSPENDED" ? "USER_SUSPENDED" : "USER_REACTIVATED",
+      student: foundUser.name,
+      targetType: "USER",
+      targetId: userId,
+      targetName: foundUser.name,
+      previousStatus: prevStatus,
+      newStatus: status,
+      reason,
+      ipSessionRef: "admin-console",
+      details: `Administrator ${actor.name} changed status of ${foundUser.name} (${foundUser.email}) to ${status}. Reason: ${reason}`,
+    });
+
+    const allUsers = this.getAllUsers();
+    const updatedRecord = allUsers.find((u) => u.id === userId);
+    return { success: true, user: updatedRecord };
+  }
+
+  static updateUserRole(
+    actor: { id: string; name: string; role: string },
+    userId: string,
+    newRole: UserRole,
+    reason: string
+  ): { success: boolean; error?: string; user?: AdminUserRecord } {
+    if (!["SUPER_ADMIN", "PLATFORM_ADMIN", "ADMIN"].includes(actor.role.toUpperCase())) {
+      return { success: false, error: "Only Platform/Super Administrators can change user roles." };
+    }
+
+    if (newRole.toUpperCase() === "SUPER_ADMIN" && actor.role.toUpperCase() !== "SUPER_ADMIN") {
+      return { success: false, error: "Only a Super Admin can promote another user to Super Admin." };
+    }
+
+    if (!reason || !reason.trim()) {
+      return { success: false, error: "A justification reason is required for role modification." };
+    }
+
+    let foundUser: any = null;
+    let prevRole = "STUDENT";
+
+    if (store.studentProfiles.has(userId)) {
+      foundUser = store.studentProfiles.get(userId);
+      prevRole = foundUser.role;
+      foundUser.role = newRole;
+      store.studentProfiles.set(userId, foundUser);
+    } else if (store.recruiterProfiles.has(userId)) {
+      foundUser = store.recruiterProfiles.get(userId);
+      prevRole = foundUser.role;
+      foundUser.role = newRole;
+      store.recruiterProfiles.set(userId, foundUser);
+    } else if (store.adminProfiles.has(userId)) {
+      foundUser = store.adminProfiles.get(userId);
+      prevRole = foundUser.role;
+      foundUser.role = newRole;
+      store.adminProfiles.set(userId, foundUser);
+    }
+
+    if (!foundUser) {
+      return { success: false, error: `User with ID ${userId} not found.` };
+    }
+
+    persistStoreToDisk();
+
+    this.addAuditLog({
+      admin: actor.name || "Administrator",
+      action: "USER_ROLE_CHANGED",
+      student: foundUser.name,
+      targetType: "USER",
+      targetId: userId,
+      targetName: foundUser.name,
+      previousStatus: prevRole,
+      newStatus: newRole,
+      reason,
+      ipSessionRef: "admin-console",
+      details: `Administrator ${actor.name} changed role of ${foundUser.name} to ${newRole}. Reason: ${reason}`,
+    });
+
+    const allUsers = this.getAllUsers();
+    const updatedRecord = allUsers.find((u) => u.id === userId);
+    return { success: true, user: updatedRecord };
+  }
+
+  static getAllCompanies(filters?: { search?: string; status?: string }): CompanyRecord[] {
+    let list = Array.from(store.companies.values());
+
+    list = list.map((comp) => {
+      let recruiterCount = 0;
+      store.recruiterProfiles.forEach((r) => {
+        if (r.company && r.company.toLowerCase() === comp.name.toLowerCase()) {
+          recruiterCount++;
+        }
+      });
+
+      let activeDrivesCount = 0;
+      try {
+        if (recruitmentStore && recruitmentStore.drives) {
+          recruitmentStore.drives.forEach((d) => {
+            if (d.company && d.company.toLowerCase() === comp.name.toLowerCase()) {
+              if (["APPLICATIONS_OPEN", "PUBLISHED", "SCREENING", "SELECTION_IN_PROGRESS"].includes(d.status)) {
+                activeDrivesCount++;
+              }
+            }
+          });
+        }
+      } catch {
+        // safe fallback
+      }
+
+      return {
+        ...comp,
+        recruiterCount,
+        activeDrivesCount,
+      };
+    });
+
+    if (filters?.search) {
+      const q = filters.search.toLowerCase();
+      list = list.filter(
+        (c) =>
+          c.name.toLowerCase().includes(q) ||
+          c.industry.toLowerCase().includes(q) ||
+          c.location.toLowerCase().includes(q)
+      );
+    }
+
+    if (filters?.status && filters.status !== "ALL") {
+      const s = filters.status.toUpperCase();
+      list = list.filter((c) => c.status.toUpperCase() === s);
+    }
+
+    return list;
+  }
+
+  static getCompanyById(id: string): CompanyRecord | null {
+    const comp = store.companies.get(id);
+    if (!comp) return null;
+    const all = this.getAllCompanies();
+    return all.find((c) => c.id === id) || comp;
+  }
+
+  static createCompany(
+    actor: { id: string; name: string; role: string },
+    data: Omit<CompanyRecord, "id" | "createdAt" | "updatedAt">
+  ): { success: boolean; company?: CompanyRecord; error?: string } {
+    const id = `comp_${Date.now()}`;
+    const newComp: CompanyRecord = {
+      ...data,
+      id,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    store.companies.set(id, newComp);
+    persistStoreToDisk();
+
+    this.addAuditLog({
+      admin: actor.name,
+      action: "COMPANY_CREATED",
+      targetType: "COMPANY",
+      targetId: id,
+      targetName: newComp.name,
+      previousStatus: "NONE",
+      newStatus: newComp.status,
+      reason: "Company registration via admin console",
+      ipSessionRef: "admin-console",
+      details: `Administrator ${actor.name} created company profile for ${newComp.name}.`,
+    });
+
+    return { success: true, company: newComp };
+  }
+
+  static updateCompanyStatus(
+    actor: { id: string; name: string; role: string },
+    companyId: string,
+    status: CompanyStatus,
+    reason: string
+  ): { success: boolean; error?: string; company?: CompanyRecord } {
+    const comp = store.companies.get(companyId);
+    if (!comp) {
+      return { success: false, error: `Company with ID ${companyId} not found.` };
+    }
+
+    if (!reason || !reason.trim()) {
+      return { success: false, error: "A justification reason is required for status updates." };
+    }
+
+    const prevStatus = comp.status;
+    comp.status = status;
+    comp.updatedAt = new Date().toISOString();
+    if (status === "VERIFIED") {
+      comp.verifiedAt = new Date().toISOString();
+      comp.verifiedBy = actor.id;
+      comp.verificationTier = comp.verificationTier || "STANDARD";
+    }
+    if (status === "SUSPENDED") {
+      comp.suspensionReason = reason;
+    }
+
+    store.companies.set(companyId, comp);
+    persistStoreToDisk();
+
+    this.addAuditLog({
+      admin: actor.name,
+      action: status === "VERIFIED" ? "COMPANY_VERIFIED" : status === "SUSPENDED" ? "COMPANY_SUSPENDED" : "COMPANY_STATUS_UPDATED",
+      targetType: "COMPANY",
+      targetId: companyId,
+      targetName: comp.name,
+      previousStatus: prevStatus,
+      newStatus: status,
+      reason,
+      ipSessionRef: "admin-console",
+      details: `Administrator ${actor.name} updated company ${comp.name} status to ${status}. Reason: ${reason}`,
+    });
+
+    return { success: true, company: this.getCompanyById(companyId)! };
+  }
+
+  static updateCompany(
+    actor: { id: string; name: string; role: string },
+    companyId: string,
+    updates: Partial<CompanyRecord>
+  ): { success: boolean; error?: string; company?: CompanyRecord } {
+    const comp = store.companies.get(companyId);
+    if (!comp) {
+      return { success: false, error: `Company with ID ${companyId} not found.` };
+    }
+
+    const updated = {
+      ...comp,
+      ...updates,
+      updatedAt: new Date().toISOString(),
+    };
+
+    store.companies.set(companyId, updated);
+    persistStoreToDisk();
+
+    this.addAuditLog({
+      admin: actor.name,
+      action: "COMPANY_UPDATED",
+      targetType: "COMPANY",
+      targetId: companyId,
+      targetName: updated.name,
+      reason: "Company profile updated via admin console",
+      ipSessionRef: "admin-console",
+      details: `Administrator ${actor.name} updated details for company ${updated.name}.`,
+    });
+
+    return { success: true, company: this.getCompanyById(companyId)! };
+  }
+
+  static getAllRecruiters(filters?: { search?: string; status?: string }): any[] {
+    const list: any[] = [];
+    store.recruiterProfiles.forEach((r) => {
+      const isSuspended = (r as any).account_status === "SUSPENDED" || (r as any).status === "SUSPENDED";
+      const comp = Array.from(store.companies.values()).find(
+        (c) => c.name.toLowerCase() === (r.company || "").toLowerCase()
+      );
+      list.push({
+        id: r.id,
+        name: r.name,
+        email: r.email,
+        title: r.title,
+        company: r.company,
+        companyId: comp?.id,
+        companyVerified: comp?.status === "VERIFIED",
+        avatar: r.avatar,
+        status: isSuspended ? "SUSPENDED" : "ACTIVE",
+        suspensionReason: (r as any).suspensionReason,
+        activeListingsCount: r.activeListingsCount || 0,
+        candidatesReviewed: r.candidatesReviewed || 0,
+        interviewsConducted: r.interviewsConducted || 0,
+      });
+    });
+
+    let result = list;
+    if (filters?.search) {
+      const q = filters.search.toLowerCase();
+      result = result.filter(
+        (r) =>
+          r.name.toLowerCase().includes(q) ||
+          r.email.toLowerCase().includes(q) ||
+          (r.company && r.company.toLowerCase().includes(q))
+      );
+    }
+    if (filters?.status && filters.status !== "ALL") {
+      const statusUpper = filters.status.toUpperCase();
+      result = result.filter((r) => r.status.toUpperCase() === statusUpper);
+    }
+    return result;
+  }
+
+  static updateRecruiterStatus(
+    actor: { id: string; name: string; role: string },
+    recruiterId: string,
+    status: AdminUserStatus,
+    reason: string
+  ): { success: boolean; error?: string; recruiter?: any } {
+    const res = this.updateUserStatus(actor, recruiterId, status, reason);
+    return { success: res.success, error: res.error, recruiter: res.user };
+  }
+
+  static getAllModerationReports(filters?: { search?: string; status?: string; targetType?: string }): ModerationReport[] {
+    let list = Array.from(store.moderationReports.values());
+
+    if (filters?.search) {
+      const q = filters.search.toLowerCase();
+      list = list.filter(
+        (r) =>
+          r.targetTitle.toLowerCase().includes(q) ||
+          r.reason.toLowerCase().includes(q) ||
+          r.reporterName.toLowerCase().includes(q) ||
+          r.details.toLowerCase().includes(q)
+      );
+    }
+
+    if (filters?.status && filters.status !== "ALL") {
+      const statusUpper = filters.status.toUpperCase();
+      list = list.filter((r) => r.status.toUpperCase() === statusUpper);
+    }
+
+    if (filters?.targetType && filters.targetType !== "ALL") {
+      const typeUpper = filters.targetType.toUpperCase();
+      list = list.filter((r) => r.targetType.toUpperCase() === typeUpper);
+    }
+
+    list.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    return list;
+  }
+
+  static getModerationReportById(reportId: string): ModerationReport | null {
+    return store.moderationReports.get(reportId) || null;
+  }
+
+  static createModerationReport(reportData: Omit<ModerationReport, "id" | "createdAt" | "status">): ModerationReport {
+    const id = `rep_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+    const newReport: ModerationReport = {
+      ...reportData,
+      id,
+      status: "PENDING",
+      createdAt: new Date().toISOString(),
+    };
+    store.moderationReports.set(id, newReport);
+    persistStoreToDisk();
+
+    this.addAdminNotification({
+      title: `New Moderation Report: ${newReport.targetType} Flagged`,
+      description: `Reported by ${newReport.reporterName} for: ${newReport.reason}`,
+      type: "risk_alert",
+    });
+
+    return newReport;
+  }
+
+  static resolveModerationReport(
+    actor: { id: string; name: string; role: string },
+    reportId: string,
+    status: ReportStatus,
+    resolutionNotes: string
+  ): { success: boolean; error?: string; report?: ModerationReport } {
+    const report = store.moderationReports.get(reportId);
+    if (!report) {
+      return { success: false, error: `Report with ID ${reportId} not found.` };
+    }
+
+    if (!resolutionNotes || !resolutionNotes.trim()) {
+      return { success: false, error: "Resolution notes are required." };
+    }
+
+    const prevStatus = report.status;
+    report.status = status;
+    report.resolutionNotes = resolutionNotes;
+    report.resolvedBy = actor.name;
+    report.resolvedAt = new Date().toISOString();
+
+    store.moderationReports.set(reportId, report);
+    persistStoreToDisk();
+
+    this.addAuditLog({
+      admin: actor.name,
+      action: status === "RESOLVED" ? "REPORT_RESOLVED" : "REPORT_DISMISSED",
+      targetType: report.targetType,
+      targetId: report.targetId,
+      targetName: report.targetTitle,
+      previousStatus: prevStatus,
+      newStatus: status,
+      reason: resolutionNotes,
+      ipSessionRef: "admin-console",
+      details: `Administrator ${actor.name} marked report ${reportId} as ${status}. Notes: ${resolutionNotes}`,
+    });
+
+    return { success: true, report };
+  }
+
+  static addAdminNotification(notif: { title: string; description: string; type: AdminNotificationItem["type"] }) {
+    const newNotif: AdminNotificationItem = {
+      id: `notif_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
+      title: notif.title,
+      description: notif.description,
+      timestamp: "Just now",
+      isRead: false,
+      type: notif.type,
+    };
+    store.adminNotifications.unshift(newNotif);
+    persistStoreToDisk();
+    return newNotif;
   }
 
   static getAllVerificationRequests(filters?: {
@@ -1047,14 +1757,32 @@ export class ServerStore {
         hour: "2-digit",
         minute: "2-digit",
       }),
+      student: entry.student || entry.targetName || "Platform Resource",
       ...entry,
     };
     store.auditLogs.unshift(newLog);
+    persistStoreToDisk();
     return newLog;
   }
 
-  static getAuditLogs(): AuditLogEntry[] {
-    return [...store.auditLogs];
+  static getAuditLogs(filters?: { search?: string; action?: string }): AuditLogEntry[] {
+    let list = [...store.auditLogs];
+    if (filters?.search) {
+      const q = filters.search.toLowerCase();
+      list = list.filter(
+        (l) =>
+          l.admin.toLowerCase().includes(q) ||
+          (l.student && l.student.toLowerCase().includes(q)) ||
+          (l.targetName && l.targetName.toLowerCase().includes(q)) ||
+          l.action.toLowerCase().includes(q) ||
+          l.details.toLowerCase().includes(q) ||
+          (l.reason && l.reason.toLowerCase().includes(q))
+      );
+    }
+    if (filters?.action && filters.action !== "ALL") {
+      list = list.filter((l) => l.action.toLowerCase() === filters.action!.toLowerCase());
+    }
+    return list;
   }
 
   static getAdminNotifications(): AdminNotificationItem[] {

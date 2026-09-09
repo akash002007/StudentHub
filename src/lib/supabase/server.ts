@@ -31,7 +31,12 @@ export interface AuthenticatedRecruiter extends AuthenticatedUser {
  * with cookie read/write handling.
  */
 export async function createSupabaseServerClient(token?: string) {
-  const cookieStore = await cookies();
+  let cookieStore: any = null;
+  try {
+    cookieStore = await cookies();
+  } catch {
+    // Outside Next.js request context (scripts/tests)
+  }
 
   const supabaseUrl =
     process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder-project.supabase.co";
@@ -48,13 +53,15 @@ export async function createSupabaseServerClient(token?: string) {
       : undefined,
     cookies: {
       getAll() {
-        return cookieStore.getAll();
+        return cookieStore ? cookieStore.getAll() : [];
       },
       setAll(cookiesToSet) {
         try {
-          cookiesToSet.forEach(({ name, value, options }) => {
-            cookieStore.set(name, value, options);
-          });
+          if (cookieStore) {
+            cookiesToSet.forEach(({ name, value, options }) => {
+              cookieStore.set(name, value, options);
+            });
+          }
         } catch {
           // Can be safely ignored when called in read contexts
         }
@@ -135,23 +142,31 @@ export async function getAuthenticatedUser(
     } 
     // 4. Fallback to Cookie processing
     else {
-      const cookieStore = await cookies();
-      const tokenCookie =
-        cookieStore.get("studenthub_access_token")?.value ||
-        cookieStore.get("sb-access-token")?.value;
-        
-      if (tokenCookie) {
-        const jwtPayload = await verifyAccessToken(tokenCookie);
-        if (jwtPayload && jwtPayload.userId) {
-          userRole = (jwtPayload.role || "").toUpperCase();
-          authenticatedUser = {
-            id: jwtPayload.userId,
-            email: jwtPayload.email || "",
-            role: userRole,
-            name: (jwtPayload.name as string) || "",
-            company_id: jwtPayload.company_id as string | undefined,
-            college_id: jwtPayload.college_id as string | undefined,
-          };
+      let cookieStore: any = null;
+      try {
+        cookieStore = await cookies();
+      } catch {
+        // Outside Next.js request context (scripts/tests)
+      }
+
+      if (cookieStore) {
+        const tokenCookie =
+          cookieStore.get("studenthub_access_token")?.value ||
+          cookieStore.get("sb-access-token")?.value;
+          
+        if (tokenCookie) {
+          const jwtPayload = await verifyAccessToken(tokenCookie);
+          if (jwtPayload && jwtPayload.userId) {
+            userRole = (jwtPayload.role || "").toUpperCase();
+            authenticatedUser = {
+              id: jwtPayload.userId,
+              email: jwtPayload.email || "",
+              role: userRole,
+              name: (jwtPayload.name as string) || "",
+              company_id: jwtPayload.company_id as string | undefined,
+              college_id: jwtPayload.college_id as string | undefined,
+            };
+          }
         }
       }
     }
@@ -184,10 +199,16 @@ export async function getAuthenticatedUser(
 
     // 6. Default fallback for local dev
     if (!authenticatedUser && process.env.NODE_ENV === "development") {
-      // We default to STUDENT if running locally and no session provided, unless a recruiter route is being hit
-      // We can inspect URL path if possible, but request.url is available.
       const url = request.url || "";
-      if (url.includes("/recruiter")) {
+      if (url.includes("/admin")) {
+        userRole = "PLATFORM_ADMIN";
+        authenticatedUser = {
+          id: defaultAdminUser.id,
+          email: defaultAdminUser.email || "admin@studenthub.io",
+          role: "PLATFORM_ADMIN",
+          name: defaultAdminUser.name || "Platform Admin",
+        };
+      } else if (url.includes("/recruiter")) {
         userRole = "RECRUITER";
         authenticatedUser = {
           id: defaultRecruiterUser.id,
@@ -226,7 +247,12 @@ export async function getAuthenticatedUser(
     // 8. Validate against allowed roles
     if (allowedRoles && allowedRoles.length > 0) {
       const upperAllowed = allowedRoles.map(r => r.toUpperCase());
-      if (!upperAllowed.includes(userRole)) {
+      const roleMatches =
+        upperAllowed.includes(userRole) ||
+        (userRole === "ADMIN" && (upperAllowed.includes("PLATFORM_ADMIN") || upperAllowed.includes("SUPER_ADMIN"))) ||
+        (["PLATFORM_ADMIN", "SUPER_ADMIN"].includes(userRole) && upperAllowed.includes("ADMIN"));
+
+      if (!roleMatches) {
         return {
           user: null,
           error: `Forbidden: Endpoint requires one of roles: ${allowedRoles.join(", ")}`,

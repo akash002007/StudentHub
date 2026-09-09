@@ -1210,3 +1210,323 @@ export function getRecruiterOverviewMetrics() {
     recentAuditLogs: recruitmentStore.auditLogs.slice(0, 6),
   };
 }
+
+// ============================================================================
+// Student-Facing Recruitment Store Accessors & Mutators
+// ============================================================================
+
+export function getStudentApplications(studentId: string): RecruitmentApplication[] {
+  const all = Array.from(recruitmentStore.applications.values());
+  return all
+    .filter((a) => a.studentId === studentId)
+    .sort((a, b) => new Date(b.appliedAt).getTime() - new Date(a.appliedAt).getTime());
+}
+
+export function getStudentApplicationForDrive(
+  studentId: string,
+  driveId: string
+): RecruitmentApplication | null {
+  const all = Array.from(recruitmentStore.applications.values());
+  return all.find((a) => a.studentId === studentId && a.driveId === driveId) || null;
+}
+
+export function getStudentAssessments(studentId: string): CandidateAssessmentRecord[] {
+  const allAssessments: CandidateAssessmentRecord[] = [];
+  recruitmentStore.assessments.forEach((list) => {
+    list.forEach((item) => {
+      if (item.studentId === studentId) {
+        allAssessments.push(item);
+      }
+    });
+  });
+  return allAssessments.sort(
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+  );
+}
+
+export function getStudentInterviews(studentId: string): CandidateInterviewRecord[] {
+  const allInterviews: CandidateInterviewRecord[] = [];
+  recruitmentStore.interviews.forEach((list) => {
+    list.forEach((item) => {
+      if (item.studentId === studentId) {
+        allInterviews.push(item);
+      }
+    });
+  });
+  return allInterviews.sort(
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+  );
+}
+
+export interface StudentResultSummary {
+  resultId: string;
+  driveId: string;
+  driveTitle: string;
+  company: string;
+  publishedAt: string;
+  selectionStatus: "SELECTED" | "WAITLISTED" | "REJECTED";
+  rank: number;
+  finalScore: number;
+  assessmentScore: number;
+  interviewScore: number;
+  notes?: string;
+}
+
+export function getStudentResults(studentId: string): StudentResultSummary[] {
+  const studentResults: StudentResultSummary[] = [];
+
+  recruitmentStore.results.forEach((resultRecord) => {
+    if (!resultRecord.isLocked) return;
+    const candidateItem = resultRecord.candidates.find((c) => c.studentId === studentId);
+    if (candidateItem) {
+      studentResults.push({
+        resultId: resultRecord.id,
+        driveId: resultRecord.driveId,
+        driveTitle: resultRecord.driveTitle,
+        company: resultRecord.company,
+        publishedAt: resultRecord.publishedAt,
+        selectionStatus: candidateItem.selectionStatus,
+        rank: candidateItem.rank,
+        finalScore: candidateItem.finalScore,
+        assessmentScore: candidateItem.assessmentScore,
+        interviewScore: candidateItem.interviewScore,
+        notes: candidateItem.notes,
+      });
+    }
+  });
+
+  return studentResults.sort(
+    (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
+  );
+}
+
+export function getStudentOverviewMetrics(studentId: string) {
+  const studentApps = getStudentApplications(studentId);
+  const assessments = getStudentAssessments(studentId);
+  const interviews = getStudentInterviews(studentId);
+  const results = getStudentResults(studentId);
+  const allDrives = getRecruitmentDrives();
+
+  const activeDrives = allDrives.filter(
+    (d) =>
+      d.status === "APPLICATIONS_OPEN" ||
+      d.status === "PUBLISHED" ||
+      d.status === "SCREENING" ||
+      d.status === "SELECTION_IN_PROGRESS"
+  );
+
+  const activeApplications = studentApps.filter(
+    (a) =>
+      a.status === "SUBMITTED" ||
+      a.status === "UNDER_REVIEW" ||
+      a.status === "ELIGIBLE" ||
+      a.status === "SHORTLISTED" ||
+      a.status === "IN_SELECTION"
+  );
+
+  const upcomingInterviews = interviews.filter((i) => i.status === "SCHEDULED");
+  const completedInterviews = interviews.filter((i) => i.status === "COMPLETED");
+  const selectedApplications = studentApps.filter((a) => a.status === "SELECTED");
+
+  // Calculate upcoming events
+  const upcomingEvents: Array<{
+    id: string;
+    type: "ASSESSMENT" | "INTERVIEW" | "DEADLINE";
+    title: string;
+    subtitle: string;
+    date: string;
+    time?: string;
+    badge: string;
+    link: string;
+  }> = [];
+
+  assessments.forEach((ass) => {
+    upcomingEvents.push({
+      id: ass.id,
+      type: "ASSESSMENT",
+      title: ass.assessmentName,
+      subtitle: `Drive Assessment • Duration: ${ass.duration || "60 mins"}`,
+      date: ass.date,
+      time: ass.time,
+      badge: ass.passed !== undefined ? (ass.passed ? "Passed" : "Evaluated") : "Upcoming Test",
+      link: "/dashboard/assessments",
+    });
+  });
+
+  upcomingInterviews.forEach((int) => {
+    upcomingEvents.push({
+      id: int.id,
+      type: "INTERVIEW",
+      title: `${int.type} Interview • ${int.driveTitle}`,
+      subtitle: `Interviewer: ${int.interviewerName}`,
+      date: int.date,
+      time: int.time,
+      badge: "Scheduled",
+      link: "/dashboard/interviews",
+    });
+  });
+
+  return {
+    kpis: {
+      activeApplicationsCount: activeApplications.length,
+      totalApplicationsCount: studentApps.length,
+      upcomingAssessmentsCount: assessments.filter((a) => a.candidateScore === undefined).length,
+      upcomingInterviewsCount: upcomingInterviews.length,
+      completedInterviewsCount: completedInterviews.length,
+      selectedCount: selectedApplications.length,
+      publishedResultsCount: results.length,
+      openDrivesCount: activeDrives.length,
+    },
+    activeApplications: studentApps.slice(0, 5),
+    upcomingEvents: upcomingEvents.slice(0, 5),
+    recentResults: results.slice(0, 3),
+    recommendedDrives: activeDrives.slice(0, 4),
+  };
+}
+
+export function submitStudentApplication(params: {
+  driveId: string;
+  student: any;
+  resumeUrl?: string;
+  portfolioUrl?: string;
+  githubUrl?: string;
+  linkedinUrl?: string;
+  notes?: string;
+}): { success: boolean; application?: RecruitmentApplication; error?: string; status?: number } {
+  const drive = recruitmentStore.drives.get(params.driveId);
+  if (!drive) {
+    return { success: false, error: "Recruitment drive not found.", status: 404 };
+  }
+
+  // 1. Check drive status
+  const acceptingStatuses = ["APPLICATIONS_OPEN", "PUBLISHED", "SCREENING", "SELECTION_IN_PROGRESS"];
+  if (!acceptingStatuses.includes(drive.status)) {
+    return {
+      success: false,
+      error: `Drive is not accepting applications. Current status: ${drive.status.replace("_", " ")}.`,
+      status: 400,
+    };
+  }
+
+  // 2. Check application deadline
+  if (drive.endDate) {
+    const deadline = new Date(drive.endDate).getTime();
+    if (Date.now() > deadline + 24 * 3600 * 1000) {
+      return {
+        success: false,
+        error: "The application deadline for this recruitment drive has passed.",
+        status: 400,
+      };
+    }
+  }
+
+  // 3. Prevent duplicate application (Atomic uniqueness: studentId + driveId)
+  const existing = getStudentApplicationForDrive(params.student.id, params.driveId);
+  if (existing) {
+    return {
+      success: false,
+      error: `You have already submitted an application for "${drive.title}". Application ID: ${existing.id}.`,
+      status: 409,
+    };
+  }
+
+  // 4. Server-Side Eligibility Validation
+  const eligibilityResult = evaluateCandidateEligibility(params.student, drive.eligibilityCriteria);
+
+  // 5. Profile Readiness Validation (Degree, CGPA, graduation year)
+  if (!params.student.degree || !params.student.graduationYear) {
+    return {
+      success: false,
+      error: "Profile incomplete. Please ensure Degree and Graduation Year are filled in your profile before applying.",
+      status: 400,
+    };
+  }
+
+  // 6. Generate structured Application ID
+  const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+  const currentYear = new Date().getFullYear();
+  const applicationId = `APP-${currentYear}-${randomSuffix}`;
+
+  const driveStages = getStagesForDrive(drive.id);
+  const initialStage = driveStages[0] || {
+    id: `stage_${drive.id}_1`,
+    name: "Screening & Eligibility",
+    type: "SCREENING",
+  };
+
+  const initialStatus =
+    eligibilityResult.status === "NOT_ELIGIBLE" ? "ELIGIBILITY_FAILED" : "SUBMITTED";
+
+  const newApp: RecruitmentApplication = {
+    id: applicationId,
+    driveId: drive.id,
+    driveTitle: drive.title,
+    company: drive.company,
+    studentId: params.student.id,
+    studentName: params.student.name || "Student Candidate",
+    studentEmail: params.student.email || "",
+    studentAvatar:
+      params.student.avatar ||
+      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+    university: params.student.university || "University",
+    degree: params.student.degree || "",
+    branch: params.student.branch || params.student.specialization || "",
+    graduationYear: Number(params.student.graduationYear) || currentYear,
+    cgpa: String(params.student.cgpa || "N/A"),
+    backlogs: Number(params.student.backlogs) || 0,
+    skills: params.student.skills || [],
+    resumeUrl: params.resumeUrl || params.student.resume?.url || "#",
+    portfolioUrl: params.portfolioUrl || params.student.socialLinks?.portfolio,
+    githubUrl: params.githubUrl || params.student.socialLinks?.github,
+    linkedinUrl: params.linkedinUrl || params.student.socialLinks?.linkedin,
+    status: initialStatus,
+    eligibility: eligibilityResult,
+    currentStageId: initialStage.id,
+    currentStageName: initialStage.name,
+    currentStageType: initialStage.type,
+    notes: params.notes,
+    appliedAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    history: [
+      {
+        stageId: initialStage.id,
+        stageName: initialStage.name,
+        status: "APPLICATION_SUBMITTED",
+        timestamp: new Date().toISOString(),
+        actor: params.student.name || "Candidate",
+        note: `Application submitted successfully with Application ID ${applicationId}.`,
+      },
+      {
+        stageId: initialStage.id,
+        stageName: initialStage.name,
+        status: eligibilityResult.status === "ELIGIBLE" ? "ELIGIBLE" : "ELIGIBILITY_FAILED",
+        timestamp: new Date().toISOString(),
+        actor: "Automated Eligibility Engine",
+        note:
+          eligibilityResult.status === "ELIGIBLE"
+            ? `Passed all academic and skill criteria with a match score of ${eligibilityResult.score}%.`
+            : `Failed criteria: ${eligibilityResult.criteria.filter((c) => !c.passed).map((c) => c.name).join(", ")}.`,
+      },
+    ],
+  };
+
+  recruitmentStore.applications.set(newApp.id, newApp);
+  persistRecruitmentStoreToDisk();
+
+  // Log recruiter audit trail
+  logRecruiterAction({
+    driveId: drive.id,
+    driveTitle: drive.title,
+    actorId: params.student.id,
+    actorName: params.student.name || "Candidate",
+    actorRole: "STUDENT",
+    action: "APPLICATION_SUBMITTED",
+    targetType: "APPLICATION",
+    targetId: newApp.id,
+    targetName: newApp.studentName,
+    newState: newApp.status,
+    details: `Candidate submitted application for ${drive.title}. Eligibility: ${eligibilityResult.status} (${eligibilityResult.score}%).`,
+  });
+
+  return { success: true, application: newApp, status: 201 };
+}

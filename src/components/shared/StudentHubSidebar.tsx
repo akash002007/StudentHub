@@ -76,12 +76,13 @@ export function StudentHubSidebar({
   const { user, role: authRole, logout, switchRole } = useAuth();
   const { theme, resolvedTheme, setTheme, toggleTheme } = useTheme();
 
-  const activeRole: UserRole = overrideRole || authRole || "STUDENT";
+  const rawRole = (overrideRole || authRole || "STUDENT").toUpperCase();
+  const activeRole: UserRole = (rawRole === "ADMIN" ? "PLATFORM_ADMIN" : rawRole) as UserRole;
   
   // Map the 7 IAM roles to the 3 visual Workspaces
   const isStudentWorkspace = activeRole === "STUDENT";
   const isRecruiterWorkspace = ["RECRUITER", "COMPANY_ADMIN"].includes(activeRole);
-  const isAdminWorkspace = ["PLATFORM_ADMIN", "SUPER_ADMIN", "VERIFICATION_OFFICER", "COLLEGE_ADMIN"].includes(activeRole);
+  const isAdminWorkspace = ["ADMIN", "PLATFORM_ADMIN", "SUPER_ADMIN", "VERIFICATION_OFFICER", "COLLEGE_ADMIN"].includes(activeRole);
 
   const [isCollapsed, setIsCollapsed] = useState(false);
 
@@ -141,15 +142,52 @@ export function StudentHubSidebar({
   // Role Navigation Configurations with Groups
   const studentNavGroups: NavGroup[] = [
     {
-      groupLabel: "MAIN",
+      groupLabel: "RECRUITMENT PORTAL",
       items: [
         { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
         {
+          label: "Recruitment Drives",
+          href: "/dashboard/drives",
+          icon: Briefcase,
+          badge: "Open",
+          badgeVariant: "purple",
+        },
+        {
+          label: "My Applications",
+          href: "/dashboard/applications",
+          icon: GitPullRequest,
+          badge: activeApplicationsCount > 0 ? `${activeApplicationsCount} Active` : null,
+          badgeVariant: "blue",
+        },
+        {
+          label: "Assessments",
+          href: "/dashboard/assessments",
+          icon: FileText,
+        },
+        {
+          label: "Interviews",
+          href: "/dashboard/interviews",
+          icon: Calendar,
+        },
+        {
+          label: "Results & Merit",
+          href: "/dashboard/results",
+          icon: Award,
+        },
+        {
           label: "Internships",
           href: "/dashboard/internships",
-          icon: Briefcase,
-          badge: "6 New",
-          badgeVariant: "purple",
+          icon: Layers,
+        },
+      ],
+    },
+    {
+      groupLabel: "PROFILE & COMMUNITY",
+      items: [
+        {
+          label: "Career DNA",
+          href: "/dashboard/career-dna",
+          icon: Dna,
         },
         {
           label: "Messages",
@@ -160,28 +198,11 @@ export function StudentHubSidebar({
         },
         { label: "Communities", href: "/dashboard/communities", icon: Users2 },
         {
-          label: "Applications",
-          href: "/dashboard/applications",
-          icon: GitPullRequest,
-          badge: activeApplicationsCount > 0 ? `${activeApplicationsCount} Active` : null,
-          badgeVariant: "blue",
-        },
-        {
           label: "Profile",
           href: "/dashboard/profile",
           icon: User,
           badge: "85%",
           badgeVariant: "lavender",
-        },
-      ],
-    },
-    {
-      groupLabel: "INTELLIGENCE",
-      items: [
-        {
-          label: "Career DNA",
-          href: "/dashboard/career-dna",
-          icon: Dna,
         },
       ],
     },
@@ -308,32 +329,36 @@ export function StudentHubSidebar({
 
   const adminNavGroups: NavGroup[] = [
     {
-      groupLabel: "MAIN",
+      groupLabel: "OPERATIONS & CONTROL",
       items: [
         { label: "Overview", href: "/admin", icon: LayoutDashboard },
+        { label: "User Management", href: "/admin/users", icon: Users },
+        { label: "Companies", href: "/admin/companies", icon: Building2 },
+        { label: "Recruiters", href: "/admin/recruiters", icon: Briefcase },
+        { label: "Students", href: "/admin/students", icon: GraduationCap },
+      ],
+    },
+    {
+      groupLabel: "RECRUITMENT & TRUST",
+      items: [
         {
-          label: "Student Verification",
+          label: "Verification Queue",
           href: "/admin/verification",
           icon: Shield,
-          badge: "3 Pending",
+          badge: "Live",
           badgeVariant: "purple",
         },
-        { label: "Students", href: "/admin/students", icon: GraduationCap },
-        { label: "Recruiters", href: "/admin/recruiters", icon: Users },
-        { label: "Internships", href: "/admin/internships", icon: Briefcase },
+        { label: "Recruitment Drives", href: "/admin/internships", icon: Layers },
         { label: "Applications", href: "/admin/applications", icon: GitPullRequest },
       ],
     },
     {
-      groupLabel: "MANAGEMENT",
+      groupLabel: "COMPLIANCE & SYSTEM",
       items: [
-        { label: "Reports", href: "/admin/reports", icon: Flag },
+        { label: "Moderation Reports", href: "/admin/reports", icon: Flag },
         { label: "Audit Logs", href: "/admin/audit-logs", icon: FileText },
+        { label: "Platform Settings", href: "/admin/settings", icon: Settings },
       ],
-    },
-    {
-      groupLabel: "SYSTEM",
-      items: [{ label: "Settings", href: "/admin/settings", icon: Settings }],
     },
   ];
 
@@ -379,7 +404,7 @@ export function StudentHubSidebar({
     if (href === "/dashboard" || href === "/dashboard/recruiter" || href === "/admin") {
       return pathname === href;
     }
-    return pathname.startsWith(href);
+    return pathname === href || pathname.startsWith(href + "/");
   };
 
   const sidebarContent = (
@@ -454,7 +479,9 @@ export function StudentHubSidebar({
                   <Link
                     key={item.href}
                     href={item.href}
-                    onClick={onCloseMobileDrawer}
+                    onClick={() => {
+                      if (onCloseMobileDrawer) onCloseMobileDrawer();
+                    }}
                     title={isCollapsed ? item.label : undefined}
                     className={cn(
                       "flex items-center gap-3 px-3 h-10 rounded-xl text-xs font-semibold transition-all group relative",

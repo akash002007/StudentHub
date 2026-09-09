@@ -34,6 +34,9 @@ import { ProjectType } from "@/types";
 export function QuickActionsFab() {
   const router = useRouter();
   const { role } = useAuth();
+  const normRole = (role || "STUDENT").toUpperCase();
+  const isRecruiter = ["RECRUITER", "COMPANY_ADMIN"].includes(normRole);
+
   const { addProject } = useData();
   const { success } = useToast();
 
@@ -44,7 +47,7 @@ export function QuickActionsFab() {
   const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
   const [isResumeModalOpen, setIsResumeModalOpen] = useState(false);
 
-  // AI Modal Mock Chat
+  // AI Mock Chat
   const [aiPrompt, setAiPrompt] = useState("");
   const [aiMessages, setAiMessages] = useState<Array<{ role: "user" | "ai"; text: string }>>([
     {
@@ -180,7 +183,7 @@ export function QuickActionsFab() {
     },
   ];
 
-  const actions = role === "recruiter" ? recruiterActions : studentActions;
+  const actions = isRecruiter ? recruiterActions : studentActions;
 
   const handleSendAiPrompt = (e: React.FormEvent) => {
     e.preventDefault();
@@ -293,7 +296,7 @@ export function QuickActionsFab() {
           className={`pointer-events-auto w-13 h-13 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center text-white shadow-2xl transition-colors duration-300 border border-white/20 ${
             isOpen
               ? "bg-zinc-900 dark:bg-zinc-800 rotate-90"
-              : role === "recruiter"
+              : isRecruiter
               ? "bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 shadow-blue-600/30"
               : "bg-gradient-to-tr from-purple-600 via-indigo-600 to-blue-600 shadow-purple-600/30"
           }`}

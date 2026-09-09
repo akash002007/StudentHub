@@ -32,9 +32,11 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  // Redirect to login if accessing protected routes without token
-  if (!isPublicPath && !token && path.startsWith('/dashboard') && path.startsWith('/admin')) {
-    return NextResponse.redirect(new URL('/login', request.url))
+  // Redirect to login if accessing protected routes without token (in production)
+  if (!isPublicPath && !token && (path.startsWith('/dashboard') || path.startsWith('/admin'))) {
+    if (process.env.NODE_ENV !== 'development') {
+      return NextResponse.redirect(new URL('/login', request.url));
+    }
   }
 
   // Route Guard Logic based on IAM Phase 5 Specs

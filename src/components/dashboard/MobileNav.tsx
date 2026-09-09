@@ -37,6 +37,9 @@ export function MobileNav() {
   const pathname = usePathname();
   const router = useRouter();
   const { logout, user, role } = useAuth();
+  const normRole = (role || "STUDENT").toUpperCase();
+  const isRecruiter = ["RECRUITER", "COMPANY_ADMIN"].includes(normRole);
+
   const { theme, setTheme } = useTheme();
   const {
     unreadNotificationsCount,
@@ -114,7 +117,7 @@ export function MobileNav() {
     },
   ];
 
-  const primaryTabs = role === "recruiter" ? recruiterPrimaryTabs : studentPrimaryTabs;
+  const primaryTabs = isRecruiter ? recruiterPrimaryTabs : studentPrimaryTabs;
 
   return (
     <>
@@ -179,7 +182,7 @@ export function MobileNav() {
               <div className="flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-purple-600" />
                 <span className="font-bold text-sm text-foreground">
-                  {role === "recruiter" ? "Recruiter Navigation" : "More Options"}
+                  {isRecruiter ? "Recruiter Navigation" : "More Options"}
                 </span>
               </div>
               <button
@@ -190,7 +193,7 @@ export function MobileNav() {
               </button>
             </div>
 
-            {role === "recruiter" ? (
+            {isRecruiter ? (
               <div className="grid grid-cols-2 gap-3 text-xs font-semibold">
                 <Link
                   href="/dashboard/recruiter/post-internship"

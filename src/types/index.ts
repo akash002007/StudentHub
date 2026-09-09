@@ -1073,11 +1073,75 @@ export interface AuditLogEntry {
   timestamp: string;
   admin: string;
   action: string;
-  student: string;
-  previousStatus: string;
-  newStatus: string;
+  student?: string;
+  targetType?: string;
+  targetId?: string;
+  targetName?: string;
+  previousStatus?: string;
+  newStatus?: string;
   ipSessionRef: string;
   details: string;
+  reason?: string;
+}
+
+export type CompanyStatus = 'PENDING' | 'VERIFIED' | 'REJECTED' | 'SUSPENDED';
+
+export interface CompanyRecord {
+  id: string;
+  name: string;
+  logo?: string;
+  website: string;
+  industry: string;
+  size: string;
+  location: string;
+  description: string;
+  status: CompanyStatus;
+  verificationTier?: 'UNVERIFIED' | 'STANDARD' | 'ENTERPRISE';
+  verifiedAt?: string;
+  verifiedBy?: string;
+  createdAt: string;
+  updatedAt: string;
+  recruiterCount?: number;
+  activeDrivesCount?: number;
+  suspensionReason?: string;
+}
+
+export type ReportTargetType = 'USER' | 'DRIVE' | 'APPLICATION' | 'COMPANY';
+export type ReportStatus = 'PENDING' | 'INVESTIGATING' | 'RESOLVED' | 'DISMISSED';
+
+export interface ModerationReport {
+  id: string;
+  reporterId: string;
+  reporterName: string;
+  reporterEmail: string;
+  targetType: ReportTargetType;
+  targetId: string;
+  targetTitle: string;
+  reason: string;
+  details: string;
+  status: ReportStatus;
+  resolutionNotes?: string;
+  resolvedBy?: string;
+  resolvedAt?: string;
+  createdAt: string;
+}
+
+export type AdminUserStatus = 'ACTIVE' | 'SUSPENDED' | 'PENDING' | 'INACTIVE';
+
+export interface AdminUserRecord {
+  id: string;
+  email: string;
+  name: string;
+  role: UserRole;
+  status: AdminUserStatus;
+  suspensionReason?: string;
+  avatar?: string;
+  createdAt: string;
+  lastLoginAt?: string;
+  companyId?: string;
+  companyName?: string;
+  college?: string;
+  verificationStatus?: string;
 }
 
 export interface AdminNotificationItem {
@@ -1106,6 +1170,12 @@ export interface AdminOverviewMetrics {
   newRegistrationsWeek: number;
   awaitingInformation: number;
   suspiciousAttempts: number;
+  totalUsers?: number;
+  totalCompanies?: number;
+  totalRecruiters?: number;
+  activeDrives?: number;
+  totalApplications?: number;
+  pendingReports?: number;
 }
 
 export interface AdminStudentRecord {
