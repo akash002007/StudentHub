@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { usePathname } from "next/navigation";
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { TopBar } from "@/components/dashboard/TopBar";
 import { MobileNav } from "@/components/dashboard/MobileNav";
@@ -13,6 +14,20 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const pathname = usePathname();
+  const isTakeAssessmentMode = pathname.includes("/assessments/") && pathname.endsWith("/take");
+
+  // In Secure Exam Mode, render pure full-viewport children with zero StudentHub navigation
+  if (isTakeAssessmentMode) {
+    return (
+      <OnboardingGuard>
+        <div className="min-h-screen w-full bg-background text-foreground antialiased overflow-x-hidden">
+          {children}
+        </div>
+      </OnboardingGuard>
+    );
+  }
+
   return (
     <OnboardingGuard>
       <div className="flex min-h-screen bg-background text-foreground antialiased">

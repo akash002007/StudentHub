@@ -1411,17 +1411,25 @@ export function recordIntegrityEvent(
       attempt.integrityStatus = "TERMINATED";
       attempt.terminationReason = `Exceeded maximum allowed proctoring violations (${maxViolations} limit reached).`;
     } else if (attempt.violationCount === maxViolations) {
-      action = "FINAL_WARNING";
+      action = isFullscreen ? "PAUSE" : "FINAL_WARNING";
       attempt.integrityStatus = "REVIEW";
+      if (isFullscreen) {
+        attempt.status = "PAUSED";
+        attempt.pauseReason = "Fullscreen mode was exited. Return to fullscreen to continue.";
+      }
     } else {
-      action = "WARNING";
+      action = isFullscreen ? "PAUSE" : "WARNING";
       attempt.integrityStatus = "REVIEW";
+      if (isFullscreen) {
+        attempt.status = "PAUSED";
+        attempt.pauseReason = "Fullscreen mode was exited. Return to fullscreen to continue.";
+      }
     }
   } else if (eventType === "CAMERA_STOPPED" || eventType === "SCREEN_SHARE_STOPPED" || eventType === "MICROPHONE_STOPPED") {
     action = "PAUSE";
     attempt.status = "PAUSED";
-    attempt.pauseReason = `Proctoring track disconnected: ${eventType.replace("_", " ")}. Restoration required to proceed.`;
-  } else if (eventType === "CAMERA_STARTED" || eventType === "SCREEN_SHARE_STARTED" || eventType === "MICROPHONE_STARTED") {
+    attempt.pauseReason = `Proctoring track disconnected: ${eventType.replace(/_/g, " ")}. Restoration required to proceed.`;
+  } else if (eventType === "CAMERA_STARTED" || eventType === "SCREEN_SHARE_STARTED" || eventType === "MICROPHONE_STARTED" || eventType === "SESSION_RECONNECTED") {
     if (attempt.status === "PAUSED") {
       action = "REQUIRE_RECOVERY";
       attempt.status = "ACTIVE";
