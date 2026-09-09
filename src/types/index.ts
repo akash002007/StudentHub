@@ -1807,5 +1807,53 @@ export interface AssessmentIntegrityEvent {
   actionTaken: IntegrityActionTaken;
 }
 
+export interface ParsedQuestionCandidate {
+  id: string;
+  tempId: string;
+  questionNumber?: number;
+  rawIndex?: number;
+  questionText: string;
+  type: QuestionType;
+  options: string[];
+  correctAnswer: string | string[];
+  marks: number;
+  negativeMarks: number;
+  difficulty: QuestionDifficulty;
+  category: QuestionCategory;
+  topic: string;
+  tags?: string[];
+  explanation?: string;
+  status: "READY" | "NEEDS_REVIEW" | "DUPLICATE" | "INVALID";
+  validationStatus: "READY" | "NEEDS_REVIEW" | "DUPLICATE" | "INVALID";
+  reviewReason?: string;
+  validationIssues: string[];
+  duplicateStatus: "UNIQUE" | "LIKELY_DUPLICATE" | "EXACT_DUPLICATE";
+  duplicateReason?: string;
+  matchedExistingQuestionId?: string;
+  matchedQuestionText?: string;
+}
+
+export interface QuestionImportRecord {
+  id: string;
+  fileName: string;
+  fileType: string;
+  fileSizeBytes?: number;
+  uploadedById?: string;
+  uploadedByName?: string;
+  companyId: string;
+  totalDetected: number;
+  importedCount: number;
+  skippedCount?: number;
+  duplicateCount?: number;
+  failedCount?: number;
+  status?: "COMPLETED" | "PARTIAL" | "FAILED";
+  importedAt: string;
+  importedBy: string;
+  questionIds?: string[];
+  metadata?: Record<string, any>;
+  createdAt?: string;
+}
+
+
 
 

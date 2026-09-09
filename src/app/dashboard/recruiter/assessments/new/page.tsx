@@ -218,6 +218,21 @@ export default function NewAssessmentPage() {
     }
   }, [editId]);
 
+  // Support preselected question IDs passed from Document Question Import
+  const preselectParam = searchParams.get("preselectQuestions");
+  useEffect(() => {
+    if (preselectParam) {
+      const ids = preselectParam
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+      if (ids.length > 0) {
+        setSelectedQuestionIds((prev) => Array.from(new Set([...prev, ...ids])));
+        info(`Pre-loaded ${ids.length} questions from document import into your assessment!`);
+      }
+    }
+  }, [preselectParam]);
+
   const fetchDrives = async () => {
     try {
       const res = await fetch("/api/recruiter/drives");

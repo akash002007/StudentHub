@@ -22,6 +22,7 @@ import {
   SectionScoreSummary,
   QuestionObjection,
   AssessmentAuthorization,
+  QuestionImportRecord,
   CutoffType,
   MeritCriterion,
 } from "@/types";
@@ -43,6 +44,7 @@ interface AssessmentStoreState {
   integrityEvents: Map<string, AssessmentIntegrityEvent[]>; // attemptId -> events
   objections: Map<string, QuestionObjection>;
   authorizations: Map<string, AssessmentAuthorization>;
+  importHistory: Map<string, QuestionImportRecord>;
 }
 
 declare global {
@@ -60,6 +62,7 @@ function initializeAssessmentStore(): AssessmentStoreState {
   const integrityEvents = new Map<string, AssessmentIntegrityEvent[]>();
   const objections = new Map<string, QuestionObjection>();
   const authorizations = new Map<string, AssessmentAuthorization>();
+  const importHistory = new Map<string, QuestionImportRecord>();
 
   // 1. Seed StudentHub System Bank Questions (Created by Admin, read-only to recruiters)
   const systemQuestions: AssessmentQuestion[] = [
@@ -530,6 +533,7 @@ function initializeAssessmentStore(): AssessmentStoreState {
     integrityEvents,
     objections,
     authorizations,
+    importHistory,
   };
 
   loadAssessmentStoreFromDisk(initialStore);
@@ -573,6 +577,11 @@ function loadAssessmentStoreFromDisk(storeObj: AssessmentStoreState): void {
         storeObj.authorizations.set(id, auth);
       });
     }
+    if (data.importHistory && Array.isArray(data.importHistory)) {
+      data.importHistory.forEach(([id, imp]: [string, QuestionImportRecord]) => {
+        storeObj.importHistory.set(id, imp);
+      });
+    }
   } catch (err) {
     console.warn("[Assessment Store] Failed loading from disk:", err);
   }
@@ -592,6 +601,7 @@ function persistAssessmentStoreToDisk(): void {
       integrityEvents: Array.from(assessmentStore.integrityEvents.entries()),
       objections: Array.from(assessmentStore.objections.entries()),
       authorizations: Array.from(assessmentStore.authorizations.entries()),
+      importHistory: Array.from(assessmentStore.importHistory.entries()),
     };
 
     fs.writeFileSync(ASSESSMENT_DB_FILE, JSON.stringify(payload, null, 2), "utf-8");
@@ -2656,4 +2666,38 @@ export function getAssessmentAuthorizations(assessmentId: string): AssessmentAut
     .filter((auth) => auth.assessmentId === assessmentId)
     .sort((a, b) => new Date(b.authorizedAt || b.createdAt || 0).getTime() - new Date(a.authorizedAt || a.createdAt || 0).getTime());
 }
+
+// ---------------------------------------------------------------------------
+// DOCUMENT QUESTION IMPORT HISTORY
+// ---------------------------------------------------------------------------
+
+export function recordQuestionImport(
+  importRecord: QuestionImportRecord,
+  authUser: AuthenticatedUser
+): QuestionImportRecord {
+  assessmentStore.importHistory.set(importRecord.id, importRecord);
+  persistAssessmentStoreToDisk();
+
+  logRecruiterAction({
+    driveId: "drive_general",
+    driveTitle: "Question Bank Management",
+    actorId: authUser.id,
+    actorName: authUser.name || "Recruiter",
+    actorRole: authUser.role,
+    action: "QUESTION_IMPORT" as any,
+    targetType: "ASSESSMENT",
+    targetId: importRecord.id,
+    targetName: importRecord.fileName,
+    details: `Imported ${importRecord.importedCount} questions from ${importRecord.fileName} (${importRecord.fileType.toUpperCase()}, ${importRecord.totalDetected} detected, ${importRecord.duplicateCount} duplicates).`,
+  });
+
+  return importRecord;
+}
+
+export function getQuestionImportHistory(companyId?: string): QuestionImportRecord[] {
+  return Array.from(assessmentStore.importHistory.values())
+    .filter((rec) => !companyId || rec.companyId === companyId)
+    .sort((a, b) => new Date(b.importedAt).getTime() - new Date(a.importedAt).getTime());
+}
+
 

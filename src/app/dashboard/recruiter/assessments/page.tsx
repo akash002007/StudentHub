@@ -51,8 +51,10 @@ import {
   QuestionDifficulty,
   QuestionCategory,
   QuestionSource,
+  QuestionImportRecord,
 } from "@/types";
 import { cn } from "@/lib/utils";
+import { QuestionUploadModal } from "@/components/recruiter/QuestionUploadModal";
 
 interface EnrichedAssessment extends AssessmentRecord {
   questionsCount: number;
@@ -118,6 +120,27 @@ function RecruiterAssessmentsContent() {
   const [editingQuestion, setEditingQuestion] = useState<AssessmentQuestion | null>(null);
   const [addToAssessmentTargetQuestion, setAddToAssessmentTargetQuestion] = useState<AssessmentQuestion | null>(null);
   const [selectedTargetAssessmentId, setSelectedTargetAssessmentId] = useState<string>("");
+
+  // Document Upload & Import History State
+  const [isDocUploadModalOpen, setIsDocUploadModalOpen] = useState(false);
+  const [isImportHistoryOpen, setIsImportHistoryOpen] = useState(false);
+  const [importHistoryList, setImportHistoryList] = useState<QuestionImportRecord[]>([]);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+
+  const fetchImportHistory = async () => {
+    setIsLoadingHistory(true);
+    try {
+      const res = await fetch("/api/recruiter/questions/import-history");
+      if (res.ok) {
+        const data = await res.json();
+        setImportHistoryList(data.history || []);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsLoadingHistory(false);
+    }
+  };
 
   // Create/Edit form state
   const [formData, setFormData] = useState({
@@ -571,6 +594,16 @@ function RecruiterAssessmentsContent() {
           </div>
 
           <div className="flex flex-wrap items-center gap-2.5">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsDocUploadModalOpen(true)}
+              leftIcon={<Upload className="w-4 h-4 text-purple-600 dark:text-purple-400" />}
+              className="border-purple-200 hover:border-purple-300 dark:border-purple-800 dark:hover:border-purple-700 bg-purple-50/50 dark:bg-purple-950/20 text-purple-700 dark:text-purple-300 shadow-2xs font-semibold"
+            >
+              Upload Questions
+            </Button>
+
             {activeTab === "questions" ? (
               <>
                 <Button
@@ -1030,6 +1063,20 @@ function RecruiterAssessmentsContent() {
                       </button>
                     ))}
                   </div>
+
+                  {/* Import History button */}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      fetchImportHistory();
+                      setIsImportHistoryOpen(true);
+                    }}
+                    leftIcon={<FileText className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />}
+                    className="text-xs"
+                  >
+                    Import History
+                  </Button>
 
                   {/* Type filter */}
                   <select
@@ -2094,6 +2141,107 @@ function RecruiterAssessmentsContent() {
               </Button>
               <Button variant="gradient" size="sm" onClick={handleImportCSV} isLoading={isImporting}>
                 Import Questions
+              </Button>
+            </div>
+          </div>
+        </Modal>
+
+        {/* ========================================================================= */}
+        {/* PDF / WORD QUESTION UPLOAD & PARSER WORKSPACE MODAL                        */}
+        {/* ========================================================================= */}
+        <QuestionUploadModal
+          isOpen={isDocUploadModalOpen}
+          onClose={() => setIsDocUploadModalOpen(false)}
+          onImportSuccess={(newQuestions) => {
+            fetchQuestions();
+            if (activeTab !== "questions") {
+              // Optionally stay or switch
+            }
+          }}
+        />
+
+        {/* ========================================================================= */}
+        {/* DOCUMENT IMPORT HISTORY MODAL                                             */}
+        {/* ========================================================================= */}
+        <Modal
+          isOpen={isImportHistoryOpen}
+          onClose={() => setIsImportHistoryOpen(false)}
+          title="Document Question Import History"
+          description="Audit log of all PDF and Word exam papers imported into your Question Bank."
+          maxWidth="3xl"
+        >
+          <div className="space-y-4">
+            {isLoadingHistory ? (
+              <div className="py-8 text-center text-xs text-muted-foreground">
+                <div className="w-6 h-6 border-2 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+                Loading import records...
+              </div>
+            ) : importHistoryList.length === 0 ? (
+              <div className="py-8 text-center text-xs text-muted-foreground space-y-2">
+                <FileText className="w-8 h-8 mx-auto text-muted-foreground/50" />
+                <div>No document imports recorded yet.</div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setIsImportHistoryOpen(false);
+                    setIsDocUploadModalOpen(true);
+                  }}
+                  leftIcon={<Upload className="w-3.5 h-3.5" />}
+                  className="text-xs mt-1"
+                >
+                  Upload Your First Exam Paper
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-3 max-h-96 overflow-y-auto pr-1">
+                {importHistoryList.map((rec) => (
+                  <div
+                    key={rec.id}
+                    className="p-3.5 rounded-xl border border-border bg-card/60 flex items-center justify-between gap-3 text-xs"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-lg bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center font-bold text-xs uppercase">
+                        {rec.fileType}
+                      </div>
+                      <div>
+                        <div className="font-semibold text-foreground">{rec.fileName}</div>
+                        <div className="text-[11px] text-muted-foreground mt-0.5">
+                          Imported by {rec.importedBy} • {new Date(rec.importedAt).toLocaleDateString()}{" "}
+                          {new Date(rec.importedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <Badge variant="emerald" className="text-[10px]">
+                        +{rec.importedCount} Imported
+                      </Badge>
+                      {rec.duplicateCount && rec.duplicateCount > 0 ? (
+                        <Badge variant="outline" className="text-[10px] text-amber-600">
+                          {rec.duplicateCount} Dups
+                        </Badge>
+                      ) : null}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="flex items-center justify-between pt-3 border-t border-border text-xs">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setIsImportHistoryOpen(false);
+                  setIsDocUploadModalOpen(true);
+                }}
+                leftIcon={<Upload className="w-3.5 h-3.5" />}
+              >
+                Upload New Document
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => setIsImportHistoryOpen(false)}>
+                Close
               </Button>
             </div>
           </div>
