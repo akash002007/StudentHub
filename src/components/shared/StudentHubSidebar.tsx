@@ -469,35 +469,6 @@ export function StudentHubSidebar({
 
       {/* Middle Section: Scrollable Navigation Groups */}
       <div className="flex-1 overflow-y-auto px-3 py-3 space-y-4">
-<<<<<<< HEAD
-        {navGroups.map((group, gIdx) => (
-          <div key={gIdx} className="space-y-1">
-            {!isCollapsed && group.groupLabel && (
-              <p className="px-space-sm py-space-2xs text-outline font-label-sm text-label-sm uppercase tracking-wider">
-                {group.groupLabel}
-              </p>
-            )}
-
-            <div className="space-y-0.5">
-              {group.items.map((item) => {
-                const Icon = item.icon;
-                const active = isLinkActive(item.href);
-
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={() => {
-                      if (onCloseMobileDrawer) onCloseMobileDrawer();
-                    }}
-                    title={isCollapsed ? item.label : undefined}
-                    className={cn(
-                      "flex items-center gap-space-sm px-space-sm py-space-sm transition-all rounded-lg group relative",
-                      active
-                        ? "bg-primary text-white font-medium shadow-sm"
-                        : "text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface"
-                    )}
-=======
         {navGroups.map((group, gIdx) => {
           const isGroupCollapsed = Boolean(
             group.collapsible && group.collapseKey && collapsedGroups[group.collapseKey]
@@ -512,18 +483,12 @@ export function StudentHubSidebar({
                     onClick={() => toggleGroupCollapse(group.collapseKey!)}
                     className="w-full flex items-center justify-between text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground/70 hover:text-foreground px-3 pt-1 pb-0.5 transition-colors cursor-pointer group"
                     title={isGroupCollapsed ? `Expand ${group.groupLabel}` : `Collapse ${group.groupLabel}`}
->>>>>>> ee2b428b0bd5b7b47c690c995839bb76af53bc55
                   >
                     <span>{group.groupLabel}</span>
                     <ChevronRight
                       className={cn(
-<<<<<<< HEAD
-                        "w-5 h-5 shrink-0 transition-transform group-hover:scale-110",
-                        active ? "text-white" : "text-on-surface-variant group-hover:text-on-surface"
-=======
                         "w-3.5 h-3.5 text-muted-foreground/60 transition-transform duration-200",
                         !isGroupCollapsed ? "rotate-90" : "rotate-0"
->>>>>>> ee2b428b0bd5b7b47c690c995839bb76af53bc55
                       )}
                     />
                   </button>
@@ -534,22 +499,6 @@ export function StudentHubSidebar({
                 )
               )}
 
-<<<<<<< HEAD
-                    {!isCollapsed && (
-                      <>
-                        <span className="truncate flex-1 font-label-md text-label-md">{item.label}</span>
-                        {item.badge !== undefined && item.badge !== null && (
-                          <Badge
-                            variant={item.badgeVariant || "purple"}
-                            size="sm"
-                            className={cn(
-                              "px-space-xs py-space-2xs rounded-full font-label-sm text-label-sm shrink-0",
-                              active ? "bg-blue-50 text-blue-600" : "bg-surface-container-high text-primary"
-                            )}
-                          >
-                            {item.badge}
-                          </Badge>
-=======
               {/* Group Items: Collapsed check */}
               {(!isGroupCollapsed || isCollapsed) && (
                 <div className="space-y-0.5">
@@ -570,7 +519,6 @@ export function StudentHubSidebar({
                           active
                             ? "bg-foreground text-background shadow-xs font-bold"
                             : "text-muted-foreground hover:text-foreground hover:bg-muted/70"
->>>>>>> ee2b428b0bd5b7b47c690c995839bb76af53bc55
                         )}
                       >
                         <Icon
@@ -580,15 +528,6 @@ export function StudentHubSidebar({
                           )}
                         />
 
-<<<<<<< HEAD
-                    {/* Collapsed Badge Dot Indicator */}
-                    {isCollapsed && item.badge !== undefined && item.badge !== null && (
-                      <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-blue-600" />
-                    )}
-                  </Link>
-                );
-              })}
-=======
                         {!isCollapsed && (
                           <>
                             <span className="truncate flex-1">{item.label}</span>
@@ -616,7 +555,6 @@ export function StudentHubSidebar({
                   })}
                 </div>
               )}
->>>>>>> ee2b428b0bd5b7b47c690c995839bb76af53bc55
             </div>
           );
         })}

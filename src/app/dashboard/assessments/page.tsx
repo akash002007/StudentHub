@@ -122,7 +122,7 @@ export default function StudentAssessmentsPage() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 text-xs font-semibold text-blue-600 dark:text-blue-400 mb-1">
+            <div className="flex items-center gap-2 text-xs font-semibold text-purple-600 dark:text-purple-400 mb-1">
               <Sparkles className="w-3.5 h-3.5" />
               <span>Candidate Examination Workspace</span>
             </div>
@@ -194,15 +194,9 @@ export default function StudentAssessmentsPage() {
 
         {/* Content Section */}
         {isLoading ? (
-<<<<<<< HEAD
-          <div className="py-16 text-center">
-            <div className="inline-block w-8 h-8 border-3 border-blue-600 border-t-transparent rounded-full animate-spin mb-3" />
-            <p className="text-xs text-muted-foreground">Loading recruitment assessments...</p>
-=======
           <div className="py-20 text-center">
             <div className="inline-block w-8 h-8 border-3 border-purple-600 border-t-transparent rounded-full animate-spin mb-3" />
             <p className="text-xs text-muted-foreground">Loading assigned assessments...</p>
->>>>>>> ee2b428b0bd5b7b47c690c995839bb76af53bc55
           </div>
         ) : filteredAssessments.length === 0 ? (
           <Card className="p-12 text-center border-dashed border-2 border-border/80 rounded-3xl">
@@ -309,20 +303,12 @@ export default function StudentAssessmentsPage() {
 
                     {/* Test Info Badges */}
                     <div className="flex flex-wrap items-center gap-2 text-xs">
-<<<<<<< HEAD
-                      <span className="px-2.5 py-1 rounded-lg bg-muted text-muted-foreground font-semibold flex items-center gap-1">
-                        <Calendar className="w-3.5 h-3.5 text-blue-500" />
-                        {ass.date} {ass.time ? `• ${ass.time}` : ""}
-                      </span>
-                      <span className="px-2.5 py-1 rounded-lg bg-muted text-muted-foreground font-semibold flex items-center gap-1">
-=======
                       {isProctored && (
                         <Badge variant="purple" size="sm" className="gap-1 font-bold">
                           <Shield className="w-3 h-3" /> Proctored
                         </Badge>
                       )}
                       <span className="px-2.5 py-1 rounded-xl bg-muted text-muted-foreground font-semibold flex items-center gap-1">
->>>>>>> ee2b428b0bd5b7b47c690c995839bb76af53bc55
                         <Clock className="w-3.5 h-3.5 text-blue-500" />
                         {ass.duration || "45 mins"}
                       </span>
@@ -346,16 +332,6 @@ export default function StudentAssessmentsPage() {
 
                     {/* Score summary if evaluated */}
                     {isEvaluated && (
-<<<<<<< HEAD
-                      <div className="p-3 rounded-xl bg-blue-500/10 border border-blue-500/20 text-xs flex items-center justify-between">
-                        <span className="font-bold text-foreground flex items-center gap-1.5">
-                          <Award className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                          Your Score:
-                        </span>
-                        <strong className="text-sm font-extrabold text-blue-600 dark:text-blue-400">
-                          {ass.candidateScore} / {ass.maxScore}
-                        </strong>
-=======
                       <div className="p-3 rounded-2xl bg-purple-500/10 border border-purple-500/20 text-xs flex items-center justify-between">
                         <span className="font-bold text-foreground flex items-center gap-1.5">
                           <Award className="w-4 h-4 text-purple-600 dark:text-purple-400" />
@@ -371,7 +347,6 @@ export default function StudentAssessmentsPage() {
                             </span>
                           )}
                         </div>
->>>>>>> ee2b428b0bd5b7b47c690c995839bb76af53bc55
                       </div>
                     )}
                   </div>
@@ -429,75 +404,6 @@ export default function StudentAssessmentsPage() {
             })}
           </div>
         )}
-<<<<<<< HEAD
-
-        {/* Assessment Details Modal */}
-        <Modal
-          isOpen={!!selectedAssessmentForModal}
-          onClose={() => setSelectedAssessmentForModal(null)}
-          title={selectedAssessmentForModal?.assessmentName || "Assessment Details"}
-          description={selectedAssessmentForModal?.driveTitle}
-        >
-          {selectedAssessmentForModal && (
-            <div className="space-y-4 text-xs sm:text-sm">
-              <div className="p-4 rounded-2xl bg-muted/50 border border-border space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Test Schedule:</span>
-                  <strong className="text-foreground">
-                    {selectedAssessmentForModal.date} {selectedAssessmentForModal.time ? `at ${selectedAssessmentForModal.time}` : ""}
-                  </strong>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Allocated Duration:</span>
-                  <strong className="text-foreground">
-                    {selectedAssessmentForModal.duration || "90 minutes"}
-                  </strong>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Maximum Score:</span>
-                  <strong className="text-foreground">{selectedAssessmentForModal.maxScore} Points</strong>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Passing Benchmark:</span>
-                  <strong className="text-foreground">{selectedAssessmentForModal.passingScore} Points</strong>
-                </div>
-
-                {selectedAssessmentForModal.candidateScore !== undefined && (
-                  <div className="flex justify-between pt-2 border-t border-border/60 font-bold">
-                    <span className="text-blue-600 dark:text-blue-400">Recorded Score:</span>
-                    <span className="text-blue-600 dark:text-blue-400">
-                      {selectedAssessmentForModal.candidateScore} / {selectedAssessmentForModal.maxScore} (
-                      {selectedAssessmentForModal.passed ? "PASSED" : "NOT MET"})
-                    </span>
-                  </div>
-                )}
-              </div>
-
-              {selectedAssessmentForModal.instructions && (
-                <div className="space-y-1">
-                  <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                    Instructions & Guidelines:
-                  </label>
-                  <p className="p-3 rounded-xl bg-card border border-border text-xs text-muted-foreground leading-relaxed">
-                    {selectedAssessmentForModal.instructions}
-                  </p>
-                </div>
-              )}
-
-              <div className="pt-4 border-t border-border flex justify-end">
-                <Button
-                  variant="gradient"
-                  size="sm"
-                  onClick={() => setSelectedAssessmentForModal(null)}
-                >
-                  Close
-                </Button>
-              </div>
-            </div>
-          )}
-        </Modal>
-=======
->>>>>>> ee2b428b0bd5b7b47c690c995839bb76af53bc55
       </div>
     </RoleGuard>
   );
