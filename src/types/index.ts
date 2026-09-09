@@ -1235,11 +1235,14 @@ export type RecruitmentApplicationStatus =
   | 'ELIGIBLE'
   | 'ELIGIBILITY_FAILED'
   | 'SHORTLISTED'
+  | 'ASSESSMENT_CLEARED'
+  | 'INTERVIEW_SCHEDULED'
   | 'IN_SELECTION'
   | 'SELECTED'
   | 'REJECTED'
   | 'WITHDRAWN'
   | 'WAITLISTED';
+
 
 export interface EligibilityCriteria {
   degrees: string[];
@@ -1476,5 +1479,210 @@ export interface RecruiterAuditLogEntry {
   timestamp: string;
   ipSessionRef?: string;
 }
+
+// ==========================================
+// ASSESSMENT & PROCTORING MODULE TYPES
+// ==========================================
+
+export type QuestionType =
+  | "SINGLE_CHOICE"
+  | "MULTIPLE_CHOICE"
+  | "TRUE_FALSE"
+  | "SHORT_ANSWER";
+
+export type QuestionDifficulty = "EASY" | "MEDIUM" | "HARD";
+export type QuestionSource = "SYSTEM" | "COMPANY" | "RECRUITER";
+export type QuestionCategory = "Technical" | "Aptitude" | "Communication" | "Domain" | "Mixed";
+
+export interface AssessmentQuestion {
+  id: string;
+  ownerType: QuestionSource;
+  ownerId: string; // "system" or companyId or recruiterId
+  companyId?: string;
+  createdById: string;
+  createdByName: string;
+  type: QuestionType;
+  questionText: string;
+  options?: string[]; // Array of option strings
+  correctAnswer: string | string[]; // Single string or array of correct option letters/values
+  marks: number;
+  negativeMarks: number;
+  difficulty: QuestionDifficulty;
+  category: QuestionCategory;
+  topic: string;
+  tags: string[];
+  explanation?: string;
+  isArchived?: boolean;
+  version: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type AssessmentStatus = "DRAFT" | "SCHEDULED" | "ACTIVE" | "COMPLETED" | "ARCHIVED";
+export type AssessmentMode = "STANDARD" | "PROCTORED";
+
+export interface ProctoringConfig {
+  cameraRequired: boolean;
+  microphoneRequired: boolean;
+  entireScreenRequired: boolean;
+  fullscreenRequired: boolean;
+  pauseOnCameraStop: boolean;
+  pauseOnMicrophoneStop: boolean;
+  pauseOnScreenShareStop: boolean;
+  maxWindowViolations: number;
+  maxFullscreenViolations: number;
+  terminateOnViolationLimit: boolean;
+}
+
+export interface AssessmentCandidateRules {
+  randomizeQuestions: boolean;
+  randomizeOptions: boolean;
+  allowBackNavigation: boolean;
+  autoSubmitOnTimeout: boolean;
+  showResultImmediately: boolean;
+  attemptsAllowed: number;
+}
+
+export interface AssessmentSnapshotQuestion {
+  id: string;
+  originalQuestionId: string;
+  source: QuestionSource;
+  type: QuestionType;
+  questionText: string;
+  options?: string[];
+  correctAnswer: string | string[]; // Authoritative answer, masked before submit
+  marks: number;
+  negativeMarks: number;
+  difficulty: QuestionDifficulty;
+  category: QuestionCategory;
+  topic: string;
+  orderIndex: number;
+  explanation?: string;
+}
+
+export interface AssessmentRecord {
+  id: string;
+  title: string;
+  description: string;
+  instructions: string;
+  driveId: string;
+  driveTitle?: string;
+  companyId: string;
+  companyName: string;
+  createdById: string;
+  createdByName: string;
+  category: QuestionCategory;
+  durationMinutes: number;
+  startDateTime?: string;
+  endDateTime?: string;
+  status: AssessmentStatus;
+  mode: AssessmentMode;
+  proctoringConfig: ProctoringConfig;
+  candidateRules: AssessmentCandidateRules;
+  totalMarks: number;
+  passingMarks: number;
+  passingPercentage: number;
+  negativeMarkingEnabled: boolean;
+  questionIds: string[];
+  questionSnapshots?: AssessmentSnapshotQuestion[];
+  assignedCandidateIds: string[]; // Application IDs or Student IDs
+  createdAt: string;
+  updatedAt: string;
+  publishedAt?: string;
+}
+
+export type AttemptStatus =
+  | "NOT_STARTED"
+  | "ENVIRONMENT_CHECK"
+  | "READY"
+  | "ACTIVE"
+  | "PAUSED"
+  | "SUBMITTED"
+  | "AUTO_SUBMITTED"
+  | "EXPIRED"
+  | "TERMINATED"
+  | "ABANDONED";
+
+export interface AttemptAnswer {
+  questionId: string;
+  answer: string | string[];
+  isAnswered: boolean;
+  answeredAt: string;
+  updatedAt: string;
+  isCorrect?: boolean;
+  marksAwarded?: number;
+}
+
+export interface AssessmentAttempt {
+  id: string;
+  assessmentId: string;
+  assessmentTitle: string;
+  studentId: string;
+  studentName: string;
+  studentEmail: string;
+  applicationId: string;
+  driveId: string;
+  attemptNumber: number;
+  sessionToken: string;
+  status: AttemptStatus;
+  startedAt?: string;
+  expiresAt?: string;
+  submittedAt?: string;
+  durationSecondsTaken?: number;
+  lastActivityAt: string;
+  questionOrder: string[]; // Deterministic question order per attempt
+  answers: Record<string, AttemptAnswer>; // questionId -> AttemptAnswer
+  totalScore?: number;
+  maxScore: number;
+  percentage?: number;
+  passed?: boolean;
+  integrityStatus: "CLEAN" | "REVIEW" | "TERMINATED";
+  violationCount: number;
+  pauseReason?: string;
+  terminationReason?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type IntegrityEventType =
+  | "TAB_SWITCH"
+  | "WINDOW_BLUR"
+  | "WINDOW_FOCUS"
+  | "FULLSCREEN_EXIT"
+  | "FULLSCREEN_ENTER"
+  | "CAMERA_STARTED"
+  | "CAMERA_STOPPED"
+  | "MICROPHONE_STARTED"
+  | "MICROPHONE_STOPPED"
+  | "SCREEN_SHARE_STARTED"
+  | "SCREEN_SHARE_STOPPED"
+  | "NETWORK_INTERRUPTION"
+  | "SESSION_RECONNECTED"
+  | "ASSESSMENT_PAUSED"
+  | "ASSESSMENT_RESUMED"
+  | "ASSESSMENT_TERMINATED"
+  | "ASSESSMENT_SUBMITTED";
+
+export type IntegrityActionTaken =
+  | "NONE"
+  | "WARNING"
+  | "FINAL_WARNING"
+  | "PAUSE"
+  | "REQUIRE_RECOVERY"
+  | "TERMINATE";
+
+export interface AssessmentIntegrityEvent {
+  id: string;
+  attemptId: string;
+  assessmentId: string;
+  candidateId: string;
+  candidateName: string;
+  eventType: IntegrityEventType;
+  severity: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+  timestamp: string;
+  metadata?: Record<string, any>;
+  actionTaken: IntegrityActionTaken;
+}
+
 
 

@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedRecruiter } from "@/lib/supabase/server";
-import { getAssessments, saveAssessmentRecord } from "@/lib/recruitment-store";
+import {
+  getAssessments,
+  saveAssessmentRecord,
+} from "@/lib/recruitment-store";
+import {
+  getAssessmentConfigs,
+  saveAssessmentConfig,
+} from "@/lib/assessment-engine";
 import { CandidateAssessmentRecord } from "@/types";
 
 export async function GET(request: NextRequest) {
@@ -12,7 +19,33 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const driveId = searchParams.get("driveId") || "all";
+    const mode = searchParams.get("mode"); // "configs" vs default/legacy
+    const status = searchParams.get("status") || "ALL";
+    const search = searchParams.get("search") || "";
 
+    // If requesting assessment configurations (for Recruiter Assessment Dashboard)
+    if (mode === "configs" || searchParams.has("configs") || !searchParams.has("driveId") || driveId === "all") {
+      const configs = getAssessmentConfigs(
+        {
+          driveId: driveId !== "all" ? driveId : undefined,
+          status,
+          search,
+        },
+        auth.recruiter
+      );
+
+      // Also provide legacy assessments for backward compatibility
+      const assessments = getAssessments(driveId);
+
+      return NextResponse.json({
+        success: true,
+        configs,
+        assessments,
+        totalConfigs: configs.length,
+      });
+    }
+
+    // Default legacy behavior for Selection Process page
     const assessments = getAssessments(driveId);
     return NextResponse.json({ success: true, assessments });
   } catch (err) {
@@ -29,6 +62,17 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
+
+    // Check if this is an Assessment Configuration (title + driveId)
+    if (body.title && body.driveId) {
+      const result = saveAssessmentConfig(body, auth.recruiter);
+      if (result.error) {
+        return NextResponse.json({ error: result.error }, { status: 400 });
+      }
+      return NextResponse.json({ success: true, assessment: result.assessment });
+    }
+
+    // Legacy CandidateAssessmentRecord creation
     const {
       id,
       driveId,
@@ -85,3 +129,4 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
+

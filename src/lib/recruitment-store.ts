@@ -1530,3 +1530,4 @@ export function submitStudentApplication(params: {
 
   return { success: true, application: newApp, status: 201 };
 }
+

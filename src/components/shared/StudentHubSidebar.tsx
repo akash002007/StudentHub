@@ -251,6 +251,18 @@ export function StudentHubSidebar({
           icon: Layers,
         },
         {
+          label: "Assessments",
+          href: "/dashboard/recruiter/assessments",
+          icon: FileText,
+          badge: "Proctored",
+          badgeVariant: "purple",
+        },
+        {
+          label: "Question Bank",
+          href: "/dashboard/recruiter/questions",
+          icon: Sparkles,
+        },
+        {
           label: "Interviews",
           href: "/dashboard/recruiter/interviews",
           icon: Calendar,

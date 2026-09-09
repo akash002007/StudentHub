@@ -28,6 +28,8 @@ interface EnrichedAssessment extends CandidateAssessmentRecord {
   driveTitle?: string;
   company?: string;
   companyLogo?: string;
+  attemptStatus?: string;
+  assessmentConfigId?: string;
 }
 
 export default function StudentAssessmentsPage() {
@@ -191,18 +193,32 @@ export default function StudentAssessmentsPage() {
                   </div>
 
                   {/* Footer CTA */}
-                  <div className="pt-3 border-t border-border/60 flex items-center justify-between text-xs">
+                  <div className="pt-3 border-t border-border/60 flex flex-wrap items-center justify-between gap-2 text-xs">
                     <span className="text-muted-foreground text-[11px]">
-                      {isEvaluated ? "Evaluation Finalized" : "Instructions Ready"}
+                      {isEvaluated
+                        ? "Evaluation Finalized"
+                        : ass.attemptStatus === "ACTIVE"
+                        ? "In Progress"
+                        : "Ready to Start"}
                     </span>
 
-                    <Button
-                      variant={isEvaluated ? "outline" : "gradient"}
-                      size="sm"
-                      onClick={() => setSelectedAssessmentForModal(ass)}
-                    >
-                      {isEvaluated ? "View Evaluation" : "View Test Instructions"}
-                    </Button>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setSelectedAssessmentForModal(ass)}
+                      >
+                        Details
+                      </Button>
+
+                      {!isEvaluated && (
+                        <Link href={`/dashboard/assessments/${(ass as any).assessmentConfigId || ass.id}/take`}>
+                          <Button variant="gradient" size="sm" rightIcon={<ArrowRight className="w-3.5 h-3.5" />}>
+                            {ass.attemptStatus === "ACTIVE" ? "Resume Exam" : "Start Test"}
+                          </Button>
+                        </Link>
+                      )}
+                    </div>
                   </div>
                 </Card>
               );
