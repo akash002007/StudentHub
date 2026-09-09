@@ -208,13 +208,6 @@ export function StudentHubSidebar({
           href: "/dashboard/career-dna",
           icon: Dna,
         },
-        {
-          label: "Messages",
-          href: "/dashboard/messages",
-          icon: Send,
-          badge: unreadMessagesCount > 0 ? unreadMessagesCount : null,
-          badgeVariant: "emerald",
-        },
         { label: "Communities", href: "/dashboard/communities", icon: Users2 },
         {
           label: "Profile",
@@ -287,18 +280,6 @@ export function StudentHubSidebar({
           icon: Award,
           badge: "Published",
           badgeVariant: "purple",
-        },
-      ],
-    },
-    {
-      // Standalone Messages navigation item between Results & Merit and Talent & Sourcing
-      items: [
-        {
-          label: "Messages",
-          href: "/dashboard/recruiter/messages",
-          icon: Send,
-          badge: unreadRecruiterMessagesCount > 0 ? unreadRecruiterMessagesCount : null,
-          badgeVariant: "emerald",
         },
       ],
     },
