@@ -22,7 +22,10 @@ import {
 } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { StatCard, StatusBadge, RiskIndicator, SkeletonLoader } from "@/components/admin/common";
+import { StatusBadge, RiskIndicator, SkeletonLoader } from "@/components/admin/common";
+import { WelcomeCard } from "@/components/dashboard/WelcomeCard";
+import { MetricCard } from "@/components/dashboard/MetricCard";
+import { cn } from "@/lib/utils";
 import { AdminOverviewMetrics, VerificationRequest, AuditLogEntry } from "@/types";
 
 export default function AdminOverviewPage() {
@@ -30,30 +33,47 @@ export default function AdminOverviewPage() {
   const [spotlight, setSpotlight] = useState<VerificationRequest[]>([]);
   const [recentAudits, setRecentAudits] = useState<AuditLogEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchOverview = async () => {
     setIsLoading(true);
+    setError(null);
     try {
-      const [mRes, vRes, aRes] = await Promise.all([
+      const [mRes, vRes, aRes] = await Promise.allSettled([
         fetch("/api/admin/metrics"),
         fetch("/api/admin/verification?sort=Newest"),
         fetch("/api/admin/audit-logs"),
       ]);
 
-      if (mRes.ok) {
-        const mData = await mRes.json();
+      const errors: string[] = [];
+
+      if (mRes.status === "fulfilled" && mRes.value.ok) {
+        const mData = await mRes.value.json();
         if (mData.metrics) setMetrics(mData.metrics);
+      } else {
+        errors.push("metrics");
       }
-      if (vRes.ok) {
-        const vData = await vRes.json();
+
+      if (vRes.status === "fulfilled" && vRes.value.ok) {
+        const vData = await vRes.value.json();
         if (vData.requests) setSpotlight(vData.requests.slice(0, 5));
+      } else {
+        errors.push("verification spotlight");
       }
-      if (aRes.ok) {
-        const aData = await aRes.json();
+
+      if (aRes.status === "fulfilled" && aRes.value.ok) {
+        const aData = await aRes.value.json();
         if (aData.logs) setRecentAudits(aData.logs.slice(0, 5));
+      } else {
+        errors.push("audit logs");
+      }
+
+      if (errors.length > 0) {
+        setError(`Unable to load some admin telemetry: ${errors.join(", ")}.`);
       }
     } catch (err) {
       console.warn("Failed to load admin overview:", err);
+      setError("Network error connecting to platform command center services.");
     } finally {
       setIsLoading(false);
     }
@@ -65,73 +85,112 @@ export default function AdminOverviewPage() {
 
   return (
     <div className="space-y-6">
-      {/* Top Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-2xl bg-card border border-border/80 shadow-xs">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
-              Operations Control Center
-            </span>
-            <span className="text-xs text-muted-foreground">Live Database Synced</span>
+      {/* Top Welcome Banner */}
+      <WelcomeCard
+        portalBadge="Operations Control Center"
+        title="Platform Command Center"
+        description="Centralized operational management: oversee users, corporate partners, recruitment funnels, verification queues, and platform compliance."
+        primaryAction={{
+          label: `Verification Queue (${metrics?.pendingVerification || 0})`,
+          href: "/admin/verification",
+          icon: <ArrowRight className="w-3.5 h-3.5" />
+        }}
+        secondaryAction={{
+          label: "Refresh Data",
+          href: "#",
+          icon: <RefreshCw className={cn("w-3.5 h-3.5", isLoading && "animate-spin")} />
+        }}
+        rightWidget={
+          <div className="shrink-0 w-full lg:w-72 p-4 rounded-2xl bg-muted/40 border border-border/80 backdrop-blur-xs space-y-2.5">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-foreground">System Health</span>
+              <span className="text-xs font-extrabold text-emerald-600 dark:text-emerald-400">100% Operational</span>
+            </div>
+            <div className="text-[11px] text-muted-foreground flex items-center justify-between">
+              <span>Live DB Synced</span>
+              <span className="font-bold text-foreground">Real-time</span>
+            </div>
+            <div className="text-[11px] text-muted-foreground flex items-center justify-between">
+              <span>Verification Rate</span>
+              <span className="font-bold text-blue-600 dark:text-blue-400">{metrics?.verificationRate || 0}%</span>
+            </div>
           </div>
-          <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-foreground mt-1">
-            Platform Command Center
-          </h1>
-          <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-            Centralized operational management: oversee users, corporate partners, recruitment funnels, verification queues, and compliance.
-          </p>
-        </div>
+        }
+      />
 
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={fetchOverview} isLoading={isLoading}>
-            <RefreshCw className="w-3.5 h-3.5 mr-1" />
-            Refresh
+      {error && (
+        <Card className="p-4 border-destructive/40 bg-destructive/5 text-destructive flex items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="w-5 h-5 flex-shrink-0" />
+            <span className="text-sm font-medium">{error}</span>
+          </div>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={fetchOverview}
+            className="gap-1.5 border-destructive/30 hover:bg-destructive/10 text-destructive"
+          >
+            <RefreshCw className="w-3.5 h-3.5" />
+            Retry
           </Button>
-          <Link href="/admin/verification">
-            <Button variant="gradient" size="sm" rightIcon={<ArrowRight className="w-3.5 h-3.5" />}>
-              Verification Queue ({metrics?.pendingVerification || 0})
-            </Button>
-          </Link>
-        </div>
-      </div>
+        </Card>
+      )}
 
       {/* 6 Core Stat Cards (Honest Real Platform Metrics) */}
-      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3">
-        <StatCard
+      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3.5">
+        <MetricCard
           label="Total Users"
-          value={metrics ? (metrics.totalUsers || metrics.totalStudents).toString() : "—"}
+          value={metrics ? (metrics.totalUsers || metrics.totalStudents).toString() : "0"}
           hint="All platform tiers"
-          icon={<Users className="w-4 h-4 text-blue-500" />}
+          icon={<Users className="w-4 h-4" />}
+          iconVariant="blue"
+          isLoading={isLoading}
+          href="/admin/users"
         />
-        <StatCard
+        <MetricCard
           label="Pending Verification"
-          value={metrics ? metrics.pendingVerification.toString() : "—"}
+          value={metrics ? metrics.pendingVerification.toString() : "0"}
           hint="Action required"
-          icon={<Clock3 className="w-4 h-4 text-amber-500 animate-pulse" />}
+          icon={<Clock3 className="w-4 h-4" />}
+          iconVariant="amber"
+          isLoading={isLoading}
+          href="/admin/verification"
         />
-        <StatCard
+        <MetricCard
           label="Verified Students"
-          value={metrics ? metrics.verifiedStudents.toString() : "—"}
+          value={metrics ? metrics.verifiedStudents.toString() : "0"}
           hint={`${metrics?.verificationRate || 0}% rate`}
-          icon={<CheckCircle2 className="w-4 h-4 text-emerald-500" />}
+          icon={<CheckCircle2 className="w-4 h-4" />}
+          iconVariant="emerald"
+          isLoading={isLoading}
+          href="/admin/students"
         />
-        <StatCard
+        <MetricCard
           label="Companies"
-          value={metrics ? (metrics.totalCompanies || 0).toString() : "—"}
+          value={metrics ? (metrics.totalCompanies || 0).toString() : "0"}
           hint="Employer partners"
-          icon={<Building2 className="w-4 h-4 text-blue-500" />}
+          icon={<Building2 className="w-4 h-4" />}
+          iconVariant="blue"
+          isLoading={isLoading}
+          href="/admin/companies"
         />
-        <StatCard
+        <MetricCard
           label="Active Drives"
-          value={metrics ? (metrics.activeDrives || 0).toString() : "—"}
+          value={metrics ? (metrics.activeDrives || 0).toString() : "0"}
           hint="Recruiting funnels"
-          icon={<Layers className="w-4 h-4 text-blue-500" />}
+          icon={<Layers className="w-4 h-4" />}
+          iconVariant="purple"
+          isLoading={isLoading}
+          href="/admin/internships"
         />
-        <StatCard
+        <MetricCard
           label="Flagged Reports"
-          value={metrics ? (metrics.pendingReports || 0).toString() : "—"}
+          value={metrics ? (metrics.pendingReports || 0).toString() : "0"}
           hint="Trust & Safety"
-          icon={<Flag className="w-4 h-4 text-rose-500" />}
+          icon={<Flag className="w-4 h-4" />}
+          iconVariant="rose"
+          isLoading={isLoading}
+          href="/admin/reports"
         />
       </section>
 
@@ -173,32 +232,32 @@ export default function AdminOverviewPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs pt-1">
             <MetricTile
               label="Verification Approval Rate"
-              value={`${metrics?.verificationRate || 0}%`}
+              value={isLoading ? <SkeletonLoader className="h-6 w-16 my-0.5" /> : `${metrics?.verificationRate || 0}%`}
               helper="Decided student verification ratio"
             />
             <MetricTile
               label="Avg Verification Turnaround"
-              value={`${metrics?.avgVerificationTimeHours || 0} hrs`}
+              value={isLoading ? <SkeletonLoader className="h-6 w-16 my-0.5" /> : `${metrics?.avgVerificationTimeHours || 0} hrs`}
               helper="Queue submission to admin decision"
             />
             <MetricTile
               label="Active Applications"
-              value={(metrics?.totalApplications || 0).toString()}
+              value={isLoading ? <SkeletonLoader className="h-6 w-16 my-0.5" /> : (metrics?.totalApplications || 0).toString()}
               helper="Across all campus & corporate drives"
             />
             <MetricTile
               label="Awaiting Additional Info"
-              value={(metrics?.awaitingInformation || 0).toString()}
+              value={isLoading ? <SkeletonLoader className="h-6 w-16 my-0.5" /> : (metrics?.awaitingInformation || 0).toString()}
               helper="Resubmission requests pending"
             />
             <MetricTile
               label="High Risk Verification Alerts"
-              value={(metrics?.suspiciousAttempts || 0).toString()}
+              value={isLoading ? <SkeletonLoader className="h-6 w-16 my-0.5" /> : (metrics?.suspiciousAttempts || 0).toString()}
               helper="Flagged by heuristic validation"
             />
             <MetricTile
               label="Moderation Queue Backlog"
-              value={(metrics?.pendingReports || 0).toString()}
+              value={isLoading ? <SkeletonLoader className="h-6 w-16 my-0.5" /> : (metrics?.pendingReports || 0).toString()}
               helper="Incidents awaiting review"
             />
           </div>
@@ -221,7 +280,17 @@ export default function AdminOverviewPage() {
             </p>
 
             <div className="mt-3 space-y-2.5">
-              {recentAudits.length === 0 ? (
+              {isLoading ? (
+                [1, 2, 3].map((i) => (
+                  <div key={i} className="p-2.5 rounded-xl bg-muted/30 border border-border/60 space-y-2 animate-pulse">
+                    <div className="flex justify-between">
+                      <div className="h-3.5 w-24 bg-muted rounded" />
+                      <div className="h-3 w-16 bg-muted rounded" />
+                    </div>
+                    <div className="h-3 w-3/4 bg-muted rounded" />
+                  </div>
+                ))
+              ) : recentAudits.length === 0 ? (
                 <p className="text-xs text-muted-foreground py-4 text-center">No recent audit events.</p>
               ) : (
                 recentAudits.map((a) => (
@@ -278,12 +347,16 @@ export default function AdminOverviewPage() {
               </thead>
               <tbody className="divide-y divide-border">
                 {isLoading ? (
-                  <tr>
-                    <td colSpan={6} className="py-6 text-center text-muted-foreground">
-                      <RefreshCw className="w-5 h-5 animate-spin mx-auto mb-2 text-primary" />
-                      Loading verification spotlight...
-                    </td>
-                  </tr>
+                  [1, 2, 3].map((i) => (
+                    <tr key={i} className="animate-pulse">
+                      <td className="py-2.5 px-3"><div className="w-24 h-4 bg-muted rounded" /></td>
+                      <td className="py-2.5 px-3"><div className="w-36 h-4 bg-muted rounded" /></td>
+                      <td className="py-2.5 px-3"><div className="w-20 h-4 bg-muted rounded" /></td>
+                      <td className="py-2.5 px-3"><div className="w-16 h-4 bg-muted rounded" /></td>
+                      <td className="py-2.5 px-3"><div className="w-16 h-5 bg-muted rounded" /></td>
+                      <td className="py-2.5 px-3 text-right"><div className="w-12 h-6 bg-muted rounded ml-auto" /></td>
+                    </tr>
+                  ))
                 ) : spotlight.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="py-6 text-center text-muted-foreground">
@@ -331,13 +404,13 @@ function MetricTile({
   helper,
 }: {
   label: string;
-  value: string;
+  value: React.ReactNode;
   helper: string;
 }) {
   return (
     <div className="p-3 rounded-xl bg-muted/40 border border-border/60">
       <p className="text-[11px] text-muted-foreground font-medium">{label}</p>
-      <p className="text-lg font-extrabold text-foreground mt-0.5">{value}</p>
+      <div className="text-lg font-extrabold text-foreground mt-0.5">{value}</div>
       <p className="text-[10px] text-muted-foreground/80 mt-1">{helper}</p>
     </div>
   );

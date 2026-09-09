@@ -21,6 +21,10 @@ import {
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
+import { useAuth } from "@/context/AuthContext";
+import { CareerDNABanner } from "@/components/career-dna/CareerDNABanner";
+import { CareerDNAInteractiveGraph } from "@/components/career-dna/CareerDNAInteractiveGraph";
+import { buildCareerDNANodes } from "@/components/career-dna/CareerDNAData";
 
 interface CareerDNASummaryData {
   connected: boolean;
@@ -56,20 +60,34 @@ interface CareerDNASummaryCardProps {
 
 export function CareerDNASummaryCard({ userId }: CareerDNASummaryCardProps) {
   const router = useRouter();
+  const { user } = useAuth();
   const [data, setData] = useState<CareerDNASummaryData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [activeTab, setActiveTab] = useState<"scorecard" | "graph">("scorecard");
 
   const fetchSummary = useCallback(async () => {
-    if (!userId) return;
+    if (!userId) {
+      setIsLoading(false);
+      setData(null);
+      setError(null);
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
     try {
       const res = await fetch(`/api/career-dna/summary?userId=${encodeURIComponent(userId)}`);
       if (res.ok) {
         const json: CareerDNASummaryData = await res.json();
         setData(json);
+      } else {
+        setError("Unable to load Career DNA summary.");
       }
-    } catch {
-      console.warn("Failed to fetch Career DNA summary");
+    } catch (err) {
+      console.warn("Failed to fetch Career DNA summary:", err);
+      setError("Network error loading Career DNA.");
     } finally {
       setIsLoading(false);
     }
@@ -130,66 +148,47 @@ export function CareerDNASummaryCard({ userId }: CareerDNASummaryCardProps) {
     );
   }
 
-  // 2. EMPTY STATE: GITHUB NOT CONNECTED
-  if (!data || !data.connected) {
+  // 1b. ERROR STATE
+  if (error) {
     return (
-      <Card hoverEffect className="p-6 border-blue-500/20 bg-gradient-to-br from-card via-card to-blue-950/20 flex flex-col sm:flex-row sm:items-center justify-between gap-6 shadow-sm">
-        <div className="flex items-start gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-500 shrink-0">
-            <Dna className="w-6 h-6" />
+      <Card className="p-6 border-rose-500/20 bg-rose-50/50 dark:bg-rose-950/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-2xl bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
+            <AlertCircle className="w-5 h-5" />
           </div>
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <h2 className="text-lg font-bold text-foreground">Unlock your Career DNA</h2>
-              <Badge variant="purple" size="sm" className="font-semibold">
-                <Sparkles className="w-3 h-3 mr-1" /> Powered by GitHub AI
-              </Badge>
-            </div>
-            <p className="text-xs text-muted-foreground max-w-xl leading-relaxed">
-              Connect your GitHub account to automatically extract project intelligence, analyze skills, and build your evidence-based Career DNA profile.
-            </p>
+          <div>
+            <h3 className="text-sm font-bold text-foreground">Career DNA Unavailable</h3>
+            <p className="text-xs text-muted-foreground">{error}</p>
           </div>
         </div>
-
         <Button
-          variant="primary"
+          variant="outline"
           size="sm"
-          onClick={() => router.push("/dashboard/connected-accounts")}
-          className="text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white shrink-0"
+          onClick={() => fetchSummary()}
+          className="text-xs font-semibold shrink-0"
         >
-          <Github className="w-4 h-4 mr-2" /> Connect GitHub &rarr;
+          <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
+          Retry
         </Button>
       </Card>
     );
   }
 
+  // 2. EMPTY STATE: GITHUB NOT CONNECTED
+  if (!data || !data.connected) {
+    return <CareerDNABanner user={user} summaryData={data} />;
+  }
+
   // 3. CONNECTED BUT DATA PENDING / ZERO DATA
   if (!data.exists) {
     return (
-      <Card hoverEffect className="p-6 border-border/80 bg-card flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-muted border border-border/60 flex items-center justify-center text-blue-500 shrink-0">
-            <Dna className="w-6 h-6 animate-pulse" />
-          </div>
-          <div>
-            <h2 className="text-base font-bold text-foreground">Career DNA Analysis Pending</h2>
-            <p className="text-xs text-muted-foreground">
-              Your GitHub repositories are linked. Click below to analyze your project code evidence.
-            </p>
-          </div>
-        </div>
-
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleReanalyze}
-          disabled={isRefreshing}
-          className="text-xs font-semibold shrink-0"
-        >
-          <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${isRefreshing ? "animate-spin" : ""}`} />
-          {isRefreshing ? "Analyzing..." : "Analyze Career DNA"}
-        </Button>
-      </Card>
+      <CareerDNABanner
+        user={user}
+        summaryData={data}
+        isPendingAnalysis
+        onAnalyze={handleReanalyze}
+        isAnalyzing={isRefreshing}
+      />
     );
   }
 
@@ -216,6 +215,11 @@ export function CareerDNASummaryCard({ userId }: CareerDNASummaryCardProps) {
       })}`
     : "Recently analyzed";
 
+  const identityNodes = React.useMemo(
+    () => buildCareerDNANodes({ user, summaryData: data }),
+    [user, data]
+  );
+
   return (
     <Card hoverEffect className="p-6 border-blue-500/20 bg-gradient-to-br from-card via-card to-blue-950/15 space-y-6 shadow-sm">
       {/* Header */}
@@ -227,22 +231,50 @@ export function CareerDNASummaryCard({ userId }: CareerDNASummaryCardProps) {
           <div>
             <div className="flex items-center gap-2">
               <h2 className="text-lg font-bold text-foreground tracking-tight">Career DNA</h2>
-              <Badge variant="purple" size="sm" className="font-semibold text-[10px]">
-                <Sparkles className="w-3 h-3 mr-1" /> Powered by GitHub AI
+              <Badge variant="blue" size="sm" className="font-semibold text-[10px]">
+                <Dna className="w-3 h-3 mr-1" /> Verified Identity Engine
               </Badge>
             </div>
             <p className="text-xs text-muted-foreground">
-              AI-powered analysis of your projects, skills, and GitHub activity.
+              Evidence-based analysis of your projects, skills, and engineering capabilities.
             </p>
           </div>
         </div>
 
-        <Link
-          href="/dashboard/career-dna"
-          className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 shrink-0 self-start sm:self-auto"
-        >
-          View Full Career DNA <ArrowRight className="w-3.5 h-3.5" />
-        </Link>
+        <div className="flex items-center gap-3 shrink-0 self-start sm:self-auto">
+          {/* View Toggle */}
+          <div className="flex items-center p-1 rounded-xl bg-muted/60 border border-border/50 text-xs">
+            <button
+              type="button"
+              onClick={() => setActiveTab("scorecard")}
+              className={`px-2.5 py-1 rounded-lg font-semibold transition-all ${
+                activeTab === "scorecard"
+                  ? "bg-card text-foreground shadow-xs"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              Scorecard
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab("graph")}
+              className={`px-2.5 py-1 rounded-lg font-semibold transition-all flex items-center gap-1 ${
+                activeTab === "graph"
+                  ? "bg-card text-foreground shadow-xs text-blue-600 dark:text-sky-400"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <Sparkles className="w-3 h-3" /> Identity Graph
+            </button>
+          </div>
+
+          <Link
+            href="/dashboard/career-dna"
+            className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
+          >
+            View Full <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
       </div>
 
       {/* STALE DATA BANNER */}
@@ -265,8 +297,13 @@ export function CareerDNASummaryCard({ userId }: CareerDNASummaryCardProps) {
         </div>
       )}
 
-      {/* Main Grid: Score (Left) + Insights & Assessment (Middle) + Next Actions (Right) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      {/* Dynamic View: Scorecard vs Living Identity Graph */}
+      {activeTab === "graph" ? (
+        <div className="space-y-3">
+          <CareerDNAInteractiveGraph nodes={identityNodes} />
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left Column: Score Meter */}
         <div className="lg:col-span-4 flex flex-col justify-between p-5 rounded-2xl bg-muted/30 border border-border/50 space-y-4">
           <div className="space-y-3 text-center sm:text-left">
@@ -401,6 +438,7 @@ export function CareerDNASummaryCard({ userId }: CareerDNASummaryCardProps) {
           </div>
         </div>
       </div>
+      )}
     </Card>
   );
 }

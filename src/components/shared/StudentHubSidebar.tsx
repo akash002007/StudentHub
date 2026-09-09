@@ -81,10 +81,11 @@ export function StudentHubSidebar({
   const rawRole = (overrideRole || authRole || "STUDENT").toUpperCase();
   const activeRole: UserRole = (rawRole === "ADMIN" ? "PLATFORM_ADMIN" : rawRole) as UserRole;
   
-  // Map the 7 IAM roles to the 3 visual Workspaces
-  const isStudentWorkspace = activeRole === "STUDENT";
-  const isRecruiterWorkspace = ["RECRUITER", "COMPANY_ADMIN"].includes(activeRole);
-  const isAdminWorkspace = ["ADMIN", "PLATFORM_ADMIN", "SUPER_ADMIN", "VERIFICATION_OFFICER", "COLLEGE_ADMIN"].includes(activeRole);
+  // Map roles to the 4 visual Workspaces
+  const isCollegeWorkspace = activeRole === "COLLEGE_ADMIN" || pathname.startsWith("/dashboard/college");
+  const isAdminWorkspace = !isCollegeWorkspace && ["ADMIN", "PLATFORM_ADMIN", "SUPER_ADMIN", "VERIFICATION_OFFICER"].includes(activeRole);
+  const isRecruiterWorkspace = !isCollegeWorkspace && !isAdminWorkspace && (["RECRUITER", "COMPANY_ADMIN"].includes(activeRole) || pathname.startsWith("/dashboard/recruiter"));
+  const isStudentWorkspace = !isCollegeWorkspace && !isAdminWorkspace && !isRecruiterWorkspace;
 
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [collapsedGroups, setCollapsedGroups] = useState<Record<string, boolean>>({});
@@ -369,22 +370,74 @@ export function StudentHubSidebar({
     },
   ];
 
+  const collegeNavGroups: NavGroup[] = [
+    {
+      groupLabel: "PLACEMENT OPERATIONS",
+      items: [
+        { label: "Placement Center", href: "/dashboard/college", icon: LayoutDashboard },
+        {
+          label: "Placement Drives",
+          href: "/dashboard/drives",
+          icon: Briefcase,
+          badge: "Active",
+          badgeVariant: "purple",
+        },
+        {
+          label: "Registered Students",
+          href: "/dashboard/recruiter/students",
+          icon: GraduationCap,
+        },
+        {
+          label: "Candidate Pipeline",
+          href: "/dashboard/recruiter/applications",
+          icon: GitPullRequest,
+        },
+        {
+          label: "Merit & Selections",
+          href: "/dashboard/recruiter/results",
+          icon: Award,
+        },
+      ],
+    },
+    {
+      groupLabel: "CORPORATE RELATIONS",
+      items: [
+        { label: "Visiting Employers", href: "/dashboard/recruiter/company", icon: Building2 },
+        { label: "Interviews", href: "/dashboard/recruiter/interviews", icon: Calendar },
+      ],
+    },
+    {
+      groupLabel: "REPORTS & GOVERNANCE",
+      items: [
+        { label: "Placement Analytics", href: "/dashboard/recruiter/analytics", icon: BarChart3 },
+        { label: "Audit Trail", href: "/dashboard/recruiter/audit-logs", icon: FileText },
+        { label: "Notifications", href: "/dashboard/notifications", icon: Bell },
+      ],
+    },
+  ];
+
   const navGroups =
-    isAdminWorkspace
+    isCollegeWorkspace
+      ? collegeNavGroups
+      : isAdminWorkspace
       ? adminNavGroups
       : isRecruiterWorkspace
       ? recruiterNavGroups
       : studentNavGroups;
 
   const brandHref =
-    isAdminWorkspace
+    isCollegeWorkspace
+      ? "/dashboard/college"
+      : isAdminWorkspace
       ? "/admin"
       : isRecruiterWorkspace
       ? "/dashboard/recruiter"
       : "/dashboard";
 
   const brandRoleSubtitle =
-    isAdminWorkspace
+    isCollegeWorkspace
+      ? "College Placement"
+      : isAdminWorkspace
       ? "Admin Console"
       : isRecruiterWorkspace
       ? "Recruiter Workspace"
@@ -397,12 +450,14 @@ export function StudentHubSidebar({
 
   const handleRoleSwitch = () => {
     let nextRole: UserRole = "STUDENT";
-    if (activeRole === "STUDENT") nextRole = "RECRUITER";
-    else if (isRecruiterWorkspace) nextRole = "PLATFORM_ADMIN";
+    if (isStudentWorkspace) nextRole = "RECRUITER";
+    else if (isRecruiterWorkspace) nextRole = "COLLEGE_ADMIN";
+    else if (isCollegeWorkspace) nextRole = "PLATFORM_ADMIN";
     else nextRole = "STUDENT";
 
     switchRole(nextRole);
     if (nextRole === "PLATFORM_ADMIN") router.push("/admin");
+    else if (nextRole === "COLLEGE_ADMIN") router.push("/dashboard/college");
     else if (nextRole === "RECRUITER") router.push("/dashboard/recruiter");
     else router.push("/dashboard");
   };
@@ -420,7 +475,7 @@ export function StudentHubSidebar({
       <div>
         <div
           className={cn(
-            "h-16 px-space-base flex items-center bg-surface-container-lowest transition-all",
+            "h-16 px-4 flex items-center bg-card border-b border-border/80 transition-all",
             isCollapsed ? "justify-center" : "justify-between"
           )}
         >
@@ -430,11 +485,17 @@ export function StudentHubSidebar({
             </div>
             {!isCollapsed && (
               <div className="flex flex-col min-w-0">
-                <span className="font-headline-sm text-headline-sm tracking-tight text-on-surface font-bold">
+                <span className="text-base font-extrabold tracking-tight text-foreground">
                   StudentHub
                 </span>
-                <span className="px-space-xs py-space-2xs rounded bg-surface-container-high text-primary font-label-sm text-label-sm uppercase tracking-wider mt-0.5 w-max">
-                  {brandRoleSubtitle === "Admin Console" ? "ADMIN" : brandRoleSubtitle === "Recruiter Workspace" ? "REC" : "OS"}
+                <span className="px-1.5 py-0.2 rounded bg-blue-500/10 text-blue-600 dark:text-blue-400 font-bold text-[10px] uppercase tracking-wider mt-0.5 w-max">
+                  {brandRoleSubtitle === "Admin Console"
+                    ? "ADMIN"
+                    : brandRoleSubtitle === "Recruiter Workspace"
+                    ? "RECRUITER"
+                    : brandRoleSubtitle === "College Placement"
+                    ? "COLLEGE"
+                    : "STUDENT"}
                 </span>
               </div>
             )}
@@ -561,53 +622,60 @@ export function StudentHubSidebar({
       </div>
 
       {/* Bottom Section: Theme Switcher & Compact Profile Card */}
-      <div className="p-3 border-t border-border/80 bg-card/50 space-y-2.5">
+      <div className="p-3 border-t border-border/80 bg-card space-y-2.5">
         {/* Unified Appearance / Theme Switcher */}
         {!isCollapsed ? (
-          <div className="p-space-sm bg-surface-container-low/60 m-space-sm rounded-xl space-y-space-sm shadow-[0_1px_4px_rgba(0,0,0,0.02)]">
-            <div className="flex items-center justify-between">
-              <span className="font-title-card text-title-card text-on-surface">Appearance</span>
+          <div className="p-2.5 rounded-xl bg-muted/40 border border-border/70 space-y-2">
+            <div className="flex items-center justify-between px-0.5">
+              <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Appearance</span>
+              <span className="text-[10px] text-muted-foreground font-medium capitalize">{theme}</span>
             </div>
 
-            <div className="flex items-center p-0.5 rounded-lg bg-surface-container">
+            <div className="grid grid-cols-3 p-1 rounded-lg bg-muted/70 border border-border/50 gap-1 text-xs">
               <button
+                type="button"
                 onClick={() => setTheme("light")}
                 className={cn(
-                  "px-space-xs py-space-2xs rounded flex items-center transition-colors",
+                  "py-1.5 rounded-md flex items-center justify-center gap-1.5 font-semibold transition-all cursor-pointer",
                   theme === "light"
-                    ? "bg-surface-container-lowest text-primary shadow-sm"
-                    : "text-outline hover:text-on-surface"
+                    ? "bg-card text-foreground shadow-xs border border-border/80"
+                    : "text-muted-foreground hover:text-foreground"
                 )}
                 title="Light mode"
                 aria-label="Light mode"
               >
-                <Sun className="w-3 h-3" />
+                <Sun className="w-3.5 h-3.5" />
+                <span className="text-[11px]">Light</span>
               </button>
               <button
-                onClick={() => setTheme("dark")}
-                className={cn(
-                  "px-space-xs py-space-2xs rounded flex items-center transition-colors",
-                  theme === "dark"
-                    ? "bg-surface-container-lowest text-primary shadow-sm"
-                    : "text-outline hover:text-on-surface"
-                )}
-                title="Dark mode"
-                aria-label="Dark mode"
-              >
-                <Moon className="w-3 h-3" />
-              </button>
-              <button
+                type="button"
                 onClick={() => setTheme("system")}
                 className={cn(
-                  "px-space-xs py-space-2xs rounded flex items-center transition-colors",
+                  "py-1.5 rounded-md flex items-center justify-center gap-1.5 font-semibold transition-all cursor-pointer",
                   theme === "system"
-                    ? "bg-surface-container-lowest text-primary shadow-sm"
-                    : "text-outline hover:text-on-surface"
+                    ? "bg-card text-foreground shadow-xs border border-border/80"
+                    : "text-muted-foreground hover:text-foreground"
                 )}
                 title="System theme"
                 aria-label="System theme"
               >
-                <Laptop className="w-3 h-3" />
+                <Laptop className="w-3.5 h-3.5" />
+                <span className="text-[11px]">System</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setTheme("dark")}
+                className={cn(
+                  "py-1.5 rounded-md flex items-center justify-center gap-1.5 font-semibold transition-all cursor-pointer",
+                  theme === "dark"
+                    ? "bg-card text-foreground shadow-xs border border-border/80"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+                title="Dark mode"
+                aria-label="Dark mode"
+              >
+                <Moon className="w-3.5 h-3.5" />
+                <span className="text-[11px]">Dark</span>
               </button>
             </div>
           </div>
@@ -629,7 +697,7 @@ export function StudentHubSidebar({
         )}
 
         {/* Compact Profile Card */}
-        <div className="p-2 rounded-xl bg-muted/40 border border-border/60">
+        <div className="p-2.5 rounded-xl bg-muted/40 border border-border/60">
           <div
             className={cn(
               "flex items-center gap-2.5",
@@ -643,7 +711,9 @@ export function StudentHubSidebar({
                   {user?.name || "StudentHub User"}
                 </span>
                 <span className="text-[10px] text-muted-foreground truncate font-medium">
-                  {isAdminWorkspace
+                  {isCollegeWorkspace
+                    ? "Placement Director"
+                    : isAdminWorkspace
                     ? "Trust & Safety Admin"
                     : isRecruiterWorkspace
                     ? "University Recruiter"
@@ -654,21 +724,19 @@ export function StudentHubSidebar({
           </div>
 
           {!isCollapsed && (
-            <div className="mt-2 pt-2 border-t border-border/50 flex items-center justify-between text-[11px]">
-              {process.env.NODE_ENV === "development" && (
-                <button
-                  onClick={handleRoleSwitch}
-                  className="inline-flex items-center gap-1 font-semibold text-muted-foreground hover:text-foreground transition-colors"
-                  title="Switch Workspace Demo Role"
-                >
-                  <ArrowLeftRight className="w-3 h-3 text-blue-500" />
-                  <span>Switch Role</span>
-                </button>
-              )}
+            <div className="mt-2.5 pt-2 border-t border-border/50 flex items-center justify-between text-[11px]">
+              <button
+                onClick={handleRoleSwitch}
+                className="inline-flex items-center gap-1 font-semibold text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                title="Switch Workspace Demo Role"
+              >
+                <ArrowLeftRight className="w-3 h-3 text-blue-500" />
+                <span>Switch Role</span>
+              </button>
 
               <button
                 onClick={handleLogout}
-                className="inline-flex items-center gap-1 font-semibold text-rose-600 dark:text-rose-400 hover:text-rose-700 transition-colors"
+                className="inline-flex items-center gap-1 font-semibold text-rose-600 dark:text-rose-400 hover:text-rose-700 transition-colors cursor-pointer"
                 title="Sign out of StudentHub"
               >
                 <LogOut className="w-3 h-3" />
@@ -686,8 +754,8 @@ export function StudentHubSidebar({
       {/* Desktop Sticky Sidebar */}
       <aside
         className={cn(
-          "hidden lg:block h-screen h-[100dvh] sticky top-0 border-r border-border/80 bg-card z-40 transition-all duration-300",
-          isCollapsed ? "w-20" : "w-64",
+          "hidden lg:block h-screen h-[100dvh] sticky top-0 border-r border-border/80 bg-card z-40 transition-all duration-200 shrink-0",
+          isCollapsed ? "w-[72px]" : "w-[280px]",
           className
         )}
       >
@@ -701,7 +769,7 @@ export function StudentHubSidebar({
             className="absolute inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
             onClick={onCloseMobileDrawer}
           />
-          <aside className="relative w-72 max-w-[85vw] h-full bg-card border-r border-border shadow-2xl z-10 animate-slide-right">
+          <aside className="relative w-[280px] max-w-[85vw] h-full bg-card border-r border-border shadow-2xl z-10 animate-slide-right">
             {sidebarContent}
           </aside>
         </div>

@@ -25,6 +25,8 @@ import {
   ExternalLink,
   ChevronRight,
   AlertTriangle,
+  RefreshCw,
+  AlertCircle,
 } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
@@ -34,13 +36,18 @@ import { RoleGuard } from "@/components/dashboard/RoleGuard";
 import { getTimeAwareGreeting } from "@/lib/utils";
 import { StructuredCandidateModal } from "@/components/recruiter/StructuredCandidateModal";
 import { RecruitmentDrive, RecruitmentApplication, CandidateInterviewRecord, RecruiterAuditLogEntry } from "@/types";
+import { WelcomeCard } from "@/components/dashboard/WelcomeCard";
+import { MetricCard } from "@/components/dashboard/MetricCard";
+import { useAuth } from "@/context/AuthContext";
 
 export default function RecruiterDashboardHomePage() {
   const router = useRouter();
+  const { user } = useAuth();
   const [greeting, setGreeting] = useState("Good morning");
 
   // Live Server Data States
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [kpis, setKpis] = useState({
     activeDrivesCount: 0,
     totalApplicationsCount: 0,
@@ -65,6 +72,7 @@ export default function RecruiterDashboardHomePage() {
 
   const fetchOverviewData = async () => {
     setIsLoading(true);
+    setError(null);
     try {
       const res = await fetch("/api/recruiter/overview");
       if (res.ok) {
@@ -74,9 +82,12 @@ export default function RecruiterDashboardHomePage() {
         if (data.recentApplications) setRecentApplications(data.recentApplications);
         if (data.upcomingInterviews) setUpcomingInterviews(data.upcomingInterviews);
         if (data.recentAuditLogs) setRecentAuditLogs(data.recentAuditLogs);
+      } else {
+        setError("Unable to load latest recruiter metrics and active drives.");
       }
     } catch (err) {
       console.warn("Failed to fetch recruiter overview:", err);
+      setError("Network error connecting to recruiter overview service.");
     } finally {
       setIsLoading(false);
     }
@@ -125,145 +136,117 @@ export default function RecruiterDashboardHomePage() {
     <RoleGuard allowedRole="recruiter">
       <div className="space-y-8">
         {/* Workspace Hero Header */}
-        <div className="relative rounded-3xl p-6 sm:p-8 bg-gradient-to-br from-blue-950/40 via-card to-blue-950/30 border border-blue-500/20 shadow-sm overflow-hidden">
-          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-            <div className="space-y-2">
-              <div className="flex flex-wrap items-center gap-2">
-                <Badge variant="gradient" size="sm" className="font-semibold">
-                  <Sparkles className="w-3 h-3 text-blue-400" />
-                  Structured Recruitment Portal
-                </Badge>
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-blue-500/30">
-                  <ShieldCheck className="w-3 h-3" />
-                  RPSC-Style Rigor
-                </span>
+        <WelcomeCard
+          portalBadge="Structured Recruitment Workspace"
+          userName={user?.name || "Sarah Chen"}
+          description="Manage structured recruitment drives, evaluate academic eligibility, coordinate multi-stage assessments, and publish auditable merit lists."
+          primaryAction={{
+            label: "Create Recruitment Drive",
+            href: "/dashboard/recruiter/drives/new",
+            icon: <PlusCircle className="w-3.5 h-3.5" />
+          }}
+          secondaryAction={{
+            label: "Screening Workbench",
+            href: "/dashboard/recruiter/screening",
+            icon: <UserCheck className="w-3.5 h-3.5" />
+          }}
+          rightWidget={
+            <div className="shrink-0 w-full lg:w-72 p-4 rounded-2xl bg-muted/40 border border-border/80 backdrop-blur-xs space-y-2.5">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-foreground">Pipeline Health</span>
+                <span className="text-xs font-extrabold text-emerald-600 dark:text-emerald-400">RPSC Active</span>
               </div>
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
-                {greeting}, Sarah Chen
-              </h1>
-              <p className="text-xs sm:text-sm text-muted-foreground max-w-2xl leading-relaxed">
-                Manage structured recruitment drives, evaluate academic eligibility, coordinate multi-stage assessments, and publish auditable merit lists.
-              </p>
+              <div className="text-[11px] text-muted-foreground flex items-center justify-between">
+                <span>Total Applicants</span>
+                <span className="font-bold text-foreground">{kpis.totalApplicationsCount}</span>
+              </div>
+              <div className="text-[11px] text-muted-foreground flex items-center justify-between">
+                <span>Eligible Candidates</span>
+                <span className="font-bold text-emerald-600 dark:text-emerald-400">{kpis.eligibleCandidatesCount}</span>
+              </div>
             </div>
+          }
+        />
 
-            <div className="flex flex-wrap items-center gap-3 shrink-0">
-              <Link href="/dashboard/recruiter/drives/new">
-                <Button variant="gradient" size="sm" leftIcon={<PlusCircle className="w-4 h-4" />}>
-                  Create Recruitment Drive
-                </Button>
-              </Link>
-              <Link href="/dashboard/recruiter/screening">
-                <Button variant="outline" size="sm" leftIcon={<UserCheck className="w-4 h-4" />}>
-                  Screening Workbench
-                </Button>
-              </Link>
+        {error && (
+          <Card className="p-4 border-destructive/40 bg-destructive/5 text-destructive flex items-center justify-between gap-4">
+            <div className="flex items-center gap-2">
+              <AlertCircle className="w-5 h-5 flex-shrink-0" />
+              <span className="text-sm font-medium">{error}</span>
             </div>
-          </div>
-        </div>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={fetchOverviewData}
+              className="gap-1.5 border-destructive/30 hover:bg-destructive/10 text-destructive"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+              Retry
+            </Button>
+          </Card>
+        )}
 
         {/* 6 Real Database KPI Metrics */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5">
-          <Card className="p-4 bg-card border-border/80 hover:border-blue-500/40 transition-all shadow-xs">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
-                Active Drives
-              </span>
-              <div className="w-7 h-7 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center">
-                <Briefcase className="w-3.5 h-3.5" />
-              </div>
-            </div>
-            <div className="mt-2.5 text-2xl font-black text-foreground">
-              {kpis.activeDrivesCount}
-            </div>
-            <div className="text-[10px] text-muted-foreground mt-0.5 flex items-center gap-1">
-              Live recruitment drives
-            </div>
-          </Card>
+          <MetricCard
+            label="Active Drives"
+            value={kpis.activeDrivesCount}
+            hint="Live recruitment drives"
+            icon={<Briefcase className="w-4 h-4" />}
+            iconVariant="blue"
+            isLoading={isLoading}
+            href="/dashboard/recruiter/drives"
+          />
 
-          <Card className="p-4 bg-card border-border/80 hover:border-blue-500/40 transition-all shadow-xs">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
-                Applications
-              </span>
-              <div className="w-7 h-7 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center">
-                <GitPullRequest className="w-3.5 h-3.5" />
-              </div>
-            </div>
-            <div className="mt-2.5 text-2xl font-black text-foreground">
-              {kpis.totalApplicationsCount}
-            </div>
-            <div className="text-[10px] text-muted-foreground mt-0.5 flex items-center gap-1">
-              Total candidate pipeline
-            </div>
-          </Card>
+          <MetricCard
+            label="Applications"
+            value={kpis.totalApplicationsCount}
+            hint="Candidate pipeline"
+            icon={<GitPullRequest className="w-4 h-4" />}
+            iconVariant="blue"
+            isLoading={isLoading}
+            href="/dashboard/recruiter/applications"
+          />
 
-          <Card className="p-4 bg-card border-border/80 hover:border-blue-500/40 transition-all shadow-xs">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
-                Eligible
-              </span>
-              <div className="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
-                <ShieldCheck className="w-3.5 h-3.5" />
-              </div>
-            </div>
-            <div className="mt-2.5 text-2xl font-black text-emerald-600 dark:text-emerald-400">
-              {kpis.eligibleCandidatesCount}
-            </div>
-            <div className="text-[10px] text-muted-foreground mt-0.5 flex items-center gap-1">
-              100% Criteria Passed
-            </div>
-          </Card>
+          <MetricCard
+            label="Eligible"
+            value={kpis.eligibleCandidatesCount}
+            hint="100% Criteria Passed"
+            icon={<ShieldCheck className="w-4 h-4" />}
+            iconVariant="emerald"
+            isLoading={isLoading}
+            href="/dashboard/recruiter/screening"
+          />
 
-          <Card className="p-4 bg-card border-border/80 hover:border-blue-500/40 transition-all shadow-xs">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
-                Shortlisted
-              </span>
-              <div className="w-7 h-7 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center">
-                <UserCheck className="w-3.5 h-3.5" />
-              </div>
-            </div>
-            <div className="mt-2.5 text-2xl font-black text-blue-600 dark:text-blue-400">
-              {kpis.shortlistedCandidatesCount}
-            </div>
-            <div className="text-[10px] text-muted-foreground mt-0.5 flex items-center gap-1">
-              Passed to Assessment
-            </div>
-          </Card>
+          <MetricCard
+            label="Shortlisted"
+            value={kpis.shortlistedCandidatesCount}
+            hint="Passed to Assessment"
+            icon={<UserCheck className="w-4 h-4" />}
+            iconVariant="purple"
+            isLoading={isLoading}
+            href="/dashboard/recruiter/selection"
+          />
 
-          <Card className="p-4 bg-card border-border/80 hover:border-blue-500/40 transition-all shadow-xs">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
-                Interviews
-              </span>
-              <div className="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center">
-                <Calendar className="w-3.5 h-3.5" />
-              </div>
-            </div>
-            <div className="mt-2.5 text-2xl font-black text-amber-600 dark:text-amber-400">
-              {kpis.interviewsCount}
-            </div>
-            <div className="text-[10px] text-muted-foreground mt-0.5 flex items-center gap-1">
-              Scheduled & In-Progress
-            </div>
-          </Card>
+          <MetricCard
+            label="Interviews"
+            value={kpis.interviewsCount}
+            hint="Scheduled & In-Progress"
+            icon={<Calendar className="w-4 h-4" />}
+            iconVariant="amber"
+            isLoading={isLoading}
+            href="/dashboard/recruiter/interviews"
+          />
 
-          <Card className="p-4 bg-card border-border/80 hover:border-blue-500/40 transition-all shadow-xs">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
-                Selected
-              </span>
-              <div className="w-7 h-7 rounded-lg bg-primary/10 text-rose-600 dark:text-rose-400 flex items-center justify-center">
-                <Award className="w-3.5 h-3.5" />
-              </div>
-            </div>
-            <div className="mt-2.5 text-2xl font-black text-foreground">
-              {kpis.selectedCandidatesCount}
-            </div>
-            <div className="text-[10px] text-muted-foreground mt-0.5 flex items-center gap-1">
-              Final merit offers
-            </div>
-          </Card>
+          <MetricCard
+            label="Selected"
+            value={kpis.selectedCandidatesCount}
+            hint="Final merit offers"
+            icon={<Award className="w-4 h-4" />}
+            iconVariant="rose"
+            isLoading={isLoading}
+            href="/dashboard/recruiter/results"
+          />
         </div>
 
         {/* Recruitment Pipeline Funnel Overview */}
@@ -360,71 +343,94 @@ export default function RecruiterDashboardHomePage() {
               </Link>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {activeDrives.map((drive) => (
-                <Card
-                  key={drive.id}
-                  className="p-5 border-border/80 hover:border-blue-500/40 transition-all bg-card flex flex-col justify-between space-y-4"
-                >
-                  <div className="space-y-2">
-                    <div className="flex items-start justify-between gap-2">
-                      <Badge variant="purple" size="sm" className="font-bold uppercase tracking-wider">
-                        {drive.status.replace("_", " ")}
-                      </Badge>
-                      <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
-                        {drive.salaryStipend}
-                      </span>
+            {isLoading ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {[1, 2].map((i) => (
+                  <Card key={i} className="p-5 space-y-4 animate-pulse">
+                    <div className="flex justify-between">
+                      <div className="h-5 w-20 bg-muted rounded" />
+                      <div className="h-5 w-16 bg-muted rounded" />
                     </div>
-
-                    <h3 className="font-extrabold text-base text-foreground leading-snug line-clamp-1">
-                      {drive.title}
-                    </h3>
-                    <p className="text-xs text-muted-foreground line-clamp-2">
-                      {drive.description}
-                    </p>
-
-                    <div className="flex flex-wrap gap-2 text-[11px] text-muted-foreground pt-1">
-                      <span className="font-medium text-foreground">{drive.department}</span>
-                      <span>•</span>
-                      <span>{drive.location}</span>
-                      <span>•</span>
-                      <span>{drive.openingsCount} Openings</span>
+                    <div className="h-6 w-3/4 bg-muted rounded" />
+                    <div className="h-4 w-full bg-muted rounded" />
+                    <div className="pt-3 border-t border-border flex justify-between">
+                      <div className="h-7 w-24 bg-muted rounded" />
+                      <div className="h-7 w-20 bg-muted rounded" />
                     </div>
-                  </div>
-
-                  <div className="pt-3 border-t border-border/80 space-y-3">
-                    <div className="grid grid-cols-3 gap-1 text-center text-xs">
-                      <div className="p-2 rounded-xl bg-muted/60">
-                        <div className="font-extrabold text-foreground">{drive.applicantsCount}</div>
-                        <div className="text-[10px] text-muted-foreground">Applied</div>
+                  </Card>
+                ))}
+              </div>
+            ) : activeDrives.length === 0 ? (
+              <Card className="p-8 text-center text-sm text-muted-foreground bg-card">
+                No active recruitment drives found.
+              </Card>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {activeDrives.map((drive) => (
+                  <Card
+                    key={drive.id}
+                    className="p-5 border-border/80 hover:border-blue-500/40 transition-all bg-card flex flex-col justify-between space-y-4"
+                  >
+                    <div className="space-y-2">
+                      <div className="flex items-start justify-between gap-2">
+                        <Badge variant="purple" size="sm" className="font-bold uppercase tracking-wider">
+                          {drive.status.replace("_", " ")}
+                        </Badge>
+                        <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                          {drive.salaryStipend}
+                        </span>
                       </div>
-                      <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-600">
-                        <div className="font-extrabold">{drive.eligibleCount}</div>
-                        <div className="text-[10px]">Eligible</div>
-                      </div>
-                      <div className="p-2 rounded-xl bg-blue-500/10 text-blue-600">
-                        <div className="font-extrabold">{drive.shortlistedCount}</div>
-                        <div className="text-[10px]">Shortlisted</div>
+
+                      <h3 className="font-extrabold text-base text-foreground leading-snug line-clamp-1">
+                        {drive.title}
+                      </h3>
+                      <p className="text-xs text-muted-foreground line-clamp-2">
+                        {drive.description}
+                      </p>
+
+                      <div className="flex flex-wrap gap-2 text-[11px] text-muted-foreground pt-1">
+                        <span className="font-medium text-foreground">{drive.department}</span>
+                        <span>•</span>
+                        <span>{drive.location}</span>
+                        <span>•</span>
+                        <span>{drive.openingsCount} Openings</span>
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between gap-2 pt-1">
-                      <Link
-                        href={`/dashboard/recruiter/screening?driveId=${drive.id}`}
-                        className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline"
-                      >
-                        Screen Candidates →
-                      </Link>
-                      <Link href={`/dashboard/recruiter/results?driveId=${drive.id}`}>
-                        <Button size="sm" variant="outline" className="h-7 text-xs">
-                          Merit & Results
-                        </Button>
-                      </Link>
+                    <div className="pt-3 border-t border-border/80 space-y-3">
+                      <div className="grid grid-cols-3 gap-1 text-center text-xs">
+                        <div className="p-2 rounded-xl bg-muted/60">
+                          <div className="font-extrabold text-foreground">{drive.applicantsCount}</div>
+                          <div className="text-[10px] text-muted-foreground">Applied</div>
+                        </div>
+                        <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-600">
+                          <div className="font-extrabold">{drive.eligibleCount}</div>
+                          <div className="text-[10px]">Eligible</div>
+                        </div>
+                        <div className="p-2 rounded-xl bg-blue-500/10 text-blue-600">
+                          <div className="font-extrabold">{drive.shortlistedCount}</div>
+                          <div className="text-[10px]">Shortlisted</div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between gap-2 pt-1">
+                        <Link
+                          href={`/dashboard/recruiter/screening?driveId=${drive.id}`}
+                          className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline"
+                        >
+                          Screen Candidates →
+                        </Link>
+                        <Link href={`/dashboard/recruiter/results?driveId=${drive.id}`}>
+                          <Button size="sm" variant="outline" className="h-7 text-xs">
+                            Merit & Results
+                          </Button>
+                        </Link>
+                      </div>
                     </div>
-                  </div>
-                </Card>
-              ))}
-            </div>
+                  </Card>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Upcoming Interviews & Audit Feed (1 Col) */}
@@ -555,66 +561,93 @@ export default function RecruiterDashboardHomePage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border bg-card">
-                {recentApplications.map((app) => (
-                  <tr key={app.id} className="hover:bg-muted/40 transition-colors">
-                    <td className="px-4 py-3.5">
-                      <div className="flex items-center gap-3">
-                        <Avatar src={app.studentAvatar} alt={app.studentName} size="sm" />
-                        <div>
-                          <div className="font-bold text-foreground">{app.studentName}</div>
-                          <div className="text-[11px] text-muted-foreground">
-                            {app.degree} • {app.university}
+                {isLoading ? (
+                  [1, 2, 3].map((i) => (
+                    <tr key={i} className="animate-pulse">
+                      <td className="px-4 py-3.5">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full bg-muted" />
+                          <div className="space-y-1">
+                            <div className="w-24 h-4 bg-muted rounded" />
+                            <div className="w-32 h-3 bg-muted rounded" />
                           </div>
                         </div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3.5 text-foreground font-medium">{app.driveTitle}</td>
-                    <td className="px-4 py-3.5">
-                      {app.eligibility ? (
-                        <span
-                          className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
-                            app.eligibility.status === "ELIGIBLE"
-                              ? "bg-emerald-500/10 text-emerald-600 border border-blue-500/30"
-                              : app.eligibility.status === "REQUIRES_MANUAL_REVIEW"
-                              ? "bg-amber-500/10 text-amber-600 border border-blue-500/30"
-                              : "bg-primary/10 text-rose-600 border border-rose-500/30"
-                          }`}
-                        >
-                          {app.eligibility.status === "ELIGIBLE" ? (
-                            <CheckCircle2 className="w-3 h-3" />
-                          ) : (
-                            <AlertTriangle className="w-3 h-3" />
-                          )}
-                          {app.eligibility.status === "ELIGIBLE"
-                            ? "100% Eligible"
-                            : app.eligibility.status === "REQUIRES_MANUAL_REVIEW"
-                            ? "Review Needed"
-                            : "Failed Criteria"}
-                        </span>
-                      ) : (
-                        <span className="text-muted-foreground">Pending</span>
-                      )}
-                    </td>
-                    <td className="px-4 py-3.5">
-                      <span className="font-semibold text-foreground">{app.currentStageName}</span>
-                    </td>
-                    <td className="px-4 py-3.5">
-                      <Badge variant="purple" size="sm">
-                        {app.status.replace("_", " ")}
-                      </Badge>
-                    </td>
-                    <td className="px-4 py-3.5 text-right">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="h-7 text-xs font-semibold"
-                        onClick={() => handleOpenCandidate(app)}
-                      >
-                        Inspect Profile
-                      </Button>
+                      </td>
+                      <td className="px-4 py-3.5"><div className="w-28 h-4 bg-muted rounded" /></td>
+                      <td className="px-4 py-3.5"><div className="w-20 h-5 bg-muted rounded" /></td>
+                      <td className="px-4 py-3.5"><div className="w-16 h-4 bg-muted rounded" /></td>
+                      <td className="px-4 py-3.5"><div className="w-20 h-5 bg-muted rounded" /></td>
+                      <td className="px-4 py-3.5 text-right"><div className="w-16 h-7 bg-muted rounded ml-auto" /></td>
+                    </tr>
+                  ))
+                ) : recentApplications.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="px-4 py-8 text-center text-xs text-muted-foreground">
+                      No candidate applications received yet.
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  recentApplications.map((app) => (
+                    <tr key={app.id} className="hover:bg-muted/40 transition-colors">
+                      <td className="px-4 py-3.5">
+                        <div className="flex items-center gap-3">
+                          <Avatar src={app.studentAvatar} alt={app.studentName} size="sm" />
+                          <div>
+                            <div className="font-bold text-foreground">{app.studentName}</div>
+                            <div className="text-[11px] text-muted-foreground">
+                              {app.degree} • {app.university}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3.5 text-foreground font-medium">{app.driveTitle}</td>
+                      <td className="px-4 py-3.5">
+                        {app.eligibility ? (
+                          <span
+                            className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
+                              app.eligibility.status === "ELIGIBLE"
+                                ? "bg-emerald-500/10 text-emerald-600 border border-blue-500/30"
+                                : app.eligibility.status === "REQUIRES_MANUAL_REVIEW"
+                                ? "bg-amber-500/10 text-amber-600 border border-blue-500/30"
+                                : "bg-primary/10 text-rose-600 border border-rose-500/30"
+                            }`}
+                          >
+                            {app.eligibility.status === "ELIGIBLE" ? (
+                              <CheckCircle2 className="w-3 h-3" />
+                            ) : (
+                              <AlertTriangle className="w-3 h-3" />
+                            )}
+                            {app.eligibility.status === "ELIGIBLE"
+                              ? "100% Eligible"
+                              : app.eligibility.status === "REQUIRES_MANUAL_REVIEW"
+                              ? "Review Needed"
+                              : "Failed Criteria"}
+                          </span>
+                        ) : (
+                          <span className="text-muted-foreground">Pending</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3.5">
+                        <span className="font-semibold text-foreground">{app.currentStageName}</span>
+                      </td>
+                      <td className="px-4 py-3.5">
+                        <Badge variant="purple" size="sm">
+                          {app.status.replace("_", " ")}
+                        </Badge>
+                      </td>
+                      <td className="px-4 py-3.5 text-right">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-7 text-xs font-semibold"
+                          onClick={() => handleOpenCandidate(app)}
+                        >
+                          Inspect Profile
+                        </Button>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>

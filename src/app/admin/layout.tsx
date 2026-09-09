@@ -1,11 +1,15 @@
+"use client";
+
 import React from "react";
 import { AdminGuard } from "@/components/admin/AdminGuard";
-import { AdminScaffold } from "@/components/admin/AdminScaffold";
+import { DashboardShell } from "@/components/dashboard/DashboardShell";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
     <AdminGuard>
-      <AdminScaffold>{children}</AdminScaffold>
+      <DashboardShell role="admin" showFab={false}>
+        {children}
+      </DashboardShell>
     </AdminGuard>
   );
 }

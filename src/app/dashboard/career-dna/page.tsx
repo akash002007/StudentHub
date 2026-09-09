@@ -94,7 +94,7 @@ export default function CareerDNAPage() {
       }
     } catch {
       toastError("Error triggering refresh.");
-    } fontally: {
+    } finally {
       setIsRefreshing(false);
     }
   };
