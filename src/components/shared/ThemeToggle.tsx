@@ -1,29 +1,74 @@
 "use client";
 
 import React from "react";
-import { Moon, Sun } from "lucide-react";
-import { useTheme } from "@/context/ThemeContext";
+import { Moon, Sun, Laptop } from "lucide-react";
+import { useTheme, Theme } from "@/context/ThemeContext";
 import { cn } from "@/lib/utils";
 
-export function ThemeToggle({ className }: { className?: string }) {
-  const { resolvedTheme, toggleTheme } = useTheme();
+export interface ThemeToggleProps {
+  className?: string;
+  showLabels?: boolean;
+  size?: "sm" | "md";
+}
+
+export function ThemeToggle({
+  className,
+  showLabels = false,
+  size = "md",
+}: ThemeToggleProps) {
+  const { theme, setTheme } = useTheme();
+
+  const options: { value: Theme; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
+    { value: "light", label: "Light", icon: Sun },
+    { value: "system", label: "System", icon: Laptop },
+    { value: "dark", label: "Dark", icon: Moon },
+  ];
 
   return (
-    <button
-      onClick={toggleTheme}
-      type="button"
+    <div
+      role="group"
+      aria-label="Theme selection"
       className={cn(
-        "p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/80 transition-colors relative border border-transparent hover:border-border/60",
+        "inline-flex items-center p-1 rounded-xl bg-muted/80 border border-border/70 gap-0.5 shadow-2xs backdrop-blur-xs",
         className
       )}
-      aria-label="Toggle theme"
-      title={resolvedTheme === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode"}
     >
-      {resolvedTheme === "dark" ? (
-        <Sun className="w-4 h-4 text-amber-400 transition-transform duration-200 rotate-0 hover:rotate-45" />
-      ) : (
-        <Moon className="w-4 h-4 text-blue-600 transition-transform duration-200" />
-      )}
-    </button>
+      {options.map((opt) => {
+        const Icon = opt.icon;
+        const isSelected = theme === opt.value;
+
+        return (
+          <button
+            key={opt.value}
+            type="button"
+            onClick={() => setTheme(opt.value)}
+            aria-pressed={isSelected}
+            aria-label={`${opt.label} theme`}
+            title={`${opt.label} theme`}
+            className={cn(
+              "flex items-center justify-center gap-1.5 rounded-lg font-semibold transition-all duration-150 cursor-pointer select-none",
+              size === "sm" ? "px-2 py-1 text-[11px]" : "px-2.5 py-1.5 text-xs",
+              isSelected
+                ? "bg-card text-foreground shadow-xs border border-border/80"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
+            )}
+          >
+            <Icon
+              className={cn(
+                size === "sm" ? "w-3 h-3" : "w-3.5 h-3.5",
+                opt.value === "light" && isSelected && "text-amber-500",
+                opt.value === "dark" && isSelected && "text-blue-400",
+                opt.value === "system" && isSelected && "text-foreground"
+              )}
+            />
+            {showLabels ? (
+              <span className="text-[11px] leading-none">{opt.label}</span>
+            ) : (
+              <span className="hidden sm:inline text-[11px] leading-none">{opt.label}</span>
+            )}
+          </button>
+        );
+      })}
+    </div>
   );
 }

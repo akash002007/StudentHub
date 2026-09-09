@@ -42,12 +42,17 @@ export default function RootLayout({
             __html: `
               (function() {
                 try {
-                  var stored = localStorage.getItem('studenthub_theme');
+                  var stored = localStorage.getItem('studenthub-theme') || localStorage.getItem('studenthub_theme');
                   var isDark = stored === 'dark' || ((!stored || stored === 'system') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+                  var root = document.documentElement;
                   if (isDark) {
-                    document.documentElement.classList.add('dark');
+                    root.classList.add('dark');
+                    root.setAttribute('data-theme', 'dark');
+                    root.style.colorScheme = 'dark';
                   } else {
-                    document.documentElement.classList.remove('dark');
+                    root.classList.remove('dark');
+                    root.setAttribute('data-theme', 'light');
+                    root.style.colorScheme = 'light';
                   }
                 } catch (e) {}
               })();
@@ -57,7 +62,7 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
       </head>
-      <body className="bg-surface text-on-surface font-body-md text-body-md antialiased min-h-screen">
+      <body className="bg-background text-foreground font-body-md text-body-md antialiased min-h-screen">
         <Providers>{children}</Providers>
       </body>
     </html>

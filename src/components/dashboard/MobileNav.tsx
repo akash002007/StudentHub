@@ -31,6 +31,7 @@ import { Badge } from "@/components/ui/Badge";
 import { useAuth } from "@/context/AuthContext";
 import { useData } from "@/context/DataContext";
 import { useTheme } from "@/context/ThemeContext";
+import { ThemeToggle } from "@/components/shared/ThemeToggle";
 import { cn } from "@/lib/utils";
 
 export function MobileNav() {
@@ -268,47 +269,7 @@ export function MobileNav() {
                 </Link>
                 <div className="p-3 rounded-xl bg-muted/60 flex items-center justify-between text-foreground border border-border/50 col-span-2">
                   <span className="text-xs font-semibold text-muted-foreground">Appearance</span>
-                  <div className="flex items-center gap-1 bg-background/80 p-0.5 rounded-lg border border-border/60">
-                    <button
-                      onClick={() => setTheme("light")}
-                      className={cn(
-                        "p-1.5 rounded-md text-[10px] font-semibold transition-colors flex items-center gap-1",
-                        theme === "light"
-                          ? "bg-foreground text-background shadow-2xs"
-                          : "text-muted-foreground hover:text-foreground"
-                      )}
-                      title="Light mode"
-                      aria-label="Light mode"
-                    >
-                      <Sun className="w-3.5 h-3.5" />
-                    </button>
-                    <button
-                      onClick={() => setTheme("dark")}
-                      className={cn(
-                        "p-1.5 rounded-md text-[10px] font-semibold transition-colors flex items-center gap-1",
-                        theme === "dark"
-                          ? "bg-foreground text-background shadow-2xs"
-                          : "text-muted-foreground hover:text-foreground"
-                      )}
-                      title="Dark mode"
-                      aria-label="Dark mode"
-                    >
-                      <Moon className="w-3.5 h-3.5" />
-                    </button>
-                    <button
-                      onClick={() => setTheme("system")}
-                      className={cn(
-                        "p-1.5 rounded-md text-[10px] font-semibold transition-colors flex items-center gap-1",
-                        theme === "system"
-                          ? "bg-foreground text-background shadow-2xs"
-                          : "text-muted-foreground hover:text-foreground"
-                      )}
-                      title="System theme"
-                      aria-label="System theme"
-                    >
-                      <Laptop className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
+                  <ThemeToggle showLabels size="sm" />
                 </div>
               </div>
             ) : (
@@ -346,47 +307,7 @@ export function MobileNav() {
                 </Link>
                 <div className="p-3 rounded-xl bg-muted/60 flex items-center justify-between text-foreground border border-border/50 col-span-2 sm:col-span-1">
                   <span className="text-xs font-semibold text-muted-foreground">Appearance</span>
-                  <div className="flex items-center gap-1 bg-background/80 p-0.5 rounded-lg border border-border/60">
-                    <button
-                      onClick={() => setTheme("light")}
-                      className={cn(
-                        "p-1.5 rounded-md text-[10px] font-semibold transition-colors flex items-center gap-1",
-                        theme === "light"
-                          ? "bg-foreground text-background shadow-2xs"
-                          : "text-muted-foreground hover:text-foreground"
-                      )}
-                      title="Light mode"
-                      aria-label="Light mode"
-                    >
-                      <Sun className="w-3.5 h-3.5" />
-                    </button>
-                    <button
-                      onClick={() => setTheme("dark")}
-                      className={cn(
-                        "p-1.5 rounded-md text-[10px] font-semibold transition-colors flex items-center gap-1",
-                        theme === "dark"
-                          ? "bg-foreground text-background shadow-2xs"
-                          : "text-muted-foreground hover:text-foreground"
-                      )}
-                      title="Dark mode"
-                      aria-label="Dark mode"
-                    >
-                      <Moon className="w-3.5 h-3.5" />
-                    </button>
-                    <button
-                      onClick={() => setTheme("system")}
-                      className={cn(
-                        "p-1.5 rounded-md text-[10px] font-semibold transition-colors flex items-center gap-1",
-                        theme === "system"
-                          ? "bg-foreground text-background shadow-2xs"
-                          : "text-muted-foreground hover:text-foreground"
-                      )}
-                      title="System theme"
-                      aria-label="System theme"
-                    >
-                      <Laptop className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
+                  <ThemeToggle showLabels size="sm" />
                 </div>
               </div>
             )}

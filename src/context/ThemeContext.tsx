@@ -16,11 +16,12 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<Theme>("system");
   const [resolvedTheme, setResolvedTheme] = useState<"dark" | "light">("dark");
+  const [mounted, setMounted] = useState(false);
 
   // Read stored preference on mount
   useEffect(() => {
     try {
-      const storedTheme = localStorage.getItem("studenthub_theme") as Theme | null;
+      const storedTheme = (localStorage.getItem("studenthub-theme") || localStorage.getItem("studenthub_theme")) as Theme | null;
       if (storedTheme && (storedTheme === "light" || storedTheme === "dark" || storedTheme === "system")) {
         setThemeState(storedTheme);
       } else {
@@ -29,9 +30,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     } catch {
       setThemeState("system");
     }
+    setMounted(true);
   }, []);
 
-  // Update resolvedTheme and document class when theme or OS appearance changes
+  // Update resolvedTheme, document class, and data-theme attribute when theme or OS appearance changes
   useEffect(() => {
     const root = document.documentElement;
 
@@ -40,8 +42,12 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       setResolvedTheme(actual);
       if (isDark) {
         root.classList.add("dark");
+        root.setAttribute("data-theme", "dark");
+        root.style.colorScheme = "dark";
       } else {
         root.classList.remove("dark");
+        root.setAttribute("data-theme", "light");
+        root.style.colorScheme = "light";
       }
     };
 
@@ -66,9 +72,24 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     }
   }, [theme]);
 
+  // Sync across tabs
+  useEffect(() => {
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === "studenthub-theme" || e.key === "studenthub_theme") {
+        const val = e.newValue as Theme | null;
+        if (val === "light" || val === "dark" || val === "system") {
+          setThemeState(val);
+        }
+      }
+    };
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
+  }, []);
+
   const setTheme = useCallback((newTheme: Theme) => {
     setThemeState(newTheme);
     try {
+      localStorage.setItem("studenthub-theme", newTheme);
       localStorage.setItem("studenthub_theme", newTheme);
     } catch {
       // ignore

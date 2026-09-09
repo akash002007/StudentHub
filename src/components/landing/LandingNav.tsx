@@ -91,7 +91,7 @@ export function LandingNav() {
 
         {/* Mobile Menu Button */}
         <div className="flex items-center gap-2 md:hidden">
-          <ThemeToggle />
+          <ThemeToggle size="sm" />
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className="p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted"
@@ -142,7 +142,13 @@ export function LandingNav() {
               Career Paths
             </a>
           </nav>
-          <div className="pt-3 border-t border-border flex flex-col gap-2.5">
+
+          <div className="pt-3 border-t border-border flex items-center justify-between">
+            <span className="text-xs font-semibold text-muted-foreground">Appearance</span>
+            <ThemeToggle showLabels size="sm" />
+          </div>
+
+          <div className="pt-1 border-t border-border flex flex-col gap-2.5">
             {isAuthenticated ? (
               <Link href="/dashboard" onClick={() => setIsMobileMenuOpen(false)}>
                 <Button variant="primary" className="w-full justify-center">

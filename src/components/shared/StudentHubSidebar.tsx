@@ -682,15 +682,21 @@ export function StudentHubSidebar({
         ) : (
           <div className="flex justify-center">
             <button
-              onClick={toggleTheme}
-              className="p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/80 transition-colors"
-              title={resolvedTheme === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode"}
-              aria-label="Toggle theme"
+              onClick={() => {
+                if (theme === "light") setTheme("dark");
+                else if (theme === "dark") setTheme("system");
+                else setTheme("light");
+              }}
+              className="p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/80 transition-colors cursor-pointer border border-transparent hover:border-border/60"
+              title={`Theme: ${theme}. Click to change.`}
+              aria-label={`Current theme: ${theme}. Click to switch theme.`}
             >
-              {resolvedTheme === "dark" ? (
-                <Sun className="w-4 h-4 text-amber-400" />
+              {theme === "light" ? (
+                <Sun className="w-4 h-4 text-amber-500" />
+              ) : theme === "dark" ? (
+                <Moon className="w-4 h-4 text-blue-400" />
               ) : (
-                <Moon className="w-4 h-4 text-blue-600" />
+                <Laptop className="w-4 h-4 text-foreground" />
               )}
             </button>
           </div>
