@@ -68,9 +68,11 @@ export default function CandidateTakeAssessmentPage({
   const [saveStatus, setSaveStatus] = useState<"SAVED" | "SAVING" | "ERROR">("SAVED");
   const [remainingSeconds, setRemainingSeconds] = useState(0);
 
-  // Warning & Termination Modal
+  // Warning, Pause & Termination Modal
   const [warningMessage, setWarningMessage] = useState<string | null>(null);
   const [violationCount, setViolationCount] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const [pauseReason, setPauseReason] = useState("");
   const [isTerminated, setIsTerminated] = useState(false);
   const [terminationReason, setTerminationReason] = useState("");
 
@@ -160,6 +162,13 @@ export default function CandidateTakeAssessmentPage({
 
           if (data.attempt.status === "ACTIVE") {
             setIsExamActive(true);
+            const now = Date.now();
+            const expires = new Date(data.attempt.expiresAt).getTime();
+            setRemainingSeconds(Math.max(0, Math.floor((expires - now) / 1000)));
+          } else if (data.attempt.status === "PAUSED") {
+            setIsExamActive(true);
+            setIsPaused(true);
+            setPauseReason(data.attempt.pauseReason || "Proctoring connection interrupted.");
             const now = Date.now();
             const expires = new Date(data.attempt.expiresAt).getTime();
             setRemainingSeconds(Math.max(0, Math.floor((expires - now) / 1000)));
@@ -333,6 +342,12 @@ export default function CandidateTakeAssessmentPage({
           setIsTerminated(true);
           setIsExamActive(false);
           setTerminationReason("Assessment terminated due to repeated proctoring violations.");
+        } else if (data.actionTaken === "PAUSE" || data.attemptStatus === "PAUSED") {
+          setIsPaused(true);
+          setPauseReason(reason);
+        } else if (data.actionTaken === "REQUIRE_RECOVERY") {
+          setIsPaused(false);
+          setPauseReason("");
         } else if (data.actionTaken === "WARNING" || data.actionTaken === "FINAL_WARNING") {
           setWarningMessage(
             `${data.actionTaken === "FINAL_WARNING" ? "FINAL WARNING" : "INTEGRITY WARNING"}: ${reason}. Violation ${data.violationCount} recorded.`
@@ -495,6 +510,53 @@ export default function CandidateTakeAssessmentPage({
                 Return to Assessments Hub
               </Button>
             </Link>
+          </Card>
+        ) : isPaused ? (
+          /* PROCTORING PAUSE & RECOVERY SCREEN */
+          <Card className="p-8 border-amber-500/40 bg-card max-w-xl mx-auto text-center space-y-5 shadow-lg">
+            <div className="w-16 h-16 rounded-2xl bg-amber-500/10 text-amber-600 mx-auto flex items-center justify-center">
+              <AlertTriangle className="w-8 h-8" />
+            </div>
+
+            <div className="space-y-1">
+              <h2 className="text-xl font-extrabold text-foreground">Assessment Paused</h2>
+              <p className="text-xs text-muted-foreground leading-relaxed max-w-md mx-auto">
+                {pauseReason || "A mandatory proctoring track (camera, microphone, or screen share) was disconnected or interrupted."}
+              </p>
+            </div>
+
+            <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-900 dark:text-amber-200">
+              Please reconnect your camera, microphone, or screen sharing stream to resume answering questions.
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+              <Button
+                variant="gradient"
+                size="sm"
+                onClick={async () => {
+                  try {
+                    if (assessment.proctoringConfig?.cameraRequired && !cameraReady) {
+                      await requestCamera();
+                    }
+                    if (assessment.proctoringConfig?.microphoneRequired && !micReady) {
+                      await requestMicrophone();
+                    }
+                    if (assessment.proctoringConfig?.entireScreenRequired && !screenReady) {
+                      await requestScreenShare();
+                    }
+                    // Inform server that recovery is attempted
+                    await logIntegritySignal("SESSION_RECONNECTED", "Candidate restored required proctoring hardware tracks");
+                    setIsPaused(false);
+                    setPauseReason("");
+                    success("Proctoring connection restored. Assessment resumed.");
+                  } catch (e) {
+                    toastError("Could not restore all required media tracks.");
+                  }
+                }}
+              >
+                Restore Access & Resume
+              </Button>
+            </div>
           </Card>
         ) : !isExamActive ? (
           /* STEP 1: PRE-FLIGHT ENVIRONMENT & CONSENT CHECK */

@@ -317,13 +317,25 @@ export default function StudentApplicationsPage() {
                     </div>
 
                     <div className="flex items-center gap-2 self-end sm:self-auto">
+                      {app.status === "SHORTLISTED" || app.status === "ASSESSMENT_CLEARED" || app.currentStageName?.toLowerCase().includes("assessment") ? (
+                        <Link href="/dashboard/assessments">
+                          <Button
+                            variant="gradient"
+                            size="sm"
+                            leftIcon={<FileCheck2 className="w-3.5 h-3.5" />}
+                          >
+                            Assessments
+                          </Button>
+                        </Link>
+                      ) : null}
+
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => setSelectedAppForTimeline(app)}
                         leftIcon={<Clock className="w-3.5 h-3.5" />}
                       >
-                        View Timeline History
+                        Timeline
                       </Button>
 
                       <Link href={`/dashboard/drives/${app.driveId}`}>
@@ -332,7 +344,7 @@ export default function StudentApplicationsPage() {
                           size="sm"
                           rightIcon={<ChevronRight className="w-3.5 h-3.5" />}
                         >
-                          Drive Details
+                          Drive
                         </Button>
                       </Link>
                     </div>
