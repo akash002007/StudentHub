@@ -1,6 +1,5 @@
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const pdf = require("pdf-parse");
-import mammoth from "mammoth";
+const mammoth = require("mammoth");
 import {
   ParsedQuestionCandidate,
   QuestionType,
@@ -23,6 +22,8 @@ export interface DocumentParseResult {
     duplicates: number;
     invalid: number;
   };
+  warnings?: string[];
+  metadata?: Record<string, any>;
   error?: string;
 }
 
@@ -62,6 +63,43 @@ export function calculateSimilarity(text1: string, text2: string): number {
 }
 
 /**
+ * Fallback stream text extraction for standard uncompressed or stream-based PDF blocks
+ */
+function extractPdfStreamFallback(buffer: Buffer): string {
+  try {
+    const raw = buffer.toString("latin1");
+    const btRegex = /BT[\s\S]*?ET/g;
+    const matches = raw.match(btRegex);
+    if (!matches || matches.length === 0) return "";
+
+    const textPieces: string[] = [];
+    for (const block of matches) {
+      // Single strings: (text) Tj
+      const tjRegex = /\(([^)]+)\)\s*Tj/g;
+      let m: RegExpExecArray | null;
+      while ((m = tjRegex.exec(block)) !== null) {
+        textPieces.push(m[1]);
+      }
+      // Array strings: [(text) -20 (more)] TJ
+      const arrayTjRegex = /\[(.*?)\]\s*TJ/g;
+      let arrM: RegExpExecArray | null;
+      while ((arrM = arrayTjRegex.exec(block)) !== null) {
+        const inner = arrM[1];
+        const innerStrRegex = /\(([^)]+)\)/g;
+        let strM: RegExpExecArray | null;
+        while ((strM = innerStrRegex.exec(inner)) !== null) {
+          textPieces.push(strM[1]);
+        }
+      }
+    }
+    return textPieces.join("\n").trim();
+  } catch (err) {
+    console.warn("[document-parser] Fallback stream extraction warning:", err);
+    return "";
+  }
+}
+
+/**
  * Extracts plain text from an uploaded buffer (PDF or Word)
  */
 export async function extractTextFromBuffer(
@@ -70,24 +108,76 @@ export async function extractTextFromBuffer(
 ): Promise<{ text: string; fileType: "PDF" | "DOCX" | "DOC"; isScannedPdf?: boolean }> {
   const lowerName = fileName.toLowerCase();
 
-  if (lowerName.endsWith(".pdf")) {
-    const data = await pdf(buffer);
-    const text = data.text || "";
-    // If multiple pages exist but extracted text is tiny, it's likely a scanned image PDF
-    const isScannedPdf = data.numpages > 1 && text.trim().length < 50;
-    return { text, fileType: "PDF", isScannedPdf };
+  // 1. PDF Extraction
+  if (lowerName.endsWith(".pdf") || buffer.slice(0, 5).toString("ascii") === "%PDF-") {
+    let extractedText = "";
+    let pageCount = 1;
+
+    // A. Primary: pdf-parse (Supports both v2 class and v1 function exports)
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const pdfModule = require("pdf-parse");
+
+      if (pdfModule.PDFParse) {
+        const parser = new pdfModule.PDFParse({ data: buffer });
+        const result = await parser.getText();
+        if (result && typeof result.text === "string") {
+          extractedText = result.text;
+          pageCount = result.total || result.pages?.length || 1;
+        }
+      } else if (typeof pdfModule === "function") {
+        const result = await pdfModule(buffer);
+        if (result && typeof result.text === "string") {
+          extractedText = result.text;
+          pageCount = result.numpages || 1;
+        }
+      } else if (pdfModule.default?.PDFParse) {
+        const parser = new pdfModule.default.PDFParse({ data: buffer });
+        const result = await parser.getText();
+        if (result && typeof result.text === "string") {
+          extractedText = result.text;
+          pageCount = result.total || result.pages?.length || 1;
+        }
+      }
+    } catch (primaryErr: any) {
+      console.warn("[document-parser] Primary pdf-parse failed, checking fallback:", primaryErr?.message || primaryErr);
+    }
+
+    // B. Secondary Fallback: Direct PDF text stream parser
+    if (!extractedText || extractedText.trim().length < 20) {
+      const fallbackText = extractPdfStreamFallback(buffer);
+      if (fallbackText && fallbackText.length > extractedText.length) {
+        extractedText = fallbackText;
+      }
+    }
+
+    const trimmedText = extractedText.trim();
+    // Scanned image PDF detection: document has pages but virtually no selectable text
+    const isScannedPdf = pageCount >= 1 && trimmedText.length < 20;
+
+    return {
+      text: extractedText,
+      fileType: "PDF",
+      isScannedPdf,
+    };
   }
 
+  // 2. Word (.docx / .doc) Extraction
   if (lowerName.endsWith(".docx") || lowerName.endsWith(".doc")) {
     const result = await mammoth.extractRawText({ buffer });
-    return { text: result.value || "", fileType: lowerName.endsWith(".doc") ? "DOC" : "DOCX" };
+    const text = result?.value || "";
+    return {
+      text,
+      fileType: lowerName.endsWith(".doc") ? "DOC" : "DOCX",
+      isScannedPdf: false,
+    };
   }
 
-  throw new Error(`Unsupported file type for '${fileName}'. Only PDF, DOCX, and DOC are supported.`);
+  throw new Error(`Unsupported file type for '${fileName}'. Supported formats are PDF (.pdf) and Word (.docx, .doc).`);
 }
 
 /**
- * Parses questions, options, answers, and metadata from raw document text
+ * Parses questions, options, answers, explanations, and metadata from raw document text
  */
 export function parseQuestionsFromDocumentText(
   rawText: string,
@@ -104,15 +194,42 @@ export function parseQuestionsFromDocumentText(
   warnings: string[];
   metadata: Record<string, any>;
 } {
-  const defaultCategory = defaults.category || "Technical";
-  const defaultDifficulty = defaults.difficulty || "MEDIUM";
+  const warnings: string[] = [];
+  const metadata: Record<string, any> = {
+    fileName,
+    category: defaults.category || "Technical",
+    topic: defaults.topic || "General",
+    difficulty: defaults.difficulty || "MEDIUM",
+  };
+
+  // 1. Detect Document-Level Metadata (e.g. Subject, Topic, Difficulty Level)
+  const subjectMatch = rawText.match(/Subject:\s*([^\t\r\n]+)/i);
+  if (subjectMatch) metadata.subject = subjectMatch[1].trim();
+
+  const topicMatch = rawText.match(/Topic:\s*([^\t\r\n]+)/i);
+  if (topicMatch) {
+    metadata.topic = topicMatch[1].trim();
+  }
+
+  const diffMatch = rawText.match(/Difficulty(?:\s*Level)?:\s*([^\t\r\n]+)/i);
+  if (diffMatch) {
+    const dVal = diffMatch[1].trim().toUpperCase();
+    if (dVal.includes("INTERMEDIATE") || dVal.includes("MEDIUM")) {
+      metadata.difficulty = "MEDIUM";
+    } else if (dVal.includes("HARD") || dVal.includes("ADVANCED")) {
+      metadata.difficulty = "HARD";
+    } else if (dVal.includes("EASY") || dVal.includes("BEGINNER")) {
+      metadata.difficulty = "EASY";
+    }
+  }
+
+  const defaultCategory = (metadata.category as QuestionCategory) || "Technical";
+  const defaultDifficulty = (metadata.difficulty as QuestionDifficulty) || "MEDIUM";
   const defaultMarks = defaults.marks ?? 2;
   const defaultNegMarks = defaults.negativeMarks ?? 0.5;
-  const defaultTopic = defaults.topic || "General";
-  const warnings: string[] = [];
-  const metadata: Record<string, any> = { fileName };
+  const defaultTopic = metadata.topic || "General";
 
-  // Check if an Answer Key section exists at the end
+  // 2. Check if an Answer Key block exists at the end
   const answerKeyMap = new Map<number, string>();
   const answerKeyRegex = /(?:Answer\s*Key|Answers|Keys)[\s\S]*$/i;
   const answerKeyMatch = rawText.match(answerKeyRegex);
@@ -127,96 +244,131 @@ export function parseQuestionsFromDocumentText(
       const ansVal = kMatch[2].trim();
       answerKeyMap.set(qNum, ansVal);
     }
-    if (answerKeyMatch.index !== undefined) {
+    if (answerKeyMatch.index !== undefined && answerKeyMatch.index > 50) {
       textToProcess = rawText.substring(0, answerKeyMatch.index);
     }
   }
 
-  // Split document into lines and group into questions
-  const lines = textToProcess
-    .split(/\r?\n/)
-    .map((l) => l.trim())
-    .filter(Boolean);
+  // 3. Clean lines and strip page footers/headers
+  const rawLines = textToProcess.split(/\r?\n/);
+  const cleanLines: string[] = [];
 
-  const questionRegex = /^(?:Q(?:uestion)?\s*(\d+)[:.]?|(\d+)[:.)\]])\s*(.+)/i;
-  const questionBlocks: { qNum?: number; lines: string[] }[] = [];
-  let currentBlock: { qNum?: number; lines: string[] } | null = null;
+  for (const line of rawLines) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
 
-  for (const line of lines) {
-    // If line starts a new question
-    const qMatch = line.match(questionRegex);
+    // Filter out page footers, page counts, and metadata banners
+    if (/^Page\s*\d+\s*of\s*\d+$/i.test(trimmed)) continue;
+    if (/^--\s*\d+\s*of\s*\d+\s*--$/i.test(trimmed)) continue;
+    if (/^Generated for\s/i.test(trimmed)) continue;
+
+    cleanLines.push(trimmed);
+  }
+
+  // 4. Identify Question Blocks
+  // Matches "QUESTION 1", "Question 1:", "Q1.", "1.", "1)" with or without text on same line
+  const questionHeaderRegex = /^(?:(?:QUESTION|Q)\s*(\d+)[:.]?|(\d+)[:.)\]])(?:\s*(.*))?$/i;
+  const questionBlocks: { qNum: number; headerRemainder: string; lines: string[] }[] = [];
+  let currentBlock: { qNum: number; headerRemainder: string; lines: string[] } | null = null;
+
+  for (const line of cleanLines) {
+    const qMatch = line.match(questionHeaderRegex);
     if (qMatch) {
-      if (currentBlock && currentBlock.lines.length > 0) {
+      if (currentBlock && (currentBlock.headerRemainder || currentBlock.lines.length > 0)) {
         questionBlocks.push(currentBlock);
       }
-      const qNum = parseInt(qMatch[1] || qMatch[2], 10);
+      const qNum = parseInt(qMatch[1] || qMatch[2], 10) || questionBlocks.length + 1;
       currentBlock = {
-        qNum: isNaN(qNum) ? undefined : qNum,
-        lines: [line],
+        qNum,
+        headerRemainder: (qMatch[3] || "").trim(),
+        lines: [],
       };
     } else if (currentBlock) {
       currentBlock.lines.push(line);
     }
   }
 
-  if (currentBlock && currentBlock.lines.length > 0) {
+  if (currentBlock && (currentBlock.headerRemainder || currentBlock.lines.length > 0)) {
     questionBlocks.push(currentBlock);
   }
 
-  // Parse each question block
+  // 5. Parse Each Question Block
   const candidates: ParsedQuestionCandidate[] = [];
+
+  const optionRegex = /^(?:([A-Da-d])\s*[-.)\]]|\(([A-Da-d])\))\s*(.+)/;
+  const answerRegex = /^(?:CORRECT\s*ANSWER|Correct\s*Answer|Correct\s*Option|Answer|Ans)\s*[:=]\s*(.+)/i;
+  const expRegex = /^(?:Explanation|Reason):\s*(.+)/i;
+  const marksRegex = /^(?:\[(?:Marks?|Pts?):\s*(\d+)\]|\((\d+)\s*(?:marks?|pts?)\)|Marks?\s*:\s*(\d+))/i;
+  const negMarksRegex = /^(?:\[(?:Neg(?:ative)?|Deduct):\s*(-?\d+(?:\.\d+)?)\]|Negative\s*Marks?\s*:\s*(-?\d+(?:\.\d+)?))/i;
+  const diffRegex = /^(?:\[(?:Difficulty|Level):\s*(Easy|Medium|Hard)\]|Difficulty(?:\s*Level)?\s*:\s*(Easy|Medium|Hard|Intermediate|Advanced|Beginner))/i;
+  const topicRegex = /^(?:\[Topic:\s*([^\]]+)\]|Topic\s*:\s*(.+))/i;
+  const typeRegex = /^(?:Type\s*:\s*(.+))/i;
 
   questionBlocks.forEach((block, idx) => {
     const qNum = block.qNum || idx + 1;
-    let questionText = "";
-    const options: string[] = [];
-    let correctAnswer: string | string[] = "";
-    let explanation = "";
     let marks = defaultMarks;
     let negativeMarks = defaultNegMarks;
     let difficulty: QuestionDifficulty = defaultDifficulty;
     let category: QuestionCategory = defaultCategory;
     let topic = defaultTopic;
 
-    const optionRegex = /^(?:([A-Da-d])\s*[-.)\]]|\(([A-Da-d])\))\s*(.+)/;
-    const answerRegex = /^(?:Correct\s*Answer|Answer|Ans)\s*[:=]\s*(.+)/i;
-    const marksRegex = /^(?:\[(?:Marks?|Pts?):\s*(\d+)\]|\((\d+)\s*(?:marks?|pts?)\)|Marks?\s*:\s*(\d+))/i;
-    const negMarksRegex = /^(?:\[(?:Neg(?:ative)?|Deduct):\s*(-?\d+(?:\.\d+)?)\]|Negative\s*Marks?\s*:\s*(-?\d+(?:\.\d+)?))/i;
-    const diffRegex = /^(?:\[(?:Difficulty|Level):\s*(Easy|Medium|Hard)\]|Difficulty\s*:\s*(Easy|Medium|Hard))/i;
-    const topicRegex = /^(?:\[Topic:\s*([^\]]+)\]|Topic\s*:\s*(.+))/i;
-    const typeRegex = /^(?:Type\s*:\s*(.+))/i;
-    const expRegex = /^(?:Explanation|Reason):\s*(.+)/i;
+    const qStemLines: string[] = [];
+    if (block.headerRemainder) {
+      qStemLines.push(block.headerRemainder);
+    }
 
-    const optionLetterMap = new Map<string, string>(); // 'A' -> "O(log n)"
+    const optionsMap = new Map<string, string>(); // 'A' -> option text
+    const optionsOrder: string[] = [];
+    let currentOptionLetter: string | null = null;
 
-    const qLines: string[] = [];
+    let detectedAnswer = "";
+    const explanationLines: string[] = [];
+    let inExplanation = false;
 
     for (const rawLine of block.lines) {
       // Check Answer line
       const ansMatch = rawLine.match(answerRegex);
       if (ansMatch) {
-        correctAnswer = ansMatch[1].trim();
+        inExplanation = false;
+        currentOptionLetter = null;
+        detectedAnswer = ansMatch[1].trim();
         continue;
       }
 
       // Check Explanation line
       const expMatch = rawLine.match(expRegex);
       if (expMatch) {
-        explanation = expMatch[1].trim();
+        inExplanation = true;
+        currentOptionLetter = null;
+        explanationLines.push(expMatch[1].trim());
         continue;
       }
 
-      // Check Option line
+      // If in explanation mode, subsequent lines until next question belong to explanation
+      if (inExplanation) {
+        explanationLines.push(rawLine);
+        continue;
+      }
+
+      // Check Option line (e.g. "A) Supervised...")
       const optMatch = rawLine.match(optionRegex);
       if (optMatch) {
         const letter = (optMatch[1] || optMatch[2]).toUpperCase();
         const optText = optMatch[3].trim();
-        options.push(optText);
-        optionLetterMap.set(letter, optText);
+        currentOptionLetter = letter;
+        optionsMap.set(letter, optText);
+        optionsOrder.push(letter);
         continue;
       }
 
-      // Metadata extraction
+      // Multi-line Option Continuation: If we are collecting an option and the line is not a metadata/answer line
+      if (currentOptionLetter) {
+        const prev = optionsMap.get(currentOptionLetter) || "";
+        optionsMap.set(currentOptionLetter, `${prev} ${rawLine}`.trim());
+        continue;
+      }
+
+      // Metadata tags
       const mMatch = rawLine.match(marksRegex);
       if (mMatch) {
         marks = parseInt(mMatch[1] || mMatch[2] || mMatch[3], 10) || defaultMarks;
@@ -230,9 +382,9 @@ export function parseQuestionsFromDocumentText(
       const dMatch = rawLine.match(diffRegex);
       if (dMatch) {
         const dStr = (dMatch[1] || dMatch[2]).toUpperCase();
-        if (dStr === "EASY" || dStr === "MEDIUM" || dStr === "HARD") {
-          difficulty = dStr as QuestionDifficulty;
-        }
+        if (dStr.includes("EASY") || dStr.includes("BEGINNER")) difficulty = "EASY";
+        else if (dStr.includes("HARD") || dStr.includes("ADVANCED")) difficulty = "HARD";
+        else difficulty = "MEDIUM";
         continue;
       }
       const tMatch = rawLine.match(topicRegex);
@@ -241,24 +393,27 @@ export function parseQuestionsFromDocumentText(
         continue;
       }
       const tpMatch = rawLine.match(typeRegex);
-      if (tpMatch) {
-        continue;
-      }
+      if (tpMatch) continue;
 
-      // Clean line from question header on first line
-      if (qLines.length === 0) {
-        const cleaned = rawLine.replace(/^(?:Q(?:uestion)?\s*\d+[:.]?|\d+[:.)\]])\s*/i, "").trim();
-        if (cleaned) qLines.push(cleaned);
-      } else {
-        qLines.push(rawLine);
-      }
+      // Question Stem Line
+      qStemLines.push(rawLine);
     }
 
-    questionText = qLines.join(" ").trim();
+    // Check Answer Key from end of doc if not inline
+    if (!detectedAnswer && answerKeyMap.has(qNum)) {
+      detectedAnswer = answerKeyMap.get(qNum)!;
+    }
 
-    // If answer wasn't inline, check if found in the end-of-document Answer Key
-    if (!correctAnswer && answerKeyMap.has(qNum)) {
-      correctAnswer = answerKeyMap.get(qNum)!;
+    const questionText = qStemLines.join(" ").trim();
+    const explanation = explanationLines.join(" ").trim();
+
+    // Reconstruct options array
+    const options: string[] = [];
+    const lettersPresent = optionsOrder.length > 0 ? Array.from(new Set(optionsOrder)) : ["A", "B", "C", "D"];
+    for (const ltr of lettersPresent) {
+      if (optionsMap.has(ltr)) {
+        options.push(optionsMap.get(ltr)!);
+      }
     }
 
     // Determine Question Type
@@ -270,26 +425,30 @@ export function parseQuestionsFromDocumentText(
 
     if (isTrueFalse) {
       type = "TRUE_FALSE";
-    } else if (typeof correctAnswer === "string" && (correctAnswer.includes(",") || correctAnswer.includes(";"))) {
+    } else if (
+      (detectedAnswer.includes(",") || detectedAnswer.includes(";")) &&
+      options.length > 2
+    ) {
       type = "MULTIPLE_CHOICE";
-    } else if (options.length === 0 && correctAnswer) {
+    } else if (options.length === 0 && detectedAnswer) {
       type = "SHORT_ANSWER";
     }
 
-    // Map letter answer (e.g. "B" or "A, C") to actual option text or normalized letters
-    if (typeof correctAnswer === "string") {
-      if (type === "MULTIPLE_CHOICE") {
-        const letters = correctAnswer.split(/[,;]/).map((s) => s.trim().toUpperCase());
-        correctAnswer = letters
-          .map((ltr) => optionLetterMap.get(ltr) || ltr)
-          .filter(Boolean);
-      } else if (optionLetterMap.has(correctAnswer.toUpperCase())) {
-        correctAnswer = optionLetterMap.get(correctAnswer.toUpperCase())!;
-      }
+    // Resolve Correct Answer
+    let correctAnswer: string | string[] = detectedAnswer;
+    const cleanLetter = detectedAnswer.trim().toUpperCase().replace(/[^A-D]/g, "");
+
+    if (type === "MULTIPLE_CHOICE") {
+      const parts = detectedAnswer.split(/[,;]/).map((p) => p.trim().toUpperCase());
+      correctAnswer = parts.map((p) => optionsMap.get(p) || p).filter(Boolean);
+    } else if (cleanLetter && optionsMap.has(cleanLetter)) {
+      correctAnswer = optionsMap.get(cleanLetter)!;
+    } else if (optionsMap.has(detectedAnswer.toUpperCase())) {
+      correctAnswer = optionsMap.get(detectedAnswer.toUpperCase())!;
     }
 
     // Validation Status
-    let status: "READY" | "NEEDS_REVIEW" | "INVALID" = "READY";
+    let status: "READY" | "NEEDS_REVIEW" | "DUPLICATE" | "INVALID" = "READY";
     let reviewReason: string | undefined;
 
     if (!questionText || questionText.length < 5) {
@@ -312,7 +471,7 @@ export function parseQuestionsFromDocumentText(
     candidates.push({
       id: tempId,
       tempId,
-      rawIndex: qNum || idx + 1,
+      rawIndex: qNum,
       questionNumber: qNum,
       questionText,
       type,
