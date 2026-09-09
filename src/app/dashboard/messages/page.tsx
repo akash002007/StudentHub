@@ -1,27 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
-import {
-  Send,
-  Search,
-  CheckCheck,
-  ArrowLeft,
-  Sparkles,
-  Phone,
-  Video,
-  Info,
-  MoreVertical,
-  Briefcase,
-  GraduationCap,
-} from "lucide-react";
-import { Card } from "@/components/ui/Card";
-import { Avatar } from "@/components/ui/Avatar";
-import { Badge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
-import { RoleGuard } from "@/components/dashboard/RoleGuard";
-import { useData } from "@/context/DataContext";
-import { cn } from "@/lib/utils";
+import React from "react";
+import { UnifiedMessagesWorkspace } from "@/components/messages/UnifiedMessagesWorkspace";
 
+<<<<<<< HEAD
 export default function MessagesPage() {
   const {
     conversations,
@@ -262,4 +244,8 @@ export default function MessagesPage() {
     </div>
     </RoleGuard>
   );
+=======
+export default function DashboardMessagesPage() {
+  return <UnifiedMessagesWorkspace />;
+>>>>>>> ee2b428b0bd5b7b47c690c995839bb76af53bc55
 }

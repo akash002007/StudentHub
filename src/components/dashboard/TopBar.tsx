@@ -2,10 +2,11 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import {
   Search,
   Bell,
+  MessageSquare,
   Sparkles,
   Command,
   CheckCircle2,
@@ -23,11 +24,12 @@ import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
 import { useAuth } from "@/context/AuthContext";
 import { useData } from "@/context/DataContext";
-import { getTimeAwareGreeting } from "@/lib/utils";
+import { getTimeAwareGreeting, cn } from "@/lib/utils";
 
 export function TopBar() {
   const router = useRouter();
   const { user, role } = useAuth();
+  const pathname = usePathname();
   const normRole = (role || "STUDENT").toUpperCase();
   const isRecruiter = ["RECRUITER", "COMPANY_ADMIN"].includes(normRole);
 
@@ -38,7 +40,13 @@ export function TopBar() {
     recruiterNotifications,
     unreadRecruiterNotificationsCount,
     markRecruiterNotificationAsRead,
+    conversations,
+    recruiterConversations,
   } = useData();
+
+  const unreadMessagesTotal = isRecruiter
+    ? recruiterConversations.filter((c) => c.lastMessage.isUnread).length
+    : conversations.filter((c) => c.lastMessage.isUnread).length;
 
   const [greeting, setGreeting] = useState("Hello");
   const [isNotifOpen, setIsNotifOpen] = useState(false);
@@ -124,6 +132,23 @@ export function TopBar() {
         >
           <Search className="w-4 h-4" />
         </button>
+
+        {/* Global Messages Entry Point (Navigates to full-screen page) */}
+        <Link
+          href={isRecruiter ? "/dashboard/recruiter/messages" : "/dashboard/messages"}
+          className={cn(
+            "relative p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted transition-colors border border-transparent hover:border-border/60 group",
+            pathname.includes("/messages") && "bg-muted text-foreground font-semibold"
+          )}
+          aria-label="Messages"
+        >
+          <MessageSquare className="w-4 h-4" />
+          {unreadMessagesTotal > 0 && (
+            <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-purple-600 text-white text-[10px] font-bold flex items-center justify-center ring-2 ring-card shadow-xs animate-in fade-in zoom-in duration-200">
+              {unreadMessagesTotal > 99 ? "99+" : unreadMessagesTotal}
+            </span>
+          )}
+        </Link>
 
         {/* Notifications Popover Trigger */}
         <div className="relative">

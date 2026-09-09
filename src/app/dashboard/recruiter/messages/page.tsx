@@ -1,101 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
-import {
-  Send,
-  Search,
-  CheckCheck,
-  Sparkles,
-  User,
-  GraduationCap,
-  Calendar,
-  ExternalLink,
-  MoreVertical,
-} from "lucide-react";
-import { Card } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
-import { Badge } from "@/components/ui/Badge";
-import { Avatar } from "@/components/ui/Avatar";
+import React from "react";
 import { RoleGuard } from "@/components/dashboard/RoleGuard";
-import { CandidateProfileModal, CandidateModalData } from "@/components/dashboard/CandidateProfileModal";
-import { useData } from "@/context/DataContext";
-import { useAuth } from "@/context/AuthContext";
+import { UnifiedMessagesWorkspace } from "@/components/messages/UnifiedMessagesWorkspace";
 
 export default function RecruiterMessagesPage() {
-  const { user } = useAuth();
-  const {
-    recruiterConversations,
-    activeRecruiterConversationId,
-    setActiveRecruiterConversationId,
-    sendRecruiterMessage,
-    recruiterStudents,
-    recruiterApplicants,
-    toggleShortlistCandidate,
-  } = useData();
-
-  const [searchQuery, setSearchQuery] = useState("");
-  const [messageInput, setMessageInput] = useState("");
-  const [selectedCandidate, setSelectedCandidate] = useState<CandidateModalData | null>(null);
-  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
-
-  const handleOpenCandidateProfile = () => {
-    if (!activeConversation) return;
-    const participant = activeConversation.participant;
-    const studentMatch = recruiterStudents.find(
-      (s) =>
-        s.id === participant.id ||
-        s.name.toLowerCase() === participant.name.toLowerCase()
-    );
-    const applicantMatch = recruiterApplicants.find(
-      (a) =>
-        a.studentId === participant.id ||
-        a.studentName.toLowerCase() === participant.name.toLowerCase()
-    );
-
-    setSelectedCandidate({
-      id: participant.id,
-      name: participant.name,
-      avatar: participant.avatar,
-      university: participant.companyOrCollege || studentMatch?.university || "University",
-      degree: studentMatch?.degree || applicantMatch?.degree || participant.role,
-      branch: studentMatch?.branch || applicantMatch?.branch || "Engineering",
-      graduationYear: studentMatch?.graduationYear || applicantMatch?.graduationYear || 2026,
-      cgpa: studentMatch?.cgpa || applicantMatch?.cgpa || "3.9",
-      location: studentMatch?.location || applicantMatch?.location || "Remote",
-      skills: studentMatch?.skills || applicantMatch?.skills || ["Technical Skills"],
-      bio: studentMatch?.bio || applicantMatch?.bio || "",
-      matchScore: applicantMatch?.matchScore || 92,
-      resumeUrl: studentMatch?.resumeUrl || applicantMatch?.resumeUrl,
-      portfolioUrl: studentMatch?.portfolioUrl || applicantMatch?.portfolioUrl,
-      githubUrl: studentMatch?.githubUrl || applicantMatch?.githubUrl,
-      linkedinUrl: studentMatch?.linkedinUrl || applicantMatch?.linkedinUrl,
-      projects: studentMatch?.projects || applicantMatch?.projects,
-      certifications: studentMatch?.certifications || applicantMatch?.certifications,
-      isShortlisted: studentMatch?.isShortlisted,
-      careerDNA: (studentMatch as any)?.careerDNA,
-    });
-    setIsProfileModalOpen(true);
-  };
-
-  const filteredConversations = recruiterConversations.filter(
-    (c) =>
-      c.participant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.participant.companyOrCollege.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const activeConversation =
-    recruiterConversations.find((c) => c.id === activeRecruiterConversationId) ||
-    recruiterConversations[0];
-
-  const handleSendMessage = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!messageInput.trim() || !activeConversation) return;
-    sendRecruiterMessage(activeConversation.id, messageInput);
-    setMessageInput("");
-  };
-
   return (
     <RoleGuard allowedRole="recruiter">
+<<<<<<< HEAD
       <div className="space-y-6">
         {/* Header */}
         <div>
@@ -286,6 +198,9 @@ export default function RecruiterMessagesPage() {
           }
         />
       </div>
+=======
+      <UnifiedMessagesWorkspace forcedRole="RECRUITER" />
+>>>>>>> ee2b428b0bd5b7b47c690c995839bb76af53bc55
     </RoleGuard>
   );
 }

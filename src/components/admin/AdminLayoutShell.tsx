@@ -1,9 +1,12 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   Bell,
   Search,
+  MessageSquare,
   UserCircle2,
   Activity,
 } from "lucide-react";
@@ -45,6 +48,8 @@ export function AdminHeader({
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const unreadCount = useMemo(() => notifications.filter((n) => !n.isRead).length, [notifications]);
   const { user } = useAuth();
+  const pathname = usePathname();
+  const adminUnreadMessages = 1; // Unread verification case #VER-4892 from Priya Sharma
 
   return (
     <header className="h-16 border-b border-border/80 bg-card/95 backdrop-blur-sm sticky top-0 z-30 flex items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
@@ -76,6 +81,23 @@ export function AdminHeader({
             className="w-full bg-transparent text-xs text-foreground placeholder:text-muted-foreground focus:outline-none"
           />
         </div>
+
+        {/* Global Messages Entry Point (Navigates to full-screen page) */}
+        <Link
+          href="/admin/messages"
+          className={cn(
+            "relative p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted border border-transparent hover:border-border/70 transition-colors",
+            pathname.includes("/admin/messages") && "bg-muted text-foreground font-semibold"
+          )}
+          aria-label="Messages"
+        >
+          <MessageSquare className="w-4 h-4" />
+          {adminUnreadMessages > 0 && (
+            <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center ring-2 ring-card shadow-xs">
+              {adminUnreadMessages > 99 ? "99+" : adminUnreadMessages}
+            </span>
+          )}
+        </Link>
 
         {/* Notifications */}
         <div className="relative">

@@ -1235,11 +1235,14 @@ export type RecruitmentApplicationStatus =
   | 'ELIGIBLE'
   | 'ELIGIBILITY_FAILED'
   | 'SHORTLISTED'
+  | 'ASSESSMENT_CLEARED'
+  | 'INTERVIEW_SCHEDULED'
   | 'IN_SELECTION'
   | 'SELECTED'
   | 'REJECTED'
   | 'WITHDRAWN'
   | 'WAITLISTED';
+
 
 export interface EligibilityCriteria {
   degrees: string[];
@@ -1476,5 +1479,381 @@ export interface RecruiterAuditLogEntry {
   timestamp: string;
   ipSessionRef?: string;
 }
+
+// ==========================================
+// ASSESSMENT & PROCTORING MODULE TYPES
+// ==========================================
+
+export type QuestionType =
+  | "SINGLE_CHOICE"
+  | "MULTIPLE_CHOICE"
+  | "TRUE_FALSE"
+  | "SHORT_ANSWER";
+
+export type QuestionDifficulty = "EASY" | "MEDIUM" | "HARD";
+export type QuestionSource = "SYSTEM" | "COMPANY" | "RECRUITER";
+export type QuestionCategory = "Technical" | "Aptitude" | "Communication" | "Domain" | "Mixed";
+
+export interface AssessmentQuestion {
+  id: string;
+  ownerType: QuestionSource;
+  ownerId: string; // "system" or companyId or recruiterId
+  companyId?: string;
+  createdById: string;
+  createdByName: string;
+  type: QuestionType;
+  questionText: string;
+  options?: string[]; // Array of option strings
+  correctAnswer: string | string[]; // Single string or array of correct option letters/values
+  marks: number;
+  negativeMarks: number;
+  difficulty: QuestionDifficulty;
+  category: QuestionCategory;
+  topic: string;
+  tags: string[];
+  explanation?: string;
+  isArchived?: boolean;
+  version: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type AssessmentStatus = "DRAFT" | "SCHEDULED" | "ACTIVE" | "COMPLETED" | "ARCHIVED";
+export type AssessmentMode = "STANDARD" | "PROCTORED";
+
+export interface ProctoringConfig {
+  cameraRequired: boolean;
+  microphoneRequired: boolean;
+  entireScreenRequired: boolean;
+  fullscreenRequired: boolean;
+  pauseOnCameraStop: boolean;
+  pauseOnMicrophoneStop: boolean;
+  pauseOnScreenShareStop: boolean;
+  maxWindowViolations: number;
+  maxFullscreenViolations: number;
+  terminateOnViolationLimit: boolean;
+}
+
+export interface AssessmentCandidateRules {
+  randomizeQuestions: boolean;
+  randomizeOptions: boolean;
+  allowBackNavigation: boolean;
+  autoSubmitOnTimeout: boolean;
+  showResultImmediately: boolean;
+  attemptsAllowed: number;
+}
+
+export interface AssessmentSection {
+  id: string;
+  name: string; // e.g. "Technical Knowledge", "Aptitude", "General Awareness", "Problem Solving"
+  description?: string;
+  orderIndex: number;
+  totalQuestions: number;
+  questionCount?: number;
+  totalMarks: number;
+  negativeMarksPerQuestion: number;
+  cutoffMarks?: number; // Sectional minimum qualification
+  questionIds?: string[];
+  easyCount?: number;
+  mediumCount?: number;
+  hardCount?: number;
+  blueprint?: {
+    easyCount: number;
+    mediumCount: number;
+    hardCount: number;
+    topics?: string[];
+  };
+}
+
+export type CutoffType = "FIXED_SCORE" | "PERCENTAGE" | "TOP_N" | "TOP_PERCENTAGE" | "SECTIONAL";
+
+export interface AssessmentCutoffConfig {
+  type?: CutoffType;
+  value?: number; // e.g., 70 for 70 pts or 70%, 20 for Top 20 or Top 20%
+  cutoffType: CutoffType;
+  cutoffValue: number;
+  sectionalMinimums?: Record<string, number>; // sectionId -> min score or percentage
+  sectionalCutoffs?: { sectionId: string; minMarks: number }[];
+  description?: string;
+}
+
+export type MeritCriterion = "TOTAL_SCORE" | "SECTION_SCORE" | "SUBMISSION_TIME" | "PERCENTAGE" | "ACCURACY";
+
+export interface AssessmentMeritConfig {
+  primaryCriterion: MeritCriterion;
+  secondaryCriterion?: MeritCriterion;
+  secondarySectionId?: string;
+  tertiaryCriterion?: MeritCriterion;
+  tertiarySectionId?: string;
+  tieBreakerRule?: "SUBMISSION_TIME" | "FEWEST_INCORRECT" | "ACCURACY" | "SECTION_PRIORITY";
+  tieBreaker?: string;
+}
+
+export interface AssessmentSnapshotQuestion {
+  id: string;
+  originalQuestionId: string;
+  sectionId?: string;
+  sectionName?: string;
+  source: QuestionSource;
+  type: QuestionType;
+  questionText: string;
+  options?: string[];
+  correctAnswer: string | string[]; // Authoritative answer, masked before submit
+  marks: number;
+  negativeMarks: number;
+  difficulty: QuestionDifficulty;
+  category: QuestionCategory;
+  topic: string;
+  orderIndex: number;
+  explanation?: string;
+}
+
+export interface AssessmentRecord {
+  id: string;
+  version: number;
+  title: string;
+  description: string;
+  instructions: string;
+  driveId: string;
+  driveTitle?: string;
+  companyId: string;
+  companyName: string;
+  createdById: string;
+  createdByName: string;
+  category: QuestionCategory;
+  examinationType?: string;
+  durationMinutes: number;
+  startDateTime?: string;
+  endDateTime?: string;
+  status: AssessmentStatus;
+  mode: AssessmentMode;
+  proctoringConfig: ProctoringConfig;
+  candidateRules: AssessmentCandidateRules;
+  sections?: AssessmentSection[];
+  cutoffConfig?: AssessmentCutoffConfig;
+  meritConfig?: AssessmentMeritConfig;
+  totalMarks: number;
+  passingMarks: number;
+  passingPercentage: number;
+  negativeMarkingEnabled: boolean;
+  negativeMarkingRate?: number; // e.g. 0.33, 0.5, 0.25
+  negativeMarkingType?: "FIXED" | "PERCENTAGE" | "NONE";
+  questionIds: string[];
+  questionSnapshots?: AssessmentSnapshotQuestion[];
+  assignedCandidateIds: string[]; // Application IDs or Student IDs
+  isVersionLocked?: boolean;
+  schedule?: {
+    examDate?: string;
+    windowStart?: string;
+    windowEnd?: string;
+    lateEntryGraceMinutes?: number;
+    maxAttempts?: number;
+  };
+  createdAt: string;
+  updatedAt: string;
+  publishedAt?: string;
+}
+
+export type AttemptStatus =
+  | "NOT_STARTED"
+  | "ENVIRONMENT_CHECK"
+  | "READY"
+  | "ACTIVE"
+  | "PAUSED"
+  | "SUBMITTED"
+  | "AUTO_SUBMITTED"
+  | "EXPIRED"
+  | "TERMINATED"
+  | "ABANDONED";
+
+export interface AttemptAnswer {
+  questionId: string;
+  sectionId?: string;
+  answer: string | string[];
+  isAnswered: boolean;
+  answeredAt: string;
+  updatedAt: string;
+  isCorrect?: boolean;
+  marksAwarded?: number;
+}
+
+export interface SectionScoreSummary {
+  sectionId: string;
+  sectionName: string;
+  score: number;
+  maxMarks: number;
+  percentage: number;
+  passed?: boolean;
+  correctCount: number;
+  wrongCount: number;
+  unansweredCount: number;
+}
+
+export interface AssessmentAttempt {
+  id: string;
+  assessmentId: string;
+  assessmentVersion?: number;
+  assessmentTitle: string;
+  studentId: string;
+  studentName: string;
+  studentEmail: string;
+  applicationId: string;
+  driveId: string;
+  attemptNumber: number;
+  sessionToken: string;
+  status: AttemptStatus;
+  startedAt?: string;
+  expiresAt?: string;
+  submittedAt?: string;
+  durationSecondsTaken?: number;
+  lastActivityAt: string;
+  questionOrder: string[]; // Deterministic question order per attempt
+  answers: Record<string, AttemptAnswer>; // questionId -> AttemptAnswer
+  sectionScores?: Record<string, SectionScoreSummary>;
+  totalScore?: number;
+  maxScore: number;
+  percentage?: number;
+  passed?: boolean;
+  cutoffCleared?: boolean;
+  meritRank?: number;
+  shortlistStatus?: "PENDING" | "SHORTLISTED" | "WAITLISTED" | "REJECTED" | "MOVED_TO_INTERVIEW" | "INTERVIEW_SCHEDULED";
+  integrityStatus: "CLEAN" | "REVIEW" | "TERMINATED";
+  violationCount: number;
+  pauseReason?: string;
+  terminationReason?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface QuestionObjection {
+  id: string;
+  assessmentId: string;
+  attemptId: string;
+  candidateId: string;
+  candidateName: string;
+  questionId: string;
+  questionText?: string;
+  objectionType: "WRONG_ANSWER_KEY" | "AMBIGUOUS_QUESTION" | "INCORRECT_QUESTION" | "TECHNICAL_ISSUE";
+  description: string;
+  proposedAnswer?: string;
+  status: "SUBMITTED" | "UNDER_REVIEW" | "ACCEPTED" | "REJECTED";
+  reviewerId?: string;
+  reviewerName?: string;
+  resolutionNotes?: string;
+  createdAt: string;
+  resolvedAt?: string;
+  resolvedBy?: string;
+}
+
+export interface AssessmentAuthorization {
+  id: string;
+  candidateId: string;
+  candidateName: string;
+  candidateEmail?: string;
+  assessmentId: string;
+  assessmentTitle?: string;
+  applicationId: string;
+  driveId: string;
+  examDate: string;
+  examWindowStart?: string;
+  examWindowEnd?: string;
+  durationMinutes: number;
+  maxAttempts?: number;
+  attemptNumber?: number;
+  attemptsUsed?: number;
+  lastAttemptAt?: string;
+  status: "AUTHORIZED" | "USED" | "EXPIRED" | "CANCELLED";
+  authorizedAt?: string;
+  createdAt?: string;
+}
+
+export type IntegrityEventType =
+  | "TAB_SWITCH"
+  | "WINDOW_BLUR"
+  | "WINDOW_FOCUS"
+  | "FULLSCREEN_EXIT"
+  | "FULLSCREEN_ENTER"
+  | "CAMERA_STARTED"
+  | "CAMERA_STOPPED"
+  | "MICROPHONE_STARTED"
+  | "MICROPHONE_STOPPED"
+  | "SCREEN_SHARE_STARTED"
+  | "SCREEN_SHARE_STOPPED"
+  | "NETWORK_INTERRUPTION"
+  | "SESSION_RECONNECTED"
+  | "ASSESSMENT_PAUSED"
+  | "ASSESSMENT_RESUMED"
+  | "ASSESSMENT_TERMINATED"
+  | "ASSESSMENT_SUBMITTED";
+
+export type IntegrityActionTaken =
+  | "NONE"
+  | "WARNING"
+  | "FINAL_WARNING"
+  | "PAUSE"
+  | "REQUIRE_RECOVERY"
+  | "TERMINATE";
+
+export interface AssessmentIntegrityEvent {
+  id: string;
+  attemptId: string;
+  assessmentId: string;
+  candidateId: string;
+  candidateName: string;
+  eventType: IntegrityEventType;
+  severity: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+  timestamp: string;
+  metadata?: Record<string, any>;
+  actionTaken: IntegrityActionTaken;
+}
+
+export interface ParsedQuestionCandidate {
+  id: string;
+  tempId: string;
+  questionNumber?: number;
+  rawIndex?: number;
+  questionText: string;
+  type: QuestionType;
+  options: string[];
+  correctAnswer: string | string[];
+  marks: number;
+  negativeMarks: number;
+  difficulty: QuestionDifficulty;
+  category: QuestionCategory;
+  topic: string;
+  tags?: string[];
+  explanation?: string;
+  status: "READY" | "NEEDS_REVIEW" | "DUPLICATE" | "INVALID";
+  validationStatus: "READY" | "NEEDS_REVIEW" | "DUPLICATE" | "INVALID";
+  reviewReason?: string;
+  validationIssues: string[];
+  duplicateStatus: "UNIQUE" | "LIKELY_DUPLICATE" | "EXACT_DUPLICATE";
+  duplicateReason?: string;
+  matchedExistingQuestionId?: string;
+  matchedQuestionText?: string;
+}
+
+export interface QuestionImportRecord {
+  id: string;
+  fileName: string;
+  fileType: string;
+  fileSizeBytes?: number;
+  uploadedById?: string;
+  uploadedByName?: string;
+  companyId: string;
+  totalDetected: number;
+  importedCount: number;
+  skippedCount?: number;
+  duplicateCount?: number;
+  failedCount?: number;
+  status?: "COMPLETED" | "PARTIAL" | "FAILED";
+  importedAt: string;
+  importedBy: string;
+  questionIds?: string[];
+  metadata?: Record<string, any>;
+  createdAt?: string;
+}
+
+
 
 

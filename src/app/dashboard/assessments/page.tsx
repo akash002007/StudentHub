@@ -16,11 +16,14 @@ import {
   Layers,
   ArrowRight,
   ExternalLink,
+  Shield,
+  Filter,
+  Search,
+  XCircle,
 } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
-import { Modal } from "@/components/ui/Modal";
 import { RoleGuard } from "@/components/dashboard/RoleGuard";
 import { CandidateAssessmentRecord } from "@/types";
 
@@ -28,13 +31,27 @@ interface EnrichedAssessment extends CandidateAssessmentRecord {
   driveTitle?: string;
   company?: string;
   companyLogo?: string;
+  attemptStatus?: string;
+  assessmentConfigId?: string;
+  category?: string;
+  durationMinutes?: number;
+  questionCount?: number;
+  mode?: "STANDARD" | "PROCTORED" | string;
+  startDateTime?: string;
+  endDateTime?: string;
+  hasFullProctoring?: boolean;
+  proctoringConfig?: any;
+  candidateRules?: any;
+  percentage?: number;
 }
+
+type TabCategory = "ALL" | "READY" | "UPCOMING" | "IN_PROGRESS" | "COMPLETED" | "EXPIRED";
 
 export default function StudentAssessmentsPage() {
   const [assessments, setAssessments] = useState<EnrichedAssessment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedAssessmentForModal, setSelectedAssessmentForModal] =
-    useState<EnrichedAssessment | null>(null);
+  const [activeTab, setActiveTab] = useState<TabCategory>("ALL");
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     fetchAssessments();
@@ -55,21 +72,65 @@ export default function StudentAssessmentsPage() {
     }
   };
 
+  // Helper to categorize each assessment into defined lifecycle states
+  const getCategoryForAssessment = (ass: EnrichedAssessment): TabCategory => {
+    const isEvaluated =
+      ass.candidateScore !== undefined ||
+      ass.attemptStatus === "SUBMITTED" ||
+      ass.attemptStatus === "AUTO_SUBMITTED";
+    if (isEvaluated) return "COMPLETED";
+    if (ass.attemptStatus === "ACTIVE" || ass.attemptStatus === "PAUSED") return "IN_PROGRESS";
+
+    const now = Date.now();
+    if (ass.endDateTime && now > new Date(ass.endDateTime).getTime()) {
+      return "EXPIRED";
+    }
+    if (ass.startDateTime && now < new Date(ass.startDateTime).getTime()) {
+      return "UPCOMING";
+    }
+
+    return "READY";
+  };
+
+  // Filter assessments
+  const filteredAssessments = assessments.filter((ass) => {
+    const cat = getCategoryForAssessment(ass);
+    if (activeTab !== "ALL" && cat !== activeTab) return false;
+
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      const matchTitle = (ass.assessmentName || "").toLowerCase().includes(q);
+      const matchCompany = (ass.company || "").toLowerCase().includes(q);
+      const matchDrive = (ass.driveTitle || "").toLowerCase().includes(q);
+      return matchTitle || matchCompany || matchDrive;
+    }
+    return true;
+  });
+
+  const counts: Record<TabCategory, number> = {
+    ALL: assessments.length,
+    READY: assessments.filter((a) => getCategoryForAssessment(a) === "READY").length,
+    UPCOMING: assessments.filter((a) => getCategoryForAssessment(a) === "UPCOMING").length,
+    IN_PROGRESS: assessments.filter((a) => getCategoryForAssessment(a) === "IN_PROGRESS").length,
+    COMPLETED: assessments.filter((a) => getCategoryForAssessment(a) === "COMPLETED").length,
+    EXPIRED: assessments.filter((a) => getCategoryForAssessment(a) === "EXPIRED").length,
+  };
+
   return (
     <RoleGuard allowedRole="student">
-      <div className="space-y-6">
+      <div className="space-y-6 pb-12">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 text-xs font-semibold text-blue-600 dark:text-blue-400 mb-1">
               <Sparkles className="w-3.5 h-3.5" />
-              <span>Assessment Hub</span>
+              <span>Candidate Examination Workspace</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
-              Recruitment Assessments
+            <h1 className="text-2xl sm:text-3xl font-black text-foreground tracking-tight">
+              Assessments
             </h1>
             <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-              Review assigned technical assessments, coding tests, duration limits, and verified evaluation scores.
+              Complete assigned evaluations for your recruitment applications and view official results.
             </p>
           </div>
 
@@ -80,42 +141,118 @@ export default function StudentAssessmentsPage() {
           </Link>
         </div>
 
+        {/* Filter Tabs & Search Bar */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
+          {/* Categorized Tabs */}
+          <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-muted/40 border border-border/80 overflow-x-auto">
+            {(
+              [
+                { key: "ALL", label: "All" },
+                { key: "READY", label: "Ready to Take" },
+                { key: "UPCOMING", label: "Upcoming" },
+                { key: "IN_PROGRESS", label: "In Progress" },
+                { key: "COMPLETED", label: "Completed" },
+                { key: "EXPIRED", label: "Expired" },
+              ] as { key: TabCategory; label: string }[]
+            ).map((tab) => (
+              <button
+                key={tab.key}
+                type="button"
+                onClick={() => setActiveTab(tab.key)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 ${
+                  activeTab === tab.key
+                    ? "bg-card text-foreground shadow-2xs border border-border/60"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <span>{tab.label}</span>
+                <span
+                  className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+                    activeTab === tab.key
+                      ? "bg-purple-600 text-white"
+                      : "bg-muted text-muted-foreground"
+                  }`}
+                >
+                  {counts[tab.key]}
+                </span>
+              </button>
+            ))}
+          </div>
+
+          {/* Search */}
+          <div className="relative w-full sm:w-64">
+            <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search assessment or company..."
+              className="w-full pl-8 pr-3 py-1.5 rounded-xl bg-card border border-border text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20"
+            />
+          </div>
+        </div>
+
         {/* Content Section */}
         {isLoading ? (
+<<<<<<< HEAD
           <div className="py-16 text-center">
             <div className="inline-block w-8 h-8 border-3 border-blue-600 border-t-transparent rounded-full animate-spin mb-3" />
             <p className="text-xs text-muted-foreground">Loading recruitment assessments...</p>
+=======
+          <div className="py-20 text-center">
+            <div className="inline-block w-8 h-8 border-3 border-purple-600 border-t-transparent rounded-full animate-spin mb-3" />
+            <p className="text-xs text-muted-foreground">Loading assigned assessments...</p>
+>>>>>>> ee2b428b0bd5b7b47c690c995839bb76af53bc55
           </div>
-        ) : assessments.length === 0 ? (
-          <Card className="p-12 text-center border-dashed border-2 border-border/80">
+        ) : filteredAssessments.length === 0 ? (
+          <Card className="p-12 text-center border-dashed border-2 border-border/80 rounded-3xl">
             <FileText className="w-10 h-10 text-muted-foreground/50 mx-auto mb-3" />
-            <h3 className="font-bold text-sm text-foreground">No assessments scheduled</h3>
+            <h3 className="font-bold text-sm text-foreground">
+              {searchQuery ? "No matching assessments found" : "No assessments in this category"}
+            </h3>
             <p className="text-xs text-muted-foreground mt-1 max-w-sm mx-auto">
-              You do not have any pending or completed assessments. When recruiters shortlist your application for a test round, it will appear here.
+              {searchQuery
+                ? "Try clearing your search query or switching tabs."
+                : "Assessments assigned to your candidate profile for active recruitment drives will appear here."}
             </p>
-            <Link href="/dashboard/drives" className="inline-block mt-4">
-              <Button variant="gradient" size="sm">
-                Explore Recruitment Drives
+            {searchQuery && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="mt-4"
+                onClick={() => setSearchQuery("")}
+              >
+                Clear Search
               </Button>
-            </Link>
+            )}
           </Card>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-            {assessments.map((ass) => {
-              const isEvaluated = ass.candidateScore !== undefined;
+            {filteredAssessments.map((ass) => {
+              const isEvaluated =
+                ass.candidateScore !== undefined ||
+                ass.attemptStatus === "SUBMITTED" ||
+                ass.attemptStatus === "AUTO_SUBMITTED";
+              const isTerminated = ass.attemptStatus === "TERMINATED";
               const hasPassed = ass.passed;
+              const isProctored = ass.hasFullProctoring || ass.mode === "PROCTORED";
+              const targetId = ass.assessmentConfigId || ass.id;
+              const isActive = ass.attemptStatus === "ACTIVE" || ass.attemptStatus === "PAUSED";
+              const category = getCategoryForAssessment(ass);
+              const isExpired = category === "EXPIRED";
+              const isUpcoming = category === "UPCOMING";
 
               return (
                 <Card
                   key={ass.id}
                   hoverEffect
-                  className="p-5 border-border bg-card space-y-4 flex flex-col justify-between"
+                  className="p-5 border-border bg-card space-y-4 flex flex-col justify-between rounded-3xl shadow-sm"
                 >
                   <div className="space-y-3.5">
                     {/* Header */}
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-10 h-10 rounded-xl bg-muted border border-border p-1 overflow-hidden shrink-0 flex items-center justify-center">
+                        <div className="w-10 h-10 rounded-2xl bg-muted border border-border p-1 overflow-hidden shrink-0 flex items-center justify-center">
                           {ass.companyLogo ? (
                             // eslint-disable-next-line @next/next/no-img-element
                             <img
@@ -132,7 +269,7 @@ export default function StudentAssessmentsPage() {
                             {ass.assessmentName}
                           </h3>
                           <p className="text-xs text-muted-foreground truncate font-medium">
-                            {ass.driveTitle} ({ass.company})
+                            {ass.company} • Part of {ass.driveTitle}
                           </p>
                         </div>
                       </div>
@@ -140,44 +277,76 @@ export default function StudentAssessmentsPage() {
                       {isEvaluated ? (
                         hasPassed ? (
                           <Badge variant="emerald" size="sm" className="font-bold shrink-0">
-                            Cleared ✓
+                            Passed ✓
                           </Badge>
                         ) : (
                           <Badge variant="rose" size="sm" className="font-bold shrink-0">
                             Evaluated
                           </Badge>
                         )
+                      ) : isTerminated ? (
+                        <Badge variant="rose" size="sm" className="font-bold shrink-0">
+                          Terminated
+                        </Badge>
+                      ) : isActive ? (
+                        <Badge variant="blue" size="sm" className="font-bold shrink-0 animate-pulse">
+                          In Progress
+                        </Badge>
+                      ) : isExpired ? (
+                        <Badge variant="outline" size="sm" className="font-bold shrink-0 text-rose-500 border-rose-500/30">
+                          Expired
+                        </Badge>
+                      ) : isUpcoming ? (
+                        <Badge variant="lavender" size="sm" className="font-bold shrink-0">
+                          Upcoming
+                        </Badge>
                       ) : (
                         <Badge variant="purple" size="sm" className="font-bold shrink-0">
-                          Upcoming Test
+                          Ready to Start
                         </Badge>
                       )}
                     </div>
 
                     {/* Test Info Badges */}
                     <div className="flex flex-wrap items-center gap-2 text-xs">
+<<<<<<< HEAD
                       <span className="px-2.5 py-1 rounded-lg bg-muted text-muted-foreground font-semibold flex items-center gap-1">
                         <Calendar className="w-3.5 h-3.5 text-blue-500" />
                         {ass.date} {ass.time ? `• ${ass.time}` : ""}
                       </span>
                       <span className="px-2.5 py-1 rounded-lg bg-muted text-muted-foreground font-semibold flex items-center gap-1">
+=======
+                      {isProctored && (
+                        <Badge variant="purple" size="sm" className="gap-1 font-bold">
+                          <Shield className="w-3 h-3" /> Proctored
+                        </Badge>
+                      )}
+                      <span className="px-2.5 py-1 rounded-xl bg-muted text-muted-foreground font-semibold flex items-center gap-1">
+>>>>>>> ee2b428b0bd5b7b47c690c995839bb76af53bc55
                         <Clock className="w-3.5 h-3.5 text-blue-500" />
-                        Duration: {ass.duration || "90 mins"}
+                        {ass.duration || "45 mins"}
                       </span>
-                      <span className="px-2.5 py-1 rounded-lg bg-muted text-muted-foreground font-semibold">
-                        Passing Score: {ass.passingScore}/{ass.maxScore}
+                      {ass.questionCount !== undefined && (
+                        <span className="px-2.5 py-1 rounded-xl bg-muted text-muted-foreground font-semibold flex items-center gap-1">
+                          <FileText className="w-3.5 h-3.5 text-purple-500" />
+                          {ass.questionCount} Questions
+                        </span>
+                      )}
+                      <span className="px-2.5 py-1 rounded-xl bg-muted text-muted-foreground font-semibold">
+                        Passing Mark: {ass.passingScore}/{ass.maxScore}
                       </span>
                     </div>
 
-                    {/* Instructions preview */}
+                    {/* Description preview */}
                     {ass.instructions && (
-                      <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2 bg-muted/40 p-2.5 rounded-xl border border-border/60">
+                      <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2 bg-muted/30 p-2.5 rounded-xl border border-border/60">
                         {ass.instructions}
                       </p>
                     )}
 
                     {/* Score summary if evaluated */}
                     {isEvaluated && (
+<<<<<<< HEAD
                       <div className="p-3 rounded-xl bg-blue-500/10 border border-blue-500/20 text-xs flex items-center justify-between">
                         <span className="font-bold text-foreground flex items-center gap-1.5">
                           <Award className="w-4 h-4 text-blue-600 dark:text-blue-400" />
@@ -186,29 +355,81 @@ export default function StudentAssessmentsPage() {
                         <strong className="text-sm font-extrabold text-blue-600 dark:text-blue-400">
                           {ass.candidateScore} / {ass.maxScore}
                         </strong>
+=======
+                      <div className="p-3 rounded-2xl bg-purple-500/10 border border-purple-500/20 text-xs flex items-center justify-between">
+                        <span className="font-bold text-foreground flex items-center gap-1.5">
+                          <Award className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                          Recorded Score:
+                        </span>
+                        <div className="flex items-center gap-2">
+                          <strong className="text-sm font-black text-purple-600 dark:text-purple-400">
+                            {ass.candidateScore} / {ass.maxScore}
+                          </strong>
+                          {ass.percentage !== undefined && (
+                            <span className="text-xs font-bold text-muted-foreground">
+                              ({ass.percentage}%)
+                            </span>
+                          )}
+                        </div>
+>>>>>>> ee2b428b0bd5b7b47c690c995839bb76af53bc55
                       </div>
                     )}
                   </div>
 
-                  {/* Footer CTA */}
-                  <div className="pt-3 border-t border-border/60 flex items-center justify-between text-xs">
+                  {/* Footer Action Links */}
+                  <div className="pt-3 border-t border-border/60 flex flex-wrap items-center justify-between gap-2 text-xs">
                     <span className="text-muted-foreground text-[11px]">
-                      {isEvaluated ? "Evaluation Finalized" : "Instructions Ready"}
+                      {isEvaluated
+                        ? "Official Result Available"
+                        : isTerminated
+                        ? "Attempt Terminated"
+                        : isActive
+                        ? "Exam Session Active"
+                        : isExpired
+                        ? "Testing Window Closed"
+                        : isUpcoming
+                        ? `Opens ${ass.startDateTime ? new Date(ass.startDateTime).toLocaleDateString() : "Soon"}`
+                        : "Ready to Launch"}
                     </span>
 
-                    <Button
-                      variant={isEvaluated ? "outline" : "gradient"}
-                      size="sm"
-                      onClick={() => setSelectedAssessmentForModal(ass)}
-                    >
-                      {isEvaluated ? "View Evaluation" : "View Test Instructions"}
-                    </Button>
+                    <div className="flex items-center gap-2">
+                      <Link href={`/dashboard/assessments/${targetId}`}>
+                        <Button variant="outline" size="sm">
+                          View Details
+                        </Button>
+                      </Link>
+
+                      {isEvaluated ? (
+                        <Link href={`/dashboard/assessments/${targetId}/result`}>
+                          <Button variant="gradient" size="sm" rightIcon={<ArrowRight className="w-3.5 h-3.5" />}>
+                            View Result
+                          </Button>
+                        </Link>
+                      ) : isTerminated ? (
+                        <Link href={`/dashboard/assessments/${targetId}/result`}>
+                          <Button variant="ghost" size="sm" className="text-xs text-rose-500">
+                            View Log
+                          </Button>
+                        </Link>
+                      ) : isExpired ? null : isUpcoming ? null : (
+                        <Link href={`/dashboard/assessments/${targetId}/take`}>
+                          <Button
+                            variant="gradient"
+                            size="sm"
+                            rightIcon={<ArrowRight className="w-3.5 h-3.5" />}
+                          >
+                            {isActive ? "Resume Exam" : "Start Assessment"}
+                          </Button>
+                        </Link>
+                      )}
+                    </div>
                   </div>
                 </Card>
               );
             })}
           </div>
         )}
+<<<<<<< HEAD
 
         {/* Assessment Details Modal */}
         <Modal
@@ -275,6 +496,8 @@ export default function StudentAssessmentsPage() {
             </div>
           )}
         </Modal>
+=======
+>>>>>>> ee2b428b0bd5b7b47c690c995839bb76af53bc55
       </div>
     </RoleGuard>
   );
