@@ -27,8 +27,11 @@ export function RoleGuard({ children, allowedRole, redirectTo }: RoleGuardProps)
     if (normAllowed === "RECRUITER") {
       return ["RECRUITER", "COMPANY_ADMIN"].includes(normRole);
     }
-    if (normAllowed === "ADMIN") {
-      return ["ADMIN", "PLATFORM_ADMIN", "SUPER_ADMIN", "VERIFICATION_OFFICER", "COLLEGE_ADMIN"].includes(normRole);
+    if (normAllowed === "COLLEGE_ADMIN" || normAllowed === "COLLEGE_PLACEMENT_OFFICER" || (normAllowed as string) === "COLLEGE") {
+      return ["COLLEGE_ADMIN", "COLLEGE_PLACEMENT_OFFICER", "PLATFORM_ADMIN", "SUPER_ADMIN"].includes(normRole);
+    }
+    if (normAllowed === "ADMIN" || normAllowed === "PLATFORM_ADMIN") {
+      return ["ADMIN", "PLATFORM_ADMIN", "SUPER_ADMIN", "VERIFICATION_OFFICER"].includes(normRole);
     }
     return normRole === normAllowed;
   };
@@ -40,9 +43,11 @@ export function RoleGuard({ children, allowedRole, redirectTo }: RoleGuardProps)
 
     if (!isAuthorized) {
       const fallbackRoute =
-        ["RECRUITER", "COMPANY_ADMIN"].includes(normRole)
+        ["COLLEGE_ADMIN", "COLLEGE_PLACEMENT_OFFICER"].includes(normRole)
+          ? "/college/dashboard"
+          : ["RECRUITER", "COMPANY_ADMIN"].includes(normRole)
           ? "/dashboard/recruiter"
-          : ["ADMIN", "PLATFORM_ADMIN", "SUPER_ADMIN", "VERIFICATION_OFFICER", "COLLEGE_ADMIN"].includes(normRole)
+          : ["ADMIN", "PLATFORM_ADMIN", "SUPER_ADMIN", "VERIFICATION_OFFICER"].includes(normRole)
           ? "/admin"
           : "/dashboard";
       const destination = redirectTo || fallbackRoute;

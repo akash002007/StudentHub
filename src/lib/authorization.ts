@@ -42,8 +42,8 @@ export function authorizeResourceAccess(
     return false; // Strict deny if they are trying to access another company's resource or a resource without a company
   }
 
-  // College Admins can only access resources belonging to their college
-  if (user.role === "COLLEGE_ADMIN") {
+  // College Admins and Placement Officers can only access resources belonging to their college
+  if (["COLLEGE_ADMIN", "COLLEGE_PLACEMENT_OFFICER"].includes(user.role)) {
     if (resource.collegeId && user.college_id === resource.collegeId) {
       return true;
     }

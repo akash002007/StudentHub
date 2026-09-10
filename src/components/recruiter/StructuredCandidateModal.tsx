@@ -204,7 +204,61 @@ export function StructuredCandidateModal({
               </div>
             </div>
 
-            {/* Resume & Documents */}
+            {/* Recruiter Candidate Verification Claims (Section 19) */}
+            <div className="p-3.5 rounded-xl bg-card border border-border space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                    <ShieldCheck className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <span className="text-xs font-bold text-foreground">Candidate Verification Claims</span>
+                    <p className="text-[10px] text-muted-foreground">
+                      Verified by institutional credentials & automated verification
+                    </p>
+                  </div>
+                </div>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/10 text-emerald-600 border border-emerald-500/30">
+                  Trust Verified
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                <div className="p-2 rounded-lg bg-muted/40 border border-border/60">
+                  <div className="text-[10px] text-muted-foreground">Identity</div>
+                  <div className="font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1 mt-0.5">
+                    <CheckCircle2 className="w-3.5 h-3.5" /> Verified
+                  </div>
+                </div>
+                <div className="p-2 rounded-lg bg-muted/40 border border-border/60">
+                  <div className="text-[10px] text-muted-foreground">Education</div>
+                  <div className="font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1 mt-0.5">
+                    <CheckCircle2 className="w-3.5 h-3.5" /> Verified
+                  </div>
+                </div>
+                <div className="p-2 rounded-lg bg-muted/40 border border-border/60">
+                  <div className="text-[10px] text-muted-foreground">Degree</div>
+                  <div className="font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1 mt-0.5">
+                    <CheckCircle2 className="w-3.5 h-3.5" /> Verified
+                  </div>
+                </div>
+                <div className="p-2 rounded-lg bg-muted/40 border border-border/60">
+                  <div className="text-[10px] text-muted-foreground">Internship</div>
+                  <div className="font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1 mt-0.5">
+                    <CheckCircle2 className="w-3.5 h-3.5" /> Verified
+                  </div>
+                </div>
+              </div>
+
+              {/* Privacy Safeguard Notice */}
+              <div className="text-[10px] text-muted-foreground bg-muted/30 p-2 rounded-lg border border-border/40 flex items-center justify-between">
+                <span>
+                  🔒 Sensitive identity documents (Govt ID, College ID) are protected and restricted from recruiter access.
+                </span>
+              </div>
+            </div>
+
+            {/* Resume & Permitted Documents */}
             <div className="p-3.5 rounded-xl bg-card border border-border flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center">
@@ -212,10 +266,10 @@ export function StructuredCandidateModal({
                 </div>
                 <div>
                   <div className="text-xs font-bold text-foreground">
-                    Candidate Resume & Verified Profile
+                    Candidate Resume
                   </div>
                   <div className="text-[11px] text-muted-foreground">
-                    Verified student credentials via StudentHub trust network
+                    Authorized shareable applicant document
                   </div>
                 </div>
               </div>

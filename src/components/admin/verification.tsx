@@ -636,3 +636,6 @@ export function VerificationMethodCard({ request }: { request: VerificationReque
     </Card>
   );
 }
+
+export { DocumentComparisonModal } from "./DocumentComparisonModal";
+

@@ -3,7 +3,11 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+<<<<<<< HEAD
 import { ArrowRight, Lock, Mail, UserCheck, Briefcase, GraduationCap, ArrowLeft } from "lucide-react";
+=======
+import { Sparkles, ArrowRight, Lock, Mail, UserCheck, Briefcase, GraduationCap, Building2, ArrowLeft } from "lucide-react";
+>>>>>>> 0007f24f737aa20073f8f92e2ac6daa10cfe7169
 import { Button } from "@/components/ui/Button";
 import { ShinyCTA } from "@/components/ui/ShinyCTA";
 import { Input } from "@/components/ui/Input";
@@ -33,6 +37,9 @@ export default function LoginPage() {
     } else if (fillRole === "recruiter") {
       setEmail("sarah.chen@stripe-careers.com");
       setPassword("recruiter123");
+    } else if (fillRole === "COLLEGE_ADMIN") {
+      setEmail("placement@stanford.edu");
+      setPassword("college123");
     } else {
       setEmail("priya.menon@studenthub.io");
       setPassword("admin123");
@@ -63,12 +70,16 @@ export default function LoginPage() {
             ? "Alex Rivera (Student)"
             : role === "recruiter"
             ? "Sarah Chen (Recruiter)"
+            : role === "COLLEGE_ADMIN"
+            ? "Dr. Ronald Evans (Dean of Placements, Stanford)"
             : "Priya Menon (Admin)"
         }`
       );
       if (role === "recruiter") {
         router.push("/dashboard/recruiter");
-      } else if (role === "admin") {
+      } else if (role === "COLLEGE_ADMIN" || (role as string) === "college") {
+        router.push("/college/dashboard");
+      } else if (role === "admin" || role === "PLATFORM_ADMIN") {
         router.push("/admin");
       } else {
         router.push("/dashboard");
@@ -114,41 +125,53 @@ export default function LoginPage() {
           </div>
 
           {/* Role Selection Tabs */}
-          <div className="grid grid-cols-3 gap-2 p-1 rounded-xl bg-muted border border-border">
+          <div className="grid grid-cols-4 gap-1.5 p-1 rounded-xl bg-muted border border-border">
             <button
               type="button"
               onClick={() => setRole("student")}
-              className={`flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-xs font-semibold transition-all ${
+              className={`flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg text-xs font-semibold transition-all ${
                 role === "student"
                   ? "bg-card text-foreground shadow-xs border border-border/80"
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              <GraduationCap className="w-4 h-4 text-blue-500" />
+              <GraduationCap className="w-3.5 h-3.5 text-blue-500" />
               <span>Student</span>
             </button>
             <button
               type="button"
               onClick={() => setRole("recruiter")}
-              className={`flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-xs font-semibold transition-all ${
+              className={`flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg text-xs font-semibold transition-all ${
                 role === "recruiter"
                   ? "bg-card text-foreground shadow-xs border border-border/80"
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              <Briefcase className="w-4 h-4 text-blue-500" />
+              <Briefcase className="w-3.5 h-3.5 text-blue-500" />
               <span>Recruiter</span>
             </button>
             <button
               type="button"
+              onClick={() => setRole("COLLEGE_ADMIN")}
+              className={`flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg text-xs font-semibold transition-all ${
+                role === "COLLEGE_ADMIN"
+                  ? "bg-card text-foreground shadow-xs border border-border/80"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <Building2 className="w-3.5 h-3.5 text-purple-500" />
+              <span>College</span>
+            </button>
+            <button
+              type="button"
               onClick={() => setRole("admin")}
-              className={`flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-xs font-semibold transition-all ${
+              className={`flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg text-xs font-semibold transition-all ${
                 role === "admin"
                   ? "bg-card text-foreground shadow-xs border border-border/80"
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              <UserCheck className="w-4 h-4 text-emerald-500" />
+              <UserCheck className="w-3.5 h-3.5 text-emerald-500" />
               <span>Admin</span>
             </button>
           </div>
@@ -212,9 +235,14 @@ export default function LoginPage() {
                 isLoading={isLoading}
                 disabled={isLoading}
               >
+<<<<<<< HEAD
                 Sign In as {role === "student" ? "Student" : role === "recruiter" ? "Recruiter" : "Admin"}
                 {!isLoading && <ArrowRight className="w-4 h-4 ml-1" />}
               </ShinyCTA>
+=======
+                Sign In as {role === "student" ? "Student" : role === "recruiter" ? "Recruiter" : role === "COLLEGE_ADMIN" ? "College Placement Dean" : "Admin"}
+              </Button>
+>>>>>>> 0007f24f737aa20073f8f92e2ac6daa10cfe7169
             </form>
 
             {/* Quick-fill shortcut for hassle-free evaluation */}
@@ -222,33 +250,42 @@ export default function LoginPage() {
               <p className="text-xs text-muted-foreground text-center mb-2.5">
                 Quick Demo Login (One-Click Fill)
               </p>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
-                  className="text-xs"
+                  className="text-xs px-2"
                   onClick={() => handleQuickFill("student")}
                 >
-                  Fill Student Demo
+                  Student
                 </Button>
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
-                  className="text-xs"
+                  className="text-xs px-2"
                   onClick={() => handleQuickFill("recruiter")}
                 >
-                  Fill Recruiter Demo
+                  Recruiter
                 </Button>
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
-                  className="text-xs"
+                  className="text-xs px-2 border-purple-500/30 text-purple-600 dark:text-purple-400"
+                  onClick={() => handleQuickFill("COLLEGE_ADMIN")}
+                >
+                  College Dean
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="text-xs px-2"
                   onClick={() => handleQuickFill("admin")}
                 >
-                  Fill Admin Demo
+                  Admin
                 </Button>
               </div>
             </div>

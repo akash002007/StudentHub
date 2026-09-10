@@ -1,4 +1,4 @@
-import { StudentProfile, RecruiterProfile, AdminProfile } from "@/types";
+import { StudentProfile, RecruiterProfile, AdminProfile, CollegeProfile } from "@/types";
 
 export const defaultStudentUser: StudentProfile = {
   id: "student_01",
@@ -161,3 +161,18 @@ export const defaultAdminUser: AdminProfile = {
   title: "Trust & Safety Administrator",
   team: "Verification Operations",
 };
+
+export const defaultCollegeUser: CollegeProfile = {
+  id: "college_01",
+  name: "Dr. Ronald Evans",
+  email: "placement@stanford.edu",
+  role: "COLLEGE_ADMIN",
+  avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80",
+  collegeId: "col_stanford",
+  collegeName: "Stanford University",
+  title: "Director of Career Development & Corporate Placements",
+  department: "Institutional Placement Division",
+  phone: "+1 (650) 723-2300",
+  bio: "Directing Stanford University campus placement drives, corporate partner alignments, student readiness tracks, and institutional hiring telemetry.",
+};
+

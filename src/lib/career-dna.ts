@@ -15,6 +15,7 @@ import {
   getCertificateDNA,
   getHuggingFaceConnection,
   getHuggingFaceDNA,
+  ServerStore,
 } from "@/lib/server-store";
 import { EvidenceEngine } from "@/lib/evidence-engine";
 import { DeterministicScoringEngine } from "@/lib/deterministic-scoring-engine";
@@ -188,6 +189,18 @@ export class CareerDNABuilder {
       certifications: hasCertificates ? ("ANALYZED" as const) : ("NOT_CONNECTED" as const),
     };
 
+    // Check verified document credentials (only VERIFIED and AUTO_VERIFIED count)
+    const userDocs = ServerStore.getDocumentsByUserId(userId);
+    const verifiedDocs = userDocs.filter(
+      (d) => d.verificationStatus === "VERIFIED" || d.verificationStatus === "AUTO_VERIFIED"
+    );
+    const hasVerifiedDegree = verifiedDocs.some(
+      (d) => d.documentType === "DEGREE_CERTIFICATE" || d.documentType === "MARKSHEET"
+    );
+    const hasVerifiedInternship = verifiedDocs.some(
+      (d) => d.documentType === "INTERNSHIP_CERTIFICATE"
+    );
+
     const sourceBreakdown = {
       resumeScore: 81,
       githubScore: hasGithub ? Math.round(80 * 0.95) : null,
@@ -197,8 +210,8 @@ export class CareerDNABuilder {
       certificatesScore: hasCertificates && certDNA ? certDNA.score : null,
       projectsScore: hasProjects ? Math.round(85 * 1.02) : null,
       skillsScore: 82,
-      experienceScore: 76,
-      educationScore: 82,
+      experienceScore: hasVerifiedInternship ? 88 : 76,
+      educationScore: hasVerifiedDegree ? 92 : 82,
     };
 
     // 8. Next Best Actions

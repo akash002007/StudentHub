@@ -30,7 +30,7 @@ export function TopHeader({ onOpenMobileDrawer, title, subtitle }: TopHeaderProp
   const { user, role } = useAuth();
   const normRole = (role || "STUDENT").toUpperCase();
 
-  const isCollege = normRole === "COLLEGE_ADMIN" || pathname.startsWith("/dashboard/college");
+  const isCollege = ["COLLEGE_ADMIN", "COLLEGE_PLACEMENT_OFFICER"].includes(normRole) || pathname.startsWith("/college") || pathname.startsWith("/dashboard/college");
   const isAdmin = !isCollege && (["ADMIN", "PLATFORM_ADMIN", "SUPER_ADMIN", "VERIFICATION_OFFICER"].includes(normRole) || pathname.startsWith("/admin"));
   const isRecruiter = !isCollege && !isAdmin && (["RECRUITER", "COMPANY_ADMIN"].includes(normRole) || pathname.startsWith("/dashboard/recruiter"));
 
@@ -78,7 +78,7 @@ export function TopHeader({ onOpenMobileDrawer, title, subtitle }: TopHeaderProp
   const recentNotifications = activeNotifications.slice(0, 4);
 
   const notificationsPageUrl = isCollege
-    ? "/dashboard/notifications"
+    ? "/college/notifications"
     : isAdmin
     ? "/admin/notifications"
     : isRecruiter
@@ -86,7 +86,7 @@ export function TopHeader({ onOpenMobileDrawer, title, subtitle }: TopHeaderProp
     : "/dashboard/notifications";
 
   const messagesPageUrl = isCollege
-    ? "/dashboard/messages"
+    ? "/college/messages"
     : isAdmin
     ? "/admin/messages"
     : isRecruiter
@@ -94,7 +94,7 @@ export function TopHeader({ onOpenMobileDrawer, title, subtitle }: TopHeaderProp
     : "/dashboard/messages";
 
   const profilePageUrl = isCollege
-    ? "/dashboard/college"
+    ? "/college/profile"
     : isAdmin
     ? "/admin/settings"
     : isRecruiter

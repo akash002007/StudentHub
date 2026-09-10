@@ -6,6 +6,7 @@ import {
   defaultStudentUser,
   defaultRecruiterUser,
   defaultAdminUser,
+  defaultCollegeUser,
 } from "@/data/mock-users";
 
 export interface AuthenticatedUser {
@@ -183,6 +184,8 @@ export async function getAuthenticatedUser(
           user = defaultRecruiterUser;
         } else if (trimmedId === defaultAdminUser.id || trimmedId === "admin") {
           user = defaultAdminUser;
+        } else if (trimmedId === defaultCollegeUser.id || trimmedId === "college" || trimmedId === "college_admin") {
+          user = defaultCollegeUser;
         }
 
         if (user) {
@@ -192,6 +195,7 @@ export async function getAuthenticatedUser(
             email: user.email || "mock@example.com",
             role: userRole,
             name: user.name || "Mock User",
+            college_id: user.collegeId,
           };
         }
       }
@@ -208,6 +212,15 @@ export async function getAuthenticatedUser(
           role: "PLATFORM_ADMIN",
           name: defaultAdminUser.name || "Platform Admin",
         };
+      } else if (url.includes("/college") || url.includes("/api/college")) {
+        userRole = "COLLEGE_ADMIN";
+        authenticatedUser = {
+          id: defaultCollegeUser.id,
+          email: defaultCollegeUser.email || "placement@stanford.edu",
+          role: "COLLEGE_ADMIN",
+          name: defaultCollegeUser.name || "Dr. Ronald Evans",
+          college_id: "col_stanford",
+        };
       } else if (url.includes("/recruiter")) {
         userRole = "RECRUITER";
         authenticatedUser = {
@@ -223,6 +236,7 @@ export async function getAuthenticatedUser(
           email: defaultStudentUser.email || "student@example.com",
           role: "STUDENT",
           name: defaultStudentUser.name || "Mock Student",
+          college_id: "col_stanford",
         };
       }
     }
@@ -301,5 +315,24 @@ export async function getAuthenticatedRecruiter(
     recruiter: user as AuthenticatedRecruiter | null,
     error,
     status
+  };
+}
+
+/**
+ * College wrapper: validates that the user role is COLLEGE_ADMIN or COLLEGE_PLACEMENT_OFFICER (or admin).
+ */
+export async function getAuthenticatedCollege(
+  request: NextRequest | Request
+): Promise<{ collegeUser: AuthenticatedUser | null; error: string | null; status: number }> {
+  const { user, error, status } = await getAuthenticatedUser(request, [
+    "COLLEGE_ADMIN",
+    "COLLEGE_PLACEMENT_OFFICER",
+    "PLATFORM_ADMIN",
+    "SUPER_ADMIN",
+  ]);
+  return {
+    collegeUser: user,
+    error,
+    status,
   };
 }

@@ -35,6 +35,7 @@ import {
   UserCheck,
   Layers,
   Award,
+  FileCheck,
 } from "lucide-react";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
@@ -81,7 +82,7 @@ export function StudentHubSidebar({
   const activeRole: UserRole = (rawRole === "ADMIN" ? "PLATFORM_ADMIN" : rawRole) as UserRole;
   
   // Map roles to the 4 visual Workspaces
-  const isCollegeWorkspace = activeRole === "COLLEGE_ADMIN" || pathname.startsWith("/dashboard/college");
+  const isCollegeWorkspace = ["COLLEGE_ADMIN", "COLLEGE_PLACEMENT_OFFICER"].includes(activeRole) || pathname.startsWith("/college") || pathname.startsWith("/dashboard/college");
   const isAdminWorkspace = !isCollegeWorkspace && ["ADMIN", "PLATFORM_ADMIN", "SUPER_ADMIN", "VERIFICATION_OFFICER"].includes(activeRole);
   const isRecruiterWorkspace = !isCollegeWorkspace && !isAdminWorkspace && (["RECRUITER", "COMPANY_ADMIN"].includes(activeRole) || pathname.startsWith("/dashboard/recruiter"));
   const isStudentWorkspace = !isCollegeWorkspace && !isAdminWorkspace && !isRecruiterWorkspace;
@@ -207,6 +208,13 @@ export function StudentHubSidebar({
           label: "Career DNA",
           href: "/dashboard/career-dna",
           icon: Dna,
+        },
+        {
+          label: "Documents",
+          href: "/dashboard/documents",
+          icon: FileCheck,
+          badge: "Verified",
+          badgeVariant: "emerald",
         },
         { label: "Communities", href: "/dashboard/communities", icon: Users2 },
         {
@@ -346,6 +354,30 @@ export function StudentHubSidebar({
       ],
     },
     {
+      groupLabel: "INSTITUTIONAL ECOSYSTEM",
+      items: [
+        {
+          label: "College Management",
+          href: "/admin/colleges",
+          icon: Building2,
+          badge: "Network",
+          badgeVariant: "purple",
+        },
+        {
+          label: "College Approvals",
+          href: "/admin/college-approvals",
+          icon: Shield,
+          badge: "Review",
+          badgeVariant: "rose",
+        },
+        {
+          label: "Institutional Analytics",
+          href: "/admin/college-analytics",
+          icon: BarChart3,
+        },
+      ],
+    },
+    {
       groupLabel: "RECRUITMENT & TRUST",
       items: [
         {
@@ -371,46 +403,86 @@ export function StudentHubSidebar({
 
   const collegeNavGroups: NavGroup[] = [
     {
+      groupLabel: "COLLEGE MANAGEMENT",
+      items: [
+        { label: "Command Center", href: "/college/dashboard", icon: LayoutDashboard },
+        { label: "Student Directory", href: "/college/students", icon: GraduationCap },
+        { label: "Departments", href: "/college/departments", icon: Building2 },
+        { label: "Graduation Batches", href: "/college/batches", icon: Users },
+      ],
+    },
+    {
       groupLabel: "PLACEMENT OPERATIONS",
       items: [
-        { label: "Placement Center", href: "/dashboard/college", icon: LayoutDashboard },
         {
           label: "Placement Drives",
-          href: "/dashboard/drives",
+          href: "/college/placement-drives",
           icon: Briefcase,
-          badge: "Active",
+          badge: "Campus",
           badgeVariant: "purple",
         },
         {
-          label: "Registered Students",
-          href: "/dashboard/recruiter/students",
-          icon: GraduationCap,
+          label: "Eligible Students",
+          href: "/college/eligible-students",
+          icon: UserCheck,
+          badge: "Discovery",
+          badgeVariant: "blue",
         },
         {
-          label: "Candidate Pipeline",
-          href: "/dashboard/recruiter/applications",
+          label: "Applications",
+          href: "/college/applications",
           icon: GitPullRequest,
         },
         {
-          label: "Merit & Selections",
-          href: "/dashboard/recruiter/results",
+          label: "Assessments",
+          href: "/college/assessments",
+          icon: FileText,
+        },
+        {
+          label: "Interviews",
+          href: "/college/interviews",
+          icon: Calendar,
+        },
+        {
+          label: "Results & Offers",
+          href: "/college/results",
           icon: Award,
+          badge: "Merit",
+          badgeVariant: "emerald",
         },
       ],
     },
     {
-      groupLabel: "CORPORATE RELATIONS",
+      groupLabel: "RECRUITMENT INTELLIGENCE",
       items: [
-        { label: "Visiting Employers", href: "/dashboard/recruiter/company", icon: Building2 },
-        { label: "Interviews", href: "/dashboard/recruiter/interviews", icon: Calendar },
+        { label: "Visiting Recruiters", href: "/college/recruiters", icon: Building2 },
+        { label: "Placement Analytics", href: "/college/analytics", icon: BarChart3 },
+        {
+          label: "Career DNA Insights",
+          href: "/college/career-dna",
+          icon: Dna,
+          badge: "Skills",
+          badgeVariant: "lavender",
+        },
       ],
     },
     {
-      groupLabel: "REPORTS & GOVERNANCE",
+      groupLabel: "VERIFICATION & TRUST",
       items: [
-        { label: "Placement Analytics", href: "/dashboard/recruiter/analytics", icon: BarChart3 },
-        { label: "Audit Trail", href: "/dashboard/recruiter/audit-logs", icon: FileText },
-        { label: "Notifications", href: "/dashboard/notifications", icon: Bell },
+        {
+          label: "Student Verification",
+          href: "/college/verification",
+          icon: Shield,
+          badge: "KYC",
+          badgeVariant: "emerald",
+        },
+      ],
+    },
+    {
+      groupLabel: "INSTITUTION",
+      items: [
+        { label: "College Profile", href: "/college/profile", icon: User },
+        { label: "Placement Policies", href: "/college/settings", icon: Settings },
       ],
     },
   ];
@@ -426,7 +498,7 @@ export function StudentHubSidebar({
 
   const brandHref =
     isCollegeWorkspace
-      ? "/dashboard/college"
+      ? "/college/dashboard"
       : isAdminWorkspace
       ? "/admin"
       : isRecruiterWorkspace
@@ -435,7 +507,7 @@ export function StudentHubSidebar({
 
   const brandRoleSubtitle =
     isCollegeWorkspace
-      ? "College Placement"
+      ? "Institutional Placement"
       : isAdminWorkspace
       ? "Admin Console"
       : isRecruiterWorkspace
@@ -456,13 +528,13 @@ export function StudentHubSidebar({
 
     switchRole(nextRole);
     if (nextRole === "PLATFORM_ADMIN") router.push("/admin");
-    else if (nextRole === "COLLEGE_ADMIN") router.push("/dashboard/college");
+    else if (nextRole === "COLLEGE_ADMIN") router.push("/college/dashboard");
     else if (nextRole === "RECRUITER") router.push("/dashboard/recruiter");
     else router.push("/dashboard");
   };
 
   const isLinkActive = (href: string) => {
-    if (href === "/dashboard" || href === "/dashboard/recruiter" || href === "/admin") {
+    if (href === "/dashboard" || href === "/dashboard/recruiter" || href === "/admin" || href === "/college/dashboard") {
       return pathname === href;
     }
     return pathname === href || pathname.startsWith(href + "/");
@@ -492,7 +564,7 @@ export function StudentHubSidebar({
                     ? "ADMIN"
                     : brandRoleSubtitle === "Recruiter Workspace"
                     ? "RECRUITER"
-                    : brandRoleSubtitle === "College Placement"
+                    : brandRoleSubtitle === "Institutional Placement"
                     ? "COLLEGE"
                     : "STUDENT"}
                 </span>
