@@ -3,11 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-<<<<<<< HEAD
-import { ArrowRight, Lock, Mail, UserCheck, Briefcase, GraduationCap, ArrowLeft } from "lucide-react";
-=======
 import { Sparkles, ArrowRight, Lock, Mail, UserCheck, Briefcase, GraduationCap, Building2, ArrowLeft } from "lucide-react";
->>>>>>> 0007f24f737aa20073f8f92e2ac6daa10cfe7169
 import { Button } from "@/components/ui/Button";
 import { ShinyCTA } from "@/components/ui/ShinyCTA";
 import { Input } from "@/components/ui/Input";
@@ -235,14 +231,9 @@ export default function LoginPage() {
                 isLoading={isLoading}
                 disabled={isLoading}
               >
-<<<<<<< HEAD
-                Sign In as {role === "student" ? "Student" : role === "recruiter" ? "Recruiter" : "Admin"}
+                Sign In as {role === "student" ? "Student" : role === "recruiter" ? "Recruiter" : role === "COLLEGE_ADMIN" ? "College Placement Dean" : "Admin"}
                 {!isLoading && <ArrowRight className="w-4 h-4 ml-1" />}
               </ShinyCTA>
-=======
-                Sign In as {role === "student" ? "Student" : role === "recruiter" ? "Recruiter" : role === "COLLEGE_ADMIN" ? "College Placement Dean" : "Admin"}
-              </Button>
->>>>>>> 0007f24f737aa20073f8f92e2ac6daa10cfe7169
             </form>
 
             {/* Quick-fill shortcut for hassle-free evaluation */}
