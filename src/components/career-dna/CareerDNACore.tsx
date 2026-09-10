@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Dna, Sparkles } from "lucide-react";
+import { Dna } from "lucide-react";
 
 interface CareerDNACoreProps {
   isHovered: boolean;
@@ -85,9 +85,8 @@ export function CareerDNACore({
 
         {/* Title: CAREER DNA */}
         <div className="relative flex flex-col items-center text-center">
-          <span className="text-[11px] sm:text-xs font-black tracking-widest text-slate-900 dark:text-white uppercase flex items-center gap-1">
+          <span className="text-[11px] sm:text-xs font-black tracking-widest text-slate-900 dark:text-white uppercase">
             CAREER DNA
-            <Sparkles className="w-2.5 h-2.5 text-sky-500 dark:text-cyan-400" />
           </span>
           <span className="text-[8px] font-bold text-sky-600 dark:text-cyan-400 uppercase tracking-widest mt-0.5">
             Your Professional Identity

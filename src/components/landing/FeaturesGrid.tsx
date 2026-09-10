@@ -6,7 +6,6 @@ import {
   Users2,
   GitPullRequest,
   CheckCircle,
-  Sparkles,
   Zap,
   GraduationCap,
   ShieldCheck,

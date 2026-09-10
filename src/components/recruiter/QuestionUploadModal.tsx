@@ -11,7 +11,6 @@ import {
   X,
   Edit2,
   Trash2,
-  Sparkles,
   ArrowRight,
   Filter,
   Check,
@@ -644,7 +643,7 @@ export function QuestionUploadModal({
                   className="w-full px-4 py-2.5 text-left flex items-center justify-between text-xs font-medium text-foreground hover:bg-muted/40 transition-colors"
                 >
                   <span className="flex items-center gap-2">
-                    <Sparkles className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
+                    <Layers className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
                     Default metadata for questions (applied if not specified in file)
                   </span>
                   {showDefaults ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
@@ -741,7 +740,7 @@ export function QuestionUploadModal({
                   size="sm"
                   disabled={!selectedFile}
                   onClick={handleExtractQuestions}
-                  leftIcon={<Sparkles className="w-4 h-4" />}
+                  leftIcon={<FileText className="w-4 h-4" />}
                   className="text-xs font-semibold"
                 >
                   Parse & Extract Questions

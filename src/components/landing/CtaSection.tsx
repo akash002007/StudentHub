@@ -2,8 +2,9 @@
 
 import React from "react";
 import Link from "next/link";
-import { ArrowRight, Sparkles, ShieldCheck } from "lucide-react";
+import { ArrowRight, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { ShinyCTA } from "@/components/ui/ShinyCTA";
 
 export function CtaSection() {
   return (
@@ -14,7 +15,7 @@ export function CtaSection() {
           <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-96 h-48 bg-blue-500/20 blur-[100px] rounded-full pointer-events-none" />
 
           <div className="w-12 h-12 rounded-2xl bg-blue-500/20 text-blue-400 flex items-center justify-center mb-6">
-            <Sparkles className="w-6 h-6" />
+            <ShieldCheck className="w-6 h-6" />
           </div>
 
           <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-foreground max-w-2xl leading-tight">
@@ -27,14 +28,11 @@ export function CtaSection() {
 
           <div className="mt-8 flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
             <Link href="/signup" className="w-full sm:w-auto">
-              <Button
-                variant="gradient"
-                size="lg"
-                className="w-full sm:w-auto h-13 px-8 text-base shadow-xl shadow-blue-600/30"
-                rightIcon={<ArrowRight className="w-4 h-4" />}
+              <ShinyCTA
+                className="w-full sm:w-auto text-base shadow-xl shadow-blue-600/30"
               >
-                Create Free Account
-              </Button>
+                Create Free Account <ArrowRight className="w-4 h-4" />
+              </ShinyCTA>
             </Link>
             <Link href="/login" className="w-full sm:w-auto">
               <Button variant="outline" size="lg" className="w-full sm:w-auto h-13 px-7 text-base">

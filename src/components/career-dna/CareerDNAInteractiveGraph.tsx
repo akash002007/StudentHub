@@ -149,7 +149,7 @@ export function CareerDNAInteractiveGraph({
       {!activeNodeItem && (
         <div className="absolute bottom-2 left-0 right-0 flex items-center justify-center pointer-events-none px-4 z-20">
           <span className="text-[10px] font-medium text-slate-500 dark:text-slate-400 bg-white/75 dark:bg-slate-950/75 backdrop-blur-md px-2.5 py-0.5 rounded-full border border-border/50 shadow-2xs">
-            ✦ Hover to illuminate DNA helix rungs • Click any pillar to inspect evidence
+            Hover to illuminate DNA helix rungs • Click any pillar to inspect evidence
           </span>
         </div>
       )}

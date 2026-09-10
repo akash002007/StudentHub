@@ -4,7 +4,6 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
-  Sparkles,
   LayoutDashboard,
   Briefcase,
   Send,
@@ -481,7 +480,7 @@ export function StudentHubSidebar({
         >
           <Link href={brandHref} className="flex items-center gap-2.5 min-w-0 group">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-700 to-blue-800 to-blue-600 flex items-center justify-center text-white shadow-md shadow-blue-500/20 shrink-0 group-hover:scale-105 transition-transform">
-              <Sparkles className="w-4 h-4" />
+              <span className="font-black text-sm tracking-tight text-white select-none">SH</span>
             </div>
             {!isCollapsed && (
               <div className="flex flex-col min-w-0">

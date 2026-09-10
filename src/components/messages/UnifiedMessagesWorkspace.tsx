@@ -7,7 +7,6 @@ import {
   Search,
   CheckCheck,
   ArrowLeft,
-  Sparkles,
   Paperclip,
   MoreVertical,
   Briefcase,

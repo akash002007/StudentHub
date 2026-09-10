@@ -2,8 +2,9 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { Sparkles, Menu, X, ArrowRight, Compass } from "lucide-react";
+import { Menu, X, ArrowRight, Compass } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { ShinyCTA } from "@/components/ui/ShinyCTA";
 import { ThemeToggle } from "@/components/shared/ThemeToggle";
 import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
@@ -34,7 +35,7 @@ export function LandingNav() {
         {/* Brand Logo */}
         <Link href="/" className="flex items-center gap-2.5 group">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-700 to-blue-800 via-blue-600 to-blue-600 flex items-center justify-center text-white shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform shrink-0">
-            <Sparkles className="w-5 h-5" />
+            <span className="font-black text-sm tracking-tight text-white select-none">SH</span>
           </div>
           <span className="font-bold text-lg tracking-tight text-foreground group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
             StudentHub
@@ -77,13 +78,9 @@ export function LandingNav() {
                 </Button>
               </Link>
               <Link href="/signup">
-                <Button
-                  variant="gradient"
-                  size="sm"
-                  rightIcon={<ArrowRight className="w-3.5 h-3.5" />}
-                >
-                  Join as Student
-                </Button>
+                <ShinyCTA className="px-5 py-2">
+                  Join as Student <ArrowRight className="w-3.5 h-3.5" />
+                </ShinyCTA>
               </Link>
             </>
           )}
@@ -163,9 +160,9 @@ export function LandingNav() {
                   </Button>
                 </Link>
                 <Link href="/signup" onClick={() => setIsMobileMenuOpen(false)}>
-                  <Button variant="gradient" className="w-full justify-center">
+                  <ShinyCTA className="w-full">
                     Join as Student
-                  </Button>
+                  </ShinyCTA>
                 </Link>
               </>
             )}

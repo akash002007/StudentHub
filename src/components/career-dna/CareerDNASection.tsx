@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Sparkles, Dna } from "lucide-react";
+import { Dna } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { CareerDNAVisualization } from "./CareerDNAVisualization";
 import { CareerDNACapabilities } from "./CareerDNACapabilities";

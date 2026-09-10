@@ -2,9 +2,10 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { Sparkles, ArrowRight, ShieldCheck, ChevronRight } from "lucide-react";
+import { ArrowRight, ShieldCheck, ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
+import { ShinyCTA } from "@/components/ui/ShinyCTA";
 import { getTimeAwareGreeting, cn } from "@/lib/utils";
 
 export interface WelcomeCardProps {
@@ -29,7 +30,7 @@ export interface WelcomeCardProps {
 
 export function WelcomeCard({
   portalBadge = "Candidate Recruitment Hub",
-  portalBadgeIcon = <Sparkles className="w-3.5 h-3.5 text-blue-500" />,
+  portalBadgeIcon,
   userName,
   title,
   description,
@@ -71,7 +72,7 @@ export function WelcomeCard({
           <div className="flex flex-wrap items-center gap-2.5">
             <Badge variant="gradient" size="sm" className="font-semibold text-xs py-0.5">
               {portalBadgeIcon}
-              <span className="ml-1.5">{portalBadge}</span>
+              <span className={portalBadgeIcon ? "ml-1.5" : ""}>{portalBadge}</span>
             </Badge>
             {currentDate && (
               <span className="text-xs text-muted-foreground font-medium flex items-center gap-1.5">
@@ -93,9 +94,9 @@ export function WelcomeCard({
             <div className="flex flex-wrap items-center gap-3 pt-2">
               {primaryAction && (
                 <Link href={primaryAction.href}>
-                  <Button variant="gradient" size="sm" rightIcon={primaryAction.icon || <ArrowRight className="w-3.5 h-3.5" />}>
-                    {primaryAction.label}
-                  </Button>
+                  <ShinyCTA className="text-xs">
+                    {primaryAction.label} {primaryAction.icon || <ArrowRight className="w-3.5 h-3.5" />}
+                  </ShinyCTA>
                 </Link>
               )}
               {secondaryAction && (

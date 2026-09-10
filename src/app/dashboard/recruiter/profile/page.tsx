@@ -10,7 +10,6 @@ import {
   Phone,
   MapPin,
   Globe,
-  Sparkles,
   Edit,
   ShieldCheck,
   Award,

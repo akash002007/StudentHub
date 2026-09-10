@@ -10,7 +10,6 @@ import {
   XCircle,
   Clock,
   MapPin,
-  Sparkles,
   Building2,
   AlertCircle,
   GraduationCap,
@@ -30,6 +29,7 @@ import {
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
+import { ShinyCTA } from "@/components/ui/ShinyCTA";
 import { Modal } from "@/components/ui/Modal";
 import { RoleGuard } from "@/components/dashboard/RoleGuard";
 import { useToast } from "@/context/ToastContext";
@@ -223,16 +223,13 @@ export default function StudentDriveDetailPage({
                   </div>
                 </div>
               ) : (
-                <Button
-                  variant={isEligible ? "gradient" : "outline"}
-                  size="lg"
+                <ShinyCTA
                   onClick={() => setIsApplyModalOpen(true)}
-                  disabled={drive.status === "CLOSED" || drive.status === "RESULTS_PUBLISHED"}
+                  disabled={drive.status === "CLOSED" || drive.status === "RESULTS_PUBLISHED" || !isEligible}
                   className="font-bold"
-                  rightIcon={<Send className="w-4 h-4" />}
                 >
-                  Apply for Recruitment
-                </Button>
+                  Register for Drive in 1-Click <Send className="w-4 h-4 ml-1" />
+                </ShinyCTA>
               )}
             </div>
           </div>
@@ -537,7 +534,7 @@ export default function StudentDriveDetailPage({
             <div className="space-y-4 text-xs sm:text-sm">
               <div className="p-4 rounded-2xl bg-blue-500/10 border border-blue-500/20 space-y-2">
                 <h4 className="font-bold text-foreground flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                  <ShieldCheck className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                   Application Package Summary
                 </h4>
                 <p className="text-xs text-muted-foreground leading-relaxed">

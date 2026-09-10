@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import {
   Users2,
   MessageSquare,
-  Sparkles,
   Search,
   Plus,
   ThumbsUp,

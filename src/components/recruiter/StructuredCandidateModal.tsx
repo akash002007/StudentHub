@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import {
   X,
-  Sparkles,
   GraduationCap,
   Briefcase,
   MapPin,

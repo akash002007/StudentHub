@@ -7,7 +7,6 @@ import {
   Globe,
   MapPin,
   Users2,
-  Sparkles,
   Edit,
   Save,
   CheckCircle,

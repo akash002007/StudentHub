@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { UserRole } from "@/types";
-import { Sparkles } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 interface RoleGuardProps {
   children: React.ReactNode;
@@ -55,8 +55,8 @@ export function RoleGuard({ children, allowedRole, redirectTo }: RoleGuardProps)
   if (!isLoaded) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center space-y-3">
-        <div className="w-10 h-10 rounded-xl bg-blue-600/10 text-blue-600 flex items-center justify-center animate-pulse">
-          <Sparkles className="w-5 h-5 animate-spin" />
+        <div className="w-10 h-10 rounded-xl bg-blue-600/10 text-blue-600 flex items-center justify-center">
+          <Loader2 className="w-5 h-5 animate-spin" />
         </div>
         <p className="text-xs text-muted-foreground font-medium">
           Loading workspace...
@@ -68,8 +68,8 @@ export function RoleGuard({ children, allowedRole, redirectTo }: RoleGuardProps)
   if (!isAuthorized) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center space-y-3">
-        <div className="w-10 h-10 rounded-xl bg-blue-600/10 text-blue-600 flex items-center justify-center animate-pulse">
-          <Sparkles className="w-5 h-5 animate-spin" />
+        <div className="w-10 h-10 rounded-xl bg-blue-600/10 text-blue-600 flex items-center justify-center">
+          <Loader2 className="w-5 h-5 animate-spin" />
         </div>
         <p className="text-xs text-muted-foreground font-medium">
           Verifying workspace permissions...

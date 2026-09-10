@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   Dna,
-  Sparkles,
   TrendingUp,
   ArrowRight,
   RefreshCw,
@@ -264,7 +263,7 @@ export function CareerDNASummaryCard({ userId }: CareerDNASummaryCardProps) {
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              <Sparkles className="w-3 h-3" /> Identity Graph
+              <Dna className="w-3 h-3" /> Identity Graph
             </button>
           </div>
 
@@ -355,7 +354,7 @@ export function CareerDNASummaryCard({ userId }: CareerDNASummaryCardProps) {
           {/* AI Assessment */}
           <div className="space-y-1.5">
             <h4 className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5" /> AI Assessment
+              <CheckCircle2 className="w-3.5 h-3.5" /> Candidate Assessment
             </h4>
             <p className="text-xs text-muted-foreground leading-relaxed">
               {assessment}

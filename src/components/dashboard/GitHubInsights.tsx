@@ -9,7 +9,6 @@ import {
   ExternalLink,
   RefreshCw,
   FolderGit2,
-  Sparkles,
   AlertCircle,
   Layers,
   Calendar,
@@ -336,7 +335,7 @@ export function GitHubInsights({ userId, onSyncClick, isSyncingManual }: GitHubI
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="font-bold text-base text-foreground flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-blue-500" /> Detected Projects (Project Intelligence)
+                    <FolderGit2 className="w-4 h-4 text-blue-500" /> Detected Projects (Project Intelligence)
                   </h3>
                   <p className="text-xs text-muted-foreground">Automated project extraction based on repository activity and topics</p>
                 </div>

@@ -3,9 +3,10 @@
 import React, { useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Dna, Github, ArrowRight, Sparkles, RefreshCw } from "lucide-react";
+import { Dna, Github, ArrowRight, RefreshCw } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import { ShinyCTA } from "@/components/ui/ShinyCTA";
 import { Badge } from "@/components/ui/Badge";
 import { buildCareerDNANodes } from "./CareerDNAData";
 import { CareerDNAInteractiveGraph } from "./CareerDNAInteractiveGraph";
@@ -58,7 +59,7 @@ export function CareerDNABanner({
                 size="sm"
                 className="font-bold text-[9px] tracking-wider uppercase px-2 py-0.5"
               >
-                <Sparkles className="w-2.5 h-2.5 mr-1" /> Living Talent Graph
+                Living Talent Graph
               </Badge>
             </div>
 
@@ -72,28 +73,24 @@ export function CareerDNABanner({
         {/* Action Panel: Connect GitHub or Analyze */}
         <div className="flex flex-col sm:items-end gap-1 shrink-0 self-start sm:self-center">
           {isPendingAnalysis ? (
-            <Button
-              variant="primary"
-              size="sm"
+            <ShinyCTA
               onClick={onAnalyze}
               disabled={isAnalyzing}
-              className="h-8 text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white w-full sm:w-auto shadow-2xs"
+              className="w-full sm:w-auto text-xs"
             >
               <RefreshCw
                 className={`w-3.5 h-3.5 mr-1.5 ${isAnalyzing ? "animate-spin" : ""}`}
               />
               {isAnalyzing ? "Analyzing..." : "Analyze Career DNA"}
-            </Button>
+            </ShinyCTA>
           ) : (
-            <Button
-              variant="primary"
-              size="sm"
+            <ShinyCTA
               onClick={() => router.push("/dashboard/connected-accounts")}
-              className="h-8 text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white w-full sm:w-auto shadow-2xs"
+              className="w-full sm:w-auto text-xs"
             >
               <Github className="w-3.5 h-3.5 mr-1.5" /> Connect GitHub
               <ArrowRight className="w-3.5 h-3.5 ml-1" />
-            </Button>
+            </ShinyCTA>
           )}
 
           <span className="text-[10px] text-muted-foreground">

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   FileText,
-  Sparkles,
+  Grid,
   ArrowLeft,
   ArrowRight,
   Check,
@@ -56,7 +56,7 @@ const STEPS = [
   { id: 2, name: "Drive", icon: Building2 },
   { id: 3, name: "Pattern", icon: Sliders },
   { id: 4, name: "Sections", icon: Layers },
-  { id: 5, name: "Blueprint", icon: Sparkles },
+  { id: 5, name: "Blueprint", icon: Grid },
   { id: 6, name: "Question Bank", icon: Search },
   { id: 7, name: "Scoring", icon: Award },
   { id: 8, name: "Negative Marking", icon: AlertTriangle },
@@ -1096,7 +1096,7 @@ export default function NewAssessmentPage() {
                       disabled={isGeneratingBlueprint}
                       className="text-xs bg-primary-600 hover:bg-primary-700 text-white"
                     >
-                      <Sparkles className="w-3.5 h-3.5 mr-1.5" />
+                      <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${isGeneratingBlueprint ? "animate-spin" : ""}`} />
                       {isGeneratingBlueprint ? "Validating & Generating..." : "Generate Paper from Blueprint"}
                     </Button>
                   </div>

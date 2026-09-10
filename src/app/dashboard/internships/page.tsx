@@ -6,7 +6,6 @@ import {
   Filter,
   MapPin,
   Clock,
-  Sparkles,
   Bookmark,
   Building2,
   DollarSign,
@@ -21,6 +20,7 @@ import {
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
+import { ShinyCTA } from "@/components/ui/ShinyCTA";
 import { Modal } from "@/components/ui/Modal";
 import { Tabs } from "@/components/ui/Tabs";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -440,7 +440,7 @@ export default function InternshipsPage() {
                     {/* Why this matches you section */}
                     <div className="p-3 rounded-xl bg-surface-container border border-outline-variant text-xs space-y-1.5 relative overflow-hidden">
                       <div className="flex items-center gap-1.5 font-bold text-primary text-[11px] relative z-10">
-                        <Sparkles className="w-3.5 h-3.5 shrink-0" />
+                        <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
                         <span>Why this matches you:</span>
                       </div>
                       <p className="text-[11px] text-muted-foreground leading-relaxed">
@@ -487,15 +487,13 @@ export default function InternshipsPage() {
                           Applied
                         </Button>
                       ) : (
-                        <Button
+                        <ShinyCTA
                           id={`apply-btn-${intern.id}`}
-                          variant="gradient"
-                          size="sm"
+                          className="text-xs px-3 py-1.5"
                           onClick={() => handleOpenApply(intern)}
-                          rightIcon={<ArrowUpRight className="w-3.5 h-3.5" />}
                         >
-                          Quick Apply
-                        </Button>
+                          Quick Apply <ArrowUpRight className="w-3.5 h-3.5" />
+                        </ShinyCTA>
                       )}
                     </div>
                   </div>

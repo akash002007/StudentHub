@@ -7,7 +7,6 @@ import {
   Search,
   Bell,
   MessageSquare,
-  Sparkles,
   Command,
   CheckCircle2,
   Briefcase,

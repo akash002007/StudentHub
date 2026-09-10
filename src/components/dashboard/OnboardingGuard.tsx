@@ -5,7 +5,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { StudentProfile } from "@/types";
 import { isUniversityEmail } from "@/lib/utils";
-import { Sparkles } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 export function OnboardingGuard({ children }: { children: React.ReactNode }) {
   const { user, role, isLoaded, isAuthenticated } = useAuth();
@@ -52,8 +52,8 @@ export function OnboardingGuard({ children }: { children: React.ReactNode }) {
   if (!isLoaded || !canRender) {
     return (
       <div className="min-h-[70vh] flex flex-col items-center justify-center space-y-3">
-        <div className="w-10 h-10 rounded-xl bg-blue-600/10 text-blue-600 flex items-center justify-center animate-pulse">
-          <Sparkles className="w-5 h-5 animate-spin" />
+        <div className="w-10 h-10 rounded-xl bg-blue-600/10 text-blue-600 flex items-center justify-center">
+          <Loader2 className="w-5 h-5 animate-spin" />
         </div>
         <p className="text-xs text-muted-foreground font-medium">
           Loading workspace...

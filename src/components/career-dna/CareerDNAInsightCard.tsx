@@ -4,7 +4,7 @@ import React, { useEffect, useRef } from "react";
 import Link from "next/link";
 import {
   X,
-  Sparkles,
+  Info,
   CheckCircle2,
   AlertCircle,
   ArrowRight,
@@ -83,7 +83,7 @@ export function CareerDNAInsightCard({
                   </span>
                 ) : node.verificationStatus === "self-reported" ? (
                   <span className="text-blue-500 dark:text-sky-300 flex items-center gap-0.5">
-                    <Sparkles className="w-2.5 h-2.5" /> {node.verificationSource}
+                    <Info className="w-2.5 h-2.5" /> {node.verificationSource}
                   </span>
                 ) : (
                   <span className="text-amber-500 flex items-center gap-0.5">

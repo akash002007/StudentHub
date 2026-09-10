@@ -15,7 +15,7 @@ import {
   Link2,
   LogOut,
   X,
-  Sparkles,
+  Layers,
   Search,
   PlusCircle,
   BarChart3,
@@ -181,7 +181,7 @@ export function MobileNav() {
           <div className="relative bg-card border-t border-border rounded-t-3xl p-6 shadow-2xl space-y-4 animate-slide-up z-10">
             <div className="flex items-center justify-between pb-3 border-b border-border/60">
               <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-blue-600" />
+                <Layers className="w-4 h-4 text-blue-600" />
                 <span className="font-bold text-sm text-foreground">
                   {isRecruiter ? "Recruiter Navigation" : "More Options"}
                 </span>

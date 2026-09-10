@@ -12,7 +12,6 @@ import {
   Clock,
   Users,
   Award,
-  Sparkles,
   CheckCircle2,
   AlertCircle,
   ChevronRight,
@@ -574,7 +573,7 @@ function RecruiterAssessmentsContent() {
                 : "text-muted-foreground hover:text-foreground"
             )}
           >
-            <Sparkles className="w-3.5 h-3.5 text-purple-500" />
+            <FileText className="w-3.5 h-3.5 text-blue-500" />
             Question Bank
             <Badge variant="purple" size="sm" className="text-[10px] px-1.5 py-0 h-4 font-bold">
               {questions.length || "Bank"}
@@ -943,7 +942,7 @@ function RecruiterAssessmentsContent() {
                   </Badge>
                 </div>
                 <div className="mt-2 text-[11px] text-muted-foreground flex items-center gap-1.5">
-                  <Sparkles className="w-3 h-3 text-emerald-400 shrink-0" />
+                  <CheckCircle2 className="w-3 h-3 text-emerald-400 shrink-0" />
                   <span>Private recruiter questions</span>
                 </div>
               </div>
@@ -1539,7 +1538,7 @@ function RecruiterAssessmentsContent() {
                   <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
                     Question Bank Depth
                   </h4>
-                  <Sparkles className="w-4 h-4 text-purple-500" />
+                  <FileText className="w-4 h-4 text-blue-500" />
                 </div>
                 <h2 className="text-3xl font-extrabold text-purple-600 dark:text-purple-400">
                   {questions.length}

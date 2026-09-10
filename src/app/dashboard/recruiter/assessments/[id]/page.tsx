@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import {
   FileText,
-  Sparkles,
   ArrowLeft,
   Shield,
   Clock,
@@ -438,7 +437,7 @@ export default function AssessmentWorkspacePage({
             { id: "blueprint", label: "Blueprint & Pattern", icon: Sliders },
             { id: "merit", label: `Merit List (${meritData.meritList.length})`, icon: Award },
             { id: "candidates", label: `Authorizations (${authorizations.length || assessment.assignedCandidateIds.length})`, icon: Users },
-            { id: "questions", label: `Questions (${snapshots.length})`, icon: Sparkles },
+            { id: "questions", label: `Questions (${snapshots.length})`, icon: Layers },
             { id: "results", label: `Results (${attempts.length})`, icon: CheckCircle2 },
             { id: "objections", label: `Objections (${objections.length})`, icon: HelpCircle },
             { id: "analytics", label: "Analytics", icon: BarChart3 },

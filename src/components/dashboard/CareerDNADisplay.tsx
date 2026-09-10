@@ -7,7 +7,6 @@ import {
   TrendingUp,
   Award,
   Layers,
-  Sparkles,
   CheckCircle2,
   AlertTriangle,
   ArrowUpRight,
@@ -145,7 +144,7 @@ export function CareerDNADisplay({ userId }: CareerDNADisplayProps) {
           {/* AI Interpretation Summary */}
           <div className="space-y-2">
             <div className="flex items-center gap-1.5 text-xs font-bold text-blue-500">
-              <Sparkles className="w-3.5 h-3.5" /> AI Evidence Interpretation
+              <ShieldCheck className="w-3.5 h-3.5" /> Evidence Verification Summary
             </div>
             <p className="text-xs text-muted-foreground leading-relaxed italic">
               "{summary}"

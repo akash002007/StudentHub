@@ -9,7 +9,6 @@ import {
   CheckCircle2,
   AlertCircle,
   Calendar,
-  Sparkles,
   Building2,
   ArrowLeft,
   ArrowRight,

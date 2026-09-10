@@ -3,8 +3,9 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Sparkles, ArrowRight, Lock, Mail, UserCheck, Briefcase, GraduationCap, ArrowLeft } from "lucide-react";
+import { ArrowRight, Lock, Mail, UserCheck, Briefcase, GraduationCap, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { ShinyCTA } from "@/components/ui/ShinyCTA";
 import { Input } from "@/components/ui/Input";
 import { Badge } from "@/components/ui/Badge";
 import { ThemeToggle } from "@/components/shared/ThemeToggle";
@@ -98,7 +99,7 @@ export default function LoginPage() {
           <div className="text-center space-y-2">
             <Link href="/" className="inline-flex items-center gap-2 mb-2">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-700 to-blue-800 to-blue-600 flex items-center justify-center text-white shadow-md shadow-blue-500/20">
-                <Sparkles className="w-5 h-5" />
+                <span className="font-black text-base tracking-tight text-white select-none">SH</span>
               </div>
               <span className="font-bold text-xl tracking-tight text-foreground">
                 StudentHub
@@ -205,15 +206,15 @@ export default function LoginPage() {
                 </div>
               )}
 
-              <Button
+              <ShinyCTA
                 type="submit"
-                variant="gradient"
                 className="w-full h-11 text-sm font-semibold justify-center shadow-md shadow-blue-600/20"
                 isLoading={isLoading}
-                rightIcon={<ArrowRight className="w-4 h-4" />}
+                disabled={isLoading}
               >
                 Sign In as {role === "student" ? "Student" : role === "recruiter" ? "Recruiter" : "Admin"}
-              </Button>
+                {!isLoading && <ArrowRight className="w-4 h-4 ml-1" />}
+              </ShinyCTA>
             </form>
 
             {/* Quick-fill shortcut for hassle-free evaluation */}

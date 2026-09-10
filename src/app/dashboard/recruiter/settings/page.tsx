@@ -14,7 +14,6 @@ import {
   CheckCircle2,
   ArrowRight,
   LogOut,
-  Sparkles,
   ArrowLeftRight,
   Moon,
   Sun,
@@ -83,7 +82,7 @@ export default function RecruiterSettingsPage() {
         {/* Header */}
         <div>
           <div className="flex items-center gap-2 text-xs font-semibold text-blue-600 dark:text-blue-400 mb-1">
-            <Sparkles className="w-3.5 h-3.5" />
+            <Settings className="w-3.5 h-3.5" />
             <span>Workspace Preferences</span>
           </div>
           <h1 className="text-2xl font-extrabold text-foreground tracking-tight">

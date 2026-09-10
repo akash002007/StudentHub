@@ -11,7 +11,6 @@ import {
   Github,
   Linkedin,
   Globe,
-  Sparkles,
   Send,
   UserCheck,
   CheckCircle,
@@ -127,7 +126,7 @@ export function CandidateProfileModal({
                   </h2>
                   {candidate.matchScore && (
                     <Badge variant="emerald" size="sm" className="font-bold">
-                      <Sparkles className="w-3 h-3 mr-1" />
+                      <CheckCircle className="w-3 h-3 mr-1" />
                       {candidate.matchScore}% Match
                     </Badge>
                   )}

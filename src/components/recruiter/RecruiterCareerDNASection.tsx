@@ -4,7 +4,6 @@ import React, { useState, useEffect } from "react";
 import {
   Dna,
   ShieldCheck,
-  Sparkles,
   FolderGit2,
   AlertTriangle,
   ChevronDown,
@@ -349,7 +348,7 @@ export function RecruiterCareerDNASection({
               {dna.summary && (
                 <div className="space-y-1.5">
                   <span className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5" /> Technical Summary
+                    <ShieldCheck className="w-3.5 h-3.5" /> Technical Summary
                   </span>
                   <p className="text-xs text-muted-foreground leading-relaxed italic bg-muted/30 p-3.5 rounded-2xl border border-border/40">
                     "{dna.summary}"

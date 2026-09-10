@@ -8,7 +8,6 @@ import {
   CheckCircle2,
   AlertCircle,
   Calendar,
-  Sparkles,
   Building2,
   ChevronRight,
   Award,
@@ -122,8 +121,8 @@ export default function StudentAssessmentsPage() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 text-xs font-semibold text-purple-600 dark:text-purple-400 mb-1">
-              <Sparkles className="w-3.5 h-3.5" />
+            <div className="flex items-center gap-2 text-xs font-semibold text-blue-600 dark:text-blue-400 mb-1">
+              <FileText className="w-3.5 h-3.5" />
               <span>Candidate Examination Workspace</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-black text-foreground tracking-tight">

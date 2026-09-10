@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { Users, MessageSquare, ArrowRight, Sparkles, Terminal, Code2, Brain, Rocket } from "lucide-react";
+import { Users, MessageSquare, ArrowRight, Terminal, Code2, Brain, Rocket } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";

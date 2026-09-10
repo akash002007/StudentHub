@@ -11,7 +11,6 @@ import {
   GitPullRequest,
   Send,
   Users2,
-  Sparkles,
   ArrowRight,
 } from "lucide-react";
 import { Card } from "@/components/ui/Card";
@@ -74,7 +73,7 @@ export default function NotificationsPage() {
       case "community":
         return <Users2 className="w-4 h-4 text-amber-500" />;
       default:
-        return <Sparkles className="w-4 h-4 text-blue-500" />;
+        return <Bell className="w-4 h-4 text-blue-500" />;
     }
   };
 

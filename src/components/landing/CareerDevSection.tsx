@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { CheckCircle2, Trophy, Compass, Sparkles, Laptop, FileText, ArrowRight } from "lucide-react";
+import { CheckCircle2, Trophy, Compass, Laptop, FileText, ArrowRight } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 
@@ -17,7 +17,7 @@ export function CareerDevSection() {
       number: "02",
       title: "Match With Verified Companies",
       description: "Receive targeted internship recommendations with transparent match explanations and direct recruiter visibility.",
-      icon: <Sparkles className="w-5 h-5 text-blue-500" />,
+      icon: <CheckCircle2 className="w-5 h-5 text-blue-500" />,
     },
     {
       number: "03",

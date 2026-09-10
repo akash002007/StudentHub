@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { Sparkles, ArrowRight, Dna } from "lucide-react";
+import { ArrowRight, Dna } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { useAuth } from "@/context/AuthContext";
@@ -17,7 +17,7 @@ export function CareerDNACTA() {
 
       <div className="relative z-10 space-y-3 max-w-2xl mx-auto">
         <Badge variant="purple" size="sm" className="font-semibold px-3 py-1">
-          <Sparkles className="w-3.5 h-3.5 mr-1" />
+          <Dna className="w-3.5 h-3.5 mr-1" />
           The Intelligence Layer
         </Badge>
         

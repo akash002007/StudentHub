@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
-  Sparkles,
   ShieldCheck,
   CheckCircle2,
   Building,
@@ -97,7 +96,7 @@ export default function RecruiterOnboardingPage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-700 to-blue-800 via-blue-600 to-blue-600 flex items-center justify-center text-white shadow-md shadow-blue-500/20">
-              <Sparkles className="w-5 h-5" />
+              <span className="font-black text-xs tracking-tight text-white select-none">SH</span>
             </div>
             <div>
               <span className="font-bold text-base tracking-tight text-foreground">
@@ -122,7 +121,7 @@ export default function RecruiterOnboardingPage() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="space-y-1">
               <div className="flex items-center gap-2 text-xs font-semibold text-blue-600 dark:text-blue-400">
-                <Sparkles className="w-3.5 h-3.5" />
+                <ShieldCheck className="w-3.5 h-3.5" />
                 <span>Account Setup & Verification</span>
               </div>
               <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">

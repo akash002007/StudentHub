@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
-  Sparkles,
+  Loader2,
   ArrowRight,
   ArrowLeft,
   CheckCircle2,
@@ -446,8 +446,8 @@ function OnboardingContent() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-blue-600/10 text-blue-600 flex items-center justify-center animate-pulse">
-            <Sparkles className="w-5 h-5 animate-spin" />
+          <div className="w-10 h-10 rounded-xl bg-blue-600/10 text-blue-600 flex items-center justify-center">
+            <Loader2 className="w-5 h-5 animate-spin" />
           </div>
           <p className="text-xs text-muted-foreground font-medium">Loading workspace onboarding...</p>
         </div>
@@ -485,7 +485,7 @@ function OnboardingContent() {
         <div className="flex items-center gap-3">
           <Link href="/" className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-700 to-blue-800 to-blue-600 flex items-center justify-center text-white shadow-md shadow-blue-500/20">
-              <Sparkles className="w-4 h-4" />
+              <span className="font-black text-xs tracking-tight text-white select-none">SH</span>
             </div>
             <span className="font-bold text-lg tracking-tight text-foreground">
               StudentHub
@@ -1602,8 +1602,8 @@ export default function OnboardingPage() {
       fallback={
         <div className="min-h-screen flex items-center justify-center bg-background">
           <div className="flex flex-col items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-blue-600/10 text-blue-600 flex items-center justify-center animate-pulse">
-              <Sparkles className="w-5 h-5 animate-spin" />
+            <div className="w-10 h-10 rounded-xl bg-blue-600/10 text-blue-600 flex items-center justify-center">
+              <Loader2 className="w-5 h-5 animate-spin" />
             </div>
             <p className="text-xs text-muted-foreground font-medium">Loading workspace onboarding...</p>
           </div>

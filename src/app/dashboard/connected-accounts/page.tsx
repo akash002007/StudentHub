@@ -10,7 +10,6 @@ import {
   Globe,
   Trophy,
   Database,
-  Sparkles,
   CheckCircle2,
   Clock,
   ExternalLink,
@@ -437,7 +436,7 @@ export default function ConnectedAccountsPage() {
 
         {/* Notice Banner */}
         <div className="p-4 rounded-2xl bg-blue-500/5 dark:bg-blue-950/20 border border-blue-500/20 flex items-start gap-3 text-xs text-muted-foreground leading-relaxed">
-          <Sparkles className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
+          <ShieldCheck className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
           <div>
             <span className="font-bold text-foreground">GitHub Production Intelligence Integration:</span>{" "}
             GitHub OAuth, background repository synchronization, Skill Intelligence, and Career DNA updates are now active.

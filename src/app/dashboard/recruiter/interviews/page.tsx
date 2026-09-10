@@ -10,7 +10,6 @@ import {
   Filter,
   CheckCircle2,
   XCircle,
-  Sparkles,
   ExternalLink,
   User,
   GraduationCap,
@@ -209,7 +208,7 @@ export default function RecruiterInterviewsPage() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 text-xs font-semibold text-blue-600 dark:text-blue-400 mb-1">
-              <Sparkles className="w-3.5 h-3.5" />
+              <Video className="w-3.5 h-3.5" />
               <span>Interview Operations</span>
             </div>
             <h1 className="text-2xl font-extrabold text-foreground tracking-tight">

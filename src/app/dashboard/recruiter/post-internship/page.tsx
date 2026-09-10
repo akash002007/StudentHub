@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
-  Sparkles,
+  Briefcase,
   ArrowRight,
   ArrowLeft,
   CheckCircle2,
@@ -384,7 +384,7 @@ export default function PostInternshipPage() {
         <div className="flex items-center justify-between">
           <div>
             <div className="flex items-center gap-2 text-xs font-semibold text-blue-600 dark:text-blue-400 mb-1">
-              <Sparkles className="w-3.5 h-3.5" />
+              <Briefcase className="w-3.5 h-3.5" />
               <span>Hiring Pipeline</span>
             </div>
             <h1 className="text-2xl font-extrabold text-foreground tracking-tight">

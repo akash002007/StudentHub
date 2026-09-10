@@ -5,7 +5,6 @@ import {
   Trophy,
   ShieldCheck,
   TrendingUp,
-  Sparkles,
   RefreshCw,
   Code2,
   Award,
@@ -76,7 +75,7 @@ export function CodeforcesInsights({ userId, onSyncClick, isSyncingManual }: Cod
             <div className="flex items-center gap-2">
               <h3 className="text-lg font-bold text-foreground tracking-tight">Codeforces Competitive Intelligence</h3>
               <Badge variant="rose" size="sm" className="font-semibold text-[10px]">
-                <Sparkles className="w-3 h-3 mr-1" /> Verified Public API Data
+                <ShieldCheck className="w-3 h-3 mr-1" /> Verified Public API Data
               </Badge>
             </div>
             <p className="text-xs text-muted-foreground">

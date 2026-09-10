@@ -3,9 +3,10 @@
 import React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Sparkles, CheckCircle2, Users, ShieldCheck } from "lucide-react";
+import { ArrowRight, CheckCircle2, Users, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
+import { ShinyCTA } from "@/components/ui/ShinyCTA";
 import { ProductPreview } from "./ProductPreview";
 
 export function HeroSection() {
@@ -21,8 +22,7 @@ export function HeroSection() {
         <div className="text-center max-w-3xl mx-auto flex flex-col items-center">
           {/* Badge */}
           <div className="mb-6">
-            <Badge variant="gradient" size="lg" className="gap-2 py-1.5 px-4 shadow-xs">
-              <Sparkles className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+            <Badge variant="gradient" size="lg" className="py-1.5 px-4 shadow-xs">
               <span className="font-semibold text-xs sm:text-sm">
                 Next-Gen Career Platform for Students
               </span>
@@ -42,15 +42,12 @@ export function HeroSection() {
 
           {/* CTA Buttons */}
           <div className="mt-8 flex flex-col sm:flex-row items-center gap-3.5 w-full sm:w-auto">
-            <Button
-              variant="gradient"
-              size="lg"
-              className="w-full sm:w-auto h-13 px-8 text-base shadow-lg shadow-blue-600/20"
-              rightIcon={<ArrowRight className="w-4 h-4" />}
+            <ShinyCTA
+              className="w-full sm:w-auto text-base shadow-lg shadow-blue-600/20"
               onClick={() => router.push("/signup")}
             >
-              Join StudentHub Free
-            </Button>
+              Join StudentHub Free <ArrowRight className="w-4 h-4" />
+            </ShinyCTA>
             <Button
               variant="secondary"
               size="lg"

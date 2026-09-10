@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Sparkles,
   Plus,
   X,
   Briefcase,
@@ -305,7 +304,7 @@ export function QuickActionsFab() {
           {isOpen ? (
             <X className="w-6 h-6" />
           ) : (
-            <Sparkles className="w-6 h-6 animate-pulse" />
+            <Plus className="w-6 h-6" />
           )}
         </motion.button>
       </div>

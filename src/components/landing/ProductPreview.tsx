@@ -2,7 +2,7 @@
 
 import React from "react";
 import {
-  Sparkles,
+  Users,
   Briefcase,
   Layers,
   Send,
@@ -48,7 +48,7 @@ export function ProductPreview() {
             <div className="space-y-4">
               <div className="flex items-center gap-2.5 px-2 py-1.5">
                 <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white">
-                  <Sparkles className="w-4 h-4" />
+                  <span className="font-black text-xs tracking-tight text-white select-none">SH</span>
                 </div>
                 <div>
                   <div className="text-xs font-bold leading-none">StudentHub</div>
@@ -214,7 +214,7 @@ export function ProductPreview() {
             {/* Bottom mini banner */}
             <div className="p-3 rounded-xl bg-muted/40 border border-border/60 flex items-center justify-between text-xs text-muted-foreground">
               <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-blue-500 shrink-0" />
+                <Users className="w-4 h-4 text-blue-500 shrink-0" />
                 <span>
                   <strong>Student Communities:</strong> 142 new discussions in AI/ML & Web Development.
                 </span>

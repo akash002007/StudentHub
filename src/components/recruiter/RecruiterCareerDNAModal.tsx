@@ -5,7 +5,6 @@ import {
   Dna,
   ShieldCheck,
   X,
-  Sparkles,
   TrendingUp,
   FolderGit2,
   AlertTriangle,
@@ -140,7 +139,7 @@ export function RecruiterCareerDNAModal({
         {summary && (
           <div className="space-y-2">
             <h4 className="text-xs font-bold text-blue-500 uppercase tracking-wider flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5" /> AI Assessment Summary
+              <ShieldCheck className="w-3.5 h-3.5" /> Assessment Summary
             </h4>
             <p className="text-xs text-muted-foreground leading-relaxed italic bg-muted/30 p-3 rounded-2xl border border-border/40">
               "{summary}"

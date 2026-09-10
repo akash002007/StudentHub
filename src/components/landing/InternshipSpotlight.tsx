@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { ArrowRight, MapPin, DollarSign, Clock, Sparkles, Building2 } from "lucide-react";
+import { ArrowRight, MapPin, DollarSign, Clock, Building2 } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";

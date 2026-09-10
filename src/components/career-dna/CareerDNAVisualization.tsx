@@ -10,7 +10,6 @@ import {
   Trophy,
   Briefcase,
   Globe,
-  Sparkles,
   Dna,
   CheckCircle2,
   TrendingUp,
@@ -29,7 +28,7 @@ export function CareerDNAVisualization() {
     { label: "EVIDENCE", icon: ShieldCheck },
     { label: "CAREER DNA", icon: Dna },
     { label: "CAREER SCORE", icon: Trophy },
-    { label: "BETTER MATCH", icon: Sparkles },
+    { label: "BETTER MATCH", icon: CheckCircle2 },
   ];
 
   const evidenceSources = [

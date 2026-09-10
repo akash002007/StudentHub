@@ -7,7 +7,6 @@ import {
   TrendingUp,
   Users2,
   GitPullRequest,
-  Sparkles,
   Award,
   Calendar,
   CheckCircle2,
@@ -63,7 +62,7 @@ export default function RecruiterAnalyticsPage() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 text-xs font-semibold text-blue-600 dark:text-blue-400 mb-1">
-              <Sparkles className="w-3.5 h-3.5" />
+              <TrendingUp className="w-3.5 h-3.5" />
               <span>Hiring Insights</span>
             </div>
             <h1 className="text-2xl font-extrabold text-foreground tracking-tight">

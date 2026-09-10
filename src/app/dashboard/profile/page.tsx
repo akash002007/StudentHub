@@ -19,7 +19,6 @@ import {
   CheckCircle2,
   Award,
   Calendar,
-  Sparkles,
   Layers,
   Download,
 } from "lucide-react";
@@ -393,7 +392,7 @@ export default function ProfilePage() {
                   {student?.location || "San Francisco, CA / Remote"}
                 </span>
                 <span className="flex items-center gap-1">
-                  <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                  <Award className="w-3.5 h-3.5 text-blue-500" />
                   GPA: {student?.cgpa || "3.92 / 4.0"}
                 </span>
               </div>

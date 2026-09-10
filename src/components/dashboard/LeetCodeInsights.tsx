@@ -4,7 +4,6 @@ import React, { useState, useEffect, useCallback } from "react";
 import {
   Code,
   Trophy,
-  Sparkles,
   RefreshCw,
   ExternalLink,
   CheckCircle2,
@@ -85,7 +84,7 @@ export function LeetCodeInsights({
                 LeetCode Problem-Solving Intelligence
               </h3>
               <Badge variant="amber" size="sm" className="font-semibold text-[10px]">
-                <Sparkles className="w-3 h-3 mr-1" /> Verified Public API Data
+                <CheckCircle2 className="w-3 h-3 mr-1" /> Verified Public API Data
               </Badge>
             </div>
             <p className="text-xs text-muted-foreground">

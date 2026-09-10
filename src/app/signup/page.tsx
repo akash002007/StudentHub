@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
-  Sparkles,
   ArrowRight,
   ArrowLeft,
   Lock,
@@ -272,7 +271,7 @@ export default function SignupPage() {
           <div className="text-center space-y-2">
             <Link href="/" className="inline-flex items-center gap-2 mb-1">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-700 to-blue-800 to-blue-600 flex items-center justify-center text-white shadow-md shadow-blue-500/20">
-                <Sparkles className="w-5 h-5" />
+                <span className="font-black text-base tracking-tight text-white select-none">SH</span>
               </div>
               <span className="font-bold text-xl tracking-tight text-foreground">
                 StudentHub

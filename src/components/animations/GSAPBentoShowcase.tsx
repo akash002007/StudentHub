@@ -6,7 +6,6 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Flip } from "gsap/Flip";
 import {
-  Sparkles,
   ArrowRight,
   ChevronDown,
   ChevronUp,
@@ -681,7 +680,7 @@ export function GSAPBentoShowcase() {
 
                 <div className="p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-between text-[11px]">
                   <span className="font-semibold text-emerald-600 dark:text-emerald-300 flex items-center gap-1">
-                    <Sparkles className="w-3 h-3" /> 96% Match with Your Dossier
+                    <CheckCircle2 className="w-3 h-3" /> 96% Match with Your Dossier
                   </span>
                   <span className="text-[10px] text-muted-foreground">Direct HR Invitation</span>
                 </div>
