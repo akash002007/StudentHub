@@ -42,6 +42,13 @@ import {
   CollegeDriveParticipation,
   CollegeParticipationStatus,
   CollegeProfile,
+  DocumentType,
+  DocumentStatus,
+  DocumentVerificationMethod,
+  DocumentExpiryStatus,
+  DocumentVerificationAttempt,
+  DocumentRecord,
+  CandidateVerificationClaims,
 } from "@/types";
 import { defaultStudentUser, defaultAdminUser, defaultRecruiterUser, defaultCollegeUser } from "@/data/mock-users";
 import { verificationRequests as initialVerificationRequests, auditLogs as initialAuditLogs, adminNotifications as initialAdminNotifications } from "@/data/mock-admin-data";
@@ -73,6 +80,9 @@ interface StoreState {
   certificateDNA: Map<string, CertificateDNA>; // userId -> CertificateDNA
   colleges: Map<string, CollegeRecord>;
   collegeParticipation: Map<string, CollegeDriveParticipation[]>; // collegeId -> participations
+  documents: Map<string, DocumentRecord[]>; // userId -> DocumentRecord[]
+  documentAttempts: Map<string, DocumentVerificationAttempt[]>; // documentId -> DocumentVerificationAttempt[]
+  documentBuffers: Map<string, Buffer>; // documentId -> Buffer
   verificationCounter: number;
 }
 
@@ -1057,6 +1067,171 @@ function initializeStore(): StoreState {
     }
   });
 
+  const initialDocuments = new Map<string, DocumentRecord[]>();
+  const initialDocumentAttempts = new Map<string, DocumentVerificationAttempt[]>();
+
+  const alexDocs: DocumentRecord[] = [
+    {
+      id: "doc_alex_resume",
+      userId: defaultStudentUser.id,
+      studentName: defaultStudentUser.name,
+      studentEmail: defaultStudentUser.email,
+      collegeName: defaultStudentUser.university,
+      documentType: "RESUME",
+      fileName: "Alex_Rivera_Software_Resume_2026.pdf",
+      storageKey: "documents/std_default_01/doc_alex_resume.pdf",
+      mimeType: "application/pdf",
+      fileSize: "1.4 MB",
+      fileSizeBytes: 1468006,
+      uploadedAt: "2026-03-01T10:00:00.000Z",
+      updatedAt: "2026-03-01T10:00:00.000Z",
+      verificationStatus: "AUTO_VERIFIED",
+      verificationMethod: "AUTOMATED",
+      confidenceScore: 96,
+      verifiedBy: "Automated OCR Verification Engine",
+      verifiedAt: "2026-03-01T10:00:05.000Z",
+      isSensitive: false,
+      isShareableWithRecruiters: true,
+      matchedFields: ["name", "college", "degree", "graduation_year"],
+      failedChecks: [],
+      warnings: [],
+      decisionReason: "Verified automatically with high multi-factor confidence.",
+    },
+    {
+      id: "doc_alex_degree",
+      userId: defaultStudentUser.id,
+      studentName: defaultStudentUser.name,
+      studentEmail: defaultStudentUser.email,
+      collegeName: defaultStudentUser.university,
+      documentType: "DEGREE_CERTIFICATE",
+      fileName: "Stanford_University_B.S._Computer_Science_Provisional.pdf",
+      storageKey: "documents/std_default_01/doc_alex_degree.pdf",
+      mimeType: "application/pdf",
+      fileSize: "2.1 MB",
+      fileSizeBytes: 2202009,
+      uploadedAt: "2026-03-04T11:20:00.000Z",
+      updatedAt: "2026-03-04T11:20:00.000Z",
+      verificationStatus: "NEEDS_REVIEW",
+      verificationMethod: "AUTOMATED",
+      confidenceScore: 74,
+      isSensitive: false,
+      isShareableWithRecruiters: false,
+      matchedFields: ["college", "degree", "graduation_year"],
+      failedChecks: ["name"],
+      warnings: [
+        "Possible name spelling variation in OCR stream: 'Alex R. Rivera' vs 'Alex Rivera'",
+        "Specialization detected with partial OCR confidence",
+      ],
+      decisionReason: "Possible name mismatch detected in OCR stream.",
+    },
+    {
+      id: "doc_alex_marksheet",
+      userId: defaultStudentUser.id,
+      studentName: defaultStudentUser.name,
+      studentEmail: defaultStudentUser.email,
+      collegeName: defaultStudentUser.university,
+      documentType: "MARKSHEET",
+      fileName: "Semester_5_Academic_Transcript_Official.pdf",
+      storageKey: "documents/std_default_01/doc_alex_marksheet.pdf",
+      mimeType: "application/pdf",
+      fileSize: "1.8 MB",
+      fileSizeBytes: 1887436,
+      uploadedAt: "2026-02-28T09:15:00.000Z",
+      updatedAt: "2026-02-28T09:15:00.000Z",
+      verificationStatus: "AUTO_VERIFIED",
+      verificationMethod: "AUTOMATED",
+      confidenceScore: 92,
+      verifiedBy: "Automated OCR Verification Engine",
+      verifiedAt: "2026-02-28T09:15:04.000Z",
+      isSensitive: false,
+      isShareableWithRecruiters: false,
+      matchedFields: ["name", "college", "cgpa", "academic_stream"],
+      failedChecks: [],
+      warnings: [],
+      decisionReason: "Verified automatically with high multi-factor confidence.",
+    },
+    {
+      id: "doc_alex_govid",
+      userId: defaultStudentUser.id,
+      studentName: defaultStudentUser.name,
+      studentEmail: defaultStudentUser.email,
+      collegeName: defaultStudentUser.university,
+      documentType: "GOVERNMENT_ID",
+      fileName: "Passport_Identity_Verification_Document.pdf",
+      storageKey: "documents/std_default_01/doc_alex_govid.pdf",
+      mimeType: "application/pdf",
+      fileSize: "1.1 MB",
+      fileSizeBytes: 1153433,
+      uploadedAt: "2026-01-15T14:00:00.000Z",
+      updatedAt: "2026-01-15T14:00:00.000Z",
+      verificationStatus: "AUTO_VERIFIED",
+      verificationMethod: "AUTOMATED",
+      confidenceScore: 98,
+      verifiedBy: "Automated Identity Verification Pipeline",
+      verifiedAt: "2026-01-15T14:00:03.000Z",
+      isSensitive: true,
+      isShareableWithRecruiters: false,
+      matchedFields: ["name", "dob"],
+      failedChecks: [],
+      warnings: [],
+      decisionReason: "Official government identification verified.",
+    },
+    {
+      id: "doc_alex_internship",
+      userId: defaultStudentUser.id,
+      studentName: defaultStudentUser.name,
+      studentEmail: defaultStudentUser.email,
+      collegeName: defaultStudentUser.university,
+      documentType: "INTERNSHIP_CERTIFICATE",
+      fileName: "Datadog_Software_Engineering_Internship_Certificate.pdf",
+      storageKey: "documents/std_default_01/doc_alex_internship.pdf",
+      mimeType: "application/pdf",
+      fileSize: "1.2 MB",
+      fileSizeBytes: 1258291,
+      uploadedAt: "2026-02-10T16:30:00.000Z",
+      updatedAt: "2026-02-12T10:00:00.000Z",
+      verificationStatus: "VERIFIED",
+      verificationMethod: "VERIFICATION_OFFICER",
+      confidenceScore: 90,
+      verifiedBy: "Priya Menon (Verification Officer)",
+      verifiedAt: "2026-02-12T10:00:00.000Z",
+      isSensitive: false,
+      isShareableWithRecruiters: false,
+      matchedFields: ["name", "company", "role", "dates"],
+      failedChecks: [],
+      warnings: [],
+      decisionReason: "Verified by Verification Officer after confirming issuer corporate domain.",
+    },
+    {
+      id: "doc_alex_college_id",
+      userId: defaultStudentUser.id,
+      studentName: defaultStudentUser.name,
+      studentEmail: defaultStudentUser.email,
+      collegeName: defaultStudentUser.university,
+      documentType: "COLLEGE_ID",
+      fileName: "Stanford_Student_Campus_ID.jpg",
+      storageKey: "documents/std_default_01/doc_alex_college_id.jpg",
+      mimeType: "image/jpeg",
+      fileSize: "640 KB",
+      fileSizeBytes: 655360,
+      uploadedAt: "2026-03-05T08:00:00.000Z",
+      updatedAt: "2026-03-05T08:00:00.000Z",
+      verificationStatus: "REUPLOAD_REQUIRED",
+      verificationMethod: "AUTOMATED",
+      confidenceScore: 35,
+      reuploadReason: "Uploaded scan is blurry and student roll ID number is illegible. Please upload a high-resolution color photo or PDF scan.",
+      isSensitive: true,
+      isShareableWithRecruiters: false,
+      matchedFields: [],
+      failedChecks: ["clarity_and_resolution", "barcode_unreadable"],
+      warnings: ["Image resolution too low for automated optical character recognition."],
+      decisionReason: "Low OCR confidence and blurred roll number.",
+    },
+  ];
+
+  initialDocuments.set(defaultStudentUser.id, alexDocs);
+  initialDocuments.set("student_01", alexDocs);
+
   const initialStore: StoreState = {
     verificationRequests,
     studentProfiles,
@@ -1081,6 +1256,9 @@ function initializeStore(): StoreState {
     certificateDNA: new Map<string, CertificateDNA>(),
     colleges,
     collegeParticipation,
+    documents: initialDocuments,
+    documentAttempts: initialDocumentAttempts,
+    documentBuffers: new Map<string, Buffer>(),
     verificationCounter: 4814,
   };
 
@@ -2420,6 +2598,285 @@ export class ServerStore {
     return { success: true, request: req };
   }
 
+  // ==========================================
+  // DOCUMENT MANAGEMENT & HYBRID VERIFICATION
+  // ==========================================
+
+  static saveDocument(userId: string, doc: DocumentRecord, buffer?: Buffer): DocumentRecord {
+    const userDocs = store.documents.get(userId) || [];
+    const existingIndex = userDocs.findIndex((d) => d.id === doc.id);
+
+    if (existingIndex >= 0) {
+      userDocs[existingIndex] = { ...doc, updatedAt: new Date().toISOString() };
+    } else {
+      userDocs.unshift(doc);
+    }
+    store.documents.set(userId, userDocs);
+
+    if (buffer) {
+      store.documentBuffers.set(doc.id, buffer);
+    }
+
+    persistStoreToDisk();
+    return doc;
+  }
+
+  static getDocumentById(docId: string): DocumentRecord | null {
+    for (const docs of store.documents.values()) {
+      const found = docs.find((d) => d.id === docId);
+      if (found) return { ...found };
+    }
+    return null;
+  }
+
+  static getDocumentBuffer(docId: string): Buffer | null {
+    return store.documentBuffers.get(docId) || null;
+  }
+
+  static getDocumentsByUserId(userId: string): DocumentRecord[] {
+    const docs = store.documents.get(userId) || [];
+    return docs.map((d) => ({ ...d }));
+  }
+
+  static getAllDocuments(filters?: {
+    status?: string;
+    type?: string;
+    search?: string;
+  }): DocumentRecord[] {
+    const all: DocumentRecord[] = [];
+    store.documents.forEach((docs) => {
+      docs.forEach((d) => all.push({ ...d }));
+    });
+
+    let filtered = all;
+
+    if (filters?.status && filters.status !== "All") {
+      filtered = filtered.filter((d) => d.verificationStatus === filters.status);
+    }
+
+    if (filters?.type && filters.type !== "All") {
+      filtered = filtered.filter((d) => d.documentType === filters.type);
+    }
+
+    if (filters?.search) {
+      const q = filters.search.trim().toLowerCase();
+      filtered = filtered.filter(
+        (d) =>
+          d.fileName.toLowerCase().includes(q) ||
+          (d.studentName && d.studentName.toLowerCase().includes(q)) ||
+          (d.studentEmail && d.studentEmail.toLowerCase().includes(q)) ||
+          (d.collegeName && d.collegeName.toLowerCase().includes(q)) ||
+          d.documentType.toLowerCase().includes(q)
+      );
+    }
+
+    // Sort by uploadedAt desc
+    filtered.sort((a, b) => new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime());
+    return filtered;
+  }
+
+  static deleteDocument(userId: string, docId: string): boolean {
+    const userDocs = store.documents.get(userId) || [];
+    const nextDocs = userDocs.filter((d) => d.id !== docId);
+    if (nextDocs.length !== userDocs.length) {
+      store.documents.set(userId, nextDocs);
+      store.documentBuffers.delete(docId);
+      store.documentAttempts.delete(docId);
+      persistStoreToDisk();
+      return true;
+    }
+    return false;
+  }
+
+  static recordVerificationAttempt(attempt: DocumentVerificationAttempt): void {
+    const attempts = store.documentAttempts.get(attempt.documentId) || [];
+    attempts.unshift(attempt);
+    store.documentAttempts.set(attempt.documentId, attempts);
+
+    // Also update document's latest attempt ID and history
+    const doc = this.getDocumentById(attempt.documentId);
+    if (doc) {
+      doc.latestAttemptId = attempt.id;
+      doc.confidenceScore = attempt.confidenceScore;
+      doc.matchedFields = attempt.matchedFields;
+      doc.failedChecks = attempt.failedChecks;
+      doc.warnings = attempt.warnings;
+      doc.decisionReason = attempt.reason;
+      doc.attempts = attempts;
+      this.saveDocument(doc.userId, doc);
+    }
+  }
+
+  static getVerificationAttempts(docId: string): DocumentVerificationAttempt[] {
+    const attempts = store.documentAttempts.get(docId) || [];
+    return attempts.map((a) => ({ ...a }));
+  }
+
+  static adminReviewDocument(
+    docId: string,
+    action: "APPROVE" | "REJECT" | "REQUEST_REUPLOAD",
+    adminName: string = "Priya Menon",
+    reason?: string,
+    notes?: string
+  ): { success: boolean; document?: DocumentRecord; error?: string } {
+    const doc = this.getDocumentById(docId);
+    if (!doc) {
+      return { success: false, error: "Document not found." };
+    }
+
+    const prevStatus = doc.verificationStatus;
+    const nowStr = new Date().toISOString();
+
+    if (action === "APPROVE") {
+      doc.verificationStatus = "VERIFIED";
+      doc.verificationMethod = "ADMIN";
+      doc.verifiedBy = adminName;
+      doc.verifiedAt = nowStr;
+      doc.decisionReason = notes || "Approved by administrative verification officer.";
+    } else if (action === "REJECT") {
+      doc.verificationStatus = "REJECTED";
+      doc.rejectionReason = reason || "Document failed verification standards.";
+      doc.verifiedBy = adminName;
+      doc.verifiedAt = nowStr;
+      doc.decisionReason = reason || notes || "Rejected by administrator.";
+    } else if (action === "REQUEST_REUPLOAD") {
+      doc.verificationStatus = "REUPLOAD_REQUIRED";
+      doc.reuploadReason = reason || "A clearer copy or replacement document is requested.";
+      doc.decisionReason = reason || notes || "Re-upload requested by administrator.";
+    }
+
+    this.saveDocument(doc.userId, doc);
+
+    // Record verification attempt for audit trail
+    const attempt: DocumentVerificationAttempt = {
+      id: `att_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+      documentId: doc.id,
+      userId: doc.userId,
+      verificationMethod: "ADMIN",
+      status: doc.verificationStatus,
+      confidenceScore: action === "APPROVE" ? 100 : (doc.confidenceScore || 50),
+      extractedData: doc.extractedData || {},
+      matchedFields: doc.matchedFields || [],
+      failedChecks: action === "REJECT" ? ["admin_rejected"] : (doc.failedChecks || []),
+      warnings: [],
+      reason: reason || notes || `Document ${action.toLowerCase()}d by ${adminName}.`,
+      performedBy: adminName,
+      createdAt: nowStr,
+    };
+    this.recordVerificationAttempt(attempt);
+
+    // Add notification to student
+    const notifs = store.studentNotifications.get(doc.userId) || [];
+    let notifTitle = "Document Verified";
+    let notifDesc = `Your ${doc.documentType.replace("_", " ")} has been approved by ${adminName}.`;
+    if (action === "REJECT") {
+      notifTitle = "Document Verification Notice";
+      notifDesc = `Your ${doc.documentType.replace("_", " ")} was rejected: ${reason || "Document requirements not met."}`;
+    } else if (action === "REQUEST_REUPLOAD") {
+      notifTitle = "Document Re-upload Requested";
+      notifDesc = `An administrator requested a replacement for your ${doc.documentType.replace("_", " ")}: ${reason || "Please upload a clearer copy."}`;
+    }
+
+    notifs.unshift({
+      id: `notif_${Date.now()}`,
+      type: "system",
+      title: notifTitle,
+      description: notifDesc,
+      timestamp: "Just now",
+      isRead: false,
+      actionUrl: "/dashboard/documents",
+    });
+    store.studentNotifications.set(doc.userId, notifs);
+
+    // Add Audit Log
+    this.addAuditLog({
+      admin: adminName,
+      action: `ADMIN_${action}_DOCUMENT` as any,
+      student: doc.studentName || doc.userId,
+      previousStatus: prevStatus,
+      newStatus: doc.verificationStatus,
+      ipSessionRef: "103.22.44.91 / sess_admin",
+      details: `${action} document ${doc.fileName} (${doc.documentType}). ${notes || reason || ""}`,
+    });
+
+    return { success: true, document: doc };
+  }
+
+  static getCandidateVerificationClaims(userId: string): CandidateVerificationClaims {
+    const docs = this.getDocumentsByUserId(userId);
+    const student = store.studentProfiles.get(userId);
+
+    const isVerified = (d: DocumentRecord) =>
+      d.verificationStatus === "VERIFIED" || d.verificationStatus === "AUTO_VERIFIED";
+
+    const hasGovId = docs.some((d) => (d.documentType === "GOVERNMENT_ID" || d.documentType === "COLLEGE_ID") && isVerified(d));
+    const hasDegree = docs.some((d) => d.documentType === "DEGREE_CERTIFICATE" && isVerified(d));
+    const hasMarksheet = docs.some((d) => d.documentType === "MARKSHEET" && isVerified(d));
+    const hasInternship = docs.some((d) => d.documentType === "INTERNSHIP_CERTIFICATE" && isVerified(d));
+    const hasResume = docs.some((d) => d.documentType === "RESUME" && isVerified(d));
+
+    const isAccountApproved = student?.verificationStatus === "approved";
+
+    return {
+      identityVerified: hasGovId || isAccountApproved,
+      educationVerified: hasDegree || hasMarksheet || isAccountApproved,
+      degreeVerified: hasDegree,
+      internshipVerified: hasInternship,
+      resumeVerified: hasResume,
+      verifiedCount: docs.filter(isVerified).length,
+      totalDocuments: docs.length,
+    };
+  }
+
+  static getDocumentVerificationMetrics(): {
+    totalDocuments: number;
+    autoVerifiedCount: number;
+    needsReviewCount: number;
+    rejectedCount: number;
+    reuploadCount: number;
+    expiredCount: number;
+    automationRate: number;
+  } {
+    const allDocs = this.getAllDocuments();
+    const legacyRequests = store.verificationRequests;
+
+    let autoVerifiedCount = 0;
+    let needsReviewCount = 0;
+    let rejectedCount = 0;
+    let reuploadCount = 0;
+    let expiredCount = 0;
+
+    allDocs.forEach((d) => {
+      if (d.verificationStatus === "AUTO_VERIFIED") autoVerifiedCount++;
+      else if (d.verificationStatus === "NEEDS_REVIEW" || d.verificationStatus === "PROCESSING") needsReviewCount++;
+      else if (d.verificationStatus === "REJECTED") rejectedCount++;
+      else if (d.verificationStatus === "REUPLOAD_REQUIRED") reuploadCount++;
+      else if (d.verificationStatus === "EXPIRED" || d.expiryStatus === "EXPIRED") expiredCount++;
+      else if (d.verificationStatus === "VERIFIED" && d.verificationMethod === "AUTOMATED") autoVerifiedCount++;
+    });
+
+    legacyRequests.forEach((r) => {
+      if (r.verificationMethod === "College Email" && r.status === "Approved") autoVerifiedCount++;
+      else if (r.status === "Pending") needsReviewCount++;
+      else if (r.status === "Rejected") rejectedCount++;
+      else if (r.status === "Needs Information") reuploadCount++;
+    });
+
+    const totalDocuments = allDocs.length + legacyRequests.length;
+    const verifiedTotal = autoVerifiedCount + allDocs.filter((d) => d.verificationStatus === "VERIFIED").length;
+    const automationRate = verifiedTotal > 0 ? parseFloat(((autoVerifiedCount / verifiedTotal) * 100).toFixed(1)) : 85.9;
+
+    return {
+      totalDocuments,
+      autoVerifiedCount,
+      needsReviewCount,
+      rejectedCount,
+      reuploadCount,
+      expiredCount,
+      automationRate,
+    };
+  }
+
   static getAllStudents(query?: string, statusFilter?: string): AdminStudentRecord[] {
     const list: AdminStudentRecord[] = [];
 
@@ -3735,5 +4192,60 @@ export function saveHuggingFaceDNA(
 export function getHuggingFaceDNA(userId: string): HuggingFaceDNA | null {
   return store.huggingfaceDNA.get(userId) || null;
 }
+
+// -------------------------------------------------------------
+// Document Management & Verification Exported Functions
+// -------------------------------------------------------------
+
+export function saveDocumentRecord(userId: string, doc: DocumentRecord, buffer?: Buffer): DocumentRecord {
+  return ServerStore.saveDocument(userId, doc, buffer);
+}
+
+export function getDocumentRecordById(docId: string): DocumentRecord | null {
+  return ServerStore.getDocumentById(docId);
+}
+
+export function getDocumentBufferById(docId: string): Buffer | null {
+  return ServerStore.getDocumentBuffer(docId);
+}
+
+export function getDocumentRecordsByUserId(userId: string): DocumentRecord[] {
+  return ServerStore.getDocumentsByUserId(userId);
+}
+
+export function getAllDocumentRecords(filters?: { status?: string; type?: string; search?: string }): DocumentRecord[] {
+  return ServerStore.getAllDocuments(filters);
+}
+
+export function deleteDocumentRecord(userId: string, docId: string): boolean {
+  return ServerStore.deleteDocument(userId, docId);
+}
+
+export function recordDocumentVerificationAttempt(attempt: DocumentVerificationAttempt): void {
+  ServerStore.recordVerificationAttempt(attempt);
+}
+
+export function getDocumentVerificationAttempts(docId: string): DocumentVerificationAttempt[] {
+  return ServerStore.getVerificationAttempts(docId);
+}
+
+export function adminReviewDocumentRecord(
+  docId: string,
+  action: "APPROVE" | "REJECT" | "REQUEST_REUPLOAD",
+  adminName: string,
+  reason?: string,
+  notes?: string
+) {
+  return ServerStore.adminReviewDocument(docId, action, adminName, reason, notes);
+}
+
+export function getCandidateVerificationClaimsForUser(userId: string): CandidateVerificationClaims {
+  return ServerStore.getCandidateVerificationClaims(userId);
+}
+
+export function getDocumentVerificationSystemMetrics() {
+  return ServerStore.getDocumentVerificationMetrics();
+}
+
 
 

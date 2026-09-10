@@ -27,5 +27,17 @@ export async function GET(req: NextRequest) {
     sort,
   });
 
-  return NextResponse.json({ success: true, count: requests.length, requests });
+  const metrics = ServerStore.getDocumentVerificationMetrics();
+  const documents = ServerStore.getAllDocuments({
+    status: status === "Pending" ? "NEEDS_REVIEW" : status === "Approved" ? "VERIFIED" : undefined,
+    search,
+  });
+
+  return NextResponse.json({
+    success: true,
+    count: requests.length,
+    requests,
+    documents,
+    metrics,
+  });
 }

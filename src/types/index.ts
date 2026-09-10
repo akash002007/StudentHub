@@ -74,6 +74,95 @@ export interface StudentVerificationRequest {
   attempts?: VerificationAttempt[];
 }
 
+export type DocumentType =
+  | 'RESUME'
+  | 'GOVERNMENT_ID'
+  | 'COLLEGE_ID'
+  | 'DEGREE_CERTIFICATE'
+  | 'MARKSHEET'
+  | 'INTERNSHIP_CERTIFICATE'
+  | 'PROJECT_CERTIFICATE'
+  | 'OTHER';
+
+export type DocumentStatus =
+  | 'UPLOADED'
+  | 'PROCESSING'
+  | 'AUTO_VERIFIED'
+  | 'NEEDS_REVIEW'
+  | 'VERIFIED'
+  | 'REJECTED'
+  | 'REUPLOAD_REQUIRED'
+  | 'EXPIRED';
+
+export type DocumentVerificationMethod =
+  | 'AUTOMATED'
+  | 'ADMIN'
+  | 'VERIFICATION_OFFICER';
+
+export type DocumentExpiryStatus = 'VALID' | 'EXPIRING_SOON' | 'EXPIRED';
+
+export interface DocumentVerificationAttempt {
+  id: string;
+  documentId: string;
+  userId: string;
+  verificationMethod: DocumentVerificationMethod;
+  status: DocumentStatus;
+  confidenceScore: number;
+  extractedData: Record<string, any>;
+  matchedFields: string[];
+  failedChecks: string[];
+  warnings: string[];
+  reason: string;
+  performedBy: string;
+  createdAt: string;
+}
+
+export interface DocumentRecord {
+  id: string;
+  userId: string;
+  studentName?: string;
+  studentEmail?: string;
+  collegeName?: string;
+  documentType: DocumentType;
+  fileName: string;
+  storageKey: string;
+  fileUrl?: string;
+  mimeType: string;
+  fileSize: string;
+  fileSizeBytes: number;
+  uploadedAt: string;
+  updatedAt: string;
+  verificationStatus: DocumentStatus;
+  verificationMethod?: DocumentVerificationMethod;
+  verifiedBy?: string | null;
+  verifiedAt?: string | null;
+  rejectionReason?: string | null;
+  reuploadReason?: string | null;
+  expiresAt?: string | null;
+  expiryStatus?: DocumentExpiryStatus;
+  isSensitive: boolean;
+  isShareableWithRecruiters: boolean;
+  latestAttemptId?: string | null;
+  confidenceScore?: number | null;
+  extractedData?: Record<string, any> | null;
+  matchedFields?: string[];
+  failedChecks?: string[];
+  warnings?: string[];
+  decisionReason?: string | null;
+  attempts?: DocumentVerificationAttempt[];
+}
+
+export interface CandidateVerificationClaims {
+  identityVerified: boolean;
+  educationVerified: boolean;
+  degreeVerified: boolean;
+  internshipVerified: boolean;
+  resumeVerified: boolean;
+  verifiedCount: number;
+  totalDocuments: number;
+}
+
+
 export interface StudentProfile {
   id: string;
   name: string;

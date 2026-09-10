@@ -36,6 +36,7 @@ import {
   UserCheck,
   Layers,
   Award,
+  FileCheck,
 } from "lucide-react";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
@@ -208,6 +209,13 @@ export function StudentHubSidebar({
           label: "Career DNA",
           href: "/dashboard/career-dna",
           icon: Dna,
+        },
+        {
+          label: "Documents",
+          href: "/dashboard/documents",
+          icon: FileCheck,
+          badge: "Verified",
+          badgeVariant: "emerald",
         },
         { label: "Communities", href: "/dashboard/communities", icon: Users2 },
         {
