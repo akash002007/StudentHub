@@ -36,8 +36,14 @@ import {
   ReportTargetType,
   AdminUserRecord,
   AdminUserStatus,
+  CollegeRecord,
+  CollegeDepartment,
+  CollegeBatch,
+  CollegeDriveParticipation,
+  CollegeParticipationStatus,
+  CollegeProfile,
 } from "@/types";
-import { defaultStudentUser, defaultAdminUser, defaultRecruiterUser } from "@/data/mock-users";
+import { defaultStudentUser, defaultAdminUser, defaultRecruiterUser, defaultCollegeUser } from "@/data/mock-users";
 import { verificationRequests as initialVerificationRequests, auditLogs as initialAuditLogs, adminNotifications as initialAdminNotifications } from "@/data/mock-admin-data";
 import { initialMockNotifications } from "@/data/mock-notifications";
 import { isUniversityEmail } from "@/lib/utils";
@@ -65,6 +71,8 @@ interface StoreState {
   huggingfaceDNA: Map<string, HuggingFaceDNA>; // userId -> HuggingFaceDNA
   certificates: Map<string, CertificateRecord[]>; // userId -> CertificateRecord[]
   certificateDNA: Map<string, CertificateDNA>; // userId -> CertificateDNA
+  colleges: Map<string, CollegeRecord>;
+  collegeParticipation: Map<string, CollegeDriveParticipation[]>; // collegeId -> participations
   verificationCounter: number;
 }
 
@@ -109,6 +117,7 @@ function initializeStore(): StoreState {
   // Initialize default student
   studentProfiles.set(defaultStudentUser.id, {
     ...defaultStudentUser,
+    collegeId: "col_stanford",
     verificationStatus: "approved",
   });
   studentNotifications.set(defaultStudentUser.id, [...initialMockNotifications]);
@@ -138,6 +147,14 @@ function initializeStore(): StoreState {
           ? "needs_information"
           : "pending";
 
+      const uniName = (req.student.college || "").toLowerCase();
+      let assignedCollegeId = "col_stanford";
+      if (uniName.includes("berkeley")) assignedCollegeId = "col_berkeley";
+      else if (uniName.includes("mit") || uniName.includes("massachusetts")) assignedCollegeId = "col_mit";
+      else if (uniName.includes("cmu") || uniName.includes("carnegie")) assignedCollegeId = "col_cmu";
+      else if (uniName.includes("niat")) assignedCollegeId = "col_niat";
+      else if (uniName.includes("iit") || uniName.includes("madras")) assignedCollegeId = "col_iitm";
+
       studentProfiles.set(req.studentId, {
         id: req.studentId,
         name: req.student.fullName,
@@ -146,6 +163,7 @@ function initializeStore(): StoreState {
         avatar: req.student.avatar,
         headline: `${req.student.degree} ${req.student.branch} @ ${req.student.college}`,
         university: req.student.college,
+        collegeId: assignedCollegeId,
         degree: req.student.degree,
         branch: req.student.branch,
         academicStream: "Engineering & Technology",
@@ -345,6 +363,700 @@ function initializeStore(): StoreState {
   ];
   initialReports.forEach((r) => moderationReports.set(r.id, r));
 
+  // Seed Institutional Colleges
+  const colleges = new Map<string, CollegeRecord>();
+  const collegeParticipation = new Map<string, CollegeDriveParticipation[]>();
+
+  const initialColleges: CollegeRecord[] = [
+    {
+      id: "col_stanford",
+      name: "Stanford University",
+      code: "STAN",
+      slug: "stanford-university",
+      logo: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=150&auto=format&fit=crop&q=80",
+      bannerImage: "https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?w=1200&auto=format&fit=crop&q=80",
+      location: "Stanford, CA, United States",
+      website: "https://stanford.edu",
+      establishedYear: 1885,
+      status: "ACTIVE",
+      placementOfficer: {
+        name: "Dr. Ronald Evans",
+        email: "placement@stanford.edu",
+        phone: "+1 (650) 723-2300",
+        designation: "Director of Career Development & Corporate Placements",
+      },
+      verificationStatus: "VERIFIED",
+      departments: [
+        {
+          id: "dept_stan_cs",
+          collegeId: "col_stanford",
+          name: "Computer Science",
+          code: "CS",
+          headOfDepartment: "Prof. John Hennessy",
+          studentCount: 480,
+          eligibleCount: 420,
+          placedCount: 336,
+          placementRate: 70.0,
+          activeDrivesCount: 14,
+        },
+        {
+          id: "dept_stan_ee",
+          collegeId: "col_stanford",
+          name: "Electrical Engineering & Systems",
+          code: "EE-SYS",
+          headOfDepartment: "Prof. Andrea Goldsmith",
+          studentCount: 320,
+          eligibleCount: 280,
+          placedCount: 224,
+          placementRate: 70.0,
+          activeDrivesCount: 10,
+        },
+        {
+          id: "dept_stan_is",
+          collegeId: "col_stanford",
+          name: "Information Systems & AI",
+          code: "IS-AI",
+          headOfDepartment: "Prof. Fei-Fei Li",
+          studentCount: 260,
+          eligibleCount: 240,
+          placedCount: 195,
+          placementRate: 75.0,
+          activeDrivesCount: 12,
+        },
+        {
+          id: "dept_stan_me",
+          collegeId: "col_stanford",
+          name: "Mechanical & Mechatronics",
+          code: "MECH",
+          headOfDepartment: "Prof. Mark Cutkosky",
+          studentCount: 188,
+          eligibleCount: 150,
+          placedCount: 110,
+          placementRate: 58.5,
+          activeDrivesCount: 7,
+        },
+      ],
+      batches: [
+        {
+          id: "batch_stan_2025",
+          collegeId: "col_stanford",
+          year: 2025,
+          degree: "B.S. / M.S.",
+          totalStudents: 380,
+          eligibleStudents: 360,
+          placedStudents: 342,
+          unplacedStudents: 18,
+          activeApplications: 24,
+          totalOffers: 428,
+          placementRate: 95.0,
+        },
+        {
+          id: "batch_stan_2026",
+          collegeId: "col_stanford",
+          year: 2026,
+          degree: "B.S. / M.S.",
+          totalStudents: 440,
+          eligibleStudents: 410,
+          placedStudents: 325,
+          unplacedStudents: 85,
+          activeApplications: 184,
+          totalOffers: 378,
+          placementRate: 73.8,
+        },
+        {
+          id: "batch_stan_2027",
+          collegeId: "col_stanford",
+          year: 2027,
+          degree: "B.S.",
+          totalStudents: 428,
+          eligibleStudents: 380,
+          placedStudents: 198,
+          unplacedStudents: 182,
+          activeApplications: 290,
+          totalOffers: 214,
+          placementRate: 46.2,
+        },
+      ],
+      placementPolicy: {
+        minAttendancePercentage: 75,
+        maxOffersAllowed: 2,
+        dreamTierThresholdLpa: 45,
+        allowSimultaneousInterview: false,
+        rules: [
+          "Students with CGPA >= 8.5 are eligible for Dream Tier opportunities without offer surrender.",
+          "Maximum of 2 offers permitted per student before placement lock.",
+          "75% minimum academic attendance mandatory for institutional placement drive nomination.",
+          "Mandatory verification of academic transcripts and Career DNA credentials before drive enrollment."
+        ],
+      },
+      stats: {
+        totalStudents: 1248,
+        eligibleStudents: 1150,
+        placedStudents: 865,
+        placementRate: 69.3,
+        activeDrives: 14,
+        totalOffers: 1020,
+        companiesEngaged: 28,
+        pendingVerifications: 12,
+        averagePackage: "$118,500 / yr",
+        highestPackage: "$175,000 / yr",
+      },
+      createdAt: "2025-09-01T08:00:00.000Z",
+      updatedAt: "2026-03-08T10:00:00.000Z",
+    },
+    {
+      id: "col_berkeley",
+      name: "UC Berkeley",
+      code: "UCB",
+      slug: "uc-berkeley",
+      logo: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=150&auto=format&fit=crop&q=80",
+      location: "Berkeley, CA, United States",
+      website: "https://berkeley.edu",
+      establishedYear: 1868,
+      status: "ACTIVE",
+      placementOfficer: {
+        name: "Dr. Sarah Jenkins",
+        email: "careers@berkeley.edu",
+        phone: "+1 (510) 642-6000",
+        designation: "Head of University Relations & Placements",
+      },
+      verificationStatus: "VERIFIED",
+      departments: [
+        {
+          id: "dept_ucb_eecs",
+          collegeId: "col_berkeley",
+          name: "Electrical Engineering & Computer Sciences",
+          code: "EECS",
+          headOfDepartment: "Prof. Claire Tomlin",
+          studentCount: 520,
+          eligibleCount: 470,
+          placedCount: 380,
+          placementRate: 73.1,
+          activeDrivesCount: 16,
+        },
+      ],
+      batches: [
+        {
+          id: "batch_ucb_2026",
+          collegeId: "col_berkeley",
+          year: 2026,
+          degree: "B.S. in Computer Science",
+          totalStudents: 480,
+          eligibleStudents: 440,
+          placedStudents: 360,
+          unplacedStudents: 120,
+          activeApplications: 190,
+          totalOffers: 410,
+          placementRate: 75.0,
+        },
+      ],
+      placementPolicy: {
+        minAttendancePercentage: 70,
+        maxOffersAllowed: 2,
+        dreamTierThresholdLpa: 40,
+        rules: ["Single offer policy applicable unless dream company criteria satisfied."],
+      },
+      stats: {
+        totalStudents: 880,
+        eligibleStudents: 790,
+        placedStudents: 630,
+        placementRate: 71.6,
+        activeDrives: 16,
+        totalOffers: 740,
+        companiesEngaged: 32,
+        pendingVerifications: 8,
+        averagePackage: "$114,000 / yr",
+        highestPackage: "$168,000 / yr",
+      },
+      createdAt: "2025-09-10T08:00:00.000Z",
+      updatedAt: "2026-03-05T12:00:00.000Z",
+    },
+    {
+      id: "col_mit",
+      name: "Massachusetts Institute of Technology",
+      code: "MIT",
+      slug: "mit",
+      logo: "https://images.unsplash.com/photo-1564981797816-1043664bf78d?w=150&auto=format&fit=crop&q=80",
+      location: "Cambridge, MA, United States",
+      website: "https://mit.edu",
+      establishedYear: 1861,
+      status: "ACTIVE",
+      placementOfficer: {
+        name: "Prof. Alan Vance",
+        email: "placement@mit.edu",
+        phone: "+1 (617) 253-1000",
+        designation: "Dean of Industry Partnerships",
+      },
+      verificationStatus: "VERIFIED",
+      departments: [
+        {
+          id: "dept_mit_eecs",
+          collegeId: "col_mit",
+          name: "EECS & Artificial Intelligence",
+          code: "Course 6",
+          studentCount: 410,
+          eligibleCount: 390,
+          placedCount: 335,
+          placementRate: 81.7,
+          activeDrivesCount: 18,
+        },
+      ],
+      batches: [
+        {
+          id: "batch_mit_2026",
+          collegeId: "col_mit",
+          year: 2026,
+          degree: "B.S. / M.Eng",
+          totalStudents: 410,
+          eligibleStudents: 390,
+          placedStudents: 335,
+          unplacedStudents: 75,
+          activeApplications: 140,
+          totalOffers: 420,
+          placementRate: 81.7,
+        },
+      ],
+      placementPolicy: {
+        minAttendancePercentage: 75,
+        maxOffersAllowed: 3,
+        dreamTierThresholdLpa: 50,
+        rules: ["Open recruitment for research and engineering tracks."],
+      },
+      stats: {
+        totalStudents: 410,
+        eligibleStudents: 390,
+        placedStudents: 335,
+        placementRate: 81.7,
+        activeDrives: 18,
+        totalOffers: 420,
+        companiesEngaged: 35,
+        pendingVerifications: 4,
+        averagePackage: "$128,000 / yr",
+        highestPackage: "$195,000 / yr",
+      },
+      createdAt: "2025-08-20T08:00:00.000Z",
+      updatedAt: "2026-03-06T10:00:00.000Z",
+    },
+    {
+      id: "col_cmu",
+      name: "Carnegie Mellon University",
+      code: "CMU",
+      slug: "cmu",
+      logo: "https://images.unsplash.com/photo-1592280771190-3e2e4d571952?w=150&auto=format&fit=crop&q=80",
+      location: "Pittsburgh, PA, United States",
+      website: "https://cmu.edu",
+      establishedYear: 1900,
+      status: "ACTIVE",
+      placementOfficer: {
+        name: "Dr. Rachel Green",
+        email: "careers@cmu.edu",
+        designation: "Head of Placement Operations",
+      },
+      verificationStatus: "VERIFIED",
+      departments: [
+        {
+          id: "dept_cmu_scs",
+          collegeId: "col_cmu",
+          name: "School of Computer Science",
+          code: "SCS",
+          studentCount: 380,
+          eligibleCount: 350,
+          placedCount: 290,
+          placementRate: 76.3,
+          activeDrivesCount: 15,
+        },
+      ],
+      batches: [
+        {
+          id: "batch_cmu_2026",
+          collegeId: "col_cmu",
+          year: 2026,
+          degree: "B.S. in Computer Science",
+          totalStudents: 380,
+          eligibleStudents: 350,
+          placedStudents: 290,
+          unplacedStudents: 90,
+          activeApplications: 130,
+          totalOffers: 340,
+          placementRate: 76.3,
+        },
+      ],
+      placementPolicy: {
+        rules: ["Standard campus placement protocols apply."],
+      },
+      stats: {
+        totalStudents: 380,
+        eligibleStudents: 350,
+        placedStudents: 290,
+        placementRate: 76.3,
+        activeDrives: 15,
+        totalOffers: 340,
+        companiesEngaged: 25,
+        pendingVerifications: 5,
+        averagePackage: "$122,000 / yr",
+        highestPackage: "$180,000 / yr",
+      },
+      createdAt: "2025-09-05T08:00:00.000Z",
+      updatedAt: "2026-03-04T10:00:00.000Z",
+    },
+    {
+      id: "col_niat",
+      name: "National Institute of Applied Technology",
+      code: "NIAT",
+      slug: "niat",
+      logo: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=150&auto=format&fit=crop&q=80",
+      location: "Bengaluru, Karnataka, India",
+      website: "https://niat.edu.in",
+      establishedYear: 1998,
+      status: "ACTIVE",
+      placementOfficer: {
+        name: "Prof. K. Ramesh",
+        email: "placement@niat.edu",
+        phone: "+91 80 2345 6789",
+        designation: "Training & Placement Officer",
+      },
+      verificationStatus: "VERIFIED",
+      departments: [
+        {
+          id: "dept_niat_aiml",
+          collegeId: "col_niat",
+          name: "Artificial Intelligence & Machine Learning",
+          code: "AI-ML",
+          studentCount: 240,
+          eligibleCount: 210,
+          placedCount: 155,
+          placementRate: 64.5,
+          activeDrivesCount: 9,
+        },
+      ],
+      batches: [
+        {
+          id: "batch_niat_2027",
+          collegeId: "col_niat",
+          year: 2027,
+          degree: "B.Tech",
+          totalStudents: 240,
+          eligibleStudents: 210,
+          placedStudents: 155,
+          unplacedStudents: 85,
+          activeApplications: 120,
+          totalOffers: 180,
+          placementRate: 64.5,
+        },
+      ],
+      placementPolicy: {
+        rules: ["Minimum 75% attendance required for campus placement drive registration."],
+      },
+      stats: {
+        totalStudents: 240,
+        eligibleStudents: 210,
+        placedStudents: 155,
+        placementRate: 64.5,
+        activeDrives: 9,
+        totalOffers: 180,
+        companiesEngaged: 18,
+        pendingVerifications: 14,
+        averagePackage: "₹14.5 LPA",
+        highestPackage: "₹42.0 LPA",
+      },
+      createdAt: "2025-10-01T08:00:00.000Z",
+      updatedAt: "2026-03-02T10:00:00.000Z",
+    },
+    {
+      id: "col_iitm",
+      name: "Indian Institute of Technology Madras",
+      code: "IITM",
+      slug: "iit-madras",
+      logo: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=150&auto=format&fit=crop&q=80",
+      location: "Chennai, Tamil Nadu, India",
+      website: "https://iitm.ac.in",
+      establishedYear: 1959,
+      status: "PENDING",
+      placementOfficer: {
+        name: "Dr. Satish Babu",
+        email: "tpo@iitm.ac.in",
+        phone: "+91 44 2257 8000",
+        designation: "Advisor (Training & Placement)",
+      },
+      verificationStatus: "PENDING",
+      departments: [
+        {
+          id: "dept_iitm_cse",
+          collegeId: "col_iitm",
+          name: "Computer Science & Engineering",
+          code: "CSE",
+          studentCount: 180,
+          eligibleCount: 175,
+          placedCount: 0,
+          placementRate: 0,
+          activeDrivesCount: 0,
+        },
+      ],
+      batches: [
+        {
+          id: "batch_iitm_2028",
+          collegeId: "col_iitm",
+          year: 2028,
+          degree: "B.Tech",
+          totalStudents: 180,
+          eligibleStudents: 175,
+          placedStudents: 0,
+          unplacedStudents: 180,
+          activeApplications: 0,
+          totalOffers: 0,
+          placementRate: 0,
+        },
+      ],
+      placementPolicy: {
+        rules: ["Awaiting institutional onboarding accreditation confirmation."],
+      },
+      stats: {
+        totalStudents: 180,
+        eligibleStudents: 175,
+        placedStudents: 0,
+        placementRate: 0,
+        activeDrives: 0,
+        totalOffers: 0,
+        companiesEngaged: 0,
+        pendingVerifications: 2,
+        averagePackage: "Pending",
+        highestPackage: "Pending",
+      },
+      createdAt: "2026-03-01T08:00:00.000Z",
+      updatedAt: "2026-03-01T08:00:00.000Z",
+    },
+  ];
+  initialColleges.forEach((c) => colleges.set(c.id, c));
+
+  const initialParticipation: CollegeDriveParticipation[] = [
+    {
+      id: "part_stan_001",
+      collegeId: "col_stanford",
+      driveId: "drive_001",
+      driveTitle: "Software Engineering Intern - Summer 2026",
+      companyName: "Stripe",
+      status: "ACTIVE",
+      approvedAt: "2026-03-01T10:00:00.000Z",
+      approvedBy: "Dr. Ronald Evans",
+      registeredStudentsCount: 142,
+      eligibleStudentsCount: 128,
+      shortlistedCount: 32,
+      interviewedCount: 18,
+      selectedCount: 8,
+      offersCount: 8,
+      updatedAt: "2026-03-07T12:00:00.000Z",
+    },
+    {
+      id: "part_stan_002",
+      collegeId: "col_stanford",
+      driveId: "drive_aiml_2026",
+      driveTitle: "AI & Machine Learning Engineer 2026",
+      companyName: "OpenAI",
+      status: "APPROVED",
+      approvedAt: "2026-03-06T14:00:00.000Z",
+      approvedBy: "Dr. Ronald Evans",
+      registeredStudentsCount: 96,
+      eligibleStudentsCount: 88,
+      shortlistedCount: 14,
+      interviewedCount: 6,
+      selectedCount: 2,
+      offersCount: 2,
+      updatedAt: "2026-03-08T11:00:00.000Z",
+    },
+  ];
+  collegeParticipation.set("col_stanford", initialParticipation);
+
+  // Seed additional realistic students for Stanford University
+  const additionalStanfordStudents: StudentProfile[] = [
+    {
+      id: "student_stan_02",
+      name: "Maya Lin",
+      email: "maya.lin@stanford.edu",
+      role: "student",
+      avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80",
+      headline: "CS Senior @ Stanford | Full-Stack, Distributed Systems & React",
+      university: "Stanford University",
+      collegeId: "col_stanford",
+      degree: "B.S. in Computer Science",
+      branch: "Computer Science",
+      academicStream: "Engineering & Technology",
+      specialization: "Computer Systems",
+      academicLevel: "Undergraduate",
+      yearOfStudy: "Senior (4th Year)",
+      graduationYear: 2026,
+      cgpa: "3.85",
+      location: "Palo Alto, CA",
+      bio: "Undergraduate researcher in distributed caching and micro-frontend systems. Ex-intern at Datadog.",
+      hasUniversityEmail: true,
+      isUniversityEmail: true,
+      personalEmail: "maya.lin.dev@gmail.com",
+      accountStatus: "profile_complete",
+      verificationStatus: "approved",
+      onboardingCompleted: true,
+      status: "Open to Summer 2026 Internships",
+      skills: ["TypeScript", "React", "Node.js", "Python", "PostgreSQL", "Docker", "System Design"],
+      resume: {
+        fileName: "Maya_Lin_Resume_2026.pdf",
+        fileSize: "1.3 MB",
+        uploadedAt: "Uploaded 3 days ago",
+        url: "#",
+      },
+      projects: [],
+      certifications: [],
+      socialLinks: { github: "https://github.com/mayalin", linkedin: "https://linkedin.com/in/mayalin" },
+      stats: { profileViews: 240, searchAppearances: 60, applicationsCount: 4, interviewsCount: 2 },
+    },
+    {
+      id: "student_stan_03",
+      name: "David Kim",
+      email: "david.kim@stanford.edu",
+      role: "student",
+      avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&auto=format&fit=crop&q=80",
+      headline: "Junior @ Stanford EE & AI | Embedded Systems, PyTorch & C++",
+      university: "Stanford University",
+      collegeId: "col_stanford",
+      degree: "B.S. in Electrical Engineering",
+      branch: "Electrical Engineering & Systems",
+      academicStream: "Engineering & Technology",
+      specialization: "Signals & Machine Learning",
+      academicLevel: "Undergraduate",
+      yearOfStudy: "Junior (3rd Year)",
+      graduationYear: 2026,
+      cgpa: "3.78",
+      location: "San Jose, CA",
+      bio: "Focusing on hardware acceleration and edge AI inferences. Passionate about robotics.",
+      hasUniversityEmail: true,
+      isUniversityEmail: true,
+      accountStatus: "profile_complete",
+      verificationStatus: "approved",
+      onboardingCompleted: true,
+      status: "Open to Summer 2026 Internships",
+      skills: ["Python", "PyTorch", "C++", "FastAPI", "Docker", "Linux"],
+      resume: {
+        fileName: "David_Kim_EE_Resume.pdf",
+        fileSize: "1.1 MB",
+        uploadedAt: "Uploaded 1 week ago",
+        url: "#",
+      },
+      projects: [],
+      certifications: [],
+      socialLinks: { github: "https://github.com/davidkim-ee" },
+      stats: { profileViews: 190, searchAppearances: 42, applicationsCount: 3, interviewsCount: 1 },
+    },
+    {
+      id: "student_stan_04",
+      name: "Chloe Bennett",
+      email: "chloe.bennett@stanford.edu",
+      role: "student",
+      avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+      headline: "AI / ML Sophomore @ Stanford | LLM Fine-Tuning & Prompt Engineering",
+      university: "Stanford University",
+      collegeId: "col_stanford",
+      degree: "B.S. in Information Systems",
+      branch: "Information Systems & AI",
+      academicStream: "Engineering & Technology",
+      specialization: "AI Systems",
+      academicLevel: "Undergraduate",
+      yearOfStudy: "Sophomore (2nd Year)",
+      graduationYear: 2027,
+      cgpa: "3.95",
+      location: "Stanford, CA",
+      bio: "Building multimodal reasoning datasets and retrieval-augmented pipelines.",
+      hasUniversityEmail: true,
+      isUniversityEmail: true,
+      accountStatus: "profile_complete",
+      verificationStatus: "approved",
+      onboardingCompleted: true,
+      status: "Open to Summer 2026 Internships",
+      skills: ["Python", "TypeScript", "React", "PyTorch", "FastAPI", "Vector DBs"],
+      resume: {
+        fileName: "Chloe_Bennett_CV.pdf",
+        fileSize: "1.5 MB",
+        uploadedAt: "Uploaded yesterday",
+        url: "#",
+      },
+      projects: [],
+      certifications: [],
+      socialLinks: { github: "https://github.com/chloebennett" },
+      stats: { profileViews: 310, searchAppearances: 78, applicationsCount: 2, interviewsCount: 2 },
+    },
+    {
+      id: "student_stan_05",
+      name: "Ethan Wright",
+      email: "ethan.wright@stanford.edu",
+      role: "student",
+      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
+      headline: "Stanford Mechanical Engineering Graduate '25 | CAD, Robotics & Python",
+      university: "Stanford University",
+      collegeId: "col_stanford",
+      degree: "B.S. in Mechanical Engineering",
+      branch: "Mechanical & Mechatronics",
+      academicStream: "Engineering & Technology",
+      specialization: "Robotics & Controls",
+      academicLevel: "Undergraduate",
+      yearOfStudy: "Senior (4th Year)",
+      graduationYear: 2025,
+      cgpa: "3.65",
+      location: "Palo Alto, CA",
+      bio: "Mechatronics enthusiast with experience in autonomous mobile robot chassis design.",
+      hasUniversityEmail: true,
+      isUniversityEmail: true,
+      accountStatus: "profile_complete",
+      verificationStatus: "approved",
+      onboardingCompleted: true,
+      status: "Open to Summer 2026 Internships",
+      skills: ["Python", "C++", "ROS", "CAD", "Robotics"],
+      resume: {
+        fileName: "Ethan_Wright_MechE.pdf",
+        fileSize: "1.2 MB",
+        uploadedAt: "Uploaded 2 weeks ago",
+        url: "#",
+      },
+      projects: [],
+      certifications: [],
+      socialLinks: {},
+      stats: { profileViews: 140, searchAppearances: 30, applicationsCount: 1, interviewsCount: 1 },
+    },
+    {
+      id: "student_stan_06",
+      name: "Aisha Patel",
+      email: "aisha.patel@stanford.edu",
+      role: "student",
+      avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80",
+      headline: "CS Sophomore @ Stanford | Web Development, Algorithms & Open Source",
+      university: "Stanford University",
+      collegeId: "col_stanford",
+      degree: "B.S. in Computer Science",
+      branch: "Computer Science",
+      academicStream: "Engineering & Technology",
+      specialization: "Software Systems",
+      academicLevel: "Undergraduate",
+      yearOfStudy: "Sophomore (2nd Year)",
+      graduationYear: 2027,
+      cgpa: "3.45",
+      location: "San Francisco, CA",
+      bio: "Enthusiastic beginner in scalable web applications and community hackathon organizer.",
+      hasUniversityEmail: true,
+      isUniversityEmail: true,
+      accountStatus: "profile_complete",
+      verificationStatus: "pending",
+      onboardingCompleted: true,
+      status: "Looking for Part-time",
+      skills: ["JavaScript", "React", "HTML/CSS", "Python"],
+      resume: null,
+      projects: [],
+      certifications: [],
+      socialLinks: { github: "https://github.com/aishapatel" },
+      stats: { profileViews: 85, searchAppearances: 18, applicationsCount: 2, interviewsCount: 0 },
+    },
+  ];
+
+  additionalStanfordStudents.forEach((st) => {
+    if (!studentProfiles.has(st.id)) {
+      studentProfiles.set(st.id, st);
+    }
+  });
+
   const initialStore: StoreState = {
     verificationRequests,
     studentProfiles,
@@ -367,6 +1079,8 @@ function initializeStore(): StoreState {
     huggingfaceDNA: new Map<string, HuggingFaceDNA>(),
     certificates: new Map<string, CertificateRecord[]>(),
     certificateDNA: new Map<string, CertificateDNA>(),
+    colleges,
+    collegeParticipation,
     verificationCounter: 4814,
   };
 
@@ -466,6 +1180,16 @@ function loadStoreFromDisk(storeObj: StoreState): void {
         storeObj.careerDNA.set(key, val);
       });
     }
+    if (data.colleges && Array.isArray(data.colleges) && data.colleges.length > 0) {
+      data.colleges.forEach(([key, val]: [string, CollegeRecord]) => {
+        storeObj.colleges.set(key, val);
+      });
+    }
+    if (data.collegeParticipation && Array.isArray(data.collegeParticipation) && data.collegeParticipation.length > 0) {
+      data.collegeParticipation.forEach(([key, val]: [string, CollegeDriveParticipation[]]) => {
+        storeObj.collegeParticipation.set(key, val);
+      });
+    }
   } catch (err) {
     console.warn("Failed to load server store from disk:", err);
   }
@@ -496,6 +1220,8 @@ export function persistStoreToDisk(): void {
       certificateDNA: Array.from(store.certificateDNA.entries()),
       resumes: Array.from(store.resumes.entries()),
       careerDNA: Array.from(store.careerDNA.entries()),
+      colleges: Array.from(store.colleges.entries()),
+      collegeParticipation: Array.from(store.collegeParticipation.entries()),
     };
 
     fs.writeFileSync(DB_FILE_PATH, JSON.stringify(serializable, null, 2), "utf-8");
@@ -505,6 +1231,20 @@ export function persistStoreToDisk(): void {
 }
 
 const store: StoreState = global.__STUDENTHUB_SERVER_STORE__ || (global.__STUDENTHUB_SERVER_STORE__ = initializeStore());
+
+export function ensureCollegeStore(): void {
+  if (!store.colleges || store.colleges.size === 0 || !store.collegeParticipation) {
+    const fresh = initializeStore();
+    if (!store.colleges || store.colleges.size === 0) {
+      store.colleges = fresh.colleges;
+    }
+    if (!store.collegeParticipation) {
+      store.collegeParticipation = fresh.collegeParticipation;
+    }
+  }
+}
+
+ensureCollegeStore();
 
 export class ServerStore {
   static getUserById(userId: string): any {
@@ -548,6 +1288,20 @@ export class ServerStore {
       (r) => r.status === "PENDING" || r.status === "INVESTIGATING"
     ).length;
 
+    const allColleges = Array.from(store.colleges.values());
+    const totalColleges = allColleges.length;
+    const activeColleges = allColleges.filter((c) => c.status === "ACTIVE").length;
+    const pendingColleges = allColleges.filter((c) => c.status === "PENDING").length;
+    const institutionalPlacementRate =
+      allColleges.length > 0
+        ? Number(
+            (
+              allColleges.reduce((acc, c) => acc + (c.stats.placementRate || 0), 0) /
+              allColleges.length
+            ).toFixed(1)
+          )
+        : 72.4;
+
     return {
       totalStudents,
       pendingVerification,
@@ -565,6 +1319,10 @@ export class ServerStore {
       activeDrives,
       totalApplications,
       pendingReports,
+      totalColleges,
+      activeColleges,
+      pendingColleges,
+      institutionalPlacementRate,
     };
   }
 
@@ -1739,12 +2497,20 @@ export class ServerStore {
     return profile ? JSON.parse(JSON.stringify(profile)) : null;
   }
 
+  static getStudent(studentId: string): StudentProfile | null {
+    return this.getStudentProfileById(studentId);
+  }
+
   static updateStudentProfile(studentId: string, updates: Partial<StudentProfile>): StudentProfile | null {
     const profile = store.studentProfiles.get(studentId) || (studentId === defaultStudentUser.id ? defaultStudentUser : null);
     if (!profile) return null;
     const updated = { ...profile, ...updates };
     store.studentProfiles.set(studentId, updated);
     return updated;
+  }
+
+  static updateStudent(studentId: string, updates: Partial<StudentProfile>): StudentProfile | null {
+    return this.updateStudentProfile(studentId, updates);
   }
 
   static addAuditLog(entry: Omit<AuditLogEntry, "id" | "timestamp">) {
@@ -2016,6 +2782,478 @@ export class ServerStore {
 
     const redirectUrl = isUni ? "/dashboard" : "/onboarding?step=verification";
     return { user: newStudent, isNewUser: true, redirectUrl };
+  }
+
+  // ==========================================================================
+  // INSTITUTION & COLLEGE MANAGEMENT METHODS
+  // ==========================================================================
+
+  static getColleges(filters?: { search?: string; status?: string }): CollegeRecord[] {
+    ensureCollegeStore();
+    let list = Array.from(store.colleges.values());
+    if (filters?.status && filters.status !== "All") {
+      list = list.filter((c) => c.status.toLowerCase() === filters.status?.toLowerCase());
+    }
+    if (filters?.search) {
+      const q = filters.search.toLowerCase();
+      list = list.filter(
+        (c) =>
+          c.name.toLowerCase().includes(q) ||
+          c.code.toLowerCase().includes(q) ||
+          c.location.toLowerCase().includes(q)
+      );
+    }
+    return list.sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  static getCollegeById(id: string): CollegeRecord | null {
+    if (!id) return null;
+    ensureCollegeStore();
+    const direct = store.colleges.get(id);
+    if (direct) return direct;
+    const lower = id.toLowerCase();
+    for (const c of store.colleges.values()) {
+      if (c.slug.toLowerCase() === lower || c.code.toLowerCase() === lower || c.name.toLowerCase() === lower) {
+        return c;
+      }
+    }
+    return null;
+  }
+
+  static updateCollege(id: string, updates: Partial<CollegeRecord>, actorName: string = "Admin"): CollegeRecord | null {
+    const col = this.getCollegeById(id);
+    if (!col) return null;
+    const updated: CollegeRecord = {
+      ...col,
+      ...updates,
+      updatedAt: new Date().toISOString(),
+    };
+    store.colleges.set(col.id, updated);
+    this.addAuditLog({
+      admin: actorName,
+      action: "UPDATED",
+      targetId: col.id,
+      targetName: col.name,
+      targetType: "COLLEGE",
+      details: `Updated institutional profile and settings for ${col.name}`,
+      ipSessionRef: "127.0.0.1 (Institutional Console)",
+    });
+    persistStoreToDisk();
+    return updated;
+  }
+
+  static approveCollege(id: string, adminName: string = "Platform Admin"): CollegeRecord | null {
+    const col = this.getCollegeById(id);
+    if (!col) return null;
+    col.status = "ACTIVE";
+    col.verificationStatus = "VERIFIED";
+    col.updatedAt = new Date().toISOString();
+    store.colleges.set(col.id, col);
+    this.addAuditLog({
+      admin: adminName,
+      action: "APPROVED",
+      targetId: col.id,
+      targetName: col.name,
+      targetType: "COLLEGE",
+      details: `Approved institutional registration and granted full placement workspace access to ${col.name}`,
+      ipSessionRef: "127.0.0.1 (Platform Admin)",
+    });
+    persistStoreToDisk();
+    return col;
+  }
+
+  static suspendCollege(id: string, reason: string, adminName: string = "Platform Admin"): CollegeRecord | null {
+    const col = this.getCollegeById(id);
+    if (!col) return null;
+    col.status = "SUSPENDED";
+    col.updatedAt = new Date().toISOString();
+    store.colleges.set(col.id, col);
+    this.addAuditLog({
+      admin: adminName,
+      action: "SUSPENDED",
+      targetId: col.id,
+      targetName: col.name,
+      targetType: "COLLEGE",
+      details: `Suspended institution: ${reason}`,
+      ipSessionRef: "127.0.0.1 (Platform Admin)",
+    });
+    persistStoreToDisk();
+    return col;
+  }
+
+  static getCollegeStudents(
+    collegeId: string,
+    filters?: {
+      search?: string;
+      department?: string;
+      branch?: string;
+      batch?: number | string;
+      status?: string;
+      verificationStatus?: string;
+    }
+  ): StudentProfile[] {
+    const col = this.getCollegeById(collegeId);
+    const collegeKey = col?.id || collegeId;
+    const collegeName = col?.name.toLowerCase() || "";
+
+    let students = Array.from(store.studentProfiles.values()).filter((s) => {
+      if (s.collegeId && s.collegeId === collegeKey) return true;
+      if (collegeName && s.university && s.university.toLowerCase().includes(collegeName)) return true;
+      return false;
+    });
+
+    if (filters?.department && filters.department !== "All") {
+      const dep = filters.department.toLowerCase();
+      students = students.filter(
+        (s) =>
+          (s.branch && s.branch.toLowerCase().includes(dep)) ||
+          (s.specialization && s.specialization.toLowerCase().includes(dep))
+      );
+    }
+
+    if (filters?.branch && filters.branch !== "All") {
+      const br = filters.branch.toLowerCase();
+      students = students.filter(
+        (s) =>
+          (s.branch && s.branch.toLowerCase().includes(br)) ||
+          (s.specialization && s.specialization.toLowerCase().includes(br))
+      );
+    }
+
+    if (filters?.batch && filters.batch !== "All") {
+      const bYear = Number(filters.batch);
+      students = students.filter((s) => s.graduationYear === bYear);
+    }
+
+    if (filters?.verificationStatus && filters.verificationStatus !== "All") {
+      students = students.filter(
+        (s) => (s.verificationStatus || "").toLowerCase() === filters.verificationStatus?.toLowerCase()
+      );
+    }
+
+    if (filters?.search) {
+      const q = filters.search.toLowerCase();
+      students = students.filter(
+        (s) =>
+          s.name.toLowerCase().includes(q) ||
+          s.email.toLowerCase().includes(q) ||
+          (s.branch && s.branch.toLowerCase().includes(q))
+      );
+    }
+
+    return students.sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  static getCollegeDepartments(collegeId: string): CollegeDepartment[] {
+    const col = this.getCollegeById(collegeId);
+    if (!col) return [];
+    const students = this.getCollegeStudents(col.id);
+    return col.departments.map((d) => {
+      const deptStudents = students.filter(
+        (s) =>
+          (s.branch && s.branch.toLowerCase().includes(d.name.toLowerCase())) ||
+          (s.branch && s.branch.toLowerCase().includes(d.code.toLowerCase()))
+      );
+      const studentCount = deptStudents.length > 0 ? deptStudents.length : d.studentCount;
+      const eligibleCount = deptStudents.filter((s) => parseFloat(s.cgpa) >= 3.0).length || d.eligibleCount;
+      const placedCount =
+        deptStudents.filter((s) => s.status?.toLowerCase().includes("placed") || (s.stats?.applicationsCount || 0) > 2).length ||
+        d.placedCount;
+      const placementRate = studentCount > 0 ? Number(((placedCount / studentCount) * 100).toFixed(1)) : d.placementRate;
+      return {
+        ...d,
+        studentCount,
+        eligibleCount,
+        placedCount,
+        placementRate,
+      };
+    });
+  }
+
+  static getCollegeBatches(collegeId: string): CollegeBatch[] {
+    const col = this.getCollegeById(collegeId);
+    if (!col) return [];
+    const students = this.getCollegeStudents(col.id);
+    return col.batches.map((b) => {
+      const batchStudents = students.filter((s) => s.graduationYear === b.year);
+      const totalStudents = batchStudents.length > 0 ? batchStudents.length : b.totalStudents;
+      const eligibleStudents = batchStudents.filter((s) => parseFloat(s.cgpa) >= 3.0).length || b.eligibleStudents;
+      const placedStudents =
+        batchStudents.filter((s) => s.status?.toLowerCase().includes("placed") || (s.stats?.applicationsCount || 0) > 2).length ||
+        b.placedStudents;
+      const unplacedStudents = Math.max(0, totalStudents - placedStudents);
+      const placementRate = totalStudents > 0 ? Number(((placedStudents / totalStudents) * 100).toFixed(1)) : b.placementRate;
+      return {
+        ...b,
+        totalStudents,
+        eligibleStudents,
+        placedStudents,
+        unplacedStudents,
+        placementRate,
+      };
+    });
+  }
+
+  static getCollegeDriveParticipation(collegeId: string): CollegeDriveParticipation[] {
+    const col = this.getCollegeById(collegeId);
+    const key = col?.id || collegeId;
+    return store.collegeParticipation.get(key) || [];
+  }
+
+  static updateCollegeDriveParticipation(
+    collegeId: string,
+    driveId: string,
+    status: CollegeParticipationStatus,
+    actorName: string = "Placement Officer"
+  ): CollegeDriveParticipation {
+    const col = this.getCollegeById(collegeId);
+    const key = col?.id || collegeId;
+    const list = store.collegeParticipation.get(key) || [];
+
+    let entry = list.find((p) => p.driveId === driveId);
+    if (entry) {
+      entry.status = status;
+      entry.updatedAt = new Date().toISOString();
+      if (status === "APPROVED") {
+        entry.approvedAt = new Date().toISOString();
+        entry.approvedBy = actorName;
+      }
+    } else {
+      let dTitle = "Recruitment Drive";
+      let cName = "Corporate Partner";
+      if (recruitmentStore && recruitmentStore.drives) {
+        const dr = recruitmentStore.drives.get(driveId);
+        if (dr) {
+          dTitle = dr.title;
+          cName = dr.company;
+        }
+      }
+      entry = {
+        id: `part_${key}_${driveId}`,
+        collegeId: key,
+        driveId,
+        driveTitle: dTitle,
+        companyName: cName,
+        status,
+        approvedAt: status === "APPROVED" ? new Date().toISOString() : undefined,
+        approvedBy: status === "APPROVED" ? actorName : undefined,
+        registeredStudentsCount: 0,
+        eligibleStudentsCount: 0,
+        shortlistedCount: 0,
+        interviewedCount: 0,
+        selectedCount: 0,
+        offersCount: 0,
+        updatedAt: new Date().toISOString(),
+      };
+      list.push(entry);
+    }
+
+    store.collegeParticipation.set(key, list);
+    this.addAuditLog({
+      admin: actorName,
+      action: "UPDATED",
+      targetId: driveId,
+      targetName: entry.driveTitle || `Drive ${driveId}`,
+      targetType: "DRIVE",
+      details: `Updated institutional participation status to ${status}`,
+      ipSessionRef: "127.0.0.1 (Institutional Console)",
+    });
+    persistStoreToDisk();
+    return entry;
+  }
+
+  static getCollegeMetrics(collegeId: string) {
+    const col = this.getCollegeById(collegeId);
+    const students = this.getCollegeStudents(col?.id || collegeId);
+    const totalStudents = students.length || col?.stats.totalStudents || 1248;
+    const eligibleStudents = students.filter((s) => parseFloat(s.cgpa) >= 3.0).length || col?.stats.eligibleStudents || 1150;
+    const placedStudents =
+      students.filter((s) => s.status?.toLowerCase().includes("placed") || (s.stats?.applicationsCount || 0) > 2).length ||
+      col?.stats.placedStudents ||
+      865;
+    const placementRate = totalStudents > 0 ? Number(((placedStudents / totalStudents) * 100).toFixed(1)) : col?.stats.placementRate || 69.3;
+
+    let activePlacementDrives = 0;
+    if (recruitmentStore && recruitmentStore.drives) {
+      const allDrives = Array.from(recruitmentStore.drives.values());
+      activePlacementDrives = allDrives.filter((d) =>
+        ["APPLICATIONS_OPEN", "PUBLISHED", "SCREENING", "SELECTION_IN_PROGRESS"].includes(d.status)
+      ).length;
+    }
+    if (activePlacementDrives === 0 && col) {
+      activePlacementDrives = col.stats.activeDrives;
+    }
+
+    let offersReceived = 0;
+    if (recruitmentStore && recruitmentStore.applications) {
+      const colApps = Array.from(recruitmentStore.applications.values()).filter(
+        (a) => a.university?.toLowerCase().includes(col?.name.toLowerCase() || "") || students.some((s) => s.id === a.studentId)
+      );
+      offersReceived = colApps.filter((a) => a.status === "SELECTED" || (a.finalScore && a.finalScore >= 80)).length;
+    }
+    if (offersReceived === 0 && col) {
+      offersReceived = col.stats.totalOffers;
+    }
+
+    const pendingVerifications = students.filter(
+      (s) => s.verificationStatus === "pending" || s.verificationStatus === "needs_information"
+    ).length;
+
+    return {
+      totalStudents,
+      eligibleStudents,
+      activePlacementDrives,
+      studentsPlaced: placedStudents,
+      placementRate,
+      offersReceived,
+      companiesEngaged: col?.stats.companiesEngaged || 28,
+      pendingVerifications,
+      averagePackage: col?.stats.averagePackage || "$118,500 / yr",
+      highestPackage: col?.stats.highestPackage || "$175,000 / yr",
+    };
+  }
+
+  static getCollegeRecruiters(collegeId: string) {
+    const col = this.getCollegeById(collegeId);
+    const companiesList = Array.from(store.companies.values());
+    const drivesList = recruitmentStore && recruitmentStore.drives ? Array.from(recruitmentStore.drives.values()) : [];
+    const appsList = recruitmentStore && recruitmentStore.applications ? Array.from(recruitmentStore.applications.values()) : [];
+
+    return companiesList.map((comp) => {
+      const compDrives = drivesList.filter((d) => d.company.toLowerCase() === comp.name.toLowerCase());
+      const compApps = appsList.filter((a) => a.company.toLowerCase() === comp.name.toLowerCase());
+      const hires = compApps.filter((a) => a.status === "SELECTED").length;
+
+      return {
+        id: comp.id,
+        name: comp.name,
+        logo: comp.website ? `https://logo.clearbit.com/${new URL(comp.website).hostname}` : "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=80&auto=format&fit=crop&q=80",
+        industry: comp.industry,
+        location: comp.location,
+        activeDrivesCount: compDrives.length,
+        applicantsCount: compApps.length,
+        hiresCount: hires,
+        lastActive: "Recently",
+      };
+    });
+  }
+
+  static getCollegeCareerDNAInsights(collegeId: string) {
+    const students = this.getCollegeStudents(collegeId);
+    const skillCounts: Record<string, number> = {};
+
+    students.forEach((s) => {
+      (s.skills || []).forEach((sk) => {
+        skillCounts[sk] = (skillCounts[sk] || 0) + 1;
+      });
+    });
+
+    const topSkills = Object.entries(skillCounts)
+      .map(([name, count]) => ({
+        name,
+        count,
+        percentage: students.length > 0 ? Math.round((count / students.length) * 100) : 0,
+      }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 10);
+
+    let high = 0;
+    let medium = 0;
+    let needsDev = 0;
+
+    students.forEach((s) => {
+      const cgpaNum = parseFloat(s.cgpa) || 3.0;
+      const skillsNum = (s.skills || []).length;
+      if (cgpaNum >= 3.7 && skillsNum >= 6) high++;
+      else if (cgpaNum >= 3.2 && skillsNum >= 4) medium++;
+      else needsDev++;
+    });
+
+    const total = students.length || 1;
+    const readiness = {
+      highReadinessCount: high,
+      highReadinessPercent: Math.round((high / total) * 100),
+      mediumReadinessCount: medium,
+      mediumReadinessPercent: Math.round((medium / total) * 100),
+      needsDevelopmentCount: needsDev,
+      needsDevelopmentPercent: Math.round((needsDev / total) * 100),
+    };
+
+    const recruiterDemands = [
+      { skill: "TypeScript", demandLevel: 92 },
+      { skill: "React", demandLevel: 88 },
+      { skill: "Python", demandLevel: 85 },
+      { skill: "System Design", demandLevel: 78 },
+      { skill: "Docker & Kubernetes", demandLevel: 72 },
+      { skill: "PostgreSQL", demandLevel: 70 },
+      { skill: "AI / LLM Pipelines", demandLevel: 68 },
+    ];
+
+    const skillGaps = recruiterDemands.map((item) => {
+      const studentSkill = topSkills.find((ts) => ts.name.toLowerCase() === item.skill.toLowerCase());
+      const studentAvailability = studentSkill ? studentSkill.percentage : Math.floor(Math.random() * 30 + 20);
+      const gap = Math.max(0, item.demandLevel - studentAvailability);
+      return {
+        skill: item.skill,
+        recruiterDemand: item.demandLevel,
+        studentAvailability,
+        gapPercentage: gap,
+        recommendation:
+          gap > 30
+            ? "Urgent workshop recommended"
+            : gap > 15
+            ? "Include in technical electives"
+            : "Strong student alignment",
+      };
+    });
+
+    return {
+      topSkills,
+      readiness,
+      skillGaps,
+      totalStudentsAnalyzed: students.length,
+      averageReadinessIndex: Math.round(
+        (readiness.highReadinessPercent * 90 + readiness.mediumReadinessPercent * 70 + readiness.needsDevelopmentPercent * 50) / 100
+      ),
+    };
+  }
+
+  static getPlatformInstitutionalMetrics() {
+    ensureCollegeStore();
+    const colleges = Array.from(store.colleges.values());
+    const totalColleges = colleges.length;
+    const activeColleges = colleges.filter((c) => c.status === "ACTIVE").length;
+    const pendingColleges = colleges.filter((c) => c.status === "PENDING").length;
+    const suspendedColleges = colleges.filter((c) => c.status === "SUSPENDED").length;
+
+    let totalStudentsAcrossColleges = 0;
+    let totalOffersAcrossColleges = 0;
+    let placedSum = 0;
+
+    colleges.forEach((c) => {
+      totalStudentsAcrossColleges += c.stats.totalStudents || 0;
+      totalOffersAcrossColleges += c.stats.totalOffers || 0;
+      placedSum += c.stats.placedStudents || 0;
+    });
+
+    const platformPlacementRate =
+      totalStudentsAcrossColleges > 0
+        ? Number(((placedSum / totalStudentsAcrossColleges) * 100).toFixed(1))
+        : 72.4;
+
+    return {
+      totalColleges,
+      activeColleges,
+      pendingColleges,
+      suspendedColleges,
+      totalStudentsAcrossColleges,
+      totalOffersAcrossColleges,
+      platformPlacementRate,
+      topColleges: colleges
+        .filter((c) => c.status === "ACTIVE")
+        .sort((a, b) => (b.stats.placementRate || 0) - (a.stats.placementRate || 0))
+        .slice(0, 5),
+    };
   }
 }
 

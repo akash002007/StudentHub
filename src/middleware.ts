@@ -62,13 +62,13 @@ export function middleware(request: NextRequest) {
     }
 
     if (path.startsWith('/college')) {
-      return role === 'COLLEGE_ADMIN';
+      return ['COLLEGE_ADMIN', 'COLLEGE_PLACEMENT_OFFICER'].includes(role);
     }
 
     // Default /dashboard and /student paths are allowed for STUDENT role. 
     // Technically, Admins and Recruiters can visit /dashboard as well if they want a student view,
     // but typically we'd restrict it to STUDENT for isolation.
-    if (path.startsWith('/dashboard') && !path.startsWith('/dashboard/recruiter')) {
+    if (path.startsWith('/dashboard') && !path.startsWith('/dashboard/recruiter') && !path.startsWith('/dashboard/college')) {
       return role === 'STUDENT';
     }
 
@@ -83,6 +83,9 @@ export function middleware(request: NextRequest) {
   if (isPublicPath && token) {
     if (['PLATFORM_ADMIN', 'SUPER_ADMIN'].includes(role)) {
       return NextResponse.redirect(new URL('/admin', request.url))
+    }
+    if (['COLLEGE_ADMIN', 'COLLEGE_PLACEMENT_OFFICER'].includes(role)) {
+      return NextResponse.redirect(new URL('/college/dashboard', request.url))
     }
     if (['RECRUITER', 'COMPANY_ADMIN'].includes(role)) {
       return NextResponse.redirect(new URL('/dashboard/recruiter', request.url))

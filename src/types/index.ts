@@ -1,6 +1,6 @@
 export type UserRole = 
   | "student" | "recruiter" | "admin" // Legacy support
-  | "STUDENT" | "RECRUITER" | "COMPANY_ADMIN" | "COLLEGE_ADMIN" | "VERIFICATION_OFFICER" | "PLATFORM_ADMIN" | "SUPER_ADMIN";
+  | "STUDENT" | "RECRUITER" | "COMPANY_ADMIN" | "COLLEGE_ADMIN" | "COLLEGE_PLACEMENT_OFFICER" | "VERIFICATION_OFFICER" | "PLATFORM_ADMIN" | "SUPER_ADMIN";
 
 export type AcademicStream =
   | 'Engineering & Technology'
@@ -85,14 +85,18 @@ export interface StudentProfile {
   authProvider?: 'credentials' | 'google';
   headline: string;
   university: string;
+  collegeId?: string;
   degree: string;
   branch: string; // Preserved for backward compatibility
+  department?: string;
   academicStream?: AcademicStream | string;
   specialization?: string;
   academicLevel?: AcademicLevel;
   yearOfStudy?: string;
   graduationYear: number;
   cgpa: string;
+  backlogs?: number;
+  placementStatus?: 'PLACED' | 'UNPLACED' | 'OFFERED' | 'OPTED_OUT' | string;
   location: string;
   bio: string;
   phone?: string;
@@ -1176,6 +1180,10 @@ export interface AdminOverviewMetrics {
   activeDrives?: number;
   totalApplications?: number;
   pendingReports?: number;
+  totalColleges?: number;
+  activeColleges?: number;
+  pendingColleges?: number;
+  institutionalPlacementRate?: number;
 }
 
 export interface AdminStudentRecord {
@@ -1183,6 +1191,7 @@ export interface AdminStudentRecord {
   name: string;
   email: string;
   college: string;
+  collegeId?: string;
   degree: string;
   year: string;
   verificationStatus: VerificationQueueStatus;
@@ -1209,7 +1218,7 @@ export interface AdminStudentRecord {
   } | null;
 }
 
-export type User = StudentProfile | RecruiterProfile | AdminProfile;
+export type User = StudentProfile | RecruiterProfile | AdminProfile | CollegeProfile;
 
 // ============================================================================
 // Structured RPSC-Style Recruitment Portal Types
@@ -1854,6 +1863,124 @@ export interface QuestionImportRecord {
   createdAt?: string;
 }
 
+// ==========================================
+// INSTITUTIONAL & COLLEGE PORTAL TYPES
+// ==========================================
 
+export type CollegeStatus = "PENDING" | "ACTIVE" | "SUSPENDED" | "REJECTED";
+export type CollegeVerificationStatus = "VERIFIED" | "PENDING" | "REJECTED" | "NEEDS_REVIEW";
+export type CollegeParticipationStatus = "OPEN" | "UNDER_REVIEW" | "APPROVED" | "ACTIVE" | "CLOSED";
 
+export interface CollegePlacementOfficer {
+  name: string;
+  email: string;
+  phone?: string;
+  designation?: string;
+}
 
+export interface CollegePlacementPolicy {
+  minAttendancePercentage?: number;
+  maxOffersAllowed?: number;
+  dreamTierThresholdLpa?: number;
+  allowSimultaneousInterview?: boolean;
+  rules: string[];
+}
+
+export interface CollegeDepartment {
+  id: string;
+  collegeId: string;
+  name: string;
+  code: string;
+  headOfDepartment?: string;
+  studentCount: number;
+  eligibleCount: number;
+  placedCount: number;
+  placementRate: number;
+  activeDrivesCount: number;
+}
+
+export interface CollegeBatch {
+  id: string;
+  collegeId: string;
+  year: number;
+  degree: string;
+  totalStudents: number;
+  eligibleStudents: number;
+  placedStudents: number;
+  unplacedStudents: number;
+  activeApplications: number;
+  totalOffers: number;
+  placementRate?: number;
+}
+
+export interface CollegeDriveParticipation {
+  id: string;
+  collegeId: string;
+  driveId: string;
+  driveTitle?: string;
+  companyName?: string;
+  status: CollegeParticipationStatus;
+  approvedByCollege?: boolean;
+  approvalNotes?: string;
+  maxCandidates?: number;
+  registeredStudentIds?: string[];
+  approvedAt?: string;
+  approvedBy?: string;
+  registeredStudentsCount: number;
+  eligibleStudentsCount: number;
+  shortlistedCount: number;
+  interviewedCount: number;
+  selectedCount: number;
+  offersCount: number;
+  notes?: string;
+  updatedAt: string;
+}
+
+export interface CollegeRecord {
+  id: string;
+  name: string;
+  code: string;
+  slug: string;
+  logo: string;
+  bannerImage?: string;
+  location: string;
+  website: string;
+  establishedYear: number;
+  status: CollegeStatus;
+  placementOfficer: CollegePlacementOfficer;
+  verificationStatus: CollegeVerificationStatus;
+  departments: CollegeDepartment[];
+  batches: CollegeBatch[];
+  placementPolicy: CollegePlacementPolicy;
+  stats: {
+    totalStudents: number;
+    eligibleStudents: number;
+    placedStudents: number;
+    placementRate: number;
+    activeDrives: number;
+    totalOffers: number;
+    companiesEngaged: number;
+    pendingVerifications: number;
+    averagePackage: string;
+    highestPackage: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CollegeProfile {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+  avatar: string;
+  googleId?: string;
+  emailVerified?: boolean;
+  authProvider?: 'credentials' | 'google';
+  collegeId: string;
+  collegeName: string;
+  title: string;
+  department?: string;
+  phone?: string;
+  bio?: string;
+}

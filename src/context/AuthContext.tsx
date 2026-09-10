@@ -10,8 +10,9 @@ import {
   VerificationStatus,
   StudentVerificationRequest,
   AdminProfile,
+  CollegeProfile,
 } from "@/types";
-import { defaultStudentUser, defaultRecruiterUser, defaultAdminUser } from "@/data/mock-users";
+import { defaultStudentUser, defaultRecruiterUser, defaultAdminUser, defaultCollegeUser } from "@/data/mock-users";
 import { isUniversityEmail } from "@/lib/utils";
 
 interface AuthContextType {
@@ -96,7 +97,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Normalize role to ensure legacy support maps correctly
   const normalizeRole = (rawRole: string): UserRole => {
     const r = rawRole.toUpperCase();
-    if (["STUDENT", "RECRUITER", "COMPANY_ADMIN", "COLLEGE_ADMIN", "VERIFICATION_OFFICER", "PLATFORM_ADMIN", "SUPER_ADMIN"].includes(r)) {
+    if (["STUDENT", "RECRUITER", "COMPANY_ADMIN", "COLLEGE_ADMIN", "COLLEGE_PLACEMENT_OFFICER", "VERIFICATION_OFFICER", "PLATFORM_ADMIN", "SUPER_ADMIN"].includes(r)) {
       return r as UserRole;
     }
     if (r === "ADMIN") return "PLATFORM_ADMIN";
@@ -211,7 +212,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         name: customName || defaultRecruiterUser.name,
         role: selectedRole,
       };
-    } else if (["PLATFORM_ADMIN", "SUPER_ADMIN", "VERIFICATION_OFFICER", "COLLEGE_ADMIN"].includes(selectedRole)) {
+    } else if (["COLLEGE_ADMIN", "COLLEGE_PLACEMENT_OFFICER"].includes(selectedRole)) {
+      authenticatedUser = {
+        ...defaultCollegeUser,
+        email: email || defaultCollegeUser.email,
+        name: customName || defaultCollegeUser.name,
+        role: selectedRole,
+      } as CollegeProfile;
+    } else if (["PLATFORM_ADMIN", "SUPER_ADMIN", "VERIFICATION_OFFICER"].includes(selectedRole)) {
       authenticatedUser = {
         ...defaultAdminUser,
         email: email || defaultAdminUser.email,
@@ -491,7 +499,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (["RECRUITER", "COMPANY_ADMIN"].includes(newRole)) {
       setUser({...defaultRecruiterUser, role: newRole});
       persistSession({...defaultRecruiterUser, role: newRole}, newRole);
-    } else if (["PLATFORM_ADMIN", "SUPER_ADMIN", "COLLEGE_ADMIN", "VERIFICATION_OFFICER"].includes(newRole)) {
+    } else if (["COLLEGE_ADMIN", "COLLEGE_PLACEMENT_OFFICER"].includes(newRole)) {
+      setUser({...defaultCollegeUser, role: newRole} as CollegeProfile);
+      persistSession({...defaultCollegeUser, role: newRole} as CollegeProfile, newRole);
+    } else if (["PLATFORM_ADMIN", "SUPER_ADMIN", "VERIFICATION_OFFICER"].includes(newRole)) {
       setUser({...defaultAdminUser, role: newRole} as AdminProfile);
       persistSession({...defaultAdminUser, role: newRole} as AdminProfile, newRole);
     } else {

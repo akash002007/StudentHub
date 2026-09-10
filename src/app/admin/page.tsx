@@ -19,6 +19,7 @@ import {
   AlertTriangle,
   GitPullRequest,
   Users,
+  TrendingUp,
 } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -194,12 +195,70 @@ export default function AdminOverviewPage() {
         />
       </section>
 
+      {/* Institutional Ecosystem Layer (Colleges & Universities) */}
+      <section className="space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Building2 className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+            <h2 className="text-sm font-bold text-foreground uppercase tracking-wider">
+              Institutional Ecosystem & Campus Network
+            </h2>
+          </div>
+          <Link href="/admin/colleges" className="text-xs font-semibold text-purple-600 dark:text-purple-400 hover:underline">
+            Manage Institutional Network &rarr;
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
+          <MetricCard
+            label="Affiliated Universities"
+            value={metrics ? (metrics.totalColleges || 6).toString() : "6"}
+            hint="Stanford, Berkeley, MIT, CMU..."
+            icon={<Building2 className="w-4 h-4" />}
+            iconVariant="purple"
+            isLoading={isLoading}
+            href="/admin/colleges"
+          />
+          <MetricCard
+            label="Active Campus Placements"
+            value={metrics ? (metrics.activeColleges || 5).toString() : "5"}
+            hint="Hosting campus drives"
+            icon={<CheckCircle2 className="w-4 h-4" />}
+            iconVariant="emerald"
+            isLoading={isLoading}
+            href="/admin/colleges?status=ACTIVE"
+          />
+          <MetricCard
+            label="Onboarding Approvals"
+            value={metrics ? (metrics.pendingColleges || 1).toString() : "1"}
+            hint="Review queue"
+            icon={<Clock3 className="w-4 h-4" />}
+            iconVariant="rose"
+            badge="Action Needed"
+            badgeVariant="rose"
+            isLoading={isLoading}
+            href="/admin/college-approvals"
+          />
+          <MetricCard
+            label="Cross-Campus Placement Rate"
+            value={metrics ? `${metrics.institutionalPlacementRate || 74}%` : "74%"}
+            hint="Platform institutional average"
+            icon={<TrendingUp className="w-4 h-4" />}
+            iconVariant="blue"
+            isLoading={isLoading}
+            href="/admin/college-analytics"
+          />
+        </div>
+      </section>
+
       {/* Quick Access Control Plane */}
-      <section className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+      <section className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
         {[
           { label: "User Directory", href: "/admin/users", icon: Users, desc: "Roles & status" },
           { label: "Company Registry", href: "/admin/companies", icon: Building2, desc: "Employer tiers" },
-          { label: "Recruiter Directory", href: "/admin/recruiters", icon: Briefcase, desc: "Hiring managers" },
+          { label: "Colleges", href: "/admin/colleges", icon: Building2, desc: "Campuses" },
+          { label: "Approvals", href: "/admin/college-approvals", icon: ShieldCheck, desc: "New colleges" },
+          { label: "Recruiters", href: "/admin/recruiters", icon: Briefcase, desc: "Hiring managers" },
           { label: "Recruitment Drives", href: "/admin/internships", icon: Layers, desc: "Active funnels" },
           { label: "Applications", href: "/admin/applications", icon: GitPullRequest, desc: "Candidate records" },
           { label: "Audit Trail", href: "/admin/audit-logs", icon: FileText, desc: "Immutable logs" },
