@@ -70,7 +70,48 @@ export function VerificationBanner() {
     );
   }
 
-  if (status === "pending") {
+  if (status === "verification_failed") {
+    return (
+      <div className="mb-6 p-4 sm:p-5 rounded-2xl bg-orange-500/10 border border-orange-500/30 text-orange-950 dark:text-orange-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xs">
+        <div className="flex items-start gap-3">
+          <div className="w-9 h-9 rounded-xl bg-orange-500/20 text-orange-600 dark:text-orange-400 flex items-center justify-center shrink-0 mt-0.5">
+            <AlertTriangle className="w-5 h-5" />
+          </div>
+          <div className="space-y-1">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-xs font-bold uppercase tracking-wider text-orange-700 dark:text-orange-400">
+                Verification Unsuccessful
+              </span>
+              <span className="text-[11px] px-2 py-0.5 rounded-md bg-orange-500/20 font-medium">
+                Action Required
+              </span>
+            </div>
+            <p className="text-xs sm:text-sm font-semibold text-foreground">
+              We couldn&apos;t automatically verify your document. You can upload another file or request a manual officer review.
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Choose an option below to proceed.
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
+          <Link href="/onboarding?step=verification" className="w-full sm:w-auto">
+            <Button
+              size="sm"
+              variant="gradient"
+              className="w-full sm:w-auto text-xs font-semibold"
+              rightIcon={<ArrowRight className="w-3.5 h-3.5" />}
+            >
+              Resolve Verification
+            </Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (status === "manual_review_requested" || status === "under_review" || status === "pending") {
     return (
       <div className="mb-6 p-4 sm:p-5 rounded-2xl bg-amber-500/10 border border-blue-500/30 text-amber-900 dark:text-amber-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xs">
         <div className="flex items-start gap-3">
@@ -80,7 +121,7 @@ export function VerificationBanner() {
           <div className="space-y-1">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-xs font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400">
-                Pending Review
+                {status === "under_review" ? "Under Review" : "Manual Review Requested"}
               </span>
               <span className="text-[11px] px-2 py-0.5 rounded-md bg-amber-500/20 font-medium">
                 {request?.verificationType === "payment_receipt"
@@ -91,11 +132,12 @@ export function VerificationBanner() {
               </span>
             </div>
             <p className="text-xs sm:text-sm font-semibold text-foreground">
-              Your verification request has been submitted. Our team will review your information.
+              {status === "under_review"
+                ? "A StudentHub verification officer is currently reviewing your document."
+                : "Your manual review request has been submitted. A verification officer will review your document."}
             </p>
             <p className="text-xs text-muted-foreground">
-              Verification ID: <span className="font-semibold text-foreground">{request?.verificationId || request?.id || "VER-2026-004812"}</span> • Submitted: {request?.submittedAt || "Recently"} • Document:{" "}
-              <span className="font-medium text-foreground">{request?.documentName || "Uploaded Receipt"}</span>
+              Verification ID: <span className="font-semibold text-foreground">{request?.verificationId || request?.id || "VER-2026-004812"}</span> • Submitted: {request?.submittedAt || "Recently"}
             </p>
           </div>
         </div>

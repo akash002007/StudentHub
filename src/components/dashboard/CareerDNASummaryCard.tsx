@@ -25,6 +25,8 @@ import { CareerDNABanner } from "@/components/career-dna/CareerDNABanner";
 import { CareerDNAInteractiveGraph } from "@/components/career-dna/CareerDNAInteractiveGraph";
 import { buildCareerDNANodes } from "@/components/career-dna/CareerDNAData";
 
+import { isStudentVerified } from "@/lib/student-access-policy";
+
 interface CareerDNASummaryData {
   connected: boolean;
   exists: boolean;
@@ -117,6 +119,12 @@ export function CareerDNASummaryCard({ userId }: CareerDNASummaryCardProps) {
       setIsRefreshing(false);
     }
   };
+
+  // If student is not verified, render the authoritative locked/blurred CareerDNABanner (Section 1, 2, 10, 14, 15)
+  // Evaluated after all hooks to strictly adhere to React Rules of Hooks
+  if (!isStudentVerified(user)) {
+    return <CareerDNABanner user={user} summaryData={data} />;
+  }
 
   // 1. LOADING STATE
   if (isLoading) {
@@ -220,7 +228,7 @@ export function CareerDNASummaryCard({ userId }: CareerDNASummaryCardProps) {
   );
 
   return (
-    <Card hoverEffect className="p-6 border-blue-500/20 bg-gradient-to-br from-card via-card to-blue-950/15 space-y-6 shadow-sm">
+    <Card hoverEffect className="p-6 border-blue-500/20 bg-gradient-to-br from-card via-card to-blue-500/[0.04] dark:to-blue-950/15 space-y-6 shadow-xs">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border/40">
         <div className="flex items-center gap-3">

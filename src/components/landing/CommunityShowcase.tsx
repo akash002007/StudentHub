@@ -12,8 +12,11 @@ export function CommunityShowcase() {
   const displayCommunities = initialMockCommunities.slice(0, 4);
 
   return (
-    <section id="communities" className="py-20 sm:py-28 bg-muted/30 border-t border-border/60">
-      <div className="max-w-7xl mx-auto px-4 sm:px-8">
+    <section id="communities" className="py-20 sm:py-28 bg-[#f8fafc] dark:bg-muted/30 border-t border-border/60 relative overflow-hidden">
+      {/* Subtle atmospheric ambient glow */}
+      <div className="absolute top-1/2 left-1/3 -translate-y-1/2 w-[500px] h-[320px] bg-cyan-500/[0.03] dark:bg-cyan-500/[0.04] blur-[130px] rounded-full pointer-events-none -z-10" />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 relative z-10">
         <div className="text-center max-w-2xl mx-auto mb-16">
           <Badge variant="emerald" size="md" className="mb-3">
             Peer Ecosystem

@@ -36,12 +36,19 @@ export function InternshipSpotlight() {
         {/* 3 Featured Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {featured.map((intern) => (
-            <Card key={intern.id} hoverEffect className="p-6 flex flex-col justify-between border-border/80 bg-card">
+            <Card
+              key={intern.id}
+              hoverEffect
+              className="p-6 flex flex-col justify-between border-border/80 bg-gradient-to-b from-card to-card hover:to-blue-50/25 dark:hover:to-blue-950/15 group relative overflow-hidden"
+            >
+              {/* Subtle top company/role accent */}
+              <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-blue-500/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
               <div className="space-y-4">
                 {/* Header */}
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-xl overflow-hidden bg-muted border border-border/60">
+                    <div className="w-12 h-12 rounded-xl overflow-hidden bg-muted/80 border border-border/70 shadow-2xs">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={intern.companyLogo}

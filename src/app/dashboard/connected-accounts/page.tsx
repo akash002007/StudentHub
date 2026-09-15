@@ -24,6 +24,8 @@ import { Button } from "@/components/ui/Button";
 import { RoleGuard } from "@/components/dashboard/RoleGuard";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
+import { canAccessConnectedAccounts } from "@/lib/student-access-policy";
+import { VerificationLockedView } from "@/components/shared/VerificationLockedView";
 import { GitHubConnection, CodeforcesConnection, LeetCodeConnection } from "@/types";
 import { GitHubInsights } from "@/components/dashboard/GitHubInsights";
 import { CodeforcesInsights } from "@/components/dashboard/CodeforcesInsights";
@@ -420,6 +422,14 @@ export default function ConnectedAccountsPage() {
       status: "coming_soon",
     },
   ];
+
+  if (!canAccessConnectedAccounts(user)) {
+    return (
+      <RoleGuard allowedRole="student">
+        <VerificationLockedView featureTitle="Connected Accounts" />
+      </RoleGuard>
+    );
+  }
 
   return (
     <RoleGuard allowedRole="student">

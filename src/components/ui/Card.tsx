@@ -16,9 +16,9 @@ export function Card({
   return (
     <div
       className={cn(
-        "rounded-2xl border border-border bg-card text-card-foreground shadow-sm transition-all duration-200",
+        "rounded-2xl border border-border/80 bg-card text-card-foreground shadow-[0_1px_3px_0_rgba(15,23,42,0.03),0_1px_2px_-1px_rgba(15,23,42,0.02)] transition-all duration-250 ease-out",
         glass && "glass-panel",
-        hoverEffect && "hover:border-blue-500/40 hover:shadow-md hover:-translate-y-0.5",
+        hoverEffect && "hover:border-blue-500/40 hover:shadow-[0_12px_28px_-6px_rgba(37,99,235,0.08),0_8px_12px_-6px_rgba(15,23,42,0.03)] hover:-translate-y-1 dark:hover:shadow-lg dark:hover:shadow-blue-500/5",
         className
       )}
       {...props}

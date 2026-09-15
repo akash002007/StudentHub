@@ -26,6 +26,10 @@ import { Tabs } from "@/components/ui/Tabs";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { RoleGuard } from "@/components/dashboard/RoleGuard";
 import { useToast } from "@/context/ToastContext";
+import { useAuth } from "@/context/AuthContext";
+import { canApplyForInternship } from "@/lib/student-access-policy";
+import { Lock, ShieldAlert } from "lucide-react";
+import Link from "next/link";
 
 export interface InternshipUI {
   id: string;
@@ -62,7 +66,9 @@ export interface InternshipUI {
 }
 
 export default function InternshipsPage() {
-  const { success } = useToast();
+  const { success, error: toastError } = useToast();
+  const { user } = useAuth();
+  const canApply = canApplyForInternship(user);
 
   // 1. React State for Filters & Data
   const [internships, setInternships] = useState<InternshipUI[]>([]);
@@ -75,6 +81,7 @@ export default function InternshipsPage() {
 
   const [selectedInternship, setSelectedInternship] = useState<InternshipUI | null>(null);
   const [isApplyModalOpen, setIsApplyModalOpen] = useState<boolean>(false);
+  const [isVerifModalOpen, setIsVerifModalOpen] = useState<boolean>(false);
   const [applyingInternship, setApplyingInternship] = useState<InternshipUI | null>(null);
   const [applicationNote, setApplicationNote] = useState<string>("");
 
@@ -185,6 +192,10 @@ export default function InternshipsPage() {
 
   // Open Quick Apply Modal
   const handleOpenApply = (internship: InternshipUI) => {
+    if (!canApply) {
+      setIsVerifModalOpen(true);
+      return;
+    }
     setApplyingInternship(internship);
     setIsApplyModalOpen(true);
   };
@@ -192,6 +203,11 @@ export default function InternshipsPage() {
   // Optimistic Apply Submission
   const handleConfirmApply = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!canApply) {
+      setIsApplyModalOpen(false);
+      setIsVerifModalOpen(true);
+      return;
+    }
     if (!applyingInternship) return;
 
     const targetId = applyingInternship.id;
@@ -486,7 +502,7 @@ export default function InternshipsPage() {
                           <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
                           Applied
                         </Button>
-                      ) : (
+                      ) : canApply ? (
                         <ShinyCTA
                           id={`apply-btn-${intern.id}`}
                           className="text-xs px-3 py-1.5"
@@ -494,6 +510,17 @@ export default function InternshipsPage() {
                         >
                           Quick Apply <ArrowUpRight className="w-3.5 h-3.5" />
                         </ShinyCTA>
+                      ) : (
+                        <Button
+                          id={`apply-btn-${intern.id}`}
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setIsVerifModalOpen(true)}
+                          className="text-xs px-2.5 py-1 border-amber-500/40 text-amber-700 dark:text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 font-semibold gap-1.5 shadow-xs"
+                        >
+                          <Lock className="w-3.5 h-3.5 text-amber-600" />
+                          Verification Required
+                        </Button>
                       )}
                     </div>
                   </div>
@@ -586,17 +613,32 @@ export default function InternshipsPage() {
                     Close
                   </Button>
                   {!selectedInternship.hasApplied && (
-                    <Button
-                      variant="gradient"
-                      size="sm"
-                      onClick={() => {
-                        const temp = selectedInternship;
-                        setSelectedInternship(null);
-                        handleOpenApply(temp);
-                      }}
-                    >
-                      Apply Now
-                    </Button>
+                    canApply ? (
+                      <Button
+                        variant="gradient"
+                        size="sm"
+                        onClick={() => {
+                          const temp = selectedInternship;
+                          setSelectedInternship(null);
+                          handleOpenApply(temp);
+                        }}
+                      >
+                        Apply Now
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setSelectedInternship(null);
+                          setIsVerifModalOpen(true);
+                        }}
+                        className="border-amber-500/40 text-amber-700 dark:text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 font-semibold gap-1.5"
+                      >
+                        <Lock className="w-3.5 h-3.5 text-amber-600" />
+                        Verification Required
+                      </Button>
+                    )
                   )}
                 </div>
               </div>
@@ -664,6 +706,42 @@ export default function InternshipsPage() {
               </div>
             </form>
           )}
+        </Modal>
+
+        {/* Verification Required Modal (Section 27) */}
+        <Modal
+          isOpen={isVerifModalOpen}
+          onClose={() => setIsVerifModalOpen(false)}
+          title="Student Verification Required"
+          description="Institutional verification is required before applying for opportunities."
+        >
+          <div className="space-y-4 py-2">
+            <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-900 dark:text-amber-200 text-xs sm:text-sm leading-relaxed flex items-start gap-3">
+              <ShieldAlert className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+              <div>
+                <p className="font-semibold text-foreground">
+                  Student verification is required before you can apply for internships.
+                </p>
+                <p className="text-muted-foreground mt-1">
+                  Complete your student status verification to unlock verified applications, Fast-Track recruiter screening, and Career DNA matching.
+                </p>
+              </div>
+            </div>
+            <div className="flex justify-end gap-2 pt-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsVerifModalOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Link href="/onboarding?step=verification">
+                <Button variant="gradient" size="sm" className="font-semibold">
+                  Verify Account
+                </Button>
+              </Link>
+            </div>
+          </div>
         </Modal>
       </div>
     </RoleGuard>

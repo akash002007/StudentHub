@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { getAuthenticatedUser } from "@/lib/auth-server";
+import { requireVerifiedStudent } from "@/lib/student-access-server";
 
 export const dynamic = "force-dynamic";
 
@@ -10,6 +11,11 @@ export async function GET(request: NextRequest) {
 
   const authUser = await getAuthenticatedUser(request, rawUserId || undefined);
   const userId = authUser?.userId || rawUserId || "std_default_01";
+
+  const verificationCheck = await requireVerifiedStudent(request, userId);
+  if (!verificationCheck.authorized) {
+    return verificationCheck.errorResponse;
+  }
 
   const clientId = process.env.GITHUB_CLIENT_ID || "";
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";

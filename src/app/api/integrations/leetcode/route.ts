@@ -6,6 +6,7 @@ import {
 } from "@/lib/server-store";
 import { CareerDNABuilder } from "@/lib/career-dna";
 import { getAuthenticatedUser, unauthorizedResponse } from "@/lib/auth-server";
+import { requireVerifiedStudent } from "@/lib/student-access-server";
 
 export async function DELETE(request: NextRequest) {
   try {
@@ -13,6 +14,11 @@ export async function DELETE(request: NextRequest) {
 
     if (!authUser) {
       return unauthorizedResponse();
+    }
+
+    const verificationCheck = await requireVerifiedStudent(request, authUser.userId);
+    if (!verificationCheck.authorized) {
+      return verificationCheck.errorResponse;
     }
 
     const deleted = deleteLeetCodeConnection(authUser.userId);

@@ -71,7 +71,26 @@ interface AuthContextType {
     year?: string;
     studentIdNumber?: string;
     graduationYear?: string;
-  }) => Promise<StudentVerificationRequest>;
+    file?: File;
+  }) => Promise<{
+    success: boolean;
+    status: string;
+    verificationStatus: VerificationStatus;
+    failureReason?: string;
+    confidenceScore?: number;
+    document?: any;
+    request?: StudentVerificationRequest;
+  }>;
+  requestManualReview: (data: {
+    documentId?: string;
+    reason: string;
+    documentName?: string;
+    documentSize?: string;
+  }) => Promise<{
+    success: boolean;
+    status: string;
+    verificationStatus: VerificationStatus;
+  }>;
   resubmitStudentVerification: (data: {
     documentName: string;
     documentSize: string;
@@ -120,7 +139,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const refreshUserSession = useCallback(async () => {
-    if (!user || user.role !== "student") return;
+    if (!user || (user.role || "").toLowerCase() !== "student") return;
     try {
       const res = await fetch(`/api/student/verification?studentId=${encodeURIComponent(user.id)}`);
       if (res.ok) {
@@ -128,10 +147,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (data.student) {
           setUser((prev) => {
             if (!prev) return null;
+            const rawStatus = data.student.verificationStatus || data.verificationStatus;
             const updated = {
               ...prev,
               ...data.student,
-              verificationStatus: data.student.verificationStatus || data.verificationStatus,
+              verificationStatus: rawStatus,
+              accountAccessStatus:
+                data.student.accountAccessStatus ||
+                data.accountAccessStatus ||
+                (rawStatus === "approved" || rawStatus === "VERIFIED"
+                  ? "ACTIVE"
+                  : "RESTRICTED"),
+              rejectionReason:
+                data.student.rejectionReason || data.request?.rejectionReason,
               verificationRequest: data.request
                 ? {
                     id: data.request.verificationId,
@@ -154,7 +182,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                   }
                 : (prev as StudentProfile).verificationRequest,
             } as StudentProfile;
-            persistSession(updated, "student");
+            persistSession(updated, updated.role);
             return updated;
           });
         }
@@ -188,7 +216,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                   verificationStatus: d.student.verificationStatus || d.verificationStatus,
                 };
                 setUser(synched);
-                persistSession(synched, "student");
+                persistSession(synched, synched.role);
               }
             })
             .catch(() => {});
@@ -240,7 +268,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     persistSession(authenticatedUser, selectedRole);
 
     // Sync if student
-    if (selectedRole === "student") {
+    if ((selectedRole || "").toLowerCase() === "student") {
       fetch(`/api/student/verification?studentId=${encodeURIComponent(authenticatedUser.id)}`)
         .then((r) => r.json())
         .then((d) => {
@@ -548,7 +576,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     year?: string;
     studentIdNumber?: string;
     graduationYear?: string;
-  }): Promise<StudentVerificationRequest> => {
+    file?: File;
+  }): Promise<{
+    success: boolean;
+    status: string;
+    verificationStatus: VerificationStatus;
+    failureReason?: string;
+    confidenceScore?: number;
+    document?: any;
+    request?: StudentVerificationRequest;
+  }> => {
     const student = user as StudentProfile;
     const studentId = student?.id || `student_${Date.now()}`;
 
@@ -570,53 +607,129 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       personalEmail: data.personalEmail || student?.personalEmail,
     };
 
-    let serverRequest: any = null;
+    let resultJson: any = null;
     try {
-      const res = await fetch("/api/student/verification", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      let res: Response;
+      if (data.file) {
+        const fd = new FormData();
+        fd.append("file", data.file);
+        fd.append("studentId", studentId);
+        fd.append("verificationType", data.verificationType);
+        if (data.personalEmail) fd.append("personalEmail", data.personalEmail);
+        res = await fetch("/api/student/verification", {
+          method: "POST",
+          body: fd,
+        });
+      } else {
+        res = await fetch("/api/student/verification", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+      }
       if (res.ok) {
-        const json = await res.json();
-        serverRequest = json.request;
+        resultJson = await res.json();
+      } else {
+        resultJson = await res.json().catch(() => ({}));
       }
     } catch (err) {
       console.warn("Server verification submission error:", err);
     }
 
-    const newRequest: StudentVerificationRequest = {
-      id: serverRequest?.verificationId || `req_${Date.now()}`,
-      verificationId: serverRequest?.verificationId || `VER-2026-${Date.now().toString().slice(-6)}`,
-      studentId,
-      studentName: payload.studentName,
-      university: payload.college,
-      universityEmail: payload.email,
-      verificationType: data.verificationType,
-      status: "pending",
-      documentName: data.documentName,
-      documentSize: data.documentSize,
-      documentUrl: data.documentUrl,
-      personalEmail: data.personalEmail || student?.personalEmail,
-      submittedAt: new Date().toLocaleString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      }),
-    };
+    const autoPassed =
+      resultJson?.status === "AUTO_VERIFIED" || resultJson?.verificationStatus === "approved";
+    const newStatus: VerificationStatus = autoPassed ? "approved" : "verification_failed";
 
     const updatedProfile: StudentProfile = {
       ...student,
-      verificationStatus: "pending",
+      verificationStatus: newStatus,
       personalEmail: data.personalEmail || student?.personalEmail,
-      verificationRequest: newRequest,
+      verificationRequest: autoPassed
+        ? {
+            id: `req_${Date.now()}`,
+            studentId,
+            studentName: payload.studentName,
+            university: payload.college,
+            universityEmail: payload.email,
+            verificationType: data.verificationType,
+            status: "approved",
+            documentName: data.documentName,
+            documentSize: data.documentSize,
+            documentUrl: data.documentUrl,
+            submittedAt: new Date().toLocaleString(),
+          }
+        : undefined,
     };
 
     setUser(updatedProfile);
     persistSession(updatedProfile, "student");
-    return newRequest;
+
+    return {
+      success: autoPassed,
+      status: resultJson?.status || (autoPassed ? "AUTO_VERIFIED" : "VERIFICATION_FAILED"),
+      verificationStatus: newStatus,
+      failureReason: resultJson?.failureReason,
+      confidenceScore: resultJson?.confidenceScore,
+      document: resultJson?.document,
+      request: updatedProfile.verificationRequest || undefined,
+    };
+  };
+
+  const requestManualReview = async (data: {
+    documentId?: string;
+    reason: string;
+    documentName?: string;
+    documentSize?: string;
+  }): Promise<{
+    success: boolean;
+    status: string;
+    verificationStatus: VerificationStatus;
+  }> => {
+    const student = user as StudentProfile;
+    const studentId = student?.id || "student_01";
+
+    try {
+      const res = await fetch("/api/student/verification/manual-review", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          studentId,
+          documentId: data.documentId,
+          reason: data.reason,
+          documentName: data.documentName,
+          documentSize: data.documentSize,
+        }),
+      });
+
+      if (res.ok) {
+        const json = await res.json();
+        const updatedProfile: StudentProfile = {
+          ...student,
+          verificationStatus: "manual_review_requested",
+        };
+        setUser(updatedProfile);
+        persistSession(updatedProfile, "student");
+        return {
+          success: true,
+          status: "MANUAL_REVIEW_REQUESTED",
+          verificationStatus: "manual_review_requested",
+        };
+      }
+    } catch (err) {
+      console.warn("Manual review request error:", err);
+    }
+
+    const fallbackProfile: StudentProfile = {
+      ...student,
+      verificationStatus: "manual_review_requested",
+    };
+    setUser(fallbackProfile);
+    persistSession(fallbackProfile, "student");
+    return {
+      success: true,
+      status: "MANUAL_REVIEW_REQUESTED",
+      verificationStatus: "manual_review_requested",
+    };
   };
 
   const resubmitStudentVerification = async (data: {
@@ -743,13 +856,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     persistSession(updatedProfile, "student");
   };
 
-  const resetVerificationForResubmission = () => {
-    if (!user || user.role !== "student") return;
+  const resetVerificationForResubmission = async () => {
+    if (!user || (user.role || "").toLowerCase() !== "student") return;
     const student = user as StudentProfile;
+
+    try {
+      await fetch("/api/student/verification/reset", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ studentId: student.id }),
+      });
+    } catch (err) {
+      console.warn("Reset verification API error:", err);
+    }
 
     const updatedProfile: StudentProfile = {
       ...student,
       verificationStatus: "not_submitted",
+      accountAccessStatus: "RESTRICTED",
+      rejectionReason: undefined,
       verificationRequest: null,
     };
 
@@ -773,6 +898,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         updateStudentProfile,
         updateRecruiterProfile,
         submitStudentVerification,
+        requestManualReview,
         resubmitStudentVerification,
         reviewVerification,
         resetVerificationForResubmission,

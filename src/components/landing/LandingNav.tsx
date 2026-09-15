@@ -27,7 +27,7 @@ export function LandingNav() {
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-300 px-4 sm:px-8 py-3.5",
         isScrolled
-          ? "bg-background/80 backdrop-blur-xl border-b border-border shadow-xs"
+          ? "bg-background/85 backdrop-blur-xl border-b border-border/70 shadow-[0_4px_20px_-4px_rgba(15,23,42,0.03)] dark:shadow-none"
           : "bg-transparent"
       )}
     >

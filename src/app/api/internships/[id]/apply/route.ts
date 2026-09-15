@@ -4,6 +4,7 @@ import {
   getAuthenticatedStudent,
 } from "@/lib/supabase/server";
 import { localAppliedInternships } from "@/lib/supabase/mock-data";
+import { requireVerifiedStudent } from "@/lib/student-access-server";
 
 export async function POST(
   request: NextRequest,
@@ -12,14 +13,22 @@ export async function POST(
   try {
     // 1. Verify Supabase Auth session and strictly validate STUDENT role
     const auth = await getAuthenticatedStudent(request);
-    if (!auth.student) {
+    const url = new URL(request.url);
+    const queryStudentId = url.searchParams.get("studentId");
+    const studentId = queryStudentId || auth.student?.id;
+
+    if (!studentId) {
       return NextResponse.json(
         { error: auth.error || "Unauthorized" },
         { status: auth.status || 401 }
       );
     }
 
-    const studentId = auth.student.id;
+    // 2. Authoritative Verification-Based Account Access Control (Section 6, 10, 11)
+    const verificationCheck = await requireVerifiedStudent(request, studentId);
+    if (!verificationCheck.authorized) {
+      return verificationCheck.errorResponse;
+    }
     const { id: internshipId } = await params;
 
     if (!internshipId) {

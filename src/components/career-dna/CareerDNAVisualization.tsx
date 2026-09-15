@@ -45,7 +45,7 @@ export function CareerDNAVisualization() {
   return (
     <div className="space-y-8">
       {/* 5-Step Visual Flow Header */}
-      <div className="p-3 sm:p-4 rounded-2xl bg-card border border-border/80 shadow-xs max-w-4xl mx-auto overflow-x-auto">
+      <div className="p-3 sm:p-4 rounded-2xl bg-card/90 backdrop-blur-md border border-border/80 shadow-[0_2px_10px_-2px_rgba(15,23,42,0.04)] max-w-4xl mx-auto overflow-x-auto">
         <div className="flex items-center justify-between min-w-[500px] gap-2">
           {steps.map((step, idx) => {
             const Icon = step.icon;
@@ -57,15 +57,15 @@ export function CareerDNAVisualization() {
                   onClick={() => setActiveStep(idx)}
                   className={`flex items-center gap-2 px-3 py-1.5 rounded-xl transition-all text-xs font-bold ${
                     isCurrent
-                      ? "bg-blue-600 text-white shadow-sm"
-                      : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
+                      ? "bg-blue-600 text-white shadow-xs shadow-blue-600/30"
+                      : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground"
                   }`}
                 >
                   <Icon className="w-3.5 h-3.5" />
                   <span>{step.label}</span>
                 </button>
                 {idx < steps.length - 1 && (
-                  <span className="text-muted-foreground text-xs font-bold">→</span>
+                  <span className="text-muted-foreground/60 text-xs font-bold">→</span>
                 )}
               </React.Fragment>
             );
@@ -96,7 +96,7 @@ export function CareerDNAVisualization() {
                   className={`p-3 rounded-xl border text-xs flex items-center justify-between transition-all cursor-pointer ${
                     source.active
                       ? "bg-blue-500/10 border-blue-500/30 text-foreground shadow-xs"
-                      : "bg-card/50 border-border/40 text-muted-foreground hover:border-border/80"
+                      : "bg-card/70 border-border/60 text-muted-foreground hover:border-border hover:bg-card"
                   }`}
                 >
                   <div className="flex items-center gap-2.5">
@@ -115,10 +115,10 @@ export function CareerDNAVisualization() {
         </div>
 
         {/* Center Column: Career DNA AI Processing Layer */}
-        <div className="lg:col-span-3 flex flex-col items-center justify-center p-6 rounded-2xl bg-gradient-to-b from-blue-950/20 via-card to-card border border-blue-500/20 text-center space-y-4 relative overflow-hidden">
+        <div className="lg:col-span-3 flex flex-col items-center justify-center p-6 rounded-2xl bg-gradient-to-b from-blue-50/80 via-card to-card dark:from-blue-950/20 dark:via-card dark:to-card border border-blue-500/25 dark:border-blue-500/20 shadow-[0_4px_24px_-4px_rgba(37,99,235,0.07)] dark:shadow-none text-center space-y-4 relative overflow-hidden">
           <div className="absolute inset-0 bg-blue-500/5 blur-2xl pointer-events-none" />
           
-          <div className="w-16 h-16 rounded-3xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-500 relative z-10 shadow-lg shadow-blue-500/10 animate-pulse">
+          <div className="w-16 h-16 rounded-3xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-500 relative z-10 shadow-lg shadow-blue-500/15 animate-pulse">
             <Dna className="w-8 h-8" />
           </div>
 
@@ -132,7 +132,7 @@ export function CareerDNAVisualization() {
             </p>
           </div>
 
-          <div className="w-full space-y-2 relative z-10 pt-2 border-t border-border/40 text-[10px] text-muted-foreground">
+          <div className="w-full space-y-2 relative z-10 pt-2 border-t border-border/50 text-[10px] text-muted-foreground">
             <div className="flex justify-between items-center">
               <span>Code Evidence Weight:</span>
               <span className="font-bold text-emerald-500">1.0 (Strong)</span>
@@ -145,7 +145,7 @@ export function CareerDNAVisualization() {
         </div>
 
         {/* Right Column: Career DNA Profile Result */}
-        <div className="lg:col-span-5 p-5 rounded-2xl bg-card border border-border space-y-4 shadow-sm flex flex-col justify-between">
+        <div className="lg:col-span-5 p-5 rounded-2xl bg-card border border-border/80 space-y-4 shadow-[0_4px_20px_-4px_rgba(15,23,42,0.04)] flex flex-col justify-between">
           <div className="space-y-3">
             <div className="flex items-center justify-between pb-3 border-b border-border/40">
               <div className="flex items-center gap-2">

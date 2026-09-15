@@ -18,14 +18,14 @@ export async function POST(
 
     const { id } = await params;
     const body = await req.json();
-    const action = body.action as "APPROVE" | "REJECT" | "REQUEST_REUPLOAD";
+    const action = body.action as "APPROVE" | "REJECT" | "REQUEST_REUPLOAD" | "START_REVIEW";
     const reason = body.reason as string | undefined;
     const notes = body.notes as string | undefined;
     const adminName = body.adminName || user?.name || "Priya Menon (Verification Officer)";
 
-    if (!action || !["APPROVE", "REJECT", "REQUEST_REUPLOAD"].includes(action)) {
+    if (!action || !["APPROVE", "REJECT", "REQUEST_REUPLOAD", "START_REVIEW"].includes(action)) {
       return NextResponse.json(
-        { success: false, error: "Invalid action. Must be APPROVE, REJECT, or REQUEST_REUPLOAD." },
+        { success: false, error: "Invalid action. Must be APPROVE, REJECT, REQUEST_REUPLOAD, or START_REVIEW." },
         { status: 400 }
       );
     }

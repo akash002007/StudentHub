@@ -32,6 +32,10 @@ import { getTimeAwareGreeting, getStatusBadgeStyle } from "@/lib/utils";
 import { CareerDNASummaryCard } from "@/components/dashboard/CareerDNASummaryCard";
 import { WelcomeCard } from "@/components/dashboard/WelcomeCard";
 import { MetricCard } from "@/components/dashboard/MetricCard";
+import { normalizeVerificationStatus } from "@/lib/student-access-policy";
+import { RejectedAccountScreen } from "@/components/shared/RejectedAccountScreen";
+import { Lock, ShieldAlert, CheckCircle } from "lucide-react";
+import { StudentProfile } from "@/types";
 
 export default function DashboardHomePage() {
   const router = useRouter();
@@ -80,6 +84,16 @@ export default function DashboardHomePage() {
     return null;
   }
 
+  const student = user as StudentProfile | null;
+  const normVerif = normalizeVerificationStatus(student?.verificationStatus);
+
+  if (normVerif === "REJECTED") {
+    return <RejectedAccountScreen />;
+  }
+
+  const isUnderManualReview =
+    normVerif === "MANUAL_REVIEW_REQUESTED" || normVerif === "UNDER_REVIEW";
+
   const kpis = overviewData?.kpis || {
     activeApplicationsCount: 0,
     upcomingAssessmentsCount: 0,
@@ -104,6 +118,92 @@ export default function DashboardHomePage() {
             : "Explore verified recruitment drives, check your structured eligibility, and track multi-round selection pipelines."
         }
       />
+
+      {/* Restricted Student Workspace (Section 8) */}
+      {isUnderManualReview && (
+        <Card className="p-6 sm:p-7 rounded-2xl bg-amber-500/10 border-2 border-amber-500/40 shadow-lg space-y-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-amber-500/20 pb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 rounded-2xl bg-amber-500/20 text-amber-700 dark:text-amber-300 flex items-center justify-center font-bold text-lg shrink-0">
+                🔒
+              </div>
+              <div>
+                <h2 className="text-lg sm:text-xl font-extrabold text-foreground flex items-center gap-2">
+                  Account Verification
+                </h2>
+                <p className="text-xs sm:text-sm text-muted-foreground">
+                  Your student verification is currently under manual review.
+                </p>
+              </div>
+            </div>
+            <Badge
+              variant="outline"
+              className="border-amber-500/50 text-amber-700 dark:text-amber-300 font-bold px-3 py-1 bg-amber-500/15 text-xs w-fit"
+            >
+              {normVerif === "UNDER_REVIEW"
+                ? "Under Review"
+                : "Manual Review Requested"}
+            </Badge>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+            <div className="p-3.5 rounded-xl bg-card border border-amber-500/30 space-y-1">
+              <span className="text-muted-foreground font-medium">
+                Verification Status:
+              </span>
+              <p className="font-bold text-foreground text-sm flex items-center gap-1.5">
+                <span>👤</span>
+                {normVerif === "UNDER_REVIEW"
+                  ? "Officer Under Review"
+                  : "Manual Review Requested"}
+              </p>
+            </div>
+            <div className="p-3.5 rounded-xl bg-card border border-amber-500/30 space-y-1">
+              <span className="text-muted-foreground font-medium">Document:</span>
+              <p className="font-bold text-foreground text-sm">
+                {student?.verificationRequest?.documentName ||
+                  "Student Verification Document"}
+              </p>
+            </div>
+            <div className="p-3.5 rounded-xl bg-card border border-amber-500/30 space-y-1">
+              <span className="text-muted-foreground font-medium">Requested:</span>
+              <p className="font-bold text-foreground text-sm">
+                {student?.verificationRequest?.submittedAt || "Recently Submitted"}
+              </p>
+            </div>
+          </div>
+
+          <div className="p-4 rounded-xl bg-surface-container-low border border-amber-500/25 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+            <p className="text-muted-foreground leading-relaxed">
+              <span className="font-semibold text-foreground">
+                Some StudentHub features are temporarily locked:
+              </span>{" "}
+              Career DNA, Connected Accounts, and Job/Internship Applications will
+              automatically unlock once verified.
+            </p>
+            <div className="flex items-center gap-2 shrink-0">
+              <Link href="/onboarding?step=overview">
+                <Button
+                  size="sm"
+                  variant="gradient"
+                  className="text-xs font-semibold"
+                >
+                  Review Status
+                </Button>
+              </Link>
+              <Link href="/dashboard/documents">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="text-xs font-semibold"
+                >
+                  View Documents
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </Card>
+      )}
 
       {/* Global Section Error Banner if Overview Failed */}
       {error && (
@@ -177,8 +277,8 @@ export default function DashboardHomePage() {
 
       {/* Main 2-Column Section: Open Recruitment Opportunities & Application/Events Tracker */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Left Column: Recommended Open Recruitment Drives (7 cols) */}
-        <div className="lg:col-span-7 space-y-4">
+        {/* Left Column: Recommended Open Recruitment Drives (7 cols) with subtle atmospheric container */}
+        <div className="lg:col-span-7 p-5 sm:p-6 rounded-3xl bg-gradient-to-b from-blue-50/40 via-card/40 to-transparent dark:from-blue-950/15 dark:via-card/20 border border-blue-500/10 dark:border-border/50 shadow-xs space-y-4">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-lg font-bold text-foreground tracking-tight">
@@ -234,9 +334,9 @@ export default function DashboardHomePage() {
                 <Card
                   key={drive.id}
                   hoverEffect
-                  className="p-5 border border-border/80 bg-card rounded-2xl space-y-3.5 shadow-xs hover:border-blue-500/40 hover:shadow-md transition-all relative overflow-hidden group z-0"
+                  className="p-5 border border-border/80 bg-card/95 rounded-2xl space-y-3.5 shadow-xs hover:border-blue-500/40 hover:shadow-[0_12px_28px_-6px_rgba(37,99,235,0.08)] transition-all relative overflow-hidden group z-0"
                 >
-                  <div className="absolute inset-0 bg-blue-500/10 blur-3xl -z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500/[0.05] via-transparent to-cyan-500/[0.04] opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none -z-10" />
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 rounded-xl overflow-hidden bg-muted border border-border shrink-0 p-1 flex items-center justify-center">

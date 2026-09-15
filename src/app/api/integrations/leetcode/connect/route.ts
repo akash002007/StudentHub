@@ -4,6 +4,7 @@ import { LeetCodeEngine } from "@/lib/leetcode-engine";
 import { saveLeetCodeConnection, getLeetCodeConnection } from "@/lib/server-store";
 import { getAuthenticatedUser, unauthorizedResponse } from "@/lib/auth-server";
 import { LeetCodeConnection } from "@/types";
+import { requireVerifiedStudent } from "@/lib/student-access-server";
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,6 +13,11 @@ export async function POST(request: NextRequest) {
 
     if (!authUser) {
       return unauthorizedResponse();
+    }
+
+    const verificationCheck = await requireVerifiedStudent(request, authUser.userId);
+    if (!verificationCheck.authorized) {
+      return verificationCheck.errorResponse;
     }
 
     const rawLeetCodeId = body.leetcodeId || body.handle;

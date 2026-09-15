@@ -213,10 +213,12 @@ export function GoogleSignInButton({
     } else {
       // Development mock fallback if no valid Google Client ID is configured
       const demoEmail =
-        role === "admin"
+        role === "admin" || (role as string) === "PLATFORM_ADMIN"
           ? "priya.menon@studenthub.io"
-          : role === "recruiter"
+          : role === "recruiter" || (role as string) === "RECRUITER"
           ? "recruiter.google@stripe-careers.com"
+          : role === "COLLEGE_ADMIN" || (role as string) === "college"
+          ? "placement@stanford.edu"
           : "alex.rivera@stanford.edu";
 
       const mockCredential = `mock_${encodeURIComponent(demoEmail)}_${Date.now()}`;

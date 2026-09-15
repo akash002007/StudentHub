@@ -4,6 +4,7 @@ import { CodeforcesEngine } from "@/lib/codeforces-engine";
 import { saveCodeforcesConnection, getCodeforcesConnection } from "@/lib/server-store";
 import { getAuthenticatedUser, unauthorizedResponse } from "@/lib/auth-server";
 import { CodeforcesConnection } from "@/types";
+import { requireVerifiedStudent } from "@/lib/student-access-server";
 
 export const dynamic = "force-dynamic";
 
@@ -14,6 +15,11 @@ export async function POST(request: NextRequest) {
 
     if (!authUser) {
       return unauthorizedResponse();
+    }
+
+    const verificationCheck = await requireVerifiedStudent(request, authUser.userId);
+    if (!verificationCheck.authorized) {
+      return verificationCheck.errorResponse;
     }
 
     const { handle } = body;

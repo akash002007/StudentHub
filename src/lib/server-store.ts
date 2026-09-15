@@ -1067,6 +1067,118 @@ function initializeStore(): StoreState {
     }
   });
 
+  // Seed institutional test profiles for identity resolution & same-name disambiguation
+  const institutionalTestStudents: StudentProfile[] = [
+    {
+      id: "student_akash_01",
+      name: "Akash Sharma",
+      email: "akash1@abc.edu",
+      role: "student",
+      avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80",
+      headline: "Computer Science @ ABC Institute | Candidate #1",
+      university: "ABC Institute of Technology",
+      collegeId: "col_abc",
+      studentId: "CSE2024012",
+      enrollmentNumber: "EN2024012",
+      rollNumber: "2024CSE012",
+      institutionalId: "CSE2024012",
+      degree: "B.Tech in Computer Science & Engineering",
+      branch: "Computer Science & Engineering",
+      academicStream: "Engineering & Technology",
+      academicLevel: "Undergraduate",
+      graduationYear: 2026,
+      cgpa: "8.85 / 10",
+      location: "New Delhi, India",
+      bio: "Software developer focusing on distributed systems and cloud platforms.",
+      hasUniversityEmail: true,
+      isUniversityEmail: true,
+      accountStatus: "profile_complete",
+      verificationStatus: "approved",
+      onboardingCompleted: true,
+      status: "Open to Summer 2026 Internships",
+      skills: ["Java", "Spring Boot", "TypeScript", "React", "PostgreSQL"],
+      resume: null,
+      projects: [],
+      certifications: [],
+      socialLinks: {},
+      stats: { profileViews: 120, searchAppearances: 34, applicationsCount: 3, interviewsCount: 1 },
+    },
+    {
+      id: "student_akash_02",
+      name: "Akash Sharma",
+      email: "akash2@abc.edu",
+      role: "student",
+      avatar: "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=150&auto=format&fit=crop&q=80",
+      headline: "Computer Science @ ABC Institute | Candidate #2",
+      university: "ABC Institute of Technology",
+      collegeId: "col_abc",
+      studentId: "CSE2024078",
+      enrollmentNumber: "EN2024078",
+      rollNumber: "2024CSE078",
+      institutionalId: "CSE2024078",
+      degree: "B.Tech in Computer Science & Engineering",
+      branch: "Computer Science & Engineering",
+      academicStream: "Engineering & Technology",
+      academicLevel: "Undergraduate",
+      graduationYear: 2026,
+      cgpa: "8.42 / 10",
+      location: "New Delhi, India",
+      bio: "Full stack developer interested in microservices and Kubernetes.",
+      hasUniversityEmail: true,
+      isUniversityEmail: true,
+      accountStatus: "profile_complete",
+      verificationStatus: "approved",
+      onboardingCompleted: true,
+      status: "Open to Summer 2026 Internships",
+      skills: ["Python", "Django", "React", "Docker"],
+      resume: null,
+      projects: [],
+      certifications: [],
+      socialLinks: {},
+      stats: { profileViews: 90, searchAppearances: 22, applicationsCount: 2, interviewsCount: 0 },
+    },
+    {
+      id: "student_rahul_01",
+      name: "Rahul Sharma",
+      email: "rahul.sharma@abc.edu",
+      role: "student",
+      avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80",
+      headline: "B.Tech CSE @ ABC Institute | Mobile & Web Apps",
+      university: "ABC Institute of Technology",
+      collegeId: "col_abc",
+      studentId: "2024CSE001",
+      enrollmentNumber: "2024CSE001",
+      rollNumber: "2024CSE001",
+      institutionalId: "2024CSE001",
+      degree: "B.Tech in Computer Science",
+      branch: "Computer Science",
+      academicStream: "Engineering & Technology",
+      academicLevel: "Undergraduate",
+      graduationYear: 2026,
+      cgpa: "9.10 / 10",
+      location: "Bengaluru, India",
+      bio: "Passionate about mobile apps and modern web frameworks.",
+      hasUniversityEmail: true,
+      isUniversityEmail: true,
+      accountStatus: "profile_complete",
+      verificationStatus: "approved",
+      onboardingCompleted: true,
+      status: "Open to Summer 2026 Internships",
+      skills: ["Flutter", "Kotlin", "React", "Node.js"],
+      resume: null,
+      projects: [],
+      certifications: [],
+      socialLinks: {},
+      stats: { profileViews: 140, searchAppearances: 45, applicationsCount: 4, interviewsCount: 2 },
+    },
+  ];
+
+  institutionalTestStudents.forEach((st) => {
+    if (!studentProfiles.has(st.id)) {
+      studentProfiles.set(st.id, st);
+    }
+  });
+
   const initialDocuments = new Map<string, DocumentRecord[]>();
   const initialDocumentAttempts = new Map<string, DocumentVerificationAttempt[]>();
 
@@ -2146,6 +2258,9 @@ export class ServerStore {
     const student = store.studentProfiles.get(req.studentId) || (req.studentId === defaultStudentUser.id ? defaultStudentUser : null);
     if (student) {
       student.verificationStatus = "approved";
+      student.accountAccessStatus = "ACTIVE";
+      student.accountStatus = "profile_complete";
+      delete student.rejectionReason;
       if (student.verificationRequest) {
         student.verificationRequest.status = "approved";
         student.verificationRequest.reviewedAt = nowStr;
@@ -2221,6 +2336,8 @@ export class ServerStore {
     const student = store.studentProfiles.get(req.studentId) || (req.studentId === defaultStudentUser.id ? defaultStudentUser : null);
     if (student) {
       student.verificationStatus = "rejected";
+      student.accountAccessStatus = "RESTRICTED";
+      student.rejectionReason = reason;
       if (student.verificationRequest) {
         student.verificationRequest.status = "rejected";
         student.verificationRequest.reviewedAt = nowStr;
@@ -2497,6 +2614,10 @@ export class ServerStore {
     return newRequest;
   }
 
+  static addVerificationRequest(request: VerificationRequest) {
+    store.verificationRequests.unshift(request);
+  }
+
   static resubmitStudentVerification(
     studentId: string,
     data: {
@@ -2712,9 +2833,79 @@ export class ServerStore {
     return attempts.map((a) => ({ ...a }));
   }
 
+  static getAllStudentProfiles(): StudentProfile[] {
+    return Array.from(store.studentProfiles.values()).map((p) => ({ ...p }));
+  }
+
+  static requestManualReview(
+    docId: string,
+    userId: string,
+    reason?: string
+  ): { success: boolean; document?: DocumentRecord; error?: string } {
+    const doc = this.getDocumentById(docId);
+    if (!doc) {
+      return { success: false, error: "Document not found." };
+    }
+
+    const prevStatus = doc.verificationStatus;
+    const nowStr = new Date().toISOString();
+
+    doc.verificationStatus = "MANUAL_REVIEW_REQUESTED";
+    doc.manualReviewRequestedAt = nowStr;
+    doc.manualReviewRequestedBy = userId;
+    doc.manualReviewReason = reason || "Student explicitly requested manual verification review.";
+    doc.updatedAt = nowStr;
+
+    this.saveDocument(doc.userId, doc);
+
+    // Record verification attempt for audit trail
+    const attempt: DocumentVerificationAttempt = {
+      id: `att_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+      documentId: doc.id,
+      userId: doc.userId,
+      verificationMethod: "VERIFICATION_OFFICER",
+      status: "MANUAL_REVIEW_REQUESTED",
+      confidenceScore: doc.confidenceScore || 50,
+      extractedData: doc.extractedData || {},
+      matchedFields: doc.matchedFields || [],
+      failedChecks: doc.failedChecks || [],
+      warnings: doc.warnings || [],
+      reason: doc.manualReviewReason,
+      performedBy: doc.studentName || "Student Initiated",
+      createdAt: nowStr,
+    };
+    this.recordVerificationAttempt(attempt);
+
+    // Add notification to student
+    const notifs = store.studentNotifications.get(doc.userId) || [];
+    notifs.unshift({
+      id: `notif_${Date.now()}`,
+      type: "system",
+      title: "Manual Review Requested",
+      description: `Your ${doc.documentType.replace(/_/g, " ")} has been submitted for manual verification. A StudentHub verification officer will review your document.`,
+      timestamp: "Just now",
+      isRead: false,
+      actionUrl: "/dashboard/documents",
+    });
+    store.studentNotifications.set(doc.userId, notifs);
+
+    // Add Audit Log
+    this.addAuditLog({
+      admin: doc.studentName || userId,
+      action: "STUDENT_SUBMITTED_VERIFICATION" as any,
+      student: doc.studentName || doc.userId,
+      previousStatus: prevStatus,
+      newStatus: "MANUAL_REVIEW_REQUESTED",
+      ipSessionRef: "127.0.0.1 / manual_review_request",
+      details: `Student requested manual verification review for ${doc.fileName} (${doc.documentType}). Failure reason: ${doc.decisionReason || doc.failureReason || "Unspecified"}`,
+    });
+
+    return { success: true, document: doc };
+  }
+
   static adminReviewDocument(
     docId: string,
-    action: "APPROVE" | "REJECT" | "REQUEST_REUPLOAD",
+    action: "APPROVE" | "REJECT" | "REQUEST_REUPLOAD" | "START_REVIEW",
     adminName: string = "Priya Menon",
     reason?: string,
     notes?: string
@@ -2727,12 +2918,26 @@ export class ServerStore {
     const prevStatus = doc.verificationStatus;
     const nowStr = new Date().toISOString();
 
+    if (action === "START_REVIEW") {
+      doc.verificationStatus = "UNDER_REVIEW";
+      doc.updatedAt = nowStr;
+      this.saveDocument(doc.userId, doc);
+
+      const student = store.studentProfiles.get(doc.userId);
+      if (student) {
+        student.verificationStatus = "under_review";
+        student.accountAccessStatus = "RESTRICTED";
+        store.studentProfiles.set(student.id, student);
+      }
+      return { success: true, document: doc };
+    }
+
     if (action === "APPROVE") {
       doc.verificationStatus = "VERIFIED";
-      doc.verificationMethod = "ADMIN";
+      doc.verificationMethod = "VERIFICATION_OFFICER";
       doc.verifiedBy = adminName;
       doc.verifiedAt = nowStr;
-      doc.decisionReason = notes || "Approved by administrative verification officer.";
+      doc.decisionReason = notes || "Verified by StudentHub Verification Officer";
     } else if (action === "REJECT") {
       doc.verificationStatus = "REJECTED";
       doc.rejectionReason = reason || "Document failed verification standards.";
@@ -2747,17 +2952,83 @@ export class ServerStore {
 
     this.saveDocument(doc.userId, doc);
 
+    // Synchronize Student Profile & Account Access Status (Section 30, 31, 33, 34)
+    const isPrimaryDoc =
+      doc.documentType === "COLLEGE_ID" ||
+      doc.documentType === "MARKSHEET" ||
+      doc.documentType === "DEGREE_CERTIFICATE" ||
+      doc.documentType === "GOVERNMENT_ID";
+
+    const student = store.studentProfiles.get(doc.userId);
+    if (student) {
+      const studentPrevStatus = student.verificationStatus;
+      if (
+        action === "APPROVE" &&
+        (isPrimaryDoc ||
+          student.verificationStatus === "manual_review_requested" ||
+          student.verificationStatus === "under_review" ||
+          student.verificationStatus === "pending")
+      ) {
+        student.verificationStatus = "approved";
+        student.accountAccessStatus = "ACTIVE";
+        student.accountStatus = "profile_complete";
+        delete student.rejectionReason;
+        store.studentProfiles.set(student.id, student);
+
+        const req = store.verificationRequests.find((r) => r.studentId === student.id);
+        if (req) {
+          req.status = "Approved";
+          req.reviewedAt = nowStr;
+          req.reviewedBy = adminName;
+          req.adminNotes = notes || "Approved by StudentHub Verification Officer";
+        }
+
+        this.addAuditLog({
+          admin: adminName,
+          action: "ADMIN_APPROVED_STUDENT" as any,
+          student: student.name,
+          previousStatus: studentPrevStatus || prevStatus,
+          newStatus: "approved",
+          ipSessionRef: "103.22.44.91 / sess_admin",
+          details: `Primary document ${doc.fileName} (${doc.documentType}) approved by ${adminName}. Account access upgraded to ACTIVE.`,
+        });
+      } else if (action === "REJECT" && isPrimaryDoc) {
+        student.verificationStatus = "rejected";
+        student.accountAccessStatus = "RESTRICTED";
+        student.rejectionReason = reason || "Document failed verification standards.";
+        store.studentProfiles.set(student.id, student);
+
+        const req = store.verificationRequests.find((r) => r.studentId === student.id);
+        if (req) {
+          req.status = "Rejected";
+          req.reviewedAt = nowStr;
+          req.reviewedBy = adminName;
+          req.rejectionReason = reason;
+        }
+
+        this.addAuditLog({
+          admin: adminName,
+          action: "ADMIN_REJECTED_STUDENT" as any,
+          student: student.name,
+          previousStatus: studentPrevStatus || prevStatus,
+          newStatus: "rejected",
+          ipSessionRef: "103.22.44.91 / sess_admin",
+          details: `Primary document ${doc.fileName} (${doc.documentType}) rejected by ${adminName}. Reason: ${reason}. Account access RESTRICTED.`,
+        });
+      }
+    }
+
     // Record verification attempt for audit trail
     const attempt: DocumentVerificationAttempt = {
       id: `att_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
       documentId: doc.id,
       userId: doc.userId,
-      verificationMethod: "ADMIN",
+      verificationMethod: "VERIFICATION_OFFICER",
       status: doc.verificationStatus,
       confidenceScore: action === "APPROVE" ? 100 : (doc.confidenceScore || 50),
       extractedData: doc.extractedData || {},
       matchedFields: doc.matchedFields || [],
-      failedChecks: action === "REJECT" ? ["admin_rejected"] : (doc.failedChecks || []),
+      failedChecks: action === "REJECT" ? ["officer_rejected"] : (doc.failedChecks || []),
       warnings: [],
       reason: reason || notes || `Document ${action.toLowerCase()}d by ${adminName}.`,
       performedBy: adminName,
@@ -2768,13 +3039,13 @@ export class ServerStore {
     // Add notification to student
     const notifs = store.studentNotifications.get(doc.userId) || [];
     let notifTitle = "Document Verified";
-    let notifDesc = `Your ${doc.documentType.replace("_", " ")} has been approved by ${adminName}.`;
+    let notifDesc = `Your ${doc.documentType.replace(/_/g, " ")} has been verified by ${adminName}.`;
     if (action === "REJECT") {
       notifTitle = "Document Verification Notice";
-      notifDesc = `Your ${doc.documentType.replace("_", " ")} was rejected: ${reason || "Document requirements not met."}`;
+      notifDesc = `Your ${doc.documentType.replace(/_/g, " ")} was rejected: ${reason || "Document requirements not met."}`;
     } else if (action === "REQUEST_REUPLOAD") {
       notifTitle = "Document Re-upload Requested";
-      notifDesc = `An administrator requested a replacement for your ${doc.documentType.replace("_", " ")}: ${reason || "Please upload a clearer copy."}`;
+      notifDesc = `An administrator requested a replacement for your ${doc.documentType.replace(/_/g, " ")}: ${reason || "Please upload a clearer copy."}`;
     }
 
     notifs.unshift({
@@ -2800,6 +3071,77 @@ export class ServerStore {
     });
 
     return { success: true, document: doc };
+  }
+
+  static resetVerificationForResubmission(studentId: string): {
+    success: boolean;
+    student?: StudentProfile;
+    error?: string;
+  } {
+    const student =
+      store.studentProfiles.get(studentId) ||
+      (studentId === defaultStudentUser.id ? defaultStudentUser : null);
+    if (!student) {
+      return { success: false, error: "Student profile not found." };
+    }
+
+    const prevStatus = student.verificationStatus || "rejected";
+    student.verificationStatus = "not_submitted";
+    student.accountAccessStatus = "RESTRICTED";
+    delete student.rejectionReason;
+
+    if (student.verificationRequest) {
+      student.verificationRequest.status = "not_submitted";
+      delete student.verificationRequest.rejectionReason;
+    }
+
+    store.studentProfiles.set(student.id, student);
+
+    this.addAuditLog({
+      admin: student.name,
+      action: "STUDENT_SUBMITTED_VERIFICATION" as any,
+      student: student.name,
+      previousStatus: prevStatus,
+      newStatus: "not_submitted",
+      ipSessionRef: "127.0.0.1 / retry_verification",
+      details: `Student initiated new verification attempt. Account features remain RESTRICTED until successful verification.`,
+    });
+
+    return { success: true, student };
+  }
+
+  static checkRejectedIdentityConflict(
+    institutionalId?: string,
+    email?: string
+  ): { isConflict: boolean; student?: StudentProfile; reason?: string } {
+    if (!institutionalId && !email) return { isConflict: false };
+
+    const normId = (institutionalId || "").trim().toLowerCase();
+    const normEmail = (email || "").trim().toLowerCase();
+
+    for (const [, student] of store.studentProfiles) {
+      if (student.verificationStatus === "rejected") {
+        const sId = (
+          student.studentId ||
+          student.institutionalId ||
+          student.enrollmentNumber ||
+          student.rollNumber ||
+          ""
+        ).toLowerCase();
+        const sEmail = (student.email || "").toLowerCase();
+
+        if ((normId && sId === normId) || (normEmail && sEmail === normEmail)) {
+          return {
+            isConflict: true,
+            student,
+            reason:
+              "An institutional identity matching these credentials has a rejected verification status. Direct re-registration is restricted. Please sign in and submit a new verification attempt.",
+          };
+        }
+      }
+    }
+
+    return { isConflict: false };
   }
 
   static getCandidateVerificationClaims(userId: string): CandidateVerificationClaims {
@@ -2831,45 +3173,62 @@ export class ServerStore {
   static getDocumentVerificationMetrics(): {
     totalDocuments: number;
     autoVerifiedCount: number;
-    needsReviewCount: number;
+    verificationFailedCount: number;
+    manualReviewRequestedCount: number;
+    underReviewCount: number;
+    verifiedCount: number;
     rejectedCount: number;
     reuploadCount: number;
     expiredCount: number;
     automationRate: number;
   } {
     const allDocs = this.getAllDocuments();
-    const legacyRequests = store.verificationRequests;
 
     let autoVerifiedCount = 0;
-    let needsReviewCount = 0;
+    let verificationFailedCount = 0;
+    let manualReviewRequestedCount = 0;
+    let underReviewCount = 0;
+    let verifiedCount = 0;
     let rejectedCount = 0;
     let reuploadCount = 0;
     let expiredCount = 0;
 
     allDocs.forEach((d) => {
-      if (d.verificationStatus === "AUTO_VERIFIED") autoVerifiedCount++;
-      else if (d.verificationStatus === "NEEDS_REVIEW" || d.verificationStatus === "PROCESSING") needsReviewCount++;
-      else if (d.verificationStatus === "REJECTED") rejectedCount++;
-      else if (d.verificationStatus === "REUPLOAD_REQUIRED") reuploadCount++;
-      else if (d.verificationStatus === "EXPIRED" || d.expiryStatus === "EXPIRED") expiredCount++;
-      else if (d.verificationStatus === "VERIFIED" && d.verificationMethod === "AUTOMATED") autoVerifiedCount++;
+      if (d.verificationStatus === "AUTO_VERIFIED") {
+        autoVerifiedCount++;
+        verifiedCount++;
+      } else if (d.verificationStatus === "VERIFIED") {
+        verifiedCount++;
+        if (d.verificationMethod === "AUTOMATED") {
+          autoVerifiedCount++;
+        }
+      } else if (d.verificationStatus === "VERIFICATION_FAILED") {
+        verificationFailedCount++;
+      } else if (d.verificationStatus === "MANUAL_REVIEW_REQUESTED" || d.verificationStatus === "NEEDS_REVIEW") {
+        manualReviewRequestedCount++;
+      } else if (d.verificationStatus === "UNDER_REVIEW") {
+        underReviewCount++;
+      } else if (d.verificationStatus === "REJECTED") {
+        rejectedCount++;
+      } else if (d.verificationStatus === "REUPLOAD_REQUIRED") {
+        reuploadCount++;
+      } else if (d.verificationStatus === "EXPIRED" || d.expiryStatus === "EXPIRED") {
+        expiredCount++;
+      }
     });
 
-    legacyRequests.forEach((r) => {
-      if (r.verificationMethod === "College Email" && r.status === "Approved") autoVerifiedCount++;
-      else if (r.status === "Pending") needsReviewCount++;
-      else if (r.status === "Rejected") rejectedCount++;
-      else if (r.status === "Needs Information") reuploadCount++;
-    });
-
-    const totalDocuments = allDocs.length + legacyRequests.length;
-    const verifiedTotal = autoVerifiedCount + allDocs.filter((d) => d.verificationStatus === "VERIFIED").length;
-    const automationRate = verifiedTotal > 0 ? parseFloat(((autoVerifiedCount / verifiedTotal) * 100).toFixed(1)) : 85.9;
+    const totalDocuments = allDocs.length;
+    // Total processed for automation rate: automated + manual reviews + rejections
+    const totalProcessed = autoVerifiedCount + manualReviewRequestedCount + underReviewCount + (verifiedCount - autoVerifiedCount) + rejectedCount;
+    const automationRate = totalProcessed > 0 ? parseFloat(((autoVerifiedCount / totalProcessed) * 100).toFixed(1)) : 85.9;
 
     return {
       totalDocuments,
       autoVerifiedCount,
-      needsReviewCount,
+      verificationFailedCount,
+      manualReviewRequestedCount,
+      underReviewCount,
+      verifiedCount,
       rejectedCount,
       reuploadCount,
       expiredCount,
@@ -2958,12 +3317,15 @@ export class ServerStore {
     return this.getStudentProfileById(studentId);
   }
 
+  static saveStudentProfile(profile: StudentProfile): void {
+    store.studentProfiles.set(profile.id, profile);
+  }
+
   static updateStudentProfile(studentId: string, updates: Partial<StudentProfile>): StudentProfile | null {
     const profile = store.studentProfiles.get(studentId) || (studentId === defaultStudentUser.id ? defaultStudentUser : null);
-    if (!profile) return null;
-    const updated = { ...profile, ...updates };
-    store.studentProfiles.set(studentId, updated);
-    return updated;
+    const updated = { ...(profile || { ...defaultStudentUser, id: studentId }), ...updates, id: studentId };
+    store.studentProfiles.set(studentId, updated as StudentProfile);
+    return updated as StudentProfile;
   }
 
   static updateStudent(studentId: string, updates: Partial<StudentProfile>): StudentProfile | null {
@@ -3148,6 +3510,11 @@ export class ServerStore {
           status: 403,
         };
       }
+    }
+
+    if (role === "COLLEGE_ADMIN" || (role as string) === "college") {
+      const existingCollege = defaultCollegeUser;
+      return { user: existingCollege, isNewUser: false, redirectUrl: "/college/dashboard" };
     }
 
     if (role === "recruiter") {
@@ -4229,9 +4596,17 @@ export function getDocumentVerificationAttempts(docId: string): DocumentVerifica
   return ServerStore.getVerificationAttempts(docId);
 }
 
+export function requestManualReviewForDocument(docId: string, userId: string, reason?: string) {
+  return ServerStore.requestManualReview(docId, userId, reason);
+}
+
+export function getAllStudentProfiles(): StudentProfile[] {
+  return ServerStore.getAllStudentProfiles();
+}
+
 export function adminReviewDocumentRecord(
   docId: string,
-  action: "APPROVE" | "REJECT" | "REQUEST_REUPLOAD",
+  action: "APPROVE" | "REJECT" | "REQUEST_REUPLOAD" | "START_REVIEW",
   adminName: string,
   reason?: string,
   notes?: string

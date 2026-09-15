@@ -5,6 +5,7 @@ import { StudentHubSidebar } from "@/components/shared/StudentHubSidebar";
 import { TopHeader } from "@/components/dashboard/TopHeader";
 import { MobileNav } from "@/components/dashboard/MobileNav";
 import { QuickActionsFab } from "@/components/dashboard/QuickActionsFab";
+import { AtmosphericBackground } from "@/components/ui/AtmosphericBackground";
 import { UserRole } from "@/types";
 import { cn } from "@/lib/utils";
 
@@ -41,7 +42,15 @@ export function DashboardShell({
       />
 
       {/* Main Workspace Area */}
-      <div className="flex-1 flex flex-col min-w-0 pb-20 lg:pb-0">
+      <div className="flex-1 flex flex-col min-w-0 pb-20 lg:pb-0 relative overflow-hidden">
+        {/* Global Dashboard Atmospheric Background Layer */}
+        <AtmosphericBackground
+          variant="dashboard"
+          showPattern={true}
+          showNetwork={true}
+          className="absolute inset-0 h-full -z-10"
+        />
+
         {/* Topbar Navigation (Sticky inside main column, never overlapping sidebar) */}
         <TopHeader
           onOpenMobileDrawer={() => setIsMobileDrawerOpen(true)}

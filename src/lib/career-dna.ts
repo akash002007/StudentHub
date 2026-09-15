@@ -189,10 +189,13 @@ export class CareerDNABuilder {
       certifications: hasCertificates ? ("ANALYZED" as const) : ("NOT_CONNECTED" as const),
     };
 
-    // Check verified document credentials (only VERIFIED and AUTO_VERIFIED count)
+    // Check verified document credentials (only non-expired VERIFIED and AUTO_VERIFIED count)
     const userDocs = ServerStore.getDocumentsByUserId(userId);
     const verifiedDocs = userDocs.filter(
-      (d) => d.verificationStatus === "VERIFIED" || d.verificationStatus === "AUTO_VERIFIED"
+      (d) =>
+        (d.verificationStatus === "VERIFIED" || d.verificationStatus === "AUTO_VERIFIED") &&
+        d.expiryStatus !== "EXPIRED" &&
+        (!d.expiresAt || new Date(d.expiresAt).getTime() > Date.now())
     );
     const hasVerifiedDegree = verifiedDocs.some(
       (d) => d.documentType === "DEGREE_CERTIFICATE" || d.documentType === "MARKSHEET"

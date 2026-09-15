@@ -50,8 +50,11 @@ const features = [
 
 export function FeaturesGrid() {
   return (
-    <section id="features" className="py-20 sm:py-28 bg-muted/30 border-y border-border/60">
-      <div className="max-w-7xl mx-auto px-4 sm:px-8">
+    <section id="features" className="py-20 sm:py-28 bg-[#f7f9fc] dark:bg-muted/30 border-y border-border/60 relative overflow-hidden">
+      {/* Subtle atmospheric ambient glow */}
+      <div className="absolute top-0 right-1/4 w-[450px] h-[300px] bg-blue-500/[0.03] dark:bg-blue-500/[0.04] blur-[120px] rounded-full pointer-events-none -z-10" />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 relative z-10">
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto mb-16">
           <Badge variant="purple" size="md" className="mb-3">

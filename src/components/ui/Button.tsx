@@ -30,17 +30,17 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
     const variantStyles = {
       primary:
-        "bg-primary text-primary-foreground hover:bg-primary-hover shadow-sm hover:shadow",
+        "bg-gradient-to-r from-blue-600 via-blue-600 to-sky-600 text-white hover:from-blue-700 hover:to-sky-700 shadow-sm shadow-blue-600/20 hover:shadow-md hover:shadow-blue-600/30 hover:-translate-y-0.5 transition-all",
       secondary:
-        "bg-secondary text-blue-500-foreground hover:bg-secondary/80 border border-border/50",
+        "bg-secondary text-secondary-foreground hover:bg-secondary/80 border border-border/60 shadow-2xs hover:-translate-y-0.5 transition-all",
       outline:
-        "border border-border bg-transparent hover:bg-muted text-foreground hover:border-zinc-400 dark:hover:border-zinc-600",
+        "border border-border/80 bg-card/80 hover:bg-muted text-foreground hover:border-blue-500/40 shadow-2xs hover:-translate-y-0.5 transition-all",
       ghost:
-        "bg-transparent hover:bg-muted text-muted-foreground hover:text-foreground",
+        "bg-transparent hover:bg-muted text-muted-foreground hover:text-foreground transition-all",
       danger:
-        "bg-rose-600 text-white hover:bg-rose-700 shadow-sm shadow-rose-900/20",
+        "bg-rose-600 text-white hover:bg-rose-700 shadow-sm shadow-rose-900/20 hover:-translate-y-0.5 transition-all",
       gradient:
-        "bg-gradient-to-r from-blue-700 via-blue-600 to-blue-800 text-white hover:from-blue-600 hover:to-blue-800 text-white shadow-md shadow-blue-500/20",
+        "bg-gradient-to-r from-blue-600 via-blue-600 to-cyan-500 text-white hover:from-blue-700 hover:to-cyan-600 shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/35 hover:-translate-y-0.5 transition-all",
     };
 
     const sizeStyles = {

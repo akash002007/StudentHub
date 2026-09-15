@@ -32,6 +32,7 @@ import {
   Check,
   ShieldAlert,
   AlertTriangle,
+  Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -41,6 +42,9 @@ import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
 import { StudentProfile, VerificationType, VerificationStatus } from "@/types";
 import { isUniversityEmail } from "@/lib/utils";
+import { StudentVerificationFailureModal } from "@/components/documents/StudentVerificationFailureModal";
+import { ManualReviewConfirmationModal } from "@/components/documents/ManualReviewConfirmationModal";
+import { ManualReviewSuccessModal } from "@/components/documents/ManualReviewSuccessModal";
 import {
   ACADEMIC_HIERARCHY,
   getProgramsForStream,
@@ -85,6 +89,7 @@ function OnboardingContent() {
     isLoaded,
     updateStudentProfile,
     submitStudentVerification,
+    requestManualReview,
     reviewVerification,
     resetVerificationForResubmission,
   } = useAuth();
@@ -107,6 +112,15 @@ function OnboardingContent() {
   const [currentView, setCurrentView] = useState<
     "verify_options" | "verify_personal_email" | "profile" | "overview"
   >("profile");
+
+  // Automated Verification State
+  const [verifyingStage, setVerifyingStage] = useState<"IDLE" | "PROCESSING" | "SUCCESS">("IDLE");
+  const [processingStep, setProcessingStep] = useState<number>(1);
+  const [isFailureModalOpen, setIsFailureModalOpen] = useState(false);
+  const [isConfirmManualModalOpen, setIsConfirmManualModalOpen] = useState(false);
+  const [isSuccessManualModalOpen, setIsSuccessManualModalOpen] = useState(false);
+  const [lastUploadedDoc, setLastUploadedDoc] = useState<{ id?: string; name: string; size?: string } | null>(null);
+  const [failureReason, setFailureReason] = useState<string>("");
 
   // Form State: Profile Details
   const [name, setName] = useState("");
@@ -338,8 +352,8 @@ function OnboardingContent() {
       // Move to personal email sub-step
       setCurrentView("verify_personal_email");
     } else {
-      // Semester Fee Receipt: Submit directly for manual review -> proceed to profile completion
-      submitVerificationDocument();
+      // Start real Automated Verification flow
+      startAutomatedVerification();
     }
   };
 
@@ -360,29 +374,101 @@ function OnboardingContent() {
       return;
     }
 
-    submitVerificationDocument(personalEmail.trim());
+    // Return to verify_options and start automated verification
+    setCurrentView("verify_options");
+    startAutomatedVerification(personalEmail.trim());
   };
 
-  // Submit Verification Document for Manual Administrative Review
-  const submitVerificationDocument = (customPersonalEmail?: string) => {
+  // Start Real Automated Verification Pipeline
+  const startAutomatedVerification = async (customPersonalEmail?: string) => {
     if (!uploadedFile) return;
 
+    // 1. Enter PROCESSING stage (Section 9 UI)
     setIsUploading(true);
+    setVerifyingStage("PROCESSING");
+    setProcessingStep(1);
 
-    setTimeout(() => {
-      submitStudentVerification({
+    // Staged step animation for verification checkpoints
+    const timer1 = setTimeout(() => setProcessingStep(2), 600);
+    const timer2 = setTimeout(() => setProcessingStep(3), 1200);
+
+    try {
+      const res = await submitStudentVerification({
         verificationType,
         documentName: uploadedFile.name,
         documentSize: uploadedFile.size,
         documentUrl: uploadedFile.url,
         personalEmail: customPersonalEmail || personalEmail,
+        file: uploadedFile.rawFile,
       });
 
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+      setProcessingStep(3);
+
+      setLastUploadedDoc({
+        id: res.document?.id,
+        name: uploadedFile.name,
+        size: uploadedFile.size,
+      });
+
+      if (res.success && (res.status === "AUTO_VERIFIED" || res.verificationStatus === "approved")) {
+        // AUTOMATIC SUCCESS (Section 10)
+        setVerifyingStage("SUCCESS");
+        setIsUploading(false);
+      } else {
+        // AUTOMATIC FAILURE (Section 11)
+        // DO NOT redirect. DO NOT create manual review request.
+        setVerifyingStage("IDLE");
+        setIsUploading(false);
+        setFailureReason(res.failureReason || "Student ID or institutional identifier could not be clearly detected from the document.");
+        setIsFailureModalOpen(true);
+      }
+    } catch (err: any) {
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+      setVerifyingStage("IDLE");
       setIsUploading(false);
-      success("Verification document submitted for manual review! Now complete your profile.");
-      // Move directly to Profile Completion step
-      setCurrentView("profile");
-    }, 600);
+      setFailureReason(err?.message || "Automated verification encountered an issue. You can try uploading again or request manual review.");
+      setIsFailureModalOpen(true);
+    }
+  };
+
+  // Upload Again Handler (Section 12)
+  const handleUploadAgain = () => {
+    setIsFailureModalOpen(false);
+    setUploadedFile(null);
+    setUploadError("");
+    setVerifyingStage("IDLE");
+  };
+
+  // Open Request Manual Review Confirmation Modal (Section 13)
+  const handleOpenManualReviewConfirm = () => {
+    setIsFailureModalOpen(false);
+    setIsConfirmManualModalOpen(true);
+  };
+
+  // Confirm Manual Review Request (Section 14 & 15)
+  const handleConfirmManualReview = async () => {
+    try {
+      await requestManualReview({
+        documentId: lastUploadedDoc?.id,
+        reason: failureReason || "Automated verification unsuccessful. Student requested manual review.",
+        documentName: lastUploadedDoc?.name || uploadedFile?.name,
+        documentSize: lastUploadedDoc?.size || uploadedFile?.size,
+      });
+
+      setIsConfirmManualModalOpen(false);
+      setIsSuccessManualModalOpen(true);
+    } catch (err) {
+      toastError("Failed to submit manual review request.");
+    }
+  };
+
+  // Close Manual Review Success Modal and move to profile completion
+  const handleManualReviewSuccessClose = () => {
+    setIsSuccessManualModalOpen(false);
+    setCurrentView("profile");
   };
 
   // Step 3 Action: Save Profile & Complete Onboarding
@@ -601,219 +687,303 @@ function OnboardingContent() {
         {/* ========================================================================= */}
         {/* STEP 2 (NON-UNIVERSITY EMAIL): Dedicated Student Verification Page */}
         {/* ========================================================================= */}
+        {/* ========================================================================= */}
+        {/* STEP 2 (NON-UNIVERSITY EMAIL): Dedicated Student Verification Page */}
+        {/* ========================================================================= */}
         {currentView === "verify_options" && (
           <div className="space-y-6">
-            <div className="p-6 sm:p-8 rounded-2xl bg-card border border-border shadow-xs space-y-6">
-              {/* Heading & Supporting Text */}
-              <div className="space-y-2">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 text-xs font-semibold">
-                  <ShieldCheck className="w-3.5 h-3.5" />
-                  Secondary Verification Method
+            {/* SECTION 9: PROCESSING UI */}
+            {verifyingStage === "PROCESSING" && (
+              <div className="p-8 sm:p-12 rounded-2xl bg-card border border-border shadow-md text-center space-y-6">
+                <div className="w-16 h-16 rounded-3xl bg-blue-600/10 text-blue-600 flex items-center justify-center mx-auto shadow-sm">
+                  <RefreshCw className="w-8 h-8 animate-spin" />
                 </div>
-                <h3 className="text-xl font-bold text-foreground">
-                  Verify Your Student Status
-                </h3>
-                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                  Don&apos;t have a university email address? You can verify your student status
-                  manually using one of the following documents.
-                </p>
-              </div>
-
-              {/* Manual Review Notice */}
-              <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-800 dark:text-amber-300 text-xs flex items-start gap-3">
-                <Clock className="w-4 h-4 shrink-0 mt-0.5 text-amber-600 dark:text-amber-400" />
-                <div className="space-y-0.5">
-                  <strong className="font-semibold block">
-                    Manual Administrative Review Required
-                  </strong>
-                  <span>
-                    StudentHub administrators will manually inspect and verify your uploaded document.
-                    Documents are not automatically approved. Once submitted, your request will be placed
-                    in the <strong>Pending Manual Review</strong> queue.
-                  </span>
+                <div className="space-y-2 max-w-md mx-auto">
+                  <h3 className="text-xl font-bold text-foreground">
+                    Verifying Document...
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    Your document is being automatically verified. Please keep this window open.
+                  </p>
                 </div>
-              </div>
 
-              {/* Two Selectable Option Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* OPTION 1: Semester Fee Receipt */}
-                <div
-                  onClick={() => {
-                    setVerificationType("payment_receipt");
-                    setUploadedFile(null);
-                    setUploadError("");
-                  }}
-                  className={`p-5 rounded-2xl border-2 transition-all cursor-pointer relative flex flex-col justify-between ${
-                    verificationType === "payment_receipt"
-                      ? "border-blue-600 bg-blue-500/5 shadow-md shadow-blue-500/10"
-                      : "border-border hover:border-blue-500/40 bg-card"
-                  }`}
-                >
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div className="w-10 h-10 rounded-xl bg-blue-600/10 text-blue-600 flex items-center justify-center">
-                        <Receipt className="w-5 h-5" />
-                      </div>
-                      <div
-                        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                          verificationType === "payment_receipt"
-                            ? "border-blue-600 bg-blue-600 text-white"
-                            : "border-muted-foreground/40"
-                        }`}
-                      >
-                        {verificationType === "payment_receipt" && <Check className="w-3 h-3" />}
-                      </div>
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-sm text-foreground">Option 1: Semester Fee Receipt</h4>
-                      <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                        Upload a recent university or college semester fee payment receipt.
-                      </p>
-                    </div>
-                    <div className="p-2.5 rounded-lg bg-muted/60 text-[11px] text-muted-foreground space-y-1">
-                      <p className="font-medium text-foreground">Requirements:</p>
-                      <p>• Must be from current or recent semester</p>
-                      <p>• Payment date must be within the last 6 months</p>
-                      <p>• Must clearly show student association with institution</p>
-                    </div>
+                {/* Verification Checkpoints list */}
+                <div className="max-w-sm mx-auto p-4 rounded-xl bg-muted/40 border border-border text-left space-y-3">
+                  <div className="flex items-center gap-3 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                    <CheckCircle2 className="w-4 h-4 shrink-0" />
+                    <span>✓ Document uploaded securely</span>
                   </div>
-                </div>
-
-                {/* OPTION 2: Student ID Card */}
-                <div
-                  onClick={() => {
-                    setVerificationType("student_id_card");
-                    setUploadedFile(null);
-                    setUploadError("");
-                  }}
-                  className={`p-5 rounded-2xl border-2 transition-all cursor-pointer relative flex flex-col justify-between ${
-                    verificationType === "student_id_card"
-                      ? "border-blue-600 bg-blue-500/5 shadow-md shadow-blue-500/10"
-                      : "border-border hover:border-blue-500/40 bg-card"
-                  }`}
-                >
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div className="w-10 h-10 rounded-xl bg-blue-600/10 text-blue-600 flex items-center justify-center">
-                        <IdCard className="w-5 h-5" />
-                      </div>
-                      <div
-                        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                          verificationType === "student_id_card"
-                            ? "border-blue-600 bg-blue-600 text-white"
-                            : "border-muted-foreground/40"
-                        }`}
-                      >
-                        {verificationType === "student_id_card" && <Check className="w-3 h-3" />}
-                      </div>
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-sm text-foreground">Option 2: Student ID Card</h4>
-                      <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                        Upload a clear image or scan of your valid university student ID card.
-                      </p>
-                    </div>
-                    <div className="p-2.5 rounded-lg bg-muted/60 text-[11px] text-muted-foreground space-y-1">
-                      <p className="font-medium text-foreground">Requirements:</p>
-                      <p>• Clear view of student name, institution & photo</p>
-                      <p>• You will provide a personal recovery email in next step</p>
-                    </div>
+                  <div className={`flex items-center gap-3 text-xs font-semibold ${
+                    processingStep >= 2 ? "text-emerald-600 dark:text-emerald-400" : "text-blue-600 dark:text-blue-400 animate-pulse"
+                  }`}>
+                    {processingStep >= 2 ? <CheckCircle2 className="w-4 h-4 shrink-0" /> : <Clock className="w-4 h-4 shrink-0" />}
+                    <span>{processingStep >= 2 ? "✓ Reading document & running OCR" : "⏳ Reading document..."}</span>
+                  </div>
+                  <div className={`flex items-center gap-3 text-xs font-semibold ${
+                    processingStep >= 3 ? "text-emerald-600 dark:text-emerald-400" : processingStep >= 2 ? "text-blue-600 dark:text-blue-400 animate-pulse" : "text-muted-foreground"
+                  }`}>
+                    {processingStep >= 3 ? <CheckCircle2 className="w-4 h-4 shrink-0" /> : <Clock className="w-4 h-4 shrink-0" />}
+                    <span>{processingStep >= 3 ? "✓ Matching student & institutional information" : "⏳ Matching student information..."}</span>
+                  </div>
+                  <div className={`flex items-center gap-3 text-xs font-semibold ${
+                    processingStep >= 3 ? "text-blue-600 dark:text-blue-400 animate-pulse" : "text-muted-foreground"
+                  }`}>
+                    <Clock className="w-4 h-4 shrink-0" />
+                    <span>⏳ Checking document details & validity...</span>
                   </div>
                 </div>
               </div>
+            )}
 
-              {/* Upload Dropzone */}
-              <div className="space-y-2 pt-2">
-                <label className="block text-xs font-semibold text-foreground/80 tracking-wide uppercase">
-                  {verificationType === "payment_receipt"
-                    ? "Upload Semester Fee Payment Receipt"
-                    : "Upload College Student ID Card"}
-                </label>
+            {/* SECTION 10: AUTOMATIC SUCCESS UI */}
+            {verifyingStage === "SUCCESS" && (
+              <div className="p-8 sm:p-12 rounded-2xl bg-card border border-border shadow-md text-center space-y-6">
+                <div className="w-16 h-16 rounded-3xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto shadow-sm">
+                  <CheckCircle2 className="w-8 h-8" />
+                </div>
+                <div className="space-y-2 max-w-md mx-auto">
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-xs font-bold">
+                    <ShieldCheck className="w-3.5 h-3.5" />
+                    Automatic Verification Passed
+                  </div>
+                  <h3 className="text-2xl font-black text-foreground">
+                    ✓ Verification Complete
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    Your document has been automatically verified successfully. Your student status is now verified.
+                  </p>
+                </div>
 
-                <div
-                  onClick={() => fileInputRef.current?.click()}
-                  className={`p-6 sm:p-8 rounded-2xl border-2 border-dashed transition-all cursor-pointer text-center flex flex-col items-center justify-center space-y-3 ${
-                    uploadedFile
-                      ? "border-emerald-500/50 bg-emerald-500/5"
-                      : "border-border hover:border-blue-500/60 bg-muted/20 hover:bg-muted/30"
-                  }`}
-                >
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept=".pdf,.png,.jpg,.jpeg,.webp,application/pdf,image/*"
-                    onChange={handleVerificationFileSelect}
-                    className="hidden"
-                  />
+                <div className="pt-2">
+                  <Button
+                    type="button"
+                    variant="gradient"
+                    onClick={() => {
+                      setVerifyingStage("IDLE");
+                      setCurrentView("profile");
+                    }}
+                    className="h-11 px-8 text-sm font-bold shadow-md shadow-blue-600/20 mx-auto"
+                    rightIcon={<ArrowRight className="w-4 h-4" />}
+                  >
+                    Continue
+                  </Button>
+                </div>
+              </div>
+            )}
 
-                  {uploadedFile ? (
-                    <div className="space-y-2">
-                      <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto">
-                        <CheckCircle2 className="w-6 h-6" />
+            {/* DEFAULT VERIFICATION FORM (IDLE) */}
+            {verifyingStage === "IDLE" && (
+              <div className="p-6 sm:p-8 rounded-2xl bg-card border border-border shadow-xs space-y-6">
+                {/* Heading & Supporting Text */}
+                <div className="space-y-2">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 text-xs font-semibold">
+                    <ShieldCheck className="w-3.5 h-3.5" />
+                    Instant Automated Verification
+                  </div>
+                  <h3 className="text-xl font-bold text-foreground">
+                    Verify Your Student Status
+                  </h3>
+                  <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                    Upload your semester fee receipt or student ID card. Our automated verification
+                    pipeline will verify your credentials instantly.
+                  </p>
+                </div>
+
+                {/* Automated Verification Highlight */}
+                <div className="p-4 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-900 dark:text-blue-200 text-xs flex items-start gap-3">
+                  <Sparkles className="w-4 h-4 shrink-0 mt-0.5 text-blue-600 dark:text-blue-400" />
+                  <div className="space-y-0.5">
+                    <strong className="font-semibold block">
+                      Fast Automated Processing
+                    </strong>
+                    <span>
+                      Upload a clean, high-resolution copy of your receipt or institutional ID.
+                      Your document will be automatically scanned and verified in seconds.
+                    </span>
+                  </div>
+                </div>
+
+                {/* Two Selectable Option Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* OPTION 1: Semester Fee Receipt */}
+                  <div
+                    onClick={() => {
+                      setVerificationType("payment_receipt");
+                      setUploadedFile(null);
+                      setUploadError("");
+                    }}
+                    className={`p-5 rounded-2xl border-2 transition-all cursor-pointer relative flex flex-col justify-between ${
+                      verificationType === "payment_receipt"
+                        ? "border-blue-600 bg-blue-500/5 shadow-md shadow-blue-500/10"
+                        : "border-border hover:border-blue-500/40 bg-card"
+                    }`}
+                  >
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="w-10 h-10 rounded-xl bg-blue-600/10 text-blue-600 flex items-center justify-center">
+                          <Receipt className="w-5 h-5" />
+                        </div>
+                        <div
+                          className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                            verificationType === "payment_receipt"
+                              ? "border-blue-600 bg-blue-600 text-white"
+                              : "border-muted-foreground/40"
+                          }`}
+                        >
+                          {verificationType === "payment_receipt" && <Check className="w-3 h-3" />}
+                        </div>
                       </div>
                       <div>
-                        <p className="text-sm font-bold text-foreground">{uploadedFile.name}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {uploadedFile.size} • Attached for manual verification
+                        <h4 className="font-bold text-sm text-foreground">Option 1: Semester Fee Receipt</h4>
+                        <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                          Upload a recent university or college semester fee payment receipt.
                         </p>
                       </div>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          fileInputRef.current?.click();
-                        }}
-                      >
-                        Change Document
-                      </Button>
+                      <div className="p-2.5 rounded-lg bg-muted/60 text-[11px] text-muted-foreground space-y-1">
+                        <p className="font-medium text-foreground">Requirements:</p>
+                        <p>• Must be from current or recent semester</p>
+                        <p>• Payment date must be within the last 6 months</p>
+                        <p>• Must clearly show student name and institutional identifier</p>
+                      </div>
                     </div>
-                  ) : (
-                    <>
-                      <div className="w-12 h-12 rounded-2xl bg-blue-600/10 text-blue-600 flex items-center justify-center">
-                        <UploadCloud className="w-6 h-6" />
+                  </div>
+
+                  {/* OPTION 2: Student ID Card */}
+                  <div
+                    onClick={() => {
+                      setVerificationType("student_id_card");
+                      setUploadedFile(null);
+                      setUploadError("");
+                    }}
+                    className={`p-5 rounded-2xl border-2 transition-all cursor-pointer relative flex flex-col justify-between ${
+                      verificationType === "student_id_card"
+                        ? "border-blue-600 bg-blue-500/5 shadow-md shadow-blue-500/10"
+                        : "border-border hover:border-blue-500/40 bg-card"
+                    }`}
+                  >
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="w-10 h-10 rounded-xl bg-blue-600/10 text-blue-600 flex items-center justify-center">
+                          <IdCard className="w-5 h-5" />
+                        </div>
+                        <div
+                          className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                            verificationType === "student_id_card"
+                              ? "border-blue-600 bg-blue-600 text-white"
+                              : "border-muted-foreground/40"
+                          }`}
+                        >
+                          {verificationType === "student_id_card" && <Check className="w-3 h-3" />}
+                        </div>
                       </div>
-                      <div className="space-y-1">
-                        <p className="text-sm font-semibold text-foreground">
-                          Click to upload or drag and drop your document
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          Supported formats: PDF, JPG, PNG, WEBP (Max 10 MB)
+                      <div>
+                        <h4 className="font-bold text-sm text-foreground">Option 2: Student ID Card</h4>
+                        <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                          Upload a clear image or scan of your valid university student ID card.
                         </p>
                       </div>
-                      <span className="inline-block px-3 py-1 rounded-lg bg-card border border-border text-xs font-semibold text-muted-foreground">
-                        Browse Files
-                      </span>
-                    </>
+                      <div className="p-2.5 rounded-lg bg-muted/60 text-[11px] text-muted-foreground space-y-1">
+                        <p className="font-medium text-foreground">Requirements:</p>
+                        <p>• Clear view of student name, institution & student ID</p>
+                        <p>• You will provide a personal recovery email in next step</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Upload Dropzone */}
+                <div className="space-y-2 pt-2">
+                  <label className="block text-xs font-semibold text-foreground/80 tracking-wide uppercase">
+                    {verificationType === "payment_receipt"
+                      ? "Upload Semester Fee Payment Receipt"
+                      : "Upload College Student ID Card"}
+                  </label>
+
+                  <div
+                    onClick={() => fileInputRef.current?.click()}
+                    className={`p-6 sm:p-8 rounded-2xl border-2 border-dashed transition-all cursor-pointer text-center flex flex-col items-center justify-center space-y-3 ${
+                      uploadedFile
+                        ? "border-emerald-500/50 bg-emerald-500/5"
+                        : "border-border hover:border-blue-500/60 bg-muted/20 hover:bg-muted/30"
+                    }`}
+                  >
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept=".pdf,.png,.jpg,.jpeg,.webp,application/pdf,image/*"
+                      onChange={handleVerificationFileSelect}
+                      className="hidden"
+                    />
+
+                    {uploadedFile ? (
+                      <div className="space-y-2">
+                        <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto">
+                          <CheckCircle2 className="w-6 h-6" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-bold text-foreground">{uploadedFile.name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {uploadedFile.size} • Ready for automated verification
+                          </p>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            fileInputRef.current?.click();
+                          }}
+                        >
+                          Change Document
+                        </Button>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="w-12 h-12 rounded-2xl bg-blue-600/10 text-blue-600 flex items-center justify-center">
+                          <UploadCloud className="w-6 h-6" />
+                        </div>
+                        <div className="space-y-1">
+                          <p className="text-sm font-semibold text-foreground">
+                            Click to upload or drag and drop your document
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            Supported formats: PDF, JPG, PNG, WEBP (Max 10 MB)
+                          </p>
+                        </div>
+                        <span className="inline-block px-3 py-1 rounded-lg bg-card border border-border text-xs font-semibold text-muted-foreground">
+                          Browse Files
+                        </span>
+                      </>
+                    )}
+                  </div>
+
+                  {uploadError && (
+                    <div className="p-3 rounded-xl bg-primary/10 border border-rose-500/20 text-xs text-rose-600 dark:text-rose-400 flex items-center gap-2">
+                      <AlertCircle className="w-4 h-4 shrink-0" />
+                      <span>{uploadError}</span>
+                    </div>
                   )}
                 </div>
 
-                {uploadError && (
-                  <div className="p-3 rounded-xl bg-primary/10 border border-rose-500/20 text-xs text-rose-600 dark:text-rose-400 flex items-center gap-2">
-                    <AlertCircle className="w-4 h-4 shrink-0" />
-                    <span>{uploadError}</span>
-                  </div>
-                )}
+                {/* Navigation Actions */}
+                <div className="pt-4 border-t border-border flex items-center justify-end">
+                  <Button
+                    type="button"
+                    variant="gradient"
+                    onClick={handleVerificationNext}
+                    disabled={!uploadedFile || isUploading}
+                    isLoading={isUploading}
+                    className="h-11 px-6 text-sm font-semibold shadow-md shadow-blue-600/20"
+                    rightIcon={<ArrowRight className="w-4 h-4" />}
+                  >
+                    {verificationType === "student_id_card"
+                      ? "Continue: Personal Email"
+                      : "Verify Document Automatically"}
+                  </Button>
+                </div>
               </div>
-
-              {/* Navigation Actions */}
-              <div className="pt-4 border-t border-border flex items-center justify-end">
-                <Button
-                  type="button"
-                  variant="gradient"
-                  onClick={handleVerificationNext}
-                  disabled={!uploadedFile || isUploading}
-                  isLoading={isUploading}
-                  className="h-11 px-6 text-sm font-semibold shadow-md shadow-blue-600/20"
-                  rightIcon={<ArrowRight className="w-4 h-4" />}
-                >
-                  {verificationType === "student_id_card"
-                    ? "Continue: Personal Email"
-                    : "Submit for Manual Review & Continue"}
-                </Button>
-              </div>
-            </div>
+            )}
           </div>
         )}
 
@@ -894,7 +1064,7 @@ function OnboardingContent() {
                   className="h-11 px-6 text-sm font-semibold shadow-md shadow-blue-600/20"
                   rightIcon={<ArrowRight className="w-4 h-4" />}
                 >
-                  Submit for Manual Review & Continue
+                  Verify Document Automatically
                 </Button>
               </div>
             </div>
@@ -908,29 +1078,40 @@ function OnboardingContent() {
           <form onSubmit={handleSaveProfileStep} className="space-y-6">
             <div className="p-6 sm:p-8 rounded-2xl bg-card border border-border shadow-xs space-y-6">
               {/* Context Banner */}
-              {isUniEmail ? (
+              {isUniEmail || currentVerificationStatus === "approved" ? (
                 <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-start gap-3">
                   <ShieldCheck className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
                   <div className="text-xs space-y-1">
                     <p className="font-semibold text-emerald-800 dark:text-emerald-300">
-                      University Email Verified ({student?.email})
+                      ✓ Student Status Automatically Verified
                     </p>
                     <p className="text-muted-foreground">
-                      Your institutional domain is recognized as an active university email. You are
-                      not required to upload a receipt or ID card. Please complete your academic profile.
+                      Your identity and enrollment have been verified. Complete your academic details, skills, and resume below.
                     </p>
                   </div>
                 </div>
-              ) : (
+              ) : currentVerificationStatus === "manual_review_requested" || currentVerificationStatus === "under_review" || currentVerificationStatus === "pending" ? (
                 <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-start gap-3">
                   <Clock className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
                   <div className="text-xs space-y-1">
                     <p className="font-semibold text-amber-800 dark:text-amber-300">
-                      Verification Document Submitted (Pending Manual Review)
+                      Manual Review Requested
                     </p>
                     <p className="text-muted-foreground">
-                      Your document has been submitted for manual admin review. Please complete your
+                      Your document has been submitted for review by a StudentHub verification officer. Please complete your
                       profile details below to finalize your account.
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div className="p-4 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-start gap-3">
+                  <Info className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
+                  <div className="text-xs space-y-1">
+                    <p className="font-semibold text-blue-800 dark:text-blue-300">
+                      Complete Your Student Profile
+                    </p>
+                    <p className="text-muted-foreground">
+                      Provide your academic background, core skills, and resume to start exploring internships and opportunities.
                     </p>
                   </div>
                 </div>
@@ -1333,7 +1514,9 @@ function OnboardingContent() {
                   </>
                 )}
 
-                {currentVerificationStatus === "pending" && (
+                {(currentVerificationStatus === "manual_review_requested" ||
+                  currentVerificationStatus === "under_review" ||
+                  currentVerificationStatus === "pending") && (
                   <>
                     <div className="w-14 h-14 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center mx-auto shadow-sm">
                       <Clock className="w-7 h-7 animate-pulse" />
@@ -1341,14 +1524,34 @@ function OnboardingContent() {
                     <div className="space-y-1">
                       <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 text-xs font-bold">
                         <Clock className="w-3.5 h-3.5" />
-                        Verification Status: Pending Manual Review
+                        Verification Status: Manual Review Requested
                       </div>
                       <h3 className="text-xl font-bold text-foreground">
                         Document Under Manual Administrative Review
                       </h3>
                       <p className="text-xs sm:text-sm text-muted-foreground max-w-lg mx-auto">
-                        Your verification document has been securely submitted. StudentHub administrators
-                        will manually inspect your document. You can now access your workspace.
+                        Your document has been submitted for manual review by a StudentHub verification officer.
+                        You will be notified as soon as the review is complete. You can now access your workspace.
+                      </p>
+                    </div>
+                  </>
+                )}
+
+                {currentVerificationStatus === "verification_failed" && (
+                  <>
+                    <div className="w-14 h-14 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center mx-auto shadow-sm">
+                      <AlertTriangle className="w-7 h-7" />
+                    </div>
+                    <div className="space-y-1">
+                      <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 text-xs font-bold">
+                        <AlertTriangle className="w-3.5 h-3.5" />
+                        Verification Status: Automated Verification Unsuccessful
+                      </div>
+                      <h3 className="text-xl font-bold text-foreground">
+                        Verification Action Required
+                      </h3>
+                      <p className="text-xs sm:text-sm text-muted-foreground max-w-lg mx-auto">
+                        {failureReason || "We couldn't verify your document automatically. You can upload again or request manual review."}
                       </p>
                     </div>
                   </>
@@ -1403,12 +1606,26 @@ function OnboardingContent() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                   <div className="p-3 rounded-xl bg-card border border-border space-y-1">
                     <span className="text-muted-foreground text-[11px]">Student Name</span>
-                    <p className="font-semibold text-foreground">{student?.name}</p>
+                    <p className="font-semibold text-foreground">{student?.name || name || "Alex Rivera"}</p>
                   </div>
 
                   <div className="p-3 rounded-xl bg-card border border-border space-y-1">
                     <span className="text-muted-foreground text-[11px]">University / Institution</span>
-                    <p className="font-semibold text-foreground">{student?.university}</p>
+                    <p className="font-semibold text-foreground">{student?.university || university || "Stanford University"}</p>
+                  </div>
+
+                  <div className="p-3 rounded-xl bg-card border border-border space-y-1">
+                    <span className="text-muted-foreground text-[11px]">Institutional Student ID</span>
+                    <p className="font-semibold text-foreground font-mono">
+                      {student?.studentId || student?.institutionalId || student?.enrollmentNumber || "CSE2024012"}
+                    </p>
+                  </div>
+
+                  <div className="p-3 rounded-xl bg-card border border-border space-y-1">
+                    <span className="text-muted-foreground text-[11px]">Degree & Program</span>
+                    <p className="font-semibold text-foreground">
+                      {student?.degree || degree || "B.Tech"} - {student?.specialization || specialization || "Computer Science"}
+                    </p>
                   </div>
 
                   <div className="p-3 rounded-xl bg-card border border-border space-y-1">
@@ -1428,7 +1645,9 @@ function OnboardingContent() {
                     <p className="font-semibold text-foreground">
                       {isUniEmail
                         ? "Institutional Email Domain"
-                        : verifRequest?.verificationType === "payment_receipt"
+                        : currentVerificationStatus === "approved"
+                        ? "Automated Document Verification"
+                        : verifRequest?.verificationType === "payment_receipt" || verificationType === "payment_receipt"
                         ? "Semester Fee Receipt"
                         : "College Student ID Card"}
                     </p>
@@ -1438,7 +1657,7 @@ function OnboardingContent() {
                     <div className="p-3 rounded-xl bg-card border border-border space-y-1">
                       <span className="text-muted-foreground text-[11px]">Uploaded Document</span>
                       <p className="font-semibold text-foreground truncate">
-                        {verifRequest?.documentName || uploadedFile?.name || "Submitted Document"}
+                        {lastUploadedDoc?.name || verifRequest?.documentName || uploadedFile?.name || "Submitted Document"}
                       </p>
                     </div>
                   )}
@@ -1592,6 +1811,31 @@ function OnboardingContent() {
       <footer className="p-4 text-center text-xs text-muted-foreground border-t border-border mt-auto">
         &copy; {new Date().getFullYear()} StudentHub Platform • Secure Student Verification
       </footer>
+
+      {/* SECTION 11: Failure Modal with [Upload Again] and [Request Manual Review] */}
+      <StudentVerificationFailureModal
+        isOpen={isFailureModalOpen}
+        onClose={() => setIsFailureModalOpen(false)}
+        documentName={lastUploadedDoc?.name || uploadedFile?.name}
+        failureReason={failureReason}
+        onUploadAgain={handleUploadAgain}
+        onRequestManualReview={handleOpenManualReviewConfirm}
+      />
+
+      {/* SECTION 13: Manual Review Second Confirmation Modal */}
+      <ManualReviewConfirmationModal
+        isOpen={isConfirmManualModalOpen}
+        onClose={() => setIsConfirmManualModalOpen(false)}
+        documentName={lastUploadedDoc?.name || uploadedFile?.name}
+        onConfirm={handleConfirmManualReview}
+      />
+
+      {/* SECTION 15: Manual Review Success Modal */}
+      <ManualReviewSuccessModal
+        isOpen={isSuccessManualModalOpen}
+        onClose={handleManualReviewSuccessClose}
+        documentName={lastUploadedDoc?.name || uploadedFile?.name}
+      />
     </div>
   );
 }

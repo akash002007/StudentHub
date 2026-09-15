@@ -34,6 +34,10 @@ import { Input } from "@/components/ui/Input";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
 import { DocumentRecord, DocumentType, DocumentStatus } from "@/types";
+import { StudentVerificationFailureModal } from "@/components/documents/StudentVerificationFailureModal";
+import { ManualReviewConfirmationModal } from "@/components/documents/ManualReviewConfirmationModal";
+import { ManualReviewSuccessModal } from "@/components/documents/ManualReviewSuccessModal";
+import { UserCheck } from "lucide-react";
 
 const DOCUMENT_TYPE_LABELS: Record<DocumentType, { label: string; icon: any; color: string; desc: string }> = {
   RESUME: { label: "Resume / CV", icon: FileText, color: "text-blue-500", desc: "Shareable with recruiters in applications" },
@@ -63,6 +67,24 @@ export default function StudentDocumentsPage() {
   const [uploadExpiresAt, setUploadExpiresAt] = useState("");
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgressMsg, setUploadProgressMsg] = useState("");
+
+  // Automated Failure Modal State
+  const [failureModalDoc, setFailureModalDoc] = useState<{
+    id: string;
+    fileName: string;
+    reason: string;
+  } | null>(null);
+
+  // Manual Review Confirmation Modal State
+  const [confirmationModalDoc, setConfirmationModalDoc] = useState<{
+    id: string;
+    fileName: string;
+  } | null>(null);
+
+  // Manual Review Success Modal State
+  const [successModalDoc, setSuccessModalDoc] = useState<{
+    fileName: string;
+  } | null>(null);
 
   // Re-upload Modal State
   const [reuploadTarget, setReuploadTarget] = useState<DocumentRecord | null>(null);
@@ -116,15 +138,23 @@ export default function StudentDocumentsPage() {
     const verified = documents.filter(
       (d) => d.verificationStatus === "AUTO_VERIFIED" || d.verificationStatus === "VERIFIED"
     ).length;
-    const needsReview = documents.filter((d) => d.verificationStatus === "NEEDS_REVIEW").length;
-    const actionRequired = documents.filter(
-      (d) => d.verificationStatus === "REUPLOAD_REQUIRED" || d.verificationStatus === "REJECTED"
+    const pendingReview = documents.filter(
+      (d) =>
+        d.verificationStatus === "MANUAL_REVIEW_REQUESTED" ||
+        d.verificationStatus === "UNDER_REVIEW" ||
+        d.verificationStatus === "NEEDS_REVIEW"
+    ).length;
+    const failedOrAction = documents.filter(
+      (d) =>
+        d.verificationStatus === "VERIFICATION_FAILED" ||
+        d.verificationStatus === "REUPLOAD_REQUIRED" ||
+        d.verificationStatus === "REJECTED"
     ).length;
     return {
       total: documents.length,
       verified,
-      needsReview,
-      actionRequired,
+      pendingReview,
+      actionRequired: failedOrAction,
     };
   }, [documents]);
 
@@ -146,7 +176,7 @@ export default function StudentDocumentsPage() {
       if (uploadExpiresAt) formData.append("expiresAt", uploadExpiresAt);
       if (user?.id) formData.append("userId", user.id);
 
-      setUploadProgressMsg("Running automated OCR classification & fuzzy credential matching...");
+      setUploadProgressMsg("Running automated OCR classification & institutional ID resolution...");
       const res = await fetch("/api/documents", {
         method: "POST",
         body: formData,
@@ -154,17 +184,24 @@ export default function StudentDocumentsPage() {
 
       const data = await res.json();
       if (res.ok && data.success) {
-        if (data.verificationResult?.status === "AUTO_VERIFIED") {
-          success(`Document automatically verified with ${data.verificationResult.confidenceScore}% confidence!`);
-        } else if (data.verificationResult?.status === "NEEDS_REVIEW") {
-          info("Document uploaded. Submitted to Verification Review queue for exception verification.");
-        } else {
-          info(data.message || "Document uploaded successfully.");
-        }
         setIsUploadOpen(false);
         setUploadFile(null);
         setUploadExpiresAt("");
-        fetchDocuments();
+        await fetchDocuments();
+
+        if (data.verificationResult?.status === "AUTO_VERIFIED") {
+          success("✓ Document Verified. Automatically verified with no manual process.");
+        } else if (data.verificationResult?.status === "VERIFICATION_FAILED") {
+          setFailureModalDoc({
+            id: data.document.id,
+            fileName: data.document.fileName,
+            reason: data.verificationResult.reason,
+          });
+        } else if (data.verificationResult?.status === "REUPLOAD_REQUIRED") {
+          toastError(data.verificationResult?.reason || "File unreadable. Please upload a clear replacement document.");
+        } else {
+          info(data.message || "Document uploaded successfully.");
+        }
       } else {
         toastError(data.error || "Failed to upload document.");
       }
@@ -176,7 +213,7 @@ export default function StudentDocumentsPage() {
     }
   };
 
-  // Handle Re-upload
+  // Handle Re-upload / Try Again
   const handleReuploadSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!reuploadTarget || !reuploadFile) {
@@ -196,10 +233,22 @@ export default function StudentDocumentsPage() {
 
       const data = await res.json();
       if (res.ok && data.success) {
-        success("Replacement document uploaded and re-verified!");
+        const targetId = reuploadTarget.id;
         setReuploadTarget(null);
         setReuploadFile(null);
-        fetchDocuments();
+        await fetchDocuments();
+
+        if (data.verificationResult?.status === "AUTO_VERIFIED") {
+          success("✓ Document Verified. Replacement automatically verified!");
+        } else if (data.verificationResult?.status === "VERIFICATION_FAILED") {
+          setFailureModalDoc({
+            id: data.document?.id || targetId,
+            fileName: data.document?.fileName || "Replacement document",
+            reason: data.verificationResult.reason,
+          });
+        } else {
+          info("Replacement document uploaded.");
+        }
       } else {
         toastError(data.error || "Failed to upload replacement document.");
       }
@@ -207,6 +256,29 @@ export default function StudentDocumentsPage() {
       toastError("Error connecting to server.");
     } finally {
       setIsReuploading(false);
+    }
+  };
+
+  // Handle Manual Review Confirmation
+  const handleConfirmManualReview = async () => {
+    if (!confirmationModalDoc) return;
+    try {
+      const res = await fetch(`/api/documents/${confirmationModalDoc.id}/manual-review`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reason: "Student requested manual review." }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        const docName = confirmationModalDoc.fileName;
+        setConfirmationModalDoc(null);
+        setSuccessModalDoc({ fileName: docName });
+        await fetchDocuments();
+      } else {
+        toastError(data.error || "Failed to submit manual review request.");
+      }
+    } catch {
+      toastError("Error submitting manual review request.");
     }
   };
 
@@ -254,49 +326,64 @@ export default function StudentDocumentsPage() {
         return (
           <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
             <Sparkles className="w-3 h-3" />
-            Auto-Verified
+            Verified automatically
           </span>
         );
       case "VERIFIED":
         return (
           <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/30">
             <CheckCircle2 className="w-3 h-3" />
-            Verified by Officer
+            {method === "AUTOMATED" ? "Verified automatically" : "Verified by StudentHub Verification Officer"}
           </span>
         );
+      case "VERIFICATION_FAILED":
+        return (
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/30">
+            <AlertTriangle className="w-3 h-3" />
+            Verification unsuccessful
+          </span>
+        );
+      case "MANUAL_REVIEW_REQUESTED":
       case "NEEDS_REVIEW":
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30">
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/30">
             <Clock className="w-3 h-3" />
-            Needs Review
+            Manual review requested
+          </span>
+        );
+      case "UNDER_REVIEW":
+        return (
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/30">
+            <Clock className="w-3 h-3" />
+            Under review
           </span>
         );
       case "PROCESSING":
         return (
           <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/30 animate-pulse">
             <RefreshCw className="w-3 h-3 animate-spin" />
-            Processing
+            Verifying your document...
           </span>
         );
       case "REUPLOAD_REQUIRED":
         return (
           <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/30">
             <AlertTriangle className="w-3 h-3" />
-            Re-upload Required
+            Please upload a new document
           </span>
         );
       case "REJECTED":
         return (
           <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/30">
             <XCircle className="w-3 h-3" />
-            Rejected
+            Document rejected
           </span>
         );
       case "EXPIRED":
         return (
           <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-500/10 text-slate-600 dark:text-slate-400 border border-slate-500/30">
             <Clock className="w-3 h-3" />
-            Expired
+            Expired credential
           </span>
         );
       default:
@@ -322,7 +409,7 @@ export default function StudentDocumentsPage() {
                 Document Management & Verification
               </h1>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Automated credential verification pipeline with instant verification and secure privacy governance.
+                Automated-first credential verification pipeline with student-initiated manual review fallback.
               </p>
             </div>
           </div>
@@ -357,7 +444,7 @@ export default function StudentDocumentsPage() {
 
         <Card className="p-4 bg-card border-border shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-muted-foreground">Verified Credentials</span>
+            <span className="text-xs font-semibold text-muted-foreground">Verified</span>
             <CheckCircle2 className="w-4 h-4 text-emerald-500" />
           </div>
           <div className="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-2">
@@ -368,24 +455,24 @@ export default function StudentDocumentsPage() {
 
         <Card className="p-4 bg-card border-border shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-muted-foreground">Under Review</span>
-            <Clock className="w-4 h-4 text-amber-500" />
+            <span className="text-xs font-semibold text-muted-foreground">In Review</span>
+            <Clock className="w-4 h-4 text-purple-500" />
           </div>
-          <div className="text-2xl font-black text-amber-600 dark:text-amber-400 mt-2">
-            {metrics.needsReview}
+          <div className="text-2xl font-black text-purple-600 dark:text-purple-400 mt-2">
+            {metrics.pendingReview}
           </div>
-          <p className="text-[11px] text-muted-foreground mt-0.5">In officer verification queue</p>
+          <p className="text-[11px] text-muted-foreground mt-0.5">Under officer review</p>
         </Card>
 
         <Card className="p-4 bg-card border-border shadow-sm">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-muted-foreground">Action Needed</span>
-            <AlertTriangle className="w-4 h-4 text-rose-500" />
+            <AlertTriangle className="w-4 h-4 text-amber-500" />
           </div>
-          <div className="text-2xl font-black text-rose-600 dark:text-rose-400 mt-2">
+          <div className="text-2xl font-black text-amber-600 dark:text-amber-400 mt-2">
             {metrics.actionRequired}
           </div>
-          <p className="text-[11px] text-muted-foreground mt-0.5">Re-upload or replacement required</p>
+          <p className="text-[11px] text-muted-foreground mt-0.5">Try again or request review</p>
         </Card>
       </div>
 
@@ -441,7 +528,9 @@ export default function StudentDocumentsPage() {
             <option value="ALL">All Statuses</option>
             <option value="AUTO_VERIFIED">Automatically Verified</option>
             <option value="VERIFIED">Verified by Officer</option>
-            <option value="NEEDS_REVIEW">Needs Review</option>
+            <option value="VERIFICATION_FAILED">Verification Unsuccessful</option>
+            <option value="MANUAL_REVIEW_REQUESTED">Manual Review Requested</option>
+            <option value="UNDER_REVIEW">Under Review</option>
             <option value="REUPLOAD_REQUIRED">Re-upload Required</option>
             <option value="REJECTED">Rejected</option>
           </select>
@@ -456,6 +545,7 @@ export default function StudentDocumentsPage() {
             const Icon = typeConfig.icon;
             const isActionNeeded =
               doc.verificationStatus === "REUPLOAD_REQUIRED" || doc.verificationStatus === "REJECTED";
+            const isFailed = doc.verificationStatus === "VERIFICATION_FAILED";
 
             return (
               <Card
@@ -463,6 +553,8 @@ export default function StudentDocumentsPage() {
                 className={`p-4 rounded-xl transition-all border flex flex-col justify-between ${
                   isActionNeeded
                     ? "border-rose-300 dark:border-rose-900/50 bg-rose-50/20 dark:bg-rose-950/10"
+                    : isFailed
+                    ? "border-amber-300 dark:border-amber-900/50 bg-amber-50/15 dark:bg-amber-950/10"
                     : doc.verificationStatus === "AUTO_VERIFIED"
                     ? "border-emerald-200 dark:border-emerald-900/40 bg-card"
                     : "border-border bg-card"
@@ -520,7 +612,7 @@ export default function StudentDocumentsPage() {
                               key={idx}
                               className="px-1.5 py-0.2 rounded text-[10px] font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
                             >
-                              ✓ {field.replace("_", " ")}
+                              ✓ {field.replace(/_/g, " ")}
                             </span>
                           ))}
                         </div>
@@ -528,30 +620,70 @@ export default function StudentDocumentsPage() {
                     </div>
                   )}
 
-                  {/* Callout Notice for Issues / Re-upload */}
-                  {(doc.reuploadReason || doc.rejectionReason || (doc.warnings && doc.warnings.length > 0)) && (
-                    <div
-                      className={`p-2.5 rounded-lg text-xs border ${
-                        isActionNeeded
-                          ? "bg-rose-100/60 dark:bg-rose-950/40 border-rose-300 dark:border-rose-900 text-rose-800 dark:text-rose-300"
-                          : "bg-amber-100/60 dark:bg-amber-950/40 border-amber-300 dark:border-amber-900 text-amber-800 dark:text-amber-300"
-                      }`}
-                    >
-                      <div className="flex items-start gap-1.5">
-                        <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                  {/* VERIFICATION FAILED CALLOUT WITH TRY AGAIN / MANUAL REVIEW */}
+                  {doc.verificationStatus === "VERIFICATION_FAILED" && (
+                    <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/25 text-xs space-y-2.5">
+                      <div className="flex items-start gap-1.5 text-amber-700 dark:text-amber-400 font-semibold text-[11px]">
+                        <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-amber-500" />
                         <div>
-                          <span className="font-bold">
-                            {doc.reuploadReason
-                              ? "Re-upload Notice:"
-                              : doc.rejectionReason
-                              ? "Rejection Reason:"
-                              : "Review Notice:"}
-                          </span>{" "}
-                          {doc.reuploadReason || doc.rejectionReason || doc.warnings?.[0]}
+                          <span className="font-bold block">Verification Unsuccessful:</span>
+                          <span className="font-normal text-muted-foreground">
+                            {doc.failureReason || doc.decisionReason || "Could not be automatically verified."}
+                          </span>
                         </div>
+                      </div>
+                      <div className="flex items-center gap-2 pt-1 border-t border-amber-500/20">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            setReuploadTarget(doc);
+                            setReuploadFile(null);
+                          }}
+                          className="h-8 text-xs flex-1 border-border text-foreground hover:bg-muted font-medium"
+                        >
+                          <RefreshCw className="w-3.5 h-3.5 mr-1 text-blue-500" />
+                          Try Again
+                        </Button>
+                        <Button
+                          size="sm"
+                          onClick={() => {
+                            setConfirmationModalDoc({ id: doc.id, fileName: doc.fileName });
+                          }}
+                          className="h-8 text-xs flex-1 bg-primary text-primary-foreground hover:bg-primary/90 font-medium"
+                        >
+                          <UserCheck className="w-3.5 h-3.5 mr-1" />
+                          Request Review
+                        </Button>
                       </div>
                     </div>
                   )}
+
+                  {/* Callout Notice for Issues / Re-upload */}
+                  {doc.verificationStatus !== "VERIFICATION_FAILED" &&
+                    (doc.reuploadReason || doc.rejectionReason || (doc.warnings && doc.warnings.length > 0)) && (
+                      <div
+                        className={`p-2.5 rounded-lg text-xs border ${
+                          isActionNeeded
+                            ? "bg-rose-100/60 dark:bg-rose-950/40 border-rose-300 dark:border-rose-900 text-rose-800 dark:text-rose-300"
+                            : "bg-amber-100/60 dark:bg-amber-950/40 border-amber-300 dark:border-amber-900 text-amber-800 dark:text-amber-300"
+                        }`}
+                      >
+                        <div className="flex items-start gap-1.5">
+                          <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                          <div>
+                            <span className="font-bold">
+                              {doc.reuploadReason
+                                ? "Re-upload Notice:"
+                                : doc.rejectionReason
+                                ? "Rejection Reason:"
+                                : "Review Notice:"}
+                            </span>{" "}
+                            {doc.reuploadReason || doc.rejectionReason || doc.warnings?.[0]}
+                          </div>
+                        </div>
+                      </div>
+                    )}
 
                   {/* Sensitive Badge Callout */}
                   {doc.isSensitive && (
@@ -838,6 +970,40 @@ export default function StudentDocumentsPage() {
           )}
         </div>
       </Modal>
+
+      {/* 1. AUTOMATED VERIFICATION FAILURE POPUP */}
+      <StudentVerificationFailureModal
+        isOpen={!!failureModalDoc}
+        onClose={() => setFailureModalDoc(null)}
+        documentName={failureModalDoc?.fileName}
+        failureReason={failureModalDoc?.reason}
+        onUploadAgain={() => {
+          setFailureModalDoc(null);
+          setIsUploadOpen(true);
+        }}
+        onRequestManualReview={() => {
+          if (failureModalDoc) {
+            const docToReview = { id: failureModalDoc.id, fileName: failureModalDoc.fileName };
+            setFailureModalDoc(null);
+            setConfirmationModalDoc(docToReview);
+          }
+        }}
+      />
+
+      {/* 2. MANUAL REVIEW CONFIRMATION POPUP */}
+      <ManualReviewConfirmationModal
+        isOpen={!!confirmationModalDoc}
+        onClose={() => setConfirmationModalDoc(null)}
+        documentName={confirmationModalDoc?.fileName}
+        onConfirm={handleConfirmManualReview}
+      />
+
+      {/* 3. MANUAL REVIEW SUCCESS POPUP */}
+      <ManualReviewSuccessModal
+        isOpen={!!successModalDoc}
+        onClose={() => setSuccessModalDoc(null)}
+        documentName={successModalDoc?.fileName}
+      />
     </div>
   );
 }

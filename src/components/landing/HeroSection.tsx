@@ -7,6 +7,7 @@ import { ArrowRight, CheckCircle2, Users, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { ShinyCTA } from "@/components/ui/ShinyCTA";
+import { AtmosphericBackground } from "@/components/ui/AtmosphericBackground";
 import { ProductPreview } from "./ProductPreview";
 
 export function HeroSection() {
@@ -14,19 +15,37 @@ export function HeroSection() {
 
   return (
     <section className="relative pt-32 pb-20 sm:pt-40 sm:pb-28 overflow-hidden bg-background text-foreground animate-fade-in">
-      {/* Background ambient lighting */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-blue-600/15 dark:bg-blue-500/10 blur-[130px] rounded-full pointer-events-none -z-10" />
-      <div className="absolute top-1/3 left-1/3 w-[400px] h-[250px] bg-blue-600/10 dark:bg-blue-500/10 blur-[120px] rounded-full pointer-events-none -z-10" />
+      {/* Sophisticated light mode atmospheric background */}
+      <AtmosphericBackground
+        variant="hero"
+        showPattern={true}
+        showNetwork={true}
+        showRings={true}
+        className="absolute inset-0 h-full -z-10"
+      />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-8">
+      {/* Floating Ambient Intelligence Signals (Desktop) */}
+      <div className="hidden lg:block absolute top-36 left-8 xl:left-16 animate-float-node pointer-events-none -z-10" aria-hidden="true">
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-card/75 backdrop-blur-md border border-blue-500/20 shadow-xs text-xs font-semibold text-muted-foreground">
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+          <span className="text-foreground">Live Evidence Ingestion</span>
+        </div>
+      </div>
+      <div className="hidden lg:block absolute top-48 right-8 xl:right-16 animate-float-node pointer-events-none -z-10 [animation-delay:2s]" aria-hidden="true">
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-card/75 backdrop-blur-md border border-blue-500/20 shadow-xs text-xs font-semibold text-muted-foreground">
+          <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+          <span className="text-foreground">Deterministic Career DNA</span>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 relative z-10">
         <div className="text-center max-w-3xl mx-auto flex flex-col items-center">
-          {/* Badge */}
+          {/* Subtle Glassmorphic Badge */}
           <div className="mb-6">
-            <Badge variant="gradient" size="lg" className="py-1.5 px-4 shadow-xs">
-              <span className="font-semibold text-xs sm:text-sm">
-                Next-Gen Career Platform for Students
-              </span>
-            </Badge>
+            <div className="inline-flex items-center gap-2 py-1.5 px-4 rounded-full bg-card/85 dark:bg-card/60 backdrop-blur-md border border-blue-500/25 shadow-xs text-xs sm:text-sm font-semibold text-blue-600 dark:text-blue-400">
+              <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+              <span>Next-Gen Career Platform for Students</span>
+            </div>
           </div>
 
           {/* Headline */}

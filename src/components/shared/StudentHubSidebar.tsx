@@ -44,6 +44,7 @@ import { useData } from "@/context/DataContext";
 import { useTheme } from "@/context/ThemeContext";
 import { UserRole } from "@/types";
 import { cn } from "@/lib/utils";
+import { isStudentVerified } from "@/lib/student-access-policy";
 
 export interface StudentHubSidebarProps {
   role?: UserRole;
@@ -160,6 +161,8 @@ export function StudentHubSidebar({
   const shortlistedStudentsCount = recruiterStudents.filter((s) => s.isShortlisted).length;
 
   // Role Navigation Configurations with Groups
+  const isVerified = isStudentVerified(user);
+
   const studentNavGroups: NavGroup[] = [
     {
       groupLabel: "RECRUITMENT PORTAL",
@@ -169,15 +172,19 @@ export function StudentHubSidebar({
           label: "Recruitment Drives",
           href: "/dashboard/drives",
           icon: Briefcase,
-          badge: "Open",
-          badgeVariant: "purple",
+          badge: isVerified ? "Open" : "🔒 Locked",
+          badgeVariant: isVerified ? "purple" : "rose",
         },
         {
           label: "My Applications",
           href: "/dashboard/applications",
           icon: GitPullRequest,
-          badge: activeApplicationsCount > 0 ? `${activeApplicationsCount} Active` : null,
-          badgeVariant: "blue",
+          badge: isVerified
+            ? activeApplicationsCount > 0
+              ? `${activeApplicationsCount} Active`
+              : null
+            : "🔒 Locked",
+          badgeVariant: isVerified ? "blue" : "rose",
         },
         {
           label: "Assessments",
@@ -198,6 +205,8 @@ export function StudentHubSidebar({
           label: "Internships",
           href: "/dashboard/internships",
           icon: Layers,
+          badge: isVerified ? null : "🔒 Locked",
+          badgeVariant: "rose",
         },
       ],
     },
@@ -208,12 +217,14 @@ export function StudentHubSidebar({
           label: "Career DNA",
           href: "/dashboard/career-dna",
           icon: Dna,
+          badge: isVerified ? null : "🔒 Locked",
+          badgeVariant: "rose",
         },
         {
           label: "Documents",
           href: "/dashboard/documents",
           icon: FileCheck,
-          badge: "Verified",
+          badge: isVerified ? "Verified" : "Allowed",
           badgeVariant: "emerald",
         },
         { label: "Communities", href: "/dashboard/communities", icon: Users2 },
@@ -236,7 +247,13 @@ export function StudentHubSidebar({
           badge: unreadNotificationsCount > 0 ? unreadNotificationsCount : null,
           badgeVariant: "rose",
         },
-        { label: "Connected Accounts", href: "/dashboard/connected-accounts", icon: Link2 },
+        {
+          label: "Connected Accounts",
+          href: "/dashboard/connected-accounts",
+          icon: Link2,
+          badge: isVerified ? null : "🔒 Locked",
+          badgeVariant: "rose",
+        },
       ],
     },
   ];
@@ -649,14 +666,14 @@ export function StudentHubSidebar({
                         className={cn(
                           "flex items-center gap-3 px-3 h-10 rounded-xl text-xs font-semibold transition-all group relative",
                           active
-                            ? "bg-foreground text-background shadow-xs font-bold"
+                            ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-md shadow-blue-500/25 font-bold dark:bg-foreground dark:text-background dark:shadow-none"
                             : "text-muted-foreground hover:text-foreground hover:bg-muted/70"
                         )}
                       >
                         <Icon
                           className={cn(
                             "w-4 h-4 shrink-0 transition-transform group-hover:scale-110",
-                            active ? "text-background" : "text-muted-foreground group-hover:text-foreground"
+                            active ? "text-white dark:text-background" : "text-muted-foreground group-hover:text-foreground"
                           )}
                         />
 
@@ -669,7 +686,7 @@ export function StudentHubSidebar({
                                 size="sm"
                                 className={cn(
                                   "text-[10px] px-1.5 py-0 h-4 font-bold shrink-0",
-                                  active && "bg-background text-foreground"
+                                  active && "bg-white/20 text-white border-transparent dark:bg-background dark:text-foreground"
                                 )}
                               >
                                 {item.badge}
@@ -831,7 +848,7 @@ export function StudentHubSidebar({
       {/* Desktop Sticky Sidebar */}
       <aside
         className={cn(
-          "hidden lg:block h-screen h-[100dvh] sticky top-0 border-r border-border/80 bg-card z-40 transition-all duration-200 shrink-0",
+          "hidden lg:block h-screen h-[100dvh] sticky top-0 border-r border-border/80 bg-card/95 backdrop-blur-md z-40 transition-all duration-200 shrink-0",
           isCollapsed ? "w-[72px]" : "w-[280px]",
           className
         )}
@@ -846,7 +863,7 @@ export function StudentHubSidebar({
             className="absolute inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
             onClick={onCloseMobileDrawer}
           />
-          <aside className="relative w-[280px] max-w-[85vw] h-full bg-card border-r border-border shadow-2xl z-10 animate-slide-right">
+          <aside className="relative w-[280px] max-w-[85vw] h-full bg-card/95 backdrop-blur-md border-r border-border shadow-2xl z-10 animate-slide-right">
             {sidebarContent}
           </aside>
         </div>

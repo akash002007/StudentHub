@@ -97,7 +97,12 @@ export async function POST(req: NextRequest) {
     const validation = DocumentVerificationService.validateDocument(buffer, fileName, claimedMime);
     if (!validation.valid) {
       return NextResponse.json(
-        { success: false, error: validation.error },
+        {
+          success: false,
+          error: validation.error,
+          isCorrupt: validation.isCorrupt,
+          status: "REUPLOAD_REQUIRED",
+        },
         { status: 400 }
       );
     }
@@ -117,12 +122,14 @@ export async function POST(req: NextRequest) {
       documentType
     );
 
-    // 4. Data Matching & Verification Evaluation
+    // 4. Data Matching & Identity Resolution Verification Evaluation
+    const allStudents = ServerStore.getAllStudentProfiles();
     const evaluation = DocumentVerificationService.evaluateVerification(
       documentType,
       classification,
       extractedData,
-      student
+      student,
+      allStudents
     );
 
     const nowStr = new Date().toISOString();
@@ -139,6 +146,7 @@ export async function POST(req: NextRequest) {
       studentName: student?.name || "Student Candidate",
       studentEmail: student?.email || "student@example.com",
       collegeName: student?.university || "Student University",
+      institutionalId: extractedData.institutionalId || student?.studentId || null,
       documentType,
       fileName,
       storageKey: `documents/${userId}/${docId}_${fileName}`,
@@ -149,9 +157,10 @@ export async function POST(req: NextRequest) {
       updatedAt: nowStr,
       verificationStatus: evaluation.status,
       verificationMethod: evaluation.status === "AUTO_VERIFIED" ? "AUTOMATED" : undefined,
-      verifiedBy: evaluation.status === "AUTO_VERIFIED" ? "Automated Verification Pipeline" : null,
+      verifiedBy: evaluation.status === "AUTO_VERIFIED" ? "Automatically verified" : null,
       verifiedAt: evaluation.status === "AUTO_VERIFIED" ? nowStr : null,
       reuploadReason: evaluation.status === "REUPLOAD_REQUIRED" ? evaluation.reason : null,
+      failureReason: evaluation.status === "VERIFICATION_FAILED" ? evaluation.reason : null,
       expiresAt,
       expiryStatus: expiresAt ? (new Date(expiresAt).getTime() < Date.now() ? "EXPIRED" : "VALID") : undefined,
       isSensitive,
@@ -190,20 +199,38 @@ export async function POST(req: NextRequest) {
       admin: "Automated Verification Pipeline",
       action: "STUDENT_SUBMITTED_VERIFICATION" as any,
       student: newDoc.studentName || userId,
-      previousStatus: "UPLOADED",
+      previousStatus: "PROCESSING",
       newStatus: evaluation.status,
       ipSessionRef: "127.0.0.1 / api_documents",
-      details: `Uploaded ${fileName} (${documentType}). Automated evaluation: ${evaluation.status} (Score: ${evaluation.confidenceScore}%). ${evaluation.reason}`,
+      details: `Uploaded ${fileName} (${documentType}). Automated decision: ${evaluation.status} (Score: ${evaluation.confidenceScore}%). ${evaluation.reason}`,
+    });
+
+    // Notify student about verification outcome
+    let notifTitle = "Document Uploaded";
+    let notifDesc = `Your ${documentType.replace(/_/g, " ")} has been received.`;
+    if (evaluation.status === "AUTO_VERIFIED") {
+      notifTitle = "Document Verified";
+      notifDesc = `Your ${documentType.replace(/_/g, " ")} has been automatically verified.`;
+    } else if (evaluation.status === "VERIFICATION_FAILED") {
+      notifTitle = "Verification Unsuccessful";
+      notifDesc = `Your ${documentType.replace(/_/g, " ")} could not be verified automatically: ${evaluation.reason}. You can upload another document or request manual review.`;
+    }
+
+    ServerStore.addStudentNotification(userId, {
+      type: "system",
+      title: notifTitle,
+      description: notifDesc,
+      actionUrl: "/dashboard/documents",
     });
 
     return NextResponse.json({
       success: true,
       message:
         evaluation.status === "AUTO_VERIFIED"
-          ? "Document automatically verified with high confidence!"
-          : evaluation.status === "NEEDS_REVIEW"
-          ? "Document uploaded. Forwarded to admin queue for verification review."
-          : "Document uploaded. Please review the verification feedback.",
+          ? "✓ Document Verified. Automatically verified with no manual process."
+          : evaluation.status === "REUPLOAD_REQUIRED"
+          ? "Corrupt or unreadable scan. Please upload a clear replacement document."
+          : "Verification unsuccessful. You can upload again or request manual review.",
       document: newDoc,
       verificationResult: evaluation,
     });

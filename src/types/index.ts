@@ -33,14 +33,27 @@ export type AccountStatus =
   | 'profile_complete'
   | 'onboarding_complete';
 
+export type AccountAccessStatus = 'ACTIVE' | 'RESTRICTED';
+
 export type VerificationType = 'university_email' | 'payment_receipt' | 'student_id_card';
 
 export type VerificationStatus =
   | 'not_submitted'
-  | 'pending'
+  | 'processing'
   | 'approved'
+  | 'verification_failed'
+  | 'manual_review_requested'
+  | 'under_review'
+  | 'pending'
   | 'rejected'
-  | 'needs_information';
+  | 'needs_information'
+  | 'UNVERIFIED'
+  | 'PROCESSING'
+  | 'VERIFIED'
+  | 'VERIFICATION_FAILED'
+  | 'MANUAL_REVIEW_REQUESTED'
+  | 'UNDER_REVIEW'
+  | 'REJECTED';
 
 export interface VerificationAttempt {
   attemptNumber: number;
@@ -85,14 +98,17 @@ export type DocumentType =
   | 'OTHER';
 
 export type DocumentStatus =
-  | 'UPLOADED'
   | 'PROCESSING'
   | 'AUTO_VERIFIED'
-  | 'NEEDS_REVIEW'
+  | 'VERIFICATION_FAILED'
+  | 'MANUAL_REVIEW_REQUESTED'
+  | 'UNDER_REVIEW'
   | 'VERIFIED'
   | 'REJECTED'
   | 'REUPLOAD_REQUIRED'
-  | 'EXPIRED';
+  | 'EXPIRED'
+  | 'NEEDS_REVIEW'
+  | 'UPLOADED';
 
 export type DocumentVerificationMethod =
   | 'AUTOMATED'
@@ -123,6 +139,7 @@ export interface DocumentRecord {
   studentName?: string;
   studentEmail?: string;
   collegeName?: string;
+  institutionalId?: string | null;
   documentType: DocumentType;
   fileName: string;
   storageKey: string;
@@ -138,6 +155,10 @@ export interface DocumentRecord {
   verifiedAt?: string | null;
   rejectionReason?: string | null;
   reuploadReason?: string | null;
+  failureReason?: string | null;
+  manualReviewRequestedAt?: string | null;
+  manualReviewRequestedBy?: string | null;
+  manualReviewReason?: string | null;
   expiresAt?: string | null;
   expiryStatus?: DocumentExpiryStatus;
   isSensitive: boolean;
@@ -175,6 +196,11 @@ export interface StudentProfile {
   headline: string;
   university: string;
   collegeId?: string;
+  studentId?: string;
+  enrollmentNumber?: string;
+  rollNumber?: string;
+  registrationNumber?: string;
+  institutionalId?: string;
   degree: string;
   branch: string; // Preserved for backward compatibility
   department?: string;
@@ -193,7 +219,9 @@ export interface StudentProfile {
   isUniversityEmail?: boolean;
   personalEmail?: string;
   accountStatus?: AccountStatus;
+  accountAccessStatus?: AccountAccessStatus;
   verificationStatus?: VerificationStatus;
+  rejectionReason?: string;
   onboardingCompleted?: boolean;
   verificationRequest?: StudentVerificationRequest | null;
   status: 'Open to Summer 2026 Internships' | 'Looking for Part-time' | 'Actively Interviewing' | 'Not Looking';

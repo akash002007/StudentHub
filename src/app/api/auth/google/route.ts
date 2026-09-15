@@ -8,7 +8,17 @@ import { UserRole } from "@/types";
 // Strict Zod schema validation
 const GoogleAuthSchema = z.object({
   credential: z.string().min(10, "Invalid Google credential token format"),
-  role: z.enum(["student", "recruiter", "admin"]).optional().default("student"),
+  role: z
+    .string()
+    .optional()
+    .default("student")
+    .transform((val) => {
+      const v = (val || "student").toLowerCase();
+      if (["college_admin", "college"].includes(v)) return "COLLEGE_ADMIN";
+      if (["recruiter", "company_admin"].includes(v)) return "recruiter";
+      if (["admin", "platform_admin", "super_admin"].includes(v)) return "admin";
+      return "student";
+    }),
   university: z.string().optional(),
   company: z.string().optional(),
 });

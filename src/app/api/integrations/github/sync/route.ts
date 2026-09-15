@@ -1,12 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getGitHubConnection } from "@/lib/server-store";
 import { enqueueGitHubSync, isGitHubSyncRunning } from "@/lib/github-sync-worker";
+import { requireVerifiedStudent } from "@/lib/student-access-server";
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json().catch(() => ({}));
     const searchParams = request.nextUrl.searchParams;
     const userId = body.userId || searchParams.get("userId") || "std_default_01";
+
+    const verificationCheck = await requireVerifiedStudent(request, userId);
+    if (!verificationCheck.authorized) {
+      return verificationCheck.errorResponse;
+    }
 
     const connection = getGitHubConnection(userId);
     if (!connection) {

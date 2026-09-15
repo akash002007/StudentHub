@@ -18,6 +18,8 @@ import {
   Layers,
   Code2,
   Dna,
+  ShieldCheck,
+  Lock,
 } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
 import { Avatar } from "@/components/ui/Avatar";
@@ -369,6 +371,53 @@ export function CandidateProfileModal({
               careerDNA={candidate.careerDNA}
               initialExpanded={false}
             />
+
+            {/* Verified Institutional Claims (Privacy-Preserving Claims View) */}
+            <div className="p-3.5 rounded-xl bg-gradient-to-r from-emerald-500/10 via-blue-500/5 to-card border border-emerald-500/20 space-y-2.5">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 font-bold text-xs">
+                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                  <span>Institutional Verification Claims</span>
+                </div>
+                <span className="text-[10px] font-semibold text-emerald-600 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+                  Authority Authenticated
+                </span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
+                <div className="flex items-center gap-2 p-2 rounded-lg bg-background/70 border border-border/60">
+                  <CheckCircle className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                  <div>
+                    <span className="font-semibold text-foreground">Identity Verified</span>
+                    <p className="text-[10px] text-muted-foreground">Institutional Registrar Authority</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 p-2 rounded-lg bg-background/70 border border-border/60">
+                  <CheckCircle className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                  <div>
+                    <span className="font-semibold text-foreground">Academic Enrollment Verified</span>
+                    <p className="text-[10px] text-muted-foreground">{candidate.university}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 p-2 rounded-lg bg-background/70 border border-border/60">
+                  <CheckCircle className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                  <div>
+                    <span className="font-semibold text-foreground">Degree Conferred / In-Progress</span>
+                    <p className="text-[10px] text-muted-foreground">{candidate.degree} (Class of {candidate.graduationYear})</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 p-2 rounded-lg bg-background/70 border border-border/60">
+                  <CheckCircle className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                  <div>
+                    <span className="font-semibold text-foreground">Internship Experience Verified</span>
+                    <p className="text-[10px] text-muted-foreground">Employer &amp; Institute Authenticated</p>
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center gap-1.5 pt-0.5 text-[10px] text-muted-foreground">
+                <Lock className="w-3 h-3 text-muted-foreground shrink-0" />
+                <span>Raw sensitive identity proofs (Government ID, College ID cards) are securely guarded under StudentHub RBAC.</span>
+              </div>
+            </div>
 
             {/* Bio */}
             <div>

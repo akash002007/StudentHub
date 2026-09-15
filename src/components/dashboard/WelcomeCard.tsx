@@ -59,12 +59,45 @@ export function WelcomeCard({
   return (
     <div
       className={cn(
-        "relative rounded-3xl p-6 sm:p-8 bg-gradient-to-br from-card via-card to-blue-950/25 border border-border/80 shadow-xs overflow-hidden",
+        "relative rounded-3xl p-6 sm:p-8 bg-gradient-to-br from-card via-card to-blue-50/50 dark:to-blue-950/25 border border-blue-500/20 shadow-[0_4px_24px_-4px_rgba(37,99,235,0.06),0_1px_3px_0_rgba(15,23,42,0.03)] overflow-hidden",
         className
       )}
     >
-      {/* Ambient background glow */}
-      <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl pointer-events-none -z-0" />
+      {/* Large Soft Blurred Atmospheric Blooms */}
+      <div className="absolute top-0 right-0 w-[500px] h-[350px] bg-gradient-to-bl from-blue-500/[0.09] via-cyan-400/[0.07] to-transparent rounded-full blur-[100px] pointer-events-none -z-0" />
+      <div className="absolute -bottom-10 left-1/4 w-[350px] h-[220px] bg-indigo-500/[0.04] rounded-full blur-[90px] pointer-events-none -z-0" />
+
+      {/* Subtle Abstract Career Intelligence Network Lines */}
+      <svg
+        className="absolute inset-0 w-full h-full pointer-events-none opacity-[0.25] dark:opacity-[0.18] -z-0"
+        xmlns="http://www.w3.org/2000/svg"
+        preserveAspectRatio="none"
+        viewBox="0 0 800 240"
+        fill="none"
+      >
+        <path
+          d="M200,200 C360,80 500,220 700,60"
+          stroke="url(#welcomeDnaGrad)"
+          strokeWidth="1.2"
+          strokeDasharray="4 6"
+        />
+        <path
+          d="M400,220 C540,140 640,180 780,110"
+          stroke="#06b6d4"
+          strokeWidth="0.8"
+          strokeOpacity="0.4"
+        />
+        <circle cx="360" cy="120" r="3" fill="#2563eb" fillOpacity="0.5" />
+        <circle cx="500" cy="180" r="2.5" fill="#06b6d4" fillOpacity="0.5" />
+        <circle cx="700" cy="60" r="3.5" fill="#3b82f6" fillOpacity="0.6" />
+        <defs>
+          <linearGradient id="welcomeDnaGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#2563eb" stopOpacity="0.0" />
+            <stop offset="50%" stopColor="#2563eb" stopOpacity="0.4" />
+            <stop offset="100%" stopColor="#06b6d4" stopOpacity="0.1" />
+          </linearGradient>
+        </defs>
+      </svg>
 
       <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
         {/* Left / Main Content */}

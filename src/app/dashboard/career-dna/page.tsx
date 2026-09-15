@@ -22,6 +22,7 @@ import {
   ArrowUpDown,
   X,
   CheckCircle2,
+  Lock,
 } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
@@ -29,8 +30,11 @@ import { Button } from "@/components/ui/Button";
 import { RoleGuard } from "@/components/dashboard/RoleGuard";
 import { UpdateResumeModal } from "@/components/career-dna/UpdateResumeModal";
 import { CertificatesList } from "@/components/career-dna/CertificatesList";
+import { CareerDNABanner } from "@/components/career-dna/CareerDNABanner";
+import { CareerDNALockOverlay } from "@/components/career-dna/CareerDNALockOverlay";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
+import { isStudentVerified } from "@/lib/student-access-policy";
 
 export default function CareerDNAPage() {
   const { user } = useAuth();
@@ -41,6 +45,7 @@ export default function CareerDNAPage() {
   const [activeResume, setActiveResume] = useState<any | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
   // Resume Modal State
   const [isResumeModalOpen, setIsResumeModalOpen] = useState(false);
@@ -52,12 +57,15 @@ export default function CareerDNAPage() {
 
   const fetchCareerDNA = async () => {
     if (!user) return;
+    setFetchError(null);
     try {
       const res = await fetch(`/api/student/career-dna?userId=${encodeURIComponent(user.id)}`);
       if (res.ok) {
         const data = await res.json();
         setCareerDNA(data.careerDNA);
         setGithubConn(data.githubConnection);
+      } else if (res.status >= 500) {
+        setFetchError("Career DNA is temporarily unavailable. Please check your verification status.");
       }
 
       const resRes = await fetch(`/api/resume/current?userId=${encodeURIComponent(user.id)}`);
@@ -67,6 +75,7 @@ export default function CareerDNAPage() {
       }
     } catch {
       console.warn("Failed to load Career DNA data");
+      // Graceful failure: do not crash the page, fallbacks will render
     } finally {
       setIsLoading(false);
     }
@@ -215,10 +224,13 @@ export default function CareerDNAPage() {
       return a.repositoryName.localeCompare(b.repositoryName);
     });
 
+  const isVerified = isStudentVerified(user);
+  const isLocked = !isVerified;
+
   return (
     <RoleGuard allowedRole="student">
       <div className="space-y-8 max-w-6xl">
-        {/* Header */}
+        {/* Header (sharp and unblurred) */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 text-xs font-semibold text-blue-600 dark:text-blue-400 mb-1">
@@ -234,22 +246,29 @@ export default function CareerDNAPage() {
           </div>
 
           <div className="flex items-center gap-3 shrink-0">
-            <Badge variant="purple" size="md" className="font-semibold text-xs py-1 px-3">
-              {isRefreshing ? (
-                <span className="flex items-center gap-1.5 animate-pulse">
-                  <RefreshCw className="w-3 h-3 animate-spin" /> Analyzing Career DNA...
-                </span>
-              ) : (
-                `Last analyzed ${careerDNA?.updatedAt ? new Date(careerDNA.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "Just now"}`
-              )}
-            </Badge>
+            {isLocked ? (
+              <Badge variant="rose" size="md" className="font-semibold text-xs py-1 px-3">
+                🔒 Verification Required
+              </Badge>
+            ) : (
+              <Badge variant="purple" size="md" className="font-semibold text-xs py-1 px-3">
+                {isRefreshing ? (
+                  <span className="flex items-center gap-1.5 animate-pulse">
+                    <RefreshCw className="w-3 h-3 animate-spin" /> Analyzing Career DNA...
+                  </span>
+                ) : (
+                  `Last analyzed ${careerDNA?.updatedAt ? new Date(careerDNA.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "Just now"}`
+                )}
+              </Badge>
+            )}
 
             <Button
               variant="outline"
               size="sm"
               onClick={handleRefreshDNA}
-              disabled={isRefreshing}
-              className="text-xs"
+              disabled={isRefreshing || isLocked}
+              title={isLocked ? "Student verification is required to recalculate" : undefined}
+              className={`text-xs ${isLocked ? "opacity-60 cursor-not-allowed" : ""}`}
             >
               <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${isRefreshing ? "animate-spin" : ""}`} />
               Recalculate
@@ -258,14 +277,52 @@ export default function CareerDNAPage() {
             <Button
               variant="primary"
               size="sm"
-              onClick={() => setIsResumeModalOpen(true)}
-              className="text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white"
+              onClick={() => !isLocked && setIsResumeModalOpen(true)}
+              disabled={isLocked}
+              title={isLocked ? "Student verification is required to update resume" : undefined}
+              className={`text-xs font-bold ${
+                isLocked
+                  ? "bg-blue-600/50 text-white/70 cursor-not-allowed"
+                  : "bg-blue-600 hover:bg-blue-700 text-white"
+              }`}
             >
               <FileText className="w-3.5 h-3.5 mr-1.5" />
               Update Resume
             </Button>
           </div>
         </div>
+
+        {/* Graceful fallback banner if API error occurred */}
+        {fetchError && (
+          <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-between gap-4 text-xs text-amber-700 dark:text-amber-300">
+            <div className="flex items-center gap-2.5">
+              <AlertTriangle className="w-4 h-4 shrink-0 text-amber-500" />
+              <span>{fetchError}</span>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={fetchCareerDNA}
+              className="text-xs h-7 px-2.5 border-amber-500/30 text-amber-700 dark:text-amber-300 shrink-0"
+            >
+              <RefreshCw className="w-3 h-3 mr-1" /> Retry
+            </Button>
+          </div>
+        )}
+
+        {/* Main Content Area: Visibly blurred and non-interactive when locked, with centered lock overlay (Sections 2, 3, 4, 6, 9) */}
+        <div className="relative rounded-3xl overflow-hidden">
+          <div
+            className={
+              isLocked
+                ? "filter blur-[8px] opacity-35 pointer-events-none select-none transition-all duration-300 space-y-8"
+                : "transition-all duration-300 space-y-8"
+            }
+            aria-hidden={isLocked}
+            tabIndex={isLocked ? -1 : undefined}
+          >
+            {/* 0. HERO DNA HELIX & LIVING CONSTELLATION GRAPH */}
+            <CareerDNABanner user={user} careerDNA={careerDNA} hideLockOverlay={true} />
 
         {/* 1. HERO OVERALL CAREER DNA SCORE */}
         <Card hoverEffect className="p-6 sm:p-8 border-blue-500/20 bg-gradient-to-br from-card via-card to-blue-950/20 space-y-6 shadow-xl relative overflow-hidden">
@@ -517,6 +574,11 @@ export default function CareerDNAPage() {
             ))}
           </div>
         </div>
+      </div>
+
+      {/* Centered Lock Overlay when account is restricted (Sections 2, 4, 5, 6) */}
+      {isLocked && <CareerDNALockOverlay className="rounded-3xl" />}
+    </div>
 
         {/* DETAILED EVIDENCE MODAL */}
         {isEvidenceModalOpen && (

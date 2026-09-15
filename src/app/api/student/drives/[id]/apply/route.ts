@@ -3,6 +3,7 @@ import { getAuthenticatedStudent } from "@/lib/supabase/server";
 import { submitStudentApplication } from "@/lib/recruitment-store";
 import { ServerStore } from "@/lib/server-store";
 import { defaultStudentUser } from "@/data/mock-users";
+import { requireVerifiedStudent } from "@/lib/student-access-server";
 
 export async function POST(
   request: NextRequest,
@@ -12,6 +13,12 @@ export async function POST(
     const auth = await getAuthenticatedStudent(request);
     if (!auth.student) {
       return NextResponse.json({ error: auth.error || "Unauthorized" }, { status: auth.status || 401 });
+    }
+
+    // Authoritative Verification Check
+    const verificationCheck = await requireVerifiedStudent(request, auth.student.id);
+    if (!verificationCheck.authorized) {
+      return verificationCheck.errorResponse;
     }
 
     const { id: driveId } = await params;

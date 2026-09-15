@@ -19,7 +19,7 @@ import { Avatar } from "@/components/ui/Avatar";
 
 export function ProductPreview() {
   return (
-    <div className="relative mx-auto max-w-5xl rounded-2xl sm:rounded-3xl p-2 sm:p-3 bg-gradient-to-b from-blue-500/20 via-border/50 to-transparent border border-border/80 shadow-2xl backdrop-blur-xl">
+    <div className="relative mx-auto max-w-5xl rounded-2xl sm:rounded-3xl p-2 sm:p-3 bg-gradient-to-b from-blue-500/15 via-border/40 to-card/50 dark:from-blue-500/20 dark:via-border/50 dark:to-transparent border border-border/80 shadow-[0_20px_50px_-12px_rgba(37,99,235,0.12),0_10px_20px_-6px_rgba(15,23,42,0.04)] dark:shadow-2xl backdrop-blur-xl">
       {/* Outer Shell */}
       <div className="rounded-xl sm:rounded-2xl bg-card border border-border overflow-hidden shadow-inner">
         {/* Browser Topbar / Window header */}

@@ -129,7 +129,7 @@ export function TopHeader({ onOpenMobileDrawer, title, subtitle }: TopHeaderProp
 
   return (
     <>
-      <header className="h-16 border-b border-border/80 bg-card/90 backdrop-blur-md sticky top-0 z-30 flex items-center justify-between gap-4 px-4 sm:px-6 lg:px-8 w-full">
+      <header className="h-16 border-b border-border/70 bg-card/85 backdrop-blur-xl sticky top-0 z-30 flex items-center justify-between gap-4 px-4 sm:px-6 lg:px-8 w-full shadow-[0_4px_20px_-4px_rgba(37,99,235,0.04)] dark:shadow-none">
         {/* Left: Mobile Menu Trigger + Global Search Trigger */}
         <div className="flex items-center gap-3 min-w-0">
           {onOpenMobileDrawer && (

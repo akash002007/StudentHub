@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   ShieldCheck,
   CheckCircle2,
@@ -9,10 +9,13 @@ import {
   FileText,
   User,
   Check,
+  Clock,
+  History,
+  Info,
 } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
-import { DocumentRecord } from "@/types";
+import { DocumentRecord, DocumentVerificationAttempt } from "@/types";
 
 interface DocumentComparisonModalProps {
   isOpen: boolean;
@@ -34,6 +37,36 @@ export function DocumentComparisonModal({
   const [actionType, setActionType] = useState<"NONE" | "REJECT" | "REUPLOAD">("NONE");
   const [reasonInput, setReasonInput] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [attempts, setAttempts] = useState<DocumentVerificationAttempt[]>([]);
+
+  // Automatically transition to UNDER_REVIEW when opened
+  useEffect(() => {
+    if (isOpen && document && document.verificationStatus === "MANUAL_REVIEW_REQUESTED") {
+      fetch(`/api/admin/documents/${document.id}/action`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "START_REVIEW" }),
+      }).catch(console.warn);
+    }
+  }, [isOpen, document]);
+
+  // Load complete verification attempts audit history
+  useEffect(() => {
+    if (isOpen && document?.id) {
+      if (document.attempts && document.attempts.length > 0) {
+        setAttempts(document.attempts);
+      } else {
+        fetch(`/api/documents/${document.id}`)
+          .then((res) => (res.ok ? res.json() : null))
+          .then((data) => {
+            if (data?.document?.attempts) {
+              setAttempts(data.document.attempts);
+            }
+          })
+          .catch(console.warn);
+      }
+    }
+  }, [isOpen, document]);
 
   if (!document) return null;
 
@@ -43,7 +76,7 @@ export function DocumentComparisonModal({
   const handleApproveSubmit = async () => {
     setIsSubmitting(true);
     try {
-      await onApprove(document, "Approved by administrator after comparative manual inspection.");
+      await onApprove(document, "Verified by StudentHub Verification Officer after manual comparative review.");
       onClose();
     } finally {
       setIsSubmitting(false);
@@ -73,7 +106,7 @@ export function DocumentComparisonModal({
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} maxWidth="2xl">
-      <div className="space-y-5">
+      <div className="space-y-5 text-left max-h-[85vh] overflow-y-auto pr-1">
         {/* Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-3 border-b border-border">
           <div className="flex items-center gap-2.5">
@@ -112,6 +145,17 @@ export function DocumentComparisonModal({
             Automated Multi-Factor Signals
           </span>
           <div className="flex flex-wrap items-center gap-2 text-xs">
+            <span
+              className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg font-semibold border ${
+                isFieldMatched("institutional_id")
+                  ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/30"
+                  : "bg-amber-500/10 text-amber-600 border-amber-500/30"
+              }`}
+            >
+              {isFieldMatched("institutional_id") ? <Check className="w-3.5 h-3.5" /> : <AlertTriangle className="w-3.5 h-3.5" />}
+              Institutional ID Anchor {isFieldMatched("institutional_id") ? "✓" : "⚠"}
+            </span>
+
             <span
               className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg font-semibold border ${
                 isFieldMatched("name")
@@ -155,11 +199,6 @@ export function DocumentComparisonModal({
               <Check className="w-3.5 h-3.5" />
               Graduation Year {isFieldMatched("graduation_year") ? "✓" : "—"}
             </span>
-
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg font-semibold bg-emerald-500/10 text-emerald-600 border border-emerald-500/30">
-              <Check className="w-3.5 h-3.5" />
-              Document Type Authentic ✓
-            </span>
           </div>
         </div>
 
@@ -175,32 +214,32 @@ export function DocumentComparisonModal({
               <span className="text-[10px] text-muted-foreground truncate max-w-[140px]">{document.fileName}</span>
             </div>
 
-            <div className="space-y-2 text-xs">
+            <div className="space-y-2.5 text-xs">
+              <div>
+                <span className="text-[11px] text-muted-foreground block">Extracted Institutional Identifier</span>
+                <span className="font-bold text-foreground font-mono text-xs">
+                  {extracted.institutionalId || extracted.rollNumber || extracted.registrationNumber || "Not detected"}
+                </span>
+              </div>
+
               <div>
                 <span className="text-[11px] text-muted-foreground block">Detected Recipient Name</span>
                 <span className="font-bold text-foreground">
-                  {extracted.studentName || "Alex Rivera (Partial OCR Match)"}
+                  {extracted.studentName || "Candidate Name (OCR Stream)"}
                 </span>
               </div>
 
               <div>
                 <span className="text-[11px] text-muted-foreground block">Detected Institution / University</span>
                 <span className="font-bold text-foreground">
-                  {extracted.institution || document.collegeName || "Stanford University"}
+                  {extracted.institution || document.collegeName || "Issuing University"}
                 </span>
               </div>
 
               <div>
                 <span className="text-[11px] text-muted-foreground block">Degree / Credential Award</span>
                 <span className="font-bold text-foreground">
-                  {extracted.degree || "Bachelor of Science in Computer Science"}
-                </span>
-              </div>
-
-              <div>
-                <span className="text-[11px] text-muted-foreground block">Graduation Year / Academic Session</span>
-                <span className="font-bold text-foreground">
-                  {extracted.graduationYear || "Class of 2026"}
+                  {extracted.degree || "Academic Degree"}
                 </span>
               </div>
 
@@ -232,7 +271,14 @@ export function DocumentComparisonModal({
               <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">System Verified</span>
             </div>
 
-            <div className="space-y-2 text-xs">
+            <div className="space-y-2.5 text-xs">
+              <div>
+                <span className="text-[11px] text-muted-foreground block">Registered Institutional ID</span>
+                <span className="font-bold text-foreground font-mono text-xs">
+                  {document.institutionalId || "CSE2024012"}
+                </span>
+              </div>
+
               <div>
                 <span className="text-[11px] text-muted-foreground block">Candidate Full Name</span>
                 <span className="font-bold text-foreground">{document.studentName || "Alex Rivera"}</span>
@@ -244,40 +290,58 @@ export function DocumentComparisonModal({
               </div>
 
               <div>
-                <span className="text-[11px] text-muted-foreground block">Degree Program</span>
-                <span className="font-bold text-foreground">B.S. in Computer Science</span>
-              </div>
-
-              <div>
-                <span className="text-[11px] text-muted-foreground block">Expected Graduation</span>
-                <span className="font-bold text-foreground">2026</span>
-              </div>
-
-              <div>
                 <span className="text-[11px] text-muted-foreground block">Account Email</span>
                 <span className="font-bold text-foreground">{document.studentEmail || "student@stanford.edu"}</span>
               </div>
 
               <div className="pt-2 border-t border-border flex items-center gap-2">
                 <ShieldCheck className="w-4 h-4 text-emerald-500" />
-                <span className="text-[11px] text-muted-foreground">Institutional identity active</span>
+                <span className="text-[11px] text-muted-foreground">Institutional identity anchor verified</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Warnings or Discrepancies */}
-        {document.warnings && document.warnings.length > 0 && (
-          <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/40 text-xs text-amber-800 dark:text-amber-300 space-y-1">
+        {/* Failure or Review Notice */}
+        {(document.decisionReason || document.failureReason || document.manualReviewReason) && (
+          <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/25 text-xs text-amber-900 dark:text-amber-200 space-y-1">
             <span className="font-bold flex items-center gap-1">
-              <AlertTriangle className="w-3.5 h-3.5" />
-              Automated Discrepancy Warnings:
+              <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
+              Automated Decision & Review Context:
             </span>
-            <ul className="list-disc list-inside space-y-0.5 pl-1 text-[11px]">
-              {document.warnings.map((w, idx) => (
-                <li key={idx}>{w}</li>
+            <p className="text-[11px] leading-relaxed">
+              {document.decisionReason || document.failureReason || document.manualReviewReason}
+            </p>
+          </div>
+        )}
+
+        {/* Verification Attempt Audit History */}
+        {attempts.length > 0 && (
+          <div className="p-3 rounded-xl bg-muted/40 border border-border space-y-2">
+            <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
+              <History className="w-3.5 h-3.5" />
+              Verification Attempt History ({attempts.length})
+            </span>
+            <div className="space-y-1.5 max-h-36 overflow-y-auto">
+              {attempts.map((att, idx) => (
+                <div
+                  key={att.id || idx}
+                  className="p-2 rounded-lg bg-background border border-border text-[11px] flex items-center justify-between"
+                >
+                  <div>
+                    <span className="font-semibold text-foreground">
+                      Attempt #{attempts.length - idx}: {att.verificationMethod}
+                    </span>
+                    <span className="text-muted-foreground ml-2">
+                      ({att.status}) — {att.reason}
+                    </span>
+                  </div>
+                  <span className="text-[10px] text-muted-foreground font-mono shrink-0 ml-2">
+                    {new Date(att.createdAt).toLocaleDateString()}
+                  </span>
+                </div>
               ))}
-            </ul>
+            </div>
           </div>
         )}
 

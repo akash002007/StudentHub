@@ -46,7 +46,7 @@ export function CareerDevSection() {
           {steps.map((step, idx) => (
             <div
               key={idx}
-              className="relative p-6 sm:p-8 rounded-2xl border border-border bg-card shadow-sm flex flex-col justify-between"
+              className="relative p-6 sm:p-8 rounded-2xl border border-border/80 bg-card shadow-[0_1px_3px_0_rgba(15,23,42,0.03),0_1px_2px_-1px_rgba(15,23,42,0.02)] hover:shadow-[0_12px_28px_-6px_rgba(37,99,235,0.08),0_8px_12px_-6px_rgba(15,23,42,0.03)] hover:-translate-y-1 hover:border-blue-500/35 transition-all duration-250 flex flex-col justify-between group"
             >
               <div>
                 <div className="flex items-center justify-between mb-6">

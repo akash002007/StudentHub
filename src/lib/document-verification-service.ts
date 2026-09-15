@@ -11,6 +11,7 @@ export interface FileValidationResult {
   error?: string;
   fileSizeBytes: number;
   mimeType: string;
+  isCorrupt?: boolean;
 }
 
 export interface DocumentClassificationResult {
@@ -22,12 +23,14 @@ export interface DocumentClassificationResult {
 
 export interface ExtractedDocumentFields {
   studentName?: string;
+  institutionalId?: string;
+  registrationNumber?: string;
+  rollNumber?: string;
   institution?: string;
   degree?: string;
   branch?: string;
   graduationYear?: number;
   cgpa?: string;
-  registrationNumber?: string;
   companyName?: string;
   internshipRole?: string;
   startDate?: string;
@@ -35,6 +38,16 @@ export interface ExtractedDocumentFields {
   idNumberMasked?: string;
   documentCategory?: string;
   rawTextPreview: string;
+  academicMarksFound?: boolean;
+}
+
+export interface IdentityResolutionResult {
+  resolvedStudent: StudentProfile | null;
+  isUniqueMatch: boolean;
+  isMismatch: boolean;
+  isAmbiguous: boolean;
+  extractedInstitutionalId?: string;
+  reason?: string;
 }
 
 export interface VerificationEvaluationResult {
@@ -62,6 +75,7 @@ export class DocumentVerificationService {
         error: "Uploaded document file is empty or corrupted.",
         fileSizeBytes: 0,
         mimeType: claimedMimeType,
+        isCorrupt: true,
       };
     }
 
@@ -94,8 +108,7 @@ export class DocumentVerificationService {
     if (!hasValidExt && !hasValidMime) {
       return {
         valid: false,
-        error:
-          "Unsupported file format. Please upload a PDF, PNG, JPG, or DOCX document.",
+        error: "Unsupported file format. Please upload a PDF, PNG, JPG, or DOCX document.",
         fileSizeBytes,
         mimeType: claimedMimeType,
       };
@@ -121,6 +134,18 @@ export class DocumentVerificationService {
         error: "Corrupted PDF structure detected. Please provide a valid PDF scan.",
         fileSizeBytes,
         mimeType: claimedMimeType,
+        isCorrupt: true,
+      };
+    }
+
+    // Minimum readable threshold
+    if (buffer.length < 32) {
+      return {
+        valid: false,
+        error: "File is truncated or corrupted.",
+        fileSizeBytes,
+        mimeType: claimedMimeType,
+        isCorrupt: true,
       };
     }
 
@@ -154,32 +179,92 @@ export class DocumentVerificationService {
     };
 
     // Keyword heuristics
-    if (text.includes("degree") || text.includes("bachelor") || text.includes("conferred") || text.includes("convocation") || text.includes("hereby certifies that")) {
-      typeScores.DEGREE_CERTIFICATE += 40;
+    if (
+      text.includes("degree") ||
+      text.includes("bachelor") ||
+      text.includes("conferred") ||
+      text.includes("convocation") ||
+      text.includes("hereby certifies that") ||
+      text.includes("provisional certificate") ||
+      text.includes("degree certificate")
+    ) {
+      typeScores.DEGREE_CERTIFICATE += 45;
     }
-    if (text.includes("statement of marks") || text.includes("transcript") || text.includes("semester") || text.includes("cgpa") || text.includes("sgpa") || text.includes("credit points")) {
-      typeScores.MARKSHEET += 45;
+
+    if (
+      text.includes("statement of marks") ||
+      text.includes("transcript") ||
+      text.includes("semester") ||
+      text.includes("cgpa") ||
+      text.includes("sgpa") ||
+      text.includes("credit points") ||
+      text.includes("marksheet") ||
+      text.includes("gradesheet")
+    ) {
+      typeScores.MARKSHEET += 50;
     }
-    if (text.includes("internship") || text.includes("intern") || text.includes("has successfully completed his/her internship") || text.includes("period of training")) {
-      typeScores.INTERNSHIP_CERTIFICATE += 45;
+
+    if (
+      text.includes("internship") ||
+      text.includes("intern") ||
+      text.includes("has successfully completed his/her internship") ||
+      text.includes("period of training") ||
+      text.includes("internship certificate") ||
+      text.includes("letter of completion")
+    ) {
+      typeScores.INTERNSHIP_CERTIFICATE += 50;
     }
-    if (text.includes("passport") || text.includes("driving licence") || text.includes("identity card") || text.includes("aadhaar") || text.includes("republic of") || text.includes("government of")) {
+
+    if (
+      text.includes("passport") ||
+      text.includes("driving licence") ||
+      text.includes("driving license") ||
+      text.includes("identity card") ||
+      text.includes("aadhaar") ||
+      text.includes("republic of") ||
+      text.includes("government of") ||
+      text.includes("national identity")
+    ) {
       typeScores.GOVERNMENT_ID += 45;
     }
-    if (text.includes("student identity card") || text.includes("student id") || text.includes("campus card") || text.includes("valid up to") || text.includes("student card")) {
-      typeScores.COLLEGE_ID += 40;
+
+    if (
+      text.includes("student identity card") ||
+      text.includes("student id card") ||
+      text.includes("campus card") ||
+      text.includes("valid up to") ||
+      text.includes("student card") ||
+      text.includes("college id")
+    ) {
+      typeScores.COLLEGE_ID += 45;
     }
-    if (text.includes("curriculum vitae") || text.includes("resume") || text.includes("summary of experience") || (text.includes("skills") && text.includes("experience") && text.includes("projects"))) {
-      typeScores.RESUME += 45;
+
+    if (
+      text.includes("curriculum vitae") ||
+      text.includes("resume") ||
+      text.includes("summary of experience") ||
+      (text.includes("skills") && text.includes("experience") && text.includes("projects") && text.includes("education"))
+    ) {
+      typeScores.RESUME += 50;
+    }
+
+    if (
+      text.includes("hackathon") ||
+      text.includes("project certificate") ||
+      text.includes("certificate of achievement") ||
+      text.includes("capstone project")
+    ) {
+      typeScores.PROJECT_CERTIFICATE += 40;
     }
 
     // Filename clues
-    if (fname.includes("degree") || fname.includes("convocation")) typeScores.DEGREE_CERTIFICATE += 20;
-    if (fname.includes("marksheet") || fname.includes("transcript") || fname.includes("grade")) typeScores.MARKSHEET += 20;
-    if (fname.includes("internship") || fname.includes("offer_letter") || fname.includes("training")) typeScores.INTERNSHIP_CERTIFICATE += 20;
-    if (fname.includes("passport") || fname.includes("license") || fname.includes("id_proof") || fname.includes("gov")) typeScores.GOVERNMENT_ID += 20;
-    if (fname.includes("college_id") || fname.includes("student_id") || fname.includes("campus")) typeScores.COLLEGE_ID += 20;
-    if (fname.includes("resume") || fname.includes("cv")) typeScores.RESUME += 20;
+    if (fname.includes("degree") || fname.includes("convocation")) typeScores.DEGREE_CERTIFICATE += 25;
+    if (fname.includes("marksheet") || fname.includes("transcript") || fname.includes("grade")) typeScores.MARKSHEET += 25;
+    if (fname.includes("internship") || fname.includes("training") || fname.includes("intern")) typeScores.INTERNSHIP_CERTIFICATE += 25;
+    if (fname.includes("passport") || fname.includes("license") || fname.includes("gov") || fname.includes("aadhaar")) typeScores.GOVERNMENT_ID += 25;
+    if (fname.includes("college_id") || fname.includes("student_id") || fname.includes("campus_id")) typeScores.COLLEGE_ID += 25;
+    if (fname.includes("resume") || fname.includes("cv")) typeScores.RESUME += 25;
+    if (fname.includes("project") || fname.includes("hackathon")) typeScores.PROJECT_CERTIFICATE += 25;
 
     // Detect highest scoring type
     let detectedType: DocumentType = claimedType;
@@ -202,8 +287,13 @@ export class DocumentVerificationService {
     const matchesClaimed = detectedType === claimedType;
     let reason: string | undefined;
 
-    if (!matchesClaimed && highestScore >= 35) {
-      reason = `Uploaded document appears inconsistent with selected document type (${claimedType.replace("_", " ")} vs detected ${detectedType.replace("_", " ")}).`;
+    // If candidate claimed DEGREE_CERTIFICATE but uploaded MARKSHEET
+    if (!matchesClaimed && claimedType === "DEGREE_CERTIFICATE" && detectedType === "MARKSHEET") {
+      reason = "Uploaded document does not appear to be a Degree Certificate. It appears to be an Academic Marksheet.";
+    } else if (!matchesClaimed && highestScore >= 35) {
+      const claimedLabel = claimedType.replace(/_/g, " ").toLowerCase();
+      const detectedLabel = detectedType.replace(/_/g, " ").toLowerCase();
+      reason = `Uploaded document does not appear to be a ${claimedLabel}. Detected content suggests a ${detectedLabel}.`;
     }
 
     return {
@@ -221,23 +311,25 @@ export class DocumentVerificationService {
     buffer: Buffer,
     fileName: string,
     mimeType: string,
-    docType: DocumentType
+    docType: DocumentType,
+    fallbackText?: string
   ): Promise<ExtractedDocumentFields> {
-    let rawText = "";
+    let rawText = fallbackText || "";
 
-    try {
-      if (fileName.toLowerCase().endsWith(".pdf") || mimeType.includes("pdf")) {
-        rawText = await ResumeParser.extractText(buffer, fileName, mimeType);
-      } else {
+    if (!rawText) {
+      try {
+        if (fileName.toLowerCase().endsWith(".pdf") || mimeType.includes("pdf")) {
+          rawText = await ResumeParser.extractText(buffer, fileName, mimeType);
+        } else {
+          const rawContent = buffer.toString("utf-8");
+          const readableStrings = rawContent.match(/[A-Za-z0-9\s.,;:\-@#/()]{4,}/g) || [];
+          rawText = readableStrings.join(" ").replace(/\s+/g, " ").trim();
+        }
+      } catch {
         const rawContent = buffer.toString("utf-8");
         const readableStrings = rawContent.match(/[A-Za-z0-9\s.,;:\-@#/()]{4,}/g) || [];
         rawText = readableStrings.join(" ").replace(/\s+/g, " ").trim();
       }
-    } catch {
-      // Fallback text preview extraction
-      const rawContent = buffer.toString("utf-8");
-      const readableStrings = rawContent.match(/[A-Za-z0-9\s.,;:\-@#/()]{4,}/g) || [];
-      rawText = readableStrings.join(" ").replace(/\s+/g, " ").trim();
     }
 
     if (!rawText || rawText.length < 10) {
@@ -248,57 +340,89 @@ export class DocumentVerificationService {
       rawTextPreview: rawText.slice(0, 300),
     };
 
-    // Extract student name
-    const nameMatch =
-      rawText.match(/(?:certif(?:y|ies)\s+that|name\s*[:\-]|candidate\s*[:\-]|issued to|this is to certify that)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+){1,3})/i) ||
-      rawText.match(/([A-Z][a-z]+(?:\s+[A-Z][a-z]+){1,2})/);
-    if (nameMatch) {
-      extracted.studentName = nameMatch[1].trim();
+    // 1. Extract institutional identifier (student ID / roll number / enrollment number / registration number)
+    // Common patterns: "Student ID: CSE2024012", "Roll No: 2024CSE027", "Enrollment No: EN10293", "ID: 2024CSE001"
+    const idPatterns = [
+      /(?:student\s*(?:id|number|no|#)|enrollment\s*(?:no|number|#)?|university\s*roll\s*(?:no|number|#)?|roll\s*(?:no|number|#)?|reg(?:istration)?\s*(?:no|number|#)?|institutional\s*id)\s*[:\-#]\s*([A-Za-z0-9\-_/]{4,20})/i,
+      /\b(?:student\s*id|id|no)\s*[:\-]\s*([A-Za-z0-9\-_]{4,18})\b/i,
+      /\b([A-Z]{2,5}[0-9]{4,8})\b/, // e.g. CSE2024012, STU202401
+      /\b([0-9]{4}[A-Z]{2,5}[0-9]{3,6})\b/, // e.g. 2024CSE001, 2024CSE027
+    ];
+
+    for (const pattern of idPatterns) {
+      const match = rawText.match(pattern);
+      if (match && match[1]) {
+        const candidateId = match[1].trim();
+        // Ignore generic words
+        if (!["number", "certificate", "university", "technology", "college", "degree", "identity", "card", "entity"].includes(candidateId.toLowerCase())) {
+          extracted.institutionalId = candidateId;
+          extracted.registrationNumber = candidateId;
+          extracted.rollNumber = candidateId;
+          break;
+        }
+      }
     }
 
-    // Extract institution / University
+    // 2. Extract student name
+    const ignoredNameWords = ["Bachelor", "Master", "Degree", "Technology", "Engineering", "Institute", "University", "College", "Department", "Statement", "Certificate"];
+    const namePrefixMatch =
+      rawText.match(/(?:certif(?:y|ies)\s+that|name\s*[:\-]|candidate\s*[:\-]|conferred\s+(?:up)?on|conferred\s+to|awarded\s+to|presented\s+to|issued\s+to|this\s+is\s+to\s+certify\s+that|student\s*name\s*[:\-])\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+){1,3})/i);
+
+    if (namePrefixMatch) {
+      extracted.studentName = namePrefixMatch[1].trim();
+    } else {
+      const genericMatches = rawText.match(/([A-Z][a-z]+(?:\s+[A-Z][a-z]+){1,2})/g);
+      if (genericMatches) {
+        const validCand = genericMatches.find((c) => {
+          const parts = c.split(/\s+/);
+          return !parts.some((p) => ignoredNameWords.includes(p));
+        });
+        if (validCand) {
+          extracted.studentName = validCand.trim();
+        }
+      }
+    }
+
+    // 3. Extract institution / University
     const uniMatch =
-      rawText.match(/(?:university|institute of technology|college of engineering|stanford university|berkeley|mit|niat|iit|nit)[\w\s&]+/i) ||
-      rawText.match(/institution\s*[:\-]\s*([A-Za-z\s&]+)/i);
+      rawText.match(/(?:university|institute of technology|college of engineering|stanford university|berkeley|mit|niat|iit|nit|abc\s*(?:college|institute|university))[\w\s&,]+/i) ||
+      rawText.match(/institution\s*[:\-]\s*([A-Za-z\s&,]+)/i);
     if (uniMatch) {
       extracted.institution = uniMatch[0].trim();
     }
 
-    // Extract Degree
+    // 4. Extract Degree
     const degreeMatch = rawText.match(
-      /(?:bachelor of technology|bachelor of science|master of science|b\.tech|b\.s\.|m\.s\.|bachelor of engineering|b\.e\.)(?:[\w\s&]+)?/i
+      /(?:bachelor of technology|bachelor of science|master of science|b\.tech|b\s+tech|b\.s\.|m\.s\.|bachelor of engineering|b\.e\.)(?:[\w\s&]+)?/i
     );
     if (degreeMatch) {
       extracted.degree = degreeMatch[0].trim();
     }
 
-    // Extract Branch / Specialization
+    // 5. Extract Branch / Specialization
     const branchMatch = rawText.match(
-      /(?:computer science|electrical engineering|information technology|mechanical engineering|artificial intelligence|data science)/i
+      /(?:computer science(?: & engineering)?|electrical engineering|information technology|mechanical engineering|artificial intelligence|data science|cse|ece|it)/i
     );
     if (branchMatch) {
       extracted.branch = branchMatch[0].trim();
     }
 
-    // Extract Graduation Year or Dates
+    // 6. Extract Graduation Year or Dates
     const yearMatch = rawText.match(/\b(202[0-9]|201[5-9])\b/);
     if (yearMatch) {
       extracted.graduationYear = parseInt(yearMatch[1], 10);
     }
 
-    // Extract CGPA / Marks
-    const cgpaMatch = rawText.match(/(?:cgpa|gpa|marks)\s*[:\-]?\s*([0-9]\.[0-9]{1,2}(?:\s*\/\s*10(?:\.0)?)?)/i);
+    // 7. Extract CGPA / Marks / Academic indicators
+    const cgpaMatch = rawText.match(/(?:cgpa|gpa|marks|grade)\s*[:\-]?\s*([0-9]\.[0-9]{1,2}(?:\s*\/\s*10(?:\.0)?)?|[0-9]{2,3}(?:\s*\/\s*[0-9]{2,3})?%?)/i);
     if (cgpaMatch) {
       extracted.cgpa = cgpaMatch[1].trim();
+      extracted.academicMarksFound = true;
+    } else if (rawText.toLowerCase().includes("marks") || rawText.toLowerCase().includes("grade") || rawText.toLowerCase().includes("credits")) {
+      extracted.academicMarksFound = true;
     }
 
-    // Extract Registration / Roll Number
-    const regMatch = rawText.match(/(?:roll|reg(?:istration)?|id)\s*(?:no|num|number)?\s*[:\-]?\s*([A-Z0-9\-_]{6,15})/i);
-    if (regMatch) {
-      extracted.registrationNumber = regMatch[1].trim();
-    }
-
-    // Extract Company Name for Internship
+    // 8. Extract Company Name for Internship
     if (docType === "INTERNSHIP_CERTIFICATE") {
       const compMatch = rawText.match(/(?:at|with|organization|company)\s*[:\-]?\s*([A-Z][A-Za-z0-9\s&]{2,30})/i);
       if (compMatch) {
@@ -306,164 +430,395 @@ export class DocumentVerificationService {
       }
     }
 
+    // 9. Mask Government ID if present
+    if (docType === "GOVERNMENT_ID") {
+      const idMatch = rawText.match(/[A-Z0-9]{8,16}/);
+      if (idMatch) {
+        const rawId = idMatch[0];
+        extracted.idNumberMasked = `XXXX-XXXX-${rawId.slice(-4)}`;
+      }
+    }
+
     return extracted;
   }
 
   /**
-   * STEP 4 & 5: Data Matching, Scoring & Confidence Calculation
+   * STEP 4: Student Identity Resolution
+   * Implements Section 11, 12, 13, 14:
+   * - Unique institutional identifiers as primary anchor
+   * - Detects wrong-student document uploads
+   * - Detects duplicate same-name candidates and avoids ambiguous auto-verification
+   */
+  static resolveStudentIdentity(
+    extracted: ExtractedDocumentFields,
+    currentStudent: StudentProfile | null,
+    allStudents: StudentProfile[] = []
+  ): IdentityResolutionResult {
+    const extractedId = extracted.institutionalId || extracted.registrationNumber || extracted.rollNumber;
+    const normExtractedId = extractedId ? this.normalizeId(extractedId) : "";
+
+    // Candidate search in StudentHub pool
+    const currentStudentId = currentStudent?.studentId || currentStudent?.enrollmentNumber || currentStudent?.rollNumber || currentStudent?.institutionalId;
+    const normCurrentStudentId = currentStudentId ? this.normalizeId(currentStudentId) : "";
+
+    // 1. UNIQUE IDENTIFIER RULE (Section 12 & 13)
+    if (normExtractedId) {
+      // Find all students in StudentHub matching the extracted ID
+      const matchingStudents = allStudents.filter((s) => {
+        const sId = s.studentId || s.enrollmentNumber || s.rollNumber || s.institutionalId;
+        return sId && this.normalizeId(sId) === normExtractedId;
+      });
+
+      if (matchingStudents.length === 1) {
+        const matched = matchingStudents[0];
+        // Check if matched student is the logged-in student
+        if (currentStudent && matched.id !== currentStudent.id) {
+          // WRONG STUDENT DOCUMENT PROTECTION (Section 13)
+          return {
+            resolvedStudent: matched,
+            isUniqueMatch: false,
+            isMismatch: true,
+            isAmbiguous: false,
+            extractedInstitutionalId: extractedId,
+            reason: "The institutional identifier on this document does not match your StudentHub profile.",
+          };
+        }
+
+        return {
+          resolvedStudent: matched,
+          isUniqueMatch: true,
+          isMismatch: false,
+          isAmbiguous: false,
+          extractedInstitutionalId: extractedId,
+        };
+      }
+
+      // If document contains an ID that directly mismatches the current student's registered ID
+      if (normCurrentStudentId && normExtractedId !== normCurrentStudentId) {
+        return {
+          resolvedStudent: null,
+          isUniqueMatch: false,
+          isMismatch: true,
+          isAmbiguous: false,
+          extractedInstitutionalId: extractedId,
+          reason: "The institutional identifier on this document does not match your StudentHub profile.",
+        };
+      }
+
+      // If ID matches current student directly
+      if (normCurrentStudentId && normExtractedId === normCurrentStudentId) {
+        return {
+          resolvedStudent: currentStudent,
+          isUniqueMatch: true,
+          isMismatch: false,
+          isAmbiguous: false,
+          extractedInstitutionalId: extractedId,
+        };
+      }
+    }
+
+    // 2. MISSING UNIQUE IDENTIFIER RULE (Section 14)
+    // If document does NOT contain unique ID, check if multiple students match Name + College + Program
+    if (!normExtractedId && currentStudent) {
+      const studentName = currentStudent.name.toLowerCase().trim();
+      const studentUni = (currentStudent.university || "").toLowerCase().trim();
+
+      const sameNameStudents = allStudents.filter((s) => {
+        const nameMatch = this.compareNames(s.name.toLowerCase().trim(), (extracted.studentName || "").toLowerCase().trim(), extracted.rawTextPreview.toLowerCase()) !== "MISMATCH";
+        const uniMatch = this.compareInstitutions(s.university.toLowerCase().trim(), extracted.institution?.toLowerCase(), extracted.rawTextPreview.toLowerCase());
+        return nameMatch && uniMatch;
+      });
+
+      if (sameNameStudents.length > 1) {
+        return {
+          resolvedStudent: null,
+          isUniqueMatch: false,
+          isMismatch: false,
+          isAmbiguous: true,
+          reason: "We couldn't uniquely identify the student from this document.",
+        };
+      }
+    }
+
+    return {
+      resolvedStudent: currentStudent,
+      isUniqueMatch: Boolean(normExtractedId && normCurrentStudentId && normExtractedId === normCurrentStudentId),
+      isMismatch: false,
+      isAmbiguous: false,
+      extractedInstitutionalId: extractedId,
+    };
+  }
+
+  /**
+   * STEP 5: Verification Decision Engine with Document-Specific Rules
    */
   static evaluateVerification(
     claimedType: DocumentType,
     classification: DocumentClassificationResult,
     extracted: ExtractedDocumentFields,
-    student: StudentProfile | null
+    student: StudentProfile | null,
+    allStudents: StudentProfile[] = []
   ): VerificationEvaluationResult {
     const matchedFields: string[] = [];
     const failedChecks: string[] = [];
     const warnings: string[] = [];
 
-    // Check classification consistency
+    // 1. Classification Consistency Check
     if (!classification.matchesClaimed) {
       failedChecks.push("document_type_consistency");
-      warnings.push(
+      const failReason =
         classification.reason ||
-          `Document type mismatch: selected ${claimedType}, but detected as ${classification.detectedType}.`
-      );
+        `Uploaded document does not appear to be a ${claimedType.replace(/_/g, " ")}.`;
+
+      return {
+        status: "VERIFICATION_FAILED",
+        confidenceScore: 35,
+        extractedData: extracted,
+        matchedFields,
+        failedChecks,
+        warnings: [failReason],
+        reason: failReason,
+      };
     } else {
       matchedFields.push("document_type");
     }
 
-    let score = 0;
-    const maxScore = 100;
-
-    // If classification failed severely
-    if (!classification.matchesClaimed && classification.confidence > 70) {
-      return {
-        status: "NEEDS_REVIEW",
-        confidenceScore: 48,
-        extractedData: extracted,
-        matchedFields,
-        failedChecks,
-        warnings,
-        reason:
-          classification.reason ||
-          "Uploaded document appears inconsistent with selected document type.",
-      };
-    }
-
-    // Base score from classification
-    score += classification.matchesClaimed ? 20 : 0;
-
+    // 2. Missing Profile Guard
     if (!student) {
       return {
-        status: "NEEDS_REVIEW",
-        confidenceScore: 60,
+        status: "VERIFICATION_FAILED",
+        confidenceScore: 40,
         extractedData: extracted,
         matchedFields,
-        failedChecks,
+        failedChecks: ["missing_profile"],
         warnings: ["Student profile not available for comparative verification."],
-        reason: "Manual review required: profile missing.",
+        reason: "Student profile not available for comparative verification.",
       };
     }
 
-    // 1. Name Matching with Normalization & Fuzzy Check
+    // 3. Identity Resolution (Unique Institutional Identifier Check)
+    const identity = this.resolveStudentIdentity(extracted, student, allStudents);
+
+    if (identity.isMismatch) {
+      failedChecks.push("institutional_id_mismatch");
+      return {
+        status: "VERIFICATION_FAILED",
+        confidenceScore: 30,
+        extractedData: extracted,
+        matchedFields,
+        failedChecks,
+        warnings: [identity.reason || "Institutional identifier does not match your StudentHub profile."],
+        reason: identity.reason || "The institutional identifier on this document does not match your StudentHub profile.",
+      };
+    }
+
+    if (identity.isAmbiguous) {
+      failedChecks.push("multiple_possible_students");
+      return {
+        status: "VERIFICATION_FAILED",
+        confidenceScore: 50,
+        extractedData: extracted,
+        matchedFields,
+        failedChecks,
+        warnings: ["Multiple candidates share matching profile data; unique ID missing."],
+        reason: identity.reason || "We couldn't uniquely identify the student from this document.",
+      };
+    }
+
+    if (identity.isUniqueMatch) {
+      matchedFields.push("institutional_id");
+    }
+
+    // 4. Name Matching (Normalization & Fuzzy Tolerance)
     const profileName = (student.name || "").trim().toLowerCase();
     const extractedName = (extracted.studentName || "").trim().toLowerCase();
+    const nameMatchResult = this.compareNames(profileName, extractedName, extracted.rawTextPreview.toLowerCase());
 
-    if (profileName && (extractedName || extracted.rawTextPreview)) {
-      const nameMatchResult = this.compareNames(profileName, extractedName, extracted.rawTextPreview.toLowerCase());
-      if (nameMatchResult === "EXACT") {
-        matchedFields.push("name");
-        score += 35;
-      } else if (nameMatchResult === "FUZZY") {
-        matchedFields.push("name");
-        score += 25;
-        warnings.push("Minor spelling or OCR variation in candidate name.");
-      } else {
-        failedChecks.push("name");
-        warnings.push(`Possible name mismatch detected: Profile '${student.name}' vs Document '${extracted.studentName || "Unresolved"}'`);
-      }
+    if (nameMatchResult === "EXACT") {
+      matchedFields.push("name");
+    } else if (nameMatchResult === "FUZZY") {
+      matchedFields.push("name");
+      warnings.push("Minor spelling or OCR variation in candidate name.");
     } else {
       failedChecks.push("name");
-      warnings.push("Could not clearly detect student full name in document text stream.");
+      warnings.push(`Candidate name on document does not match profile (${student.name}).`);
     }
 
-    // 2. Institution / University Matching
+    // 5. Institution / University Matching
     const profileUni = (student.university || "").trim().toLowerCase();
-    if (profileUni && (extracted.institution || extracted.rawTextPreview)) {
-      const uniMatched = this.compareInstitutions(profileUni, extracted.institution?.toLowerCase(), extracted.rawTextPreview.toLowerCase());
-      if (uniMatched) {
-        matchedFields.push("institution");
-        score += 20;
-      } else {
-        warnings.push(`Institution name could not be automatically confirmed against ${student.university}`);
-      }
+    const uniMatched = this.compareInstitutions(profileUni, extracted.institution?.toLowerCase(), extracted.rawTextPreview.toLowerCase());
+    if (uniMatched) {
+      matchedFields.push("institution");
+    } else if (profileUni) {
+      warnings.push(`Institution name could not be automatically confirmed against ${student.university}.`);
     }
 
-    // 3. Degree / Branch Matching
+    // 6. Degree / Program Matching
     const profileDegree = (student.degree || "").trim().toLowerCase();
-    if (profileDegree && (extracted.degree || extracted.rawTextPreview)) {
-      const textLower = extracted.rawTextPreview.toLowerCase();
-      if (textLower.includes("bachelor") || textLower.includes("b.tech") || textLower.includes("b.s.") || textLower.includes("engineering")) {
-        matchedFields.push("degree");
-        score += 15;
-      }
+    const degreeMatched = this.compareDegrees(profileDegree, extracted.degree?.toLowerCase(), extracted.rawTextPreview.toLowerCase());
+    if (degreeMatched) {
+      matchedFields.push("degree");
     }
 
-    // 4. Graduation Year Matching
+    // 7. Graduation Year Check
     if (student.graduationYear && extracted.graduationYear) {
       if (Math.abs(student.graduationYear - extracted.graduationYear) <= 1) {
         matchedFields.push("graduation_year");
-        score += 10;
       }
-    } else {
-      // Small bonus if structure is authentic
-      score += 5;
     }
 
-    // Final score clamp
+    // 8. DOCUMENT-SPECIFIC VERIFICATION RULES (Section 19)
+    let docSpecificRulesPassed = true;
+    let docRuleFailureReason = "";
+
+    switch (claimedType) {
+      case "COLLEGE_ID":
+        // College ID MUST have institution and student identity. Strong identifier: student ID.
+        if (!matchedFields.includes("institution")) {
+          docSpecificRulesPassed = false;
+          docRuleFailureReason = "College / Institution could not be confirmed on College ID.";
+          failedChecks.push("college_id_institution_missing");
+        }
+        if (!identity.isUniqueMatch && !extracted.institutionalId) {
+          docSpecificRulesPassed = false;
+          docRuleFailureReason = "Student ID could not be clearly detected from the document.";
+          failedChecks.push("student_id_missing");
+        }
+        break;
+
+      case "DEGREE_CERTIFICATE":
+        // Required: student identity, degree, institution
+        if (!matchedFields.includes("name")) {
+          docSpecificRulesPassed = false;
+          docRuleFailureReason = "Recipient name on Degree Certificate does not match candidate profile.";
+          failedChecks.push("degree_name_mismatch");
+        }
+        if (!matchedFields.includes("institution")) {
+          docSpecificRulesPassed = false;
+          docRuleFailureReason = "Conferring university could not be confirmed on Degree Certificate.";
+          failedChecks.push("degree_institution_mismatch");
+        }
+        if (!matchedFields.includes("degree")) {
+          docSpecificRulesPassed = false;
+          docRuleFailureReason = "Degree title on certificate does not match registered academic program.";
+          failedChecks.push("degree_title_mismatch");
+        }
+        break;
+
+      case "MARKSHEET":
+        // Required: student identity, institution, academic info (marks/cgpa/grades)
+        if (!matchedFields.includes("institution")) {
+          docSpecificRulesPassed = false;
+          docRuleFailureReason = "Issuing institution could not be confirmed on Marksheet.";
+          failedChecks.push("marksheet_institution_mismatch");
+        }
+        if (!extracted.academicMarksFound && !extracted.cgpa) {
+          docSpecificRulesPassed = false;
+          docRuleFailureReason = "Academic performance / semester marks could not be extracted from Marksheet.";
+          failedChecks.push("academic_marks_missing");
+        }
+        break;
+
+      case "INTERNSHIP_CERTIFICATE":
+        // Required: student identity, organization/company
+        if (!matchedFields.includes("name")) {
+          docSpecificRulesPassed = false;
+          docRuleFailureReason = "Recipient name on Internship Certificate does not match candidate profile.";
+          failedChecks.push("internship_name_mismatch");
+        }
+        if (!extracted.companyName && !extracted.rawTextPreview.toLowerCase().includes("intern")) {
+          docSpecificRulesPassed = false;
+          docRuleFailureReason = "Host organization or internship role could not be verified on certificate.";
+          failedChecks.push("internship_organization_missing");
+        }
+        break;
+
+      case "GOVERNMENT_ID":
+        // Required: student identity
+        if (!matchedFields.includes("name")) {
+          docSpecificRulesPassed = false;
+          docRuleFailureReason = "Identity name on Government ID does not match StudentHub profile.";
+          failedChecks.push("govid_name_mismatch");
+        }
+        break;
+
+      case "RESUME":
+        // Required: student identity
+        if (!matchedFields.includes("name")) {
+          docSpecificRulesPassed = false;
+          docRuleFailureReason = "Candidate name on Resume does not match StudentHub profile.";
+          failedChecks.push("resume_name_mismatch");
+        }
+        break;
+
+      default:
+        break;
+    }
+
+    // 9. Calculate Composite Confidence Score
+    let score = 0;
+    score += matchedFields.includes("document_type") ? 20 : 0;
+    score += matchedFields.includes("institutional_id") ? 35 : 0;
+    score += matchedFields.includes("name") ? 25 : 0;
+    score += matchedFields.includes("institution") ? 10 : 0;
+    score += matchedFields.includes("degree") ? 10 : 0;
+
     const confidenceScore = Math.min(Math.max(score, 20), 99);
 
-    // STEP 6: Verification Decision
-    let status: DocumentStatus = "NEEDS_REVIEW";
-    let reason = "Automated verification completed successfully.";
-
-    if (confidenceScore >= 80 && failedChecks.length === 0) {
-      status = "AUTO_VERIFIED";
-      reason = "Verified automatically with high multi-factor confidence.";
-    } else if (confidenceScore < 40 || (failedChecks.includes("name") && !classification.matchesClaimed)) {
-      status = "REUPLOAD_REQUIRED";
-      reason = "Document could not be recognized. Please upload a clear, legible scan.";
-    } else {
-      status = "NEEDS_REVIEW";
-      reason = warnings.length > 0 ? warnings[0] : "Document requires review by an administrator or verification officer.";
+    // 10. Verification Outcome Decision (Section 20 & 21)
+    // Automated verification is default if required rules passed and confidence is strong
+    if (docSpecificRulesPassed && failedChecks.length === 0 && confidenceScore >= 75) {
+      return {
+        status: "AUTO_VERIFIED",
+        confidenceScore,
+        extractedData: extracted,
+        matchedFields,
+        failedChecks: [],
+        warnings,
+        reason: "Document verified automatically with multi-factor institutional confidence.",
+      };
     }
 
+    // Unsuccessful verification -> VERIFICATION_FAILED
+    const failureReason =
+      docRuleFailureReason ||
+      (warnings.length > 0 ? warnings[0] : "Automated verification could not confidently verify the document.");
+
     return {
-      status,
+      status: "VERIFICATION_FAILED",
       confidenceScore,
       extractedData: extracted,
       matchedFields,
-      failedChecks,
+      failedChecks: failedChecks.length > 0 ? failedChecks : ["verification_confidence_threshold"],
       warnings,
-      reason,
+      reason: failureReason,
     };
   }
 
   /**
-   * Helper: Normalized & fuzzy name comparison
+   * Helper: Normalized Identifier string
    */
-  private static compareNames(
+  static normalizeId(id: string): string {
+    return id.toUpperCase().replace(/[^A-Z0-9]/g, "").trim();
+  }
+
+  /**
+   * Helper: Normalized & fuzzy name comparison (Section 16)
+   */
+  static compareNames(
     profileName: string,
     extractedName: string,
     rawText: string
   ): "EXACT" | "FUZZY" | "MISMATCH" {
-    if (rawText.includes(profileName)) return "EXACT";
-    if (extractedName && extractedName === profileName) return "EXACT";
+    const cleanProf = profileName.toLowerCase().replace(/[^a-z\s]/g, " ").replace(/\s+/g, " ").trim();
+    const cleanExt = extractedName.toLowerCase().replace(/[^a-z\s]/g, " ").replace(/\s+/g, " ").trim();
+    const cleanRaw = rawText.toLowerCase();
 
-    // Strip middle names and honorifics
-    const profileTokens = profileName.split(/\s+/).filter((t) => t.length > 1);
-    const extractedTokens = extractedName ? extractedName.split(/\s+/).filter((t) => t.length > 1) : [];
+    if (cleanRaw.includes(cleanProf)) return "EXACT";
+    if (cleanExt && cleanExt === cleanProf) return "EXACT";
+
+    const profileTokens = cleanProf.split(/\s+/).filter((t) => t.length > 1);
+    const extractedTokens = cleanExt ? cleanExt.split(/\s+/).filter((t) => t.length > 1) : [];
 
     if (profileTokens.length > 0 && extractedTokens.length > 0) {
       const matchCount = profileTokens.filter((token) => extractedTokens.includes(token)).length;
@@ -472,43 +827,95 @@ export class DocumentVerificationService {
       }
     }
 
-    // Check if both first and last names exist anywhere in the raw text
     const firstName = profileTokens[0];
     const lastName = profileTokens[profileTokens.length - 1];
-    if (rawText.includes(firstName) && rawText.includes(lastName)) {
+    if (firstName && lastName && cleanRaw.includes(firstName) && cleanRaw.includes(lastName)) {
       return "FUZZY";
     }
 
-    // Check Levenshtein distance for OCR typos (e.g., 'Rahul Sharrna' vs 'Rahul Sharma')
-    if (extractedName && this.levenshtein(profileName, extractedName) <= 2) {
+    // Levenshtein distance check for OCR typos (e.g., 'Rahul Sharrna' vs 'Rahul Sharma')
+    if (cleanExt && this.levenshtein(cleanProf, cleanExt) <= 2) {
       return "FUZZY";
+    }
+
+    // Check if any sliding window in cleanRaw fuzzy-matches profileName (e.g. OCR typos in raw text)
+    const rawWords = cleanRaw.replace(/[^a-z\s]/g, " ").split(/\s+/).filter((w) => w.length > 1);
+    for (let i = 0; i < rawWords.length - 1; i++) {
+      const candidatePhrase = `${rawWords[i]} ${rawWords[i + 1]}`;
+      if (this.levenshtein(cleanProf, candidatePhrase) <= 2) {
+        return "FUZZY";
+      }
     }
 
     return "MISMATCH";
   }
 
   /**
-   * Helper: Institutional name comparison
+   * Helper: Institutional name comparison (Section 17)
    */
-  private static compareInstitutions(
+  static compareInstitutions(
     profileUni: string,
     extractedUni: string | undefined,
     rawText: string
   ): boolean {
-    if (rawText.includes(profileUni)) return true;
-    if (extractedUni && extractedUni.includes(profileUni)) return true;
+    const normProf = profileUni.toLowerCase().replace(/[^a-z0-9\s]/g, " ").replace(/\s+/g, " ").trim();
+    const normExt = (extractedUni || "").toLowerCase().replace(/[^a-z0-9\s]/g, " ").replace(/\s+/g, " ").trim();
+    const normRaw = rawText.toLowerCase();
 
-    // Acronym / keyword check
-    const acronyms: Record<string, string[]> = {
+    if (normRaw.includes(normProf)) return true;
+    if (normExt && normExt.includes(normProf)) return true;
+
+    // Canonical acronyms & institutional alias registry
+    const aliases: Record<string, string[]> = {
       "stanford university": ["stanford", "stan"],
       "university of california, berkeley": ["berkeley", "ucb", "cal"],
       "massachusetts institute of technology": ["mit"],
       "carnegie mellon university": ["cmu", "carnegie mellon"],
       "national institute of applied technology": ["niat"],
+      "abc institute of technology": ["abc institute", "abc college", "abc inst. of tech", "abc university"],
+      "indian institute of technology": ["iit"],
+      "national institute of technology": ["nit"],
     };
 
-    const aliases = acronyms[profileUni] || [];
-    return aliases.some((alias) => rawText.includes(alias));
+    for (const [canonical, terms] of Object.entries(aliases)) {
+      if (normProf.includes(canonical) || terms.some((t) => normProf.includes(t))) {
+        if (terms.some((t) => normRaw.includes(t) || normExt.includes(t))) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
+  /**
+   * Helper: Degree & academic program normalization (Section 18)
+   */
+  static compareDegrees(
+    profileDegree: string,
+    extractedDegree: string | undefined,
+    rawText: string
+  ): boolean {
+    const textLower = rawText.toLowerCase();
+    const extLower = (extractedDegree || "").toLowerCase();
+    const profLower = profileDegree.toLowerCase();
+
+    // Normalization table
+    const degreeFamilies: Record<string, string[]> = {
+      "bachelor of technology": ["b.tech", "b tech", "b.tech.", "bachelor of technology", "b.e.", "bachelor of engineering"],
+      "bachelor of science": ["b.s.", "b.sc", "bachelor of science", "bs"],
+      "master of science": ["m.s.", "m.sc", "master of science", "ms"],
+    };
+
+    for (const [, variants] of Object.entries(degreeFamilies)) {
+      const isProfInFamily = variants.some((v) => profLower.includes(v));
+      if (isProfInFamily) {
+        const isDocInFamily = variants.some((v) => textLower.includes(v) || extLower.includes(v));
+        if (isDocInFamily) return true;
+      }
+    }
+
+    return textLower.includes(profLower) || extLower.includes(profLower);
   }
 
   /**

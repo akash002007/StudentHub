@@ -10,11 +10,11 @@ export function CtaSection() {
   return (
     <section className="py-20 sm:py-28 relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-8">
-        <div className="relative rounded-3xl p-8 sm:p-14 bg-gradient-to-br from-blue-700 to-blue-800 via-card to-blue-900/20 border border-blue-500/30 shadow-2xl text-center flex flex-col items-center overflow-hidden">
+        <div className="relative rounded-3xl p-8 sm:p-14 bg-gradient-to-br from-blue-600/[0.06] via-card to-cyan-500/[0.04] dark:from-blue-700 dark:via-card dark:to-blue-900/20 border border-blue-500/25 dark:border-blue-500/30 shadow-[0_16px_40px_-12px_rgba(37,99,235,0.08)] dark:shadow-2xl text-center flex flex-col items-center overflow-hidden">
           {/* Ambient Glow */}
-          <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-96 h-48 bg-blue-500/20 blur-[100px] rounded-full pointer-events-none" />
+          <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-96 h-48 bg-blue-500/[0.12] dark:bg-blue-500/20 blur-[100px] rounded-full pointer-events-none" />
 
-          <div className="w-12 h-12 rounded-2xl bg-blue-500/20 text-blue-400 flex items-center justify-center mb-6">
+          <div className="w-12 h-12 rounded-2xl bg-blue-500/10 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 border border-blue-500/20 flex items-center justify-center mb-6">
             <ShieldCheck className="w-6 h-6" />
           </div>
 

@@ -46,7 +46,10 @@ const initialFilters: VerificationFiltersState = {
 interface VerificationMetrics {
   totalDocuments: number;
   autoVerifiedCount: number;
-  needsReviewCount: number;
+  verificationFailedCount: number;
+  manualReviewRequestedCount: number;
+  underReviewCount: number;
+  verifiedCount: number;
   rejectedCount: number;
   reuploadCount: number;
   expiredCount: number;
@@ -65,9 +68,12 @@ export default function VerificationCenterPage() {
   const [metrics, setMetrics] = useState<VerificationMetrics>({
     totalDocuments: 2481,
     autoVerifiedCount: 2132,
-    needsReviewCount: 247,
-    rejectedCount: 102,
-    reuploadCount: 45,
+    verificationFailedCount: 65,
+    manualReviewRequestedCount: 42,
+    underReviewCount: 15,
+    verifiedCount: 2190,
+    rejectedCount: 48,
+    reuploadCount: 30,
     expiredCount: 12,
     automationRate: 85.9,
   });
@@ -281,11 +287,11 @@ export default function VerificationCenterPage() {
         </div>
       </div>
 
-      {/* OPERATIONAL KPI METRICS SUMMARY (Section 15 Requirement) */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+      {/* OPERATIONAL KPI METRICS SUMMARY (Automated First + Manual Review Lifecycle) */}
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
         <Card className="p-3.5 bg-card border-border shadow-sm">
           <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider block">
-            Total Documents
+            Total Docs
           </span>
           <div className="text-2xl font-black text-foreground mt-1">{metrics.totalDocuments}</div>
           <span className="text-[10px] text-muted-foreground">Across all students</span>
@@ -302,21 +308,47 @@ export default function VerificationCenterPage() {
             {metrics.autoVerifiedCount}
           </div>
           <span className="text-[10px] text-emerald-600/80 dark:text-emerald-400/80 font-bold">
-            Automation Rate: {metrics.automationRate}%
+            Rate: {metrics.automationRate}%
           </span>
         </Card>
 
         <Card className="p-3.5 bg-card border-amber-500/20 shadow-sm">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider">
-              Needs Review
+              Manual Queue
             </span>
             <Clock className="w-3.5 h-3.5 text-amber-500" />
           </div>
           <div className="text-2xl font-black text-amber-600 dark:text-amber-400 mt-1">
-            {metrics.needsReviewCount}
+            {metrics.manualReviewRequestedCount}
           </div>
-          <span className="text-[10px] text-muted-foreground">In exception review queue</span>
+          <span className="text-[10px] text-amber-600/80 font-medium">Pending officer review</span>
+        </Card>
+
+        <Card className="p-3.5 bg-card border-indigo-500/20 shadow-sm">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">
+              Under Review
+            </span>
+            <Eye className="w-3.5 h-3.5 text-indigo-500" />
+          </div>
+          <div className="text-2xl font-black text-indigo-600 dark:text-indigo-400 mt-1">
+            {metrics.underReviewCount}
+          </div>
+          <span className="text-[10px] text-muted-foreground">In active evaluation</span>
+        </Card>
+
+        <Card className="p-3.5 bg-card border-orange-500/20 shadow-sm">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-bold text-orange-600 dark:text-orange-400 uppercase tracking-wider">
+              Failed Auto
+            </span>
+            <AlertTriangle className="w-3.5 h-3.5 text-orange-500" />
+          </div>
+          <div className="text-2xl font-black text-orange-600 dark:text-orange-400 mt-1">
+            {metrics.verificationFailedCount}
+          </div>
+          <span className="text-[10px] text-muted-foreground">Awaiting student action</span>
         </Card>
 
         <Card className="p-3.5 bg-card border-rose-500/20 shadow-sm">
@@ -335,23 +367,12 @@ export default function VerificationCenterPage() {
         <Card className="p-3.5 bg-card border-border shadow-sm">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-              Re-upload Requests
+              Re-uploads
             </span>
-            <AlertTriangle className="w-3.5 h-3.5 text-amber-500" />
+            <RefreshCw className="w-3.5 h-3.5 text-amber-500" />
           </div>
           <div className="text-2xl font-black text-foreground mt-1">{metrics.reuploadCount}</div>
-          <span className="text-[10px] text-muted-foreground">Awaiting replacement</span>
-        </Card>
-
-        <Card className="p-3.5 bg-card border-border shadow-sm">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-              Expired Documents
-            </span>
-            <Clock className="w-3.5 h-3.5 text-slate-400" />
-          </div>
-          <div className="text-2xl font-black text-foreground mt-1">{metrics.expiredCount}</div>
-          <span className="text-[10px] text-muted-foreground">Require renewal</span>
+          <span className="text-[10px] text-muted-foreground">Awaiting file re-submission</span>
         </Card>
       </div>
 
@@ -425,11 +446,13 @@ export default function VerificationCenterPage() {
                 className="h-9 px-3 rounded-lg text-xs font-medium bg-background border border-border text-foreground focus:outline-none focus:ring-1 focus:ring-blue-500"
               >
                 <option value="ALL">All Verification Statuses</option>
-                <option value="NEEDS_REVIEW">Needs Review (Queue)</option>
-                <option value="AUTO_VERIFIED">Auto-Verified</option>
+                <option value="MANUAL_REVIEW_REQUESTED">Pending Manual Review ({metrics.manualReviewRequestedCount})</option>
+                <option value="UNDER_REVIEW">Under Review ({metrics.underReviewCount})</option>
+                <option value="AUTO_VERIFIED">Auto-Verified ({metrics.autoVerifiedCount})</option>
                 <option value="VERIFIED">Verified by Officer</option>
-                <option value="REUPLOAD_REQUIRED">Re-upload Required</option>
-                <option value="REJECTED">Rejected</option>
+                <option value="VERIFICATION_FAILED">Verification Failed ({metrics.verificationFailedCount})</option>
+                <option value="REUPLOAD_REQUIRED">Re-upload Required ({metrics.reuploadCount})</option>
+                <option value="REJECTED">Rejected ({metrics.rejectedCount})</option>
               </select>
             </div>
           </div>
@@ -456,7 +479,35 @@ export default function VerificationCenterPage() {
                       <tr key={doc.id} className="hover:bg-muted/20 transition-colors">
                         <td className="py-3 px-4">
                           <div className="font-bold text-foreground">{doc.studentName || doc.userId}</div>
-                          <div className="text-[11px] text-muted-foreground">{doc.collegeName || "Stanford University"}</div>
+                          <div className="text-[11px] text-muted-foreground flex items-center gap-1.5 flex-wrap">
+                            <span>{doc.collegeName || "Stanford University"}</span>
+                            {doc.institutionalId && (
+                              <span className="font-mono px-1 py-0.2 rounded bg-muted text-[10px] text-foreground font-semibold border border-border">
+                                ID: {doc.institutionalId}
+                              </span>
+                            )}
+                          </div>
+                          {(() => {
+                            const isVerifiedDoc =
+                              doc.verificationStatus === "VERIFIED" ||
+                              doc.verificationStatus === "AUTO_VERIFIED";
+                            return (
+                              <div className="mt-1 flex items-center gap-1.5">
+                                <span
+                                  className={`text-[9px] font-black uppercase px-1.5 py-0.5 rounded tracking-wider ${
+                                    isVerifiedDoc
+                                      ? "bg-emerald-500/10 text-emerald-600 border border-emerald-500/30"
+                                      : "bg-rose-500/10 text-rose-600 border border-rose-500/30"
+                                  }`}
+                                >
+                                  Access: {isVerifiedDoc ? "ACTIVE" : "RESTRICTED"}
+                                </span>
+                                <span className="text-[10px] text-muted-foreground">
+                                  {isVerifiedDoc ? "Features Unlocked" : "🔒 Locked"}
+                                </span>
+                              </div>
+                            );
+                          })()}
                         </td>
 
                         <td className="py-3 px-4">
@@ -529,13 +580,25 @@ export default function VerificationCenterPage() {
                             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-blue-500/10 text-blue-600 border border-blue-500/30">
                               <CheckCircle2 className="w-3 h-3" /> Verified
                             </span>
-                          ) : doc.verificationStatus === "NEEDS_REVIEW" ? (
+                          ) : doc.verificationStatus === "MANUAL_REVIEW_REQUESTED" || doc.verificationStatus === "NEEDS_REVIEW" ? (
                             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/10 text-amber-600 border border-amber-500/30">
-                              <Clock className="w-3 h-3" /> Needs Review
+                              <Clock className="w-3 h-3" /> Manual Review
+                            </span>
+                          ) : doc.verificationStatus === "UNDER_REVIEW" ? (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-indigo-500/10 text-indigo-600 border border-indigo-500/30">
+                              <Eye className="w-3 h-3" /> Under Review
+                            </span>
+                          ) : doc.verificationStatus === "VERIFICATION_FAILED" ? (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-orange-500/10 text-orange-600 border border-orange-500/30">
+                              <AlertTriangle className="w-3 h-3" /> Failed Auto
                             </span>
                           ) : doc.verificationStatus === "REUPLOAD_REQUIRED" ? (
                             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-rose-500/10 text-rose-600 border border-rose-500/30">
-                              <AlertTriangle className="w-3 h-3" /> Re-upload
+                              <RefreshCw className="w-3 h-3" /> Re-upload
+                            </span>
+                          ) : doc.verificationStatus === "REJECTED" ? (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-red-500/10 text-red-600 border border-red-500/30">
+                              <XCircle className="w-3 h-3" /> Rejected
                             </span>
                           ) : (
                             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-muted text-muted-foreground">

@@ -27,9 +27,13 @@ export async function GET(req: NextRequest) {
     sort,
   });
 
+  const docStatus = searchParams.get("docStatus") || undefined;
+  const docType = searchParams.get("docType") || undefined;
+
   const metrics = ServerStore.getDocumentVerificationMetrics();
   const documents = ServerStore.getAllDocuments({
-    status: status === "Pending" ? "NEEDS_REVIEW" : status === "Approved" ? "VERIFIED" : undefined,
+    status: docStatus && docStatus !== "ALL" ? docStatus : undefined,
+    type: docType && docType !== "ALL" ? docType : undefined,
     search,
   });
 

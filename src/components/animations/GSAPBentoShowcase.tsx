@@ -471,9 +471,10 @@ export function GSAPBentoShowcase() {
           ref={bgParallaxRef}
           className="absolute inset-0 pointer-events-none -z-10 will-change-transform"
         >
-          <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-blue-600/10 dark:bg-blue-500/8 blur-[140px] rounded-full" />
-          <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-blue-600/10 dark:bg-blue-500/8 blur-[140px] rounded-full" />
-          <div className="absolute inset-0 bg-[radial-gradient(#2563eb_1px,transparent_1px)] [background-size:24px_24px] opacity-10 dark:opacity-5" />
+          <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-blue-600/[0.06] dark:bg-blue-500/8 blur-[140px] rounded-full" />
+          <div className="absolute top-1/3 right-1/3 w-[400px] h-[400px] bg-cyan-400/[0.04] dark:bg-cyan-400/[0.04] blur-[120px] rounded-full" />
+          <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-indigo-500/[0.035] dark:bg-blue-500/8 blur-[140px] rounded-full" />
+          <div className="absolute inset-0 bg-[radial-gradient(#2563eb_1px,transparent_1px)] [background-size:24px_24px] opacity-[0.035] dark:opacity-5" />
         </div>
 
         {/* Main Content Stage Grid */}

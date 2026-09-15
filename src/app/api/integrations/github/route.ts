@@ -7,6 +7,7 @@ import {
 } from "@/lib/server-store";
 import { CareerDNABuilder } from "@/lib/career-dna";
 import { getAuthenticatedUser, unauthorizedResponse } from "@/lib/auth-server";
+import { requireVerifiedStudent } from "@/lib/student-access-server";
 
 export const dynamic = "force-dynamic";
 
@@ -64,6 +65,12 @@ export async function DELETE(request: NextRequest) {
     }
 
     const targetUserId = authUser.userId;
+
+    const verificationCheck = await requireVerifiedStudent(request, targetUserId);
+    if (!verificationCheck.authorized) {
+      return verificationCheck.errorResponse;
+    }
+
     const existingConn = getGitHubConnection(targetUserId);
 
     const deleted = deleteGitHubConnection(targetUserId);
