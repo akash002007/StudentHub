@@ -9,6 +9,7 @@ import {
   MessageSquare,
   UserCircle2,
   Activity,
+  Calendar,
 } from "lucide-react";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
@@ -97,6 +98,17 @@ export function AdminHeader({
               {adminUnreadMessages > 99 ? "99+" : adminUnreadMessages}
             </span>
           )}
+        </Link>
+        <Link
+          href="/admin/schedules"
+          className={cn(
+            "relative p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted border border-transparent hover:border-border/70 transition-colors",
+            pathname.includes("/admin/schedules") && "bg-muted text-foreground font-semibold"
+          )}
+          aria-label="Calendar"
+          title="Calendar"
+        >
+          <Calendar className="w-4 h-4" />
         </Link>
 
         {/* Notifications */}

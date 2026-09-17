@@ -22,7 +22,7 @@ import {
   Building2,
   Search,
   Bookmark,
-  Calendar,
+  Video,
   Settings,
   Flag,
   FileText,
@@ -36,6 +36,10 @@ import {
   Layers,
   Award,
   FileCheck,
+  AlertTriangle,
+  CheckCircle2,
+  ShieldAlert,
+  TrendingUp,
 } from "lucide-react";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
@@ -45,12 +49,15 @@ import { useTheme } from "@/context/ThemeContext";
 import { UserRole } from "@/types";
 import { cn } from "@/lib/utils";
 import { isStudentVerified } from "@/lib/student-access-policy";
+import { useSidebar } from "@/context/SidebarContext";
 
 export interface StudentHubSidebarProps {
   role?: UserRole;
   className?: string;
   isMobileDrawerOpen?: boolean;
   onCloseMobileDrawer?: () => void;
+  isCollapsed?: boolean;
+  onToggleCollapse?: () => void;
 }
 
 interface NavItem {
@@ -71,13 +78,21 @@ interface NavGroup {
 export function StudentHubSidebar({
   role: overrideRole,
   className,
-  isMobileDrawerOpen,
-  onCloseMobileDrawer,
+  isMobileDrawerOpen: propIsMobileDrawerOpen,
+  onCloseMobileDrawer: propOnCloseMobileDrawer,
+  isCollapsed: propIsCollapsed,
+  onToggleCollapse: propOnToggleCollapse,
 }: StudentHubSidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, role: authRole, logout, switchRole } = useAuth();
   const { theme, resolvedTheme, setTheme, toggleTheme } = useTheme();
+  const sidebarCtx = useSidebar();
+
+  const isCollapsed = propIsCollapsed !== undefined ? propIsCollapsed : sidebarCtx.isSidebarCollapsed;
+  const toggleCollapse = propOnToggleCollapse || sidebarCtx.toggleSidebarCollapse;
+  const isMobileDrawerOpen = propIsMobileDrawerOpen !== undefined ? propIsMobileDrawerOpen : sidebarCtx.isMobileDrawerOpen;
+  const onCloseMobileDrawer = propOnCloseMobileDrawer || sidebarCtx.closeMobileDrawer;
 
   const rawRole = (overrideRole || authRole || "STUDENT").toUpperCase();
   const activeRole: UserRole = (rawRole === "ADMIN" ? "PLATFORM_ADMIN" : rawRole) as UserRole;
@@ -88,16 +103,11 @@ export function StudentHubSidebar({
   const isRecruiterWorkspace = !isCollegeWorkspace && !isAdminWorkspace && (["RECRUITER", "COMPANY_ADMIN"].includes(activeRole) || pathname.startsWith("/dashboard/recruiter"));
   const isStudentWorkspace = !isCollegeWorkspace && !isAdminWorkspace && !isRecruiterWorkspace;
 
-  const [isCollapsed, setIsCollapsed] = useState(false);
   const [collapsedGroups, setCollapsedGroups] = useState<Record<string, boolean>>({});
 
-  // Load saved collapse states on mount
+  // Load saved group collapse states on mount
   useEffect(() => {
     try {
-      const saved = localStorage.getItem("studenthub_sidebar_collapsed");
-      if (saved !== null) {
-        setIsCollapsed(saved === "true");
-      }
       const savedGroups = localStorage.getItem("studenthub_sidebar_groups_collapsed");
       if (savedGroups !== null) {
         setCollapsedGroups(JSON.parse(savedGroups));
@@ -106,18 +116,6 @@ export function StudentHubSidebar({
       // Ignore localStorage error
     }
   }, []);
-
-  const toggleCollapse = () => {
-    setIsCollapsed((prev) => {
-      const next = !prev;
-      try {
-        localStorage.setItem("studenthub_sidebar_collapsed", String(next));
-      } catch {
-        // Ignore localStorage error
-      }
-      return next;
-    });
-  };
 
   const toggleGroupCollapse = (key: string) => {
     setCollapsedGroups((prev) => {
@@ -194,7 +192,7 @@ export function StudentHubSidebar({
         {
           label: "Interviews",
           href: "/dashboard/interviews",
-          icon: Calendar,
+          icon: Video,
         },
         {
           label: "Results & Merit",
@@ -240,6 +238,11 @@ export function StudentHubSidebar({
     {
       groupLabel: "SYSTEM",
       items: [
+        {
+          label: "My Reports",
+          href: "/dashboard/reports",
+          icon: Flag,
+        },
         {
           label: "Notifications",
           href: "/dashboard/notifications",
@@ -297,7 +300,7 @@ export function StudentHubSidebar({
         {
           label: "Interviews",
           href: "/dashboard/recruiter/interviews",
-          icon: Calendar,
+          icon: Video,
         },
         {
           label: "Results & Merit",
@@ -344,6 +347,7 @@ export function StudentHubSidebar({
     {
       groupLabel: "GOVERNANCE & SYSTEM",
       items: [
+        { label: "Trust & Safety", href: "/dashboard/recruiter/trust-safety", icon: Shield },
         { label: "Analytics", href: "/dashboard/recruiter/analytics", icon: BarChart3 },
         { label: "Audit Trail", href: "/dashboard/recruiter/audit-logs", icon: FileText },
         { label: "Company Profile", href: "/dashboard/recruiter/company", icon: Building2 },
@@ -406,13 +410,36 @@ export function StudentHubSidebar({
         },
         { label: "Recruitment Drives", href: "/admin/internships", icon: Layers },
         { label: "Applications", href: "/admin/applications", icon: GitPullRequest },
+        {
+          label: "Interviews & Schedules",
+          href: "/admin/schedules",
+          icon: Video,
+          badge: "Ops",
+          badgeVariant: "purple",
+        },
+      ],
+    },
+    {
+      groupLabel: "🛡️ TRUST & SAFETY",
+      items: [
+        { label: "Overview", href: "/admin/trust-safety", icon: Shield },
+        {
+          label: "Reports Queue",
+          href: "/admin/trust-safety/reports",
+          icon: Flag,
+          badge: "Queue",
+          badgeVariant: "rose",
+        },
+        { label: "Investigations", href: "/admin/trust-safety/investigations", icon: Search },
+        { label: "Restricted Entities", href: "/admin/trust-safety/restricted", icon: AlertTriangle },
+        { label: "Enforcement", href: "/admin/trust-safety/enforcement", icon: CheckCircle2 },
+        { label: "T&S Audit Logs", href: "/admin/trust-safety/audit-logs", icon: FileText },
       ],
     },
     {
       groupLabel: "COMPLIANCE & SYSTEM",
       items: [
-        { label: "Moderation Reports", href: "/admin/reports", icon: Flag },
-        { label: "Audit Logs", href: "/admin/audit-logs", icon: FileText },
+        { label: "System Audit Logs", href: "/admin/audit-logs", icon: FileText },
         { label: "Platform Settings", href: "/admin/settings", icon: Settings },
       ],
     },
@@ -420,30 +447,20 @@ export function StudentHubSidebar({
 
   const collegeNavGroups: NavGroup[] = [
     {
-      groupLabel: "COLLEGE MANAGEMENT",
+      groupLabel: "COLLEGE",
       items: [
-        { label: "Command Center", href: "/college/dashboard", icon: LayoutDashboard },
-        { label: "Student Directory", href: "/college/students", icon: GraduationCap },
-        { label: "Departments", href: "/college/departments", icon: Building2 },
-        { label: "Graduation Batches", href: "/college/batches", icon: Users },
+        { label: "Overview", href: "/college/dashboard", icon: LayoutDashboard },
       ],
     },
     {
-      groupLabel: "PLACEMENT OPERATIONS",
+      groupLabel: "PLACEMENT INTELLIGENCE",
       items: [
         {
-          label: "Placement Drives",
-          href: "/college/placement-drives",
-          icon: Briefcase,
-          badge: "Campus",
+          label: "Placement Overview",
+          href: "/college/dashboard",
+          icon: BarChart3,
+          badge: "Live",
           badgeVariant: "purple",
-        },
-        {
-          label: "Eligible Students",
-          href: "/college/eligible-students",
-          icon: UserCheck,
-          badge: "Discovery",
-          badgeVariant: "blue",
         },
         {
           label: "Applications",
@@ -451,53 +468,49 @@ export function StudentHubSidebar({
           icon: GitPullRequest,
         },
         {
-          label: "Assessments",
-          href: "/college/assessments",
-          icon: FileText,
-        },
-        {
           label: "Interviews",
           href: "/college/interviews",
-          icon: Calendar,
+          icon: Video,
         },
         {
-          label: "Results & Offers",
+          label: "Selections & Offers",
           href: "/college/results",
           icon: Award,
           badge: "Merit",
           badgeVariant: "emerald",
         },
+        {
+          label: "Assessments",
+          href: "/college/assessments",
+          icon: FileText,
+        },
       ],
     },
     {
-      groupLabel: "RECRUITMENT INTELLIGENCE",
+      groupLabel: "ANALYTICS",
       items: [
-        { label: "Visiting Recruiters", href: "/college/recruiters", icon: Building2 },
-        { label: "Placement Analytics", href: "/college/analytics", icon: BarChart3 },
+        { label: "Companies", href: "/college/recruiters", icon: Building2 },
+        { label: "Departments", href: "/college/departments", icon: Layers },
         {
-          label: "Career DNA Insights",
+          label: "Skills & Career DNA",
           href: "/college/career-dna",
           icon: Dna,
-          badge: "Skills",
+          badge: "Skills Gap",
           badgeVariant: "lavender",
         },
+        { label: "Trends & Velocity", href: "/college/analytics", icon: TrendingUp },
       ],
     },
     {
-      groupLabel: "VERIFICATION & TRUST",
+      groupLabel: "REPORTS",
       items: [
-        {
-          label: "Student Verification",
-          href: "/college/verification",
-          icon: Shield,
-          badge: "KYC",
-          badgeVariant: "emerald",
-        },
+        { label: "Placement Reports", href: "/college/reports", icon: FileCheck },
       ],
     },
     {
       groupLabel: "INSTITUTION",
       items: [
+        { label: "Student Verification", href: "/college/verification", icon: Shield, badge: "KYC", badgeVariant: "emerald" },
         { label: "College Profile", href: "/college/profile", icon: User },
         { label: "Placement Policies", href: "/college/settings", icon: Settings },
       ],
@@ -524,7 +537,7 @@ export function StudentHubSidebar({
 
   const brandRoleSubtitle =
     isCollegeWorkspace
-      ? "Institutional Placement"
+      ? "Placement Intelligence"
       : isAdminWorkspace
       ? "Admin Console"
       : isRecruiterWorkspace
@@ -581,7 +594,7 @@ export function StudentHubSidebar({
                     ? "ADMIN"
                     : brandRoleSubtitle === "Recruiter Workspace"
                     ? "RECRUITER"
-                    : brandRoleSubtitle === "Institutional Placement"
+                    : brandRoleSubtitle === "Placement Intelligence"
                     ? "COLLEGE"
                     : "STUDENT"}
                 </span>

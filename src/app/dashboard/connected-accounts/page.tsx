@@ -218,8 +218,12 @@ export default function ConnectedAccountsPage() {
       });
       const data = await res.json();
       if (res.ok && data.success) {
-        success("GitHub sync job queued in background!");
+        success("GitHub synchronization and Career DNA recalculation initiated!");
         fetchGithubConnection();
+        // Follow up after background sync and DNA compilation completes
+        setTimeout(() => {
+          fetchGithubConnection();
+        }, 1500);
       } else {
         toastError(data.error || "Failed to trigger GitHub sync.");
       }

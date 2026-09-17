@@ -3,7 +3,7 @@
 import React, { useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Dna, Github, ArrowRight, RefreshCw, Lock } from "lucide-react";
+import { Dna, ArrowRight, RefreshCw, Lock } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { ShinyCTA } from "@/components/ui/ShinyCTA";
@@ -53,14 +53,14 @@ export function CareerDNABanner({
     <Card
       className={`relative overflow-hidden p-4 sm:p-5 border-border/80 bg-card shadow-sm space-y-3 sm:space-y-3.5 transition-all duration-300 ${className}`}
     >
-      {/* 1. Header Row: Brand Emblem + Title & Subtitle + Optional CTA */}
+      {/* 1. Header Row: Brand Emblem + Title & Subtitle */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 relative z-10">
         <div className="flex items-start sm:items-center gap-3">
           <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-blue-500/15 via-indigo-500/10 to-sky-500/15 border border-blue-500/30 flex items-center justify-center text-blue-600 dark:text-sky-400 shrink-0 shadow-2xs">
             <Dna className="w-4.5 h-4.5 sm:w-5 sm:h-5" />
           </div>
 
-          <div className="space-y-0.5 max-w-xl">
+          <div className="space-y-0.5">
             <div className="flex flex-wrap items-center gap-2">
               <h2 className="text-base sm:text-lg font-extrabold text-foreground tracking-tight">
                 Unlock Your Career DNA
@@ -84,7 +84,7 @@ export function CareerDNABanner({
               )}
             </div>
 
-            <p className="text-[11px] sm:text-xs text-muted-foreground leading-relaxed">
+            <p className="text-[11px] sm:text-xs text-muted-foreground leading-relaxed max-w-2xl">
               {isLocked
                 ? "Your living profile of skills, projects, and strengths is currently locked pending student verification."
                 : "Build a living profile of your skills, projects, experience, and strengths — and discover where your career can go next."}
@@ -92,20 +92,9 @@ export function CareerDNABanner({
           </div>
         </div>
 
-        {/* Action Panel: Connect GitHub or Analyze (Section 7) */}
-        <div className="flex flex-col sm:items-end gap-1 shrink-0 self-start sm:self-center">
-          {isLocked ? (
-            <Button
-              variant="outline"
-              size="sm"
-              disabled
-              title="Student verification is required to connect external accounts"
-              className="w-full sm:w-auto text-xs opacity-70 cursor-not-allowed border-border/80 text-muted-foreground"
-            >
-              <Lock className="w-3.5 h-3.5 mr-1.5 text-muted-foreground" />
-              Verification Required
-            </Button>
-          ) : isPendingAnalysis ? (
+        {/* Optional Analysis CTA only when pending analysis */}
+        {isPendingAnalysis && onAnalyze && (
+          <div className="flex flex-col sm:items-end gap-1 shrink-0 self-start sm:self-center">
             <ShinyCTA
               onClick={onAnalyze}
               disabled={isAnalyzing}
@@ -116,22 +105,8 @@ export function CareerDNABanner({
               />
               {isAnalyzing ? "Analyzing..." : "Analyze Career DNA"}
             </ShinyCTA>
-          ) : (
-            <ShinyCTA
-              onClick={() => router.push("/dashboard/connected-accounts")}
-              className="w-full sm:w-auto text-xs"
-            >
-              <Github className="w-3.5 h-3.5 mr-1.5" /> Connect GitHub
-              <ArrowRight className="w-3.5 h-3.5 ml-1" />
-            </ShinyCTA>
-          )}
-
-          <span className="text-[10px] text-muted-foreground">
-            {isLocked
-              ? "Verification required to connect GitHub and analyze data."
-              : "Enrich your profile with your projects and contributions."}
-          </span>
-        </div>
+          </div>
+        )}
       </div>
 
       {/* 2. Centerpiece: Interactive Career DNA Constellation / Identity Graph (Sections 2, 3, 4, 6, 10) */}

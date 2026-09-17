@@ -25,7 +25,9 @@ import {
   ChevronRight,
   Send,
   Check,
+  ShieldAlert,
 } from "lucide-react";
+import { ReportButton } from "@/components/trust-safety/ReportButton";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
@@ -159,14 +161,47 @@ export default function StudentDriveDetailPage({
             <span>Back to Recruitment Drives</span>
           </Link>
 
-          {isApplied && (
-            <Link href="/dashboard/applications">
-              <Button variant="outline" size="sm" leftIcon={<Layers className="w-3.5 h-3.5" />}>
-                Track in My Applications
-              </Button>
-            </Link>
-          )}
+          <div className="flex items-center gap-2">
+            {isApplied && (
+              <Link href="/dashboard/applications">
+                <Button variant="outline" size="sm" leftIcon={<Layers className="w-3.5 h-3.5" />}>
+                  Track in My Applications
+                </Button>
+              </Link>
+            )}
+            <ReportButton
+              entityType="OPPORTUNITY"
+              targetId={drive.id}
+              targetTitle={drive.title}
+              reportedCompanyName={drive.company}
+              variant="button"
+              label="Report Listing"
+            />
+          </div>
         </div>
+
+        {/* Trust & Safety Restriction Banner */}
+        {(drive.status === "RESTRICTED" || drive.status === "UNDER_REVIEW" || drive.isRestricted) && (
+          <div className="bg-rose-500/10 border border-rose-500/30 rounded-2xl p-4 flex items-start gap-3.5 text-rose-200 shadow-sm backdrop-blur-md">
+            <div className="w-9 h-9 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center shrink-0">
+              <ShieldAlert className="w-5 h-5" />
+            </div>
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-sm text-rose-300">
+                  🛡️ Opportunity Temporarily Unavailable (Trust & Safety Review)
+                </span>
+                <span className="px-2 py-0.5 rounded text-[10px] font-mono uppercase bg-rose-500/20 text-rose-300 border border-rose-500/30 font-bold">
+                  {drive.status}
+                </span>
+              </div>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                {drive.restrictionReason ||
+                  "This recruitment drive is temporarily unavailable while undergoing Trust & Safety compliance review. New candidate submissions are currently paused. Existing candidate applications remain securely preserved."}
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Top Header Card */}
         <Card className="p-6 sm:p-8 border-border bg-card shadow-sm relative overflow-hidden">
@@ -210,7 +245,15 @@ export default function StudentDriveDetailPage({
 
             {/* Application CTA Header Block */}
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
-              {isApplied ? (
+              {drive.status === "RESTRICTED" || drive.status === "UNDER_REVIEW" || drive.isRestricted ? (
+                <div className="p-3 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-xs flex items-center gap-2 text-rose-300">
+                  <ShieldAlert className="w-4 h-4 text-rose-400 shrink-0" />
+                  <div>
+                    <p className="font-bold text-rose-300">Applications Paused</p>
+                    <p className="text-[11px] text-slate-400">Under Compliance Review</p>
+                  </div>
+                </div>
+              ) : isApplied ? (
                 <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-xs flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                   <div>

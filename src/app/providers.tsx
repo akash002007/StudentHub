@@ -6,12 +6,16 @@ import { ToastProvider } from "@/context/ToastContext";
 import { AuthProvider } from "@/context/AuthContext";
 import { DataProvider } from "@/context/DataContext";
 
+import { SidebarProvider } from "@/context/SidebarContext";
+
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ThemeProvider>
       <ToastProvider>
         <AuthProvider>
-          <DataProvider>{children}</DataProvider>
+          <DataProvider>
+            <SidebarProvider>{children}</SidebarProvider>
+          </DataProvider>
         </AuthProvider>
       </ToastProvider>
     </ThemeProvider>

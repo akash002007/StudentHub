@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+import Link from "next/link";
 import {
   Briefcase,
   Search,
@@ -12,6 +13,7 @@ import {
   AlertTriangle,
   UserCheck,
   X,
+  Shield,
 } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -239,25 +241,34 @@ export default function AdminRecruitersPage() {
                         )}
                       </td>
                       <td className="py-3 px-4 text-right">
-                        {isSuspended ? (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="text-emerald-600 border-blue-500/30 hover:bg-emerald-500/10"
-                            onClick={() => handleOpenAction(r, "ACTIVE")}
+                        <div className="flex items-center justify-end gap-2">
+                          <Link
+                            href={`/admin/trust-safety/reports?search=${encodeURIComponent(r.name)}`}
+                            className="inline-flex items-center gap-1 text-[11px] text-indigo-400 hover:text-indigo-300 font-medium px-2 py-1 rounded bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/20 transition-colors"
                           >
-                            Reactivate
-                          </Button>
-                        ) : (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="text-rose-600 border-rose-500/30 hover:bg-primary/10"
-                            onClick={() => handleOpenAction(r, "SUSPENDED")}
-                          >
-                            Suspend
-                          </Button>
-                        )}
+                            <Shield className="w-3 h-3" />
+                            <span>T&S History</span>
+                          </Link>
+                          {isSuspended ? (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="text-emerald-600 border-blue-500/30 hover:bg-emerald-500/10 text-xs"
+                              onClick={() => handleOpenAction(r, "ACTIVE")}
+                            >
+                              Reactivate
+                            </Button>
+                          ) : (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="text-rose-600 border-rose-500/30 hover:bg-primary/10 text-xs"
+                              onClick={() => handleOpenAction(r, "SUSPENDED")}
+                            >
+                              Suspend
+                            </Button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   );

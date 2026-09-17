@@ -71,10 +71,15 @@ export function StudentsTable({ rows }: { rows: AdminStudentRecord[] }) {
                 <td className="py-3 px-4 text-muted-foreground">{row.lastActive}</td>
                 <td className="py-3 px-4 text-muted-foreground">{row.joined}</td>
                 <td className="py-3 px-4">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1.5">
                     <Link href={`/admin/students/${row.id}`}>
                       <Button size="sm" variant="outline">
-                        View Dossier
+                        Dossier
+                      </Button>
+                    </Link>
+                    <Link href={`/admin/trust-safety/reports?search=${encodeURIComponent(row.name)}`}>
+                      <Button size="sm" variant="outline" className="text-indigo-500 hover:text-indigo-400 hover:bg-indigo-500/10">
+                        T&S History
                       </Button>
                     </Link>
                   </div>

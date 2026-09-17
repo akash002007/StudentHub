@@ -51,10 +51,7 @@ export function enqueueGitHubSync(userId: string): void {
       // 3. Skill Intelligence Extraction
       const skillEvidences = SkillIntelligenceEngine.extractSkillEvidences(userId, repositories);
 
-      // 4. Career DNA Synthesis
-      CareerDNABuilder.compileCareerDNA(userId, projects, skillEvidences, repositories);
-
-      // 5. Update Connection Sync Metadata
+      // 4. Update Connection Sync Metadata to SYNCED
       const completedAt = new Date().toISOString();
       updateGitHubSyncStatus(userId, "SYNCED", {
         syncCompletedAt: completedAt,
@@ -63,6 +60,9 @@ export function enqueueGitHubSync(userId: string): void {
         skillsDetectedCount: skillEvidences.length,
         syncError: null,
       });
+
+      // 5. Career DNA Synthesis & Recalculation
+      CareerDNABuilder.compileCareerDNA(userId, projects, skillEvidences, repositories);
 
       console.log(
         `[GitHubSyncWorker] Sync completed for ${userId}: ${repositories.length} repos, ${projects.length} projects, ${skillEvidences.length} skills.`

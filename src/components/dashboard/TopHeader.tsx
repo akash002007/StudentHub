@@ -12,6 +12,7 @@ import {
   ExternalLink,
   Briefcase,
   CheckCircle2,
+  Calendar,
 } from "lucide-react";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
@@ -92,6 +93,14 @@ export function TopHeader({ onOpenMobileDrawer, title, subtitle }: TopHeaderProp
     : isRecruiter
     ? "/dashboard/recruiter/messages"
     : "/dashboard/messages";
+
+  const calendarPageUrl = isCollege
+    ? "/college/interviews"
+    : isAdmin
+    ? "/admin/schedules"
+    : isRecruiter
+    ? "/dashboard/recruiter/calendar"
+    : "/dashboard/calendar";
 
   const profilePageUrl = isCollege
     ? "/college/profile"
@@ -190,6 +199,19 @@ export function TopHeader({ onOpenMobileDrawer, title, subtitle }: TopHeaderProp
                 {unreadMessagesTotal > 9 ? "9+" : unreadMessagesTotal}
               </span>
             )}
+          </Link>
+
+          {/* Calendar Link */}
+          <Link
+            href={calendarPageUrl}
+            className={cn(
+              "relative p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/70 transition-colors border border-transparent hover:border-border/60",
+              (pathname.includes("/calendar") || (isAdmin && pathname.includes("/schedules"))) && "bg-muted text-foreground"
+            )}
+            aria-label="Calendar"
+            title="Calendar"
+          >
+            <Calendar className="w-4 h-4" />
           </Link>
 
           {/* Notifications Dropdown Container */}

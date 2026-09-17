@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedCollege } from "@/lib/supabase/server";
+import { CollegeIntelligenceEngine } from "@/lib/college-intelligence-engine";
 import { ServerStore } from "@/lib/server-store";
 
 export async function GET(request: NextRequest) {
@@ -16,11 +17,18 @@ export async function GET(request: NextRequest) {
       (auth.collegeUser as any).collegeId ||
       "col_stanford";
 
-    const insights = ServerStore.getCollegeCareerDNAInsights(targetCollegeId);
+    const intel = CollegeIntelligenceEngine.getPlacementIntelligence({
+      collegeId: targetCollegeId,
+    });
+
+    const baseInsights = ServerStore.getCollegeCareerDNAInsights(targetCollegeId);
 
     return NextResponse.json({
       success: true,
-      insights,
+      insights: {
+        ...baseInsights,
+        demandVsCoverage: intel.skillIntelligence,
+      },
     });
   } catch (err) {
     console.error("[GET /api/college/career-dna] Error:", err);

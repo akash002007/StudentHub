@@ -443,6 +443,21 @@ function initializeRecruitmentStore(): RecruitmentStoreState {
   // Seed Assessments for Drive 1
   assessments.set(drive1Id, [
     {
+      id: `assess_${drive1Id}_tcs`,
+      driveId: drive1Id,
+      applicationId: app1.id,
+      studentId: app1.studentId,
+      studentName: app1.studentName,
+      stageId: drive1Stages[1].id,
+      assessmentName: "Coding Assessment",
+      instructions: "60-minute online coding & aptitude challenge. Camera and screen sharing must remain enabled throughout the test window.",
+      date: "2026-09-17",
+      time: "07:00 PM",
+      duration: "60 mins",
+      maxScore: 100,
+      passingScore: 70,
+    },
+    {
       id: `assess_${drive1Id}_1`,
       driveId: drive1Id,
       applicationId: app1.id,
@@ -485,6 +500,133 @@ function initializeRecruitmentStore(): RecruitmentStoreState {
   // Seed Interviews for Drive 1
   interviews.set(drive1Id, [
     {
+      id: "int_alex_google_tech",
+      driveId: drive1Id,
+      applicationId: app1.id,
+      studentId: app1.studentId,
+      candidateName: app1.studentName,
+      candidateAvatar: app1.studentAvatar,
+      candidateUniversity: app1.university,
+      driveTitle: "Software Engineer Intern",
+      company: "Google",
+      companyLogo: "https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_2015_logo.svg",
+      stageId: drive1Stages[2].id,
+      roundType: "TECHNICAL",
+      roundName: "Technical Round",
+      roundNumber: 1,
+      instructions: "Live coding evaluation covering Algorithms, Complexity, and System Architecture with Google Engineering.",
+      type: "VIDEO",
+      date: "2026-09-18",
+      time: "11:00 AM",
+      duration: "45 mins",
+      meetingLink: "https://meet.google.com/goog-tech-round",
+      interviewerName: "John Smith (Senior Tech Lead)",
+      interviewerRole: "Senior Tech Lead",
+      status: "SCHEDULED",
+      createdAt: "2026-09-16T10:00:00.000Z",
+    },
+    {
+      id: "int_alex_msft_final",
+      driveId: drive1Id,
+      applicationId: app1.id,
+      studentId: app1.studentId,
+      candidateName: app1.studentName,
+      candidateAvatar: app1.studentAvatar,
+      candidateUniversity: app1.university,
+      driveTitle: "Software Engineer Intern",
+      company: "Microsoft",
+      companyLogo: "https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg",
+      stageId: drive1Stages[3].id,
+      roundType: "FINAL",
+      roundName: "Final Round",
+      roundNumber: 2,
+      instructions: "Executive leadership & culture round. Prepare to discuss distributed systems impact.",
+      type: "VIDEO",
+      date: "2026-09-28",
+      time: "03:00 PM",
+      duration: "60 mins",
+      meetingLink: "https://meet.google.com/msft-final-round",
+      interviewerName: "Satya M. (Partner Director)",
+      interviewerRole: "Partner Director",
+      status: "SCHEDULED",
+      createdAt: "2026-09-16T14:00:00.000Z",
+    },
+    {
+      id: "int_rec_today_rahul",
+      driveId: drive1Id,
+      applicationId: "app_rec_rahul",
+      studentId: "student_rahul",
+      candidateName: "Rahul Sharma",
+      candidateAvatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+      candidateUniversity: "IIT Delhi",
+      driveTitle: "Software Engineer Intern",
+      company: "Stripe",
+      companyLogo: "https://upload.wikimedia.org/wikipedia/commons/b/ba/Stripe_Logo%2C_revised_2016.svg",
+      stageId: drive1Stages[2].id,
+      roundType: "TECHNICAL",
+      roundName: "Technical Round",
+      roundNumber: 1,
+      type: "VIDEO",
+      date: "2026-09-17",
+      time: "10:00 AM",
+      duration: "45 mins",
+      meetingLink: "https://meet.google.com/stripe-tech-rahul",
+      interviewerName: "Sarah Chen",
+      interviewerRole: "Director of Engineering",
+      status: "SCHEDULED",
+      createdAt: "2026-09-16T08:00:00.000Z",
+    },
+    {
+      id: "int_rec_today_priya",
+      driveId: drive1Id,
+      applicationId: app2.id,
+      studentId: app2.studentId,
+      candidateName: "Priya Patel",
+      candidateAvatar: app2.studentAvatar,
+      candidateUniversity: "Stanford University",
+      driveTitle: "Software Engineer Intern",
+      company: "Stripe",
+      companyLogo: "https://upload.wikimedia.org/wikipedia/commons/b/ba/Stripe_Logo%2C_revised_2016.svg",
+      stageId: drive1Stages[3].id,
+      roundType: "FINAL",
+      roundName: "Final Round",
+      roundNumber: 2,
+      type: "VIDEO",
+      date: "2026-09-17",
+      time: "11:30 AM",
+      duration: "45 mins",
+      meetingLink: "https://meet.google.com/stripe-final-priya",
+      interviewerName: "Sarah Chen",
+      interviewerRole: "Director of Engineering",
+      status: "SCHEDULED",
+      createdAt: "2026-09-16T09:00:00.000Z",
+    },
+    {
+      id: "int_rec_today_aman",
+      driveId: drive1Id,
+      applicationId: "app_rec_aman",
+      studentId: "student_aman",
+      candidateName: "Aman Kumar",
+      candidateAvatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
+      candidateUniversity: "BITS Pilani",
+      driveTitle: "Frontend Intern",
+      company: "Stripe",
+      companyLogo: "https://upload.wikimedia.org/wikipedia/commons/b/ba/Stripe_Logo%2C_revised_2016.svg",
+      stageId: drive1Stages[2].id,
+      roundType: "HR",
+      roundName: "HR Round",
+      roundNumber: 1,
+      type: "VIDEO",
+      date: "2026-09-17",
+      time: "02:00 PM",
+      duration: "30 mins",
+      meetingLink: "https://meet.google.com/stripe-hr-aman",
+      interviewerName: "Sarah Chen",
+      interviewerRole: "Director of Engineering",
+      status: "SCHEDULED",
+      createdAt: "2026-09-16T11:00:00.000Z",
+    },
+    {
       id: `int_${drive1Id}_1`,
       driveId: drive1Id,
       applicationId: app1.id,
@@ -493,13 +635,19 @@ function initializeRecruitmentStore(): RecruitmentStoreState {
       candidateAvatar: app1.studentAvatar,
       candidateUniversity: app1.university,
       driveTitle: drive1.title,
+      company: drive1.company,
+      companyLogo: drive1.companyLogo,
       stageId: drive1Stages[2].id,
+      roundType: "TECHNICAL",
+      roundName: "Technical Deep-Dive Round",
+      roundNumber: 1,
       type: "VIDEO",
       date: "2026-03-07",
       time: "10:30 AM PST",
       duration: "45 mins",
       meetingLink: "https://meet.google.com/stripe-sde-round3",
       interviewerName: "David K. (Staff Infrastructure Engineer)",
+      interviewerRole: "Staff Infrastructure Engineer",
       status: "COMPLETED",
       notes: "Candidate demonstrated exceptional depth in concurrency and distributed state synchronization.",
       evaluation: {
@@ -512,6 +660,32 @@ function initializeRecruitmentStore(): RecruitmentStoreState {
         evaluatorName: "David K.",
       },
       createdAt: "2026-03-06T11:00:00.000Z",
+    },
+    {
+      id: `int_${drive1Id}_3`,
+      driveId: drive1Id,
+      applicationId: app2.id,
+      studentId: app2.studentId,
+      candidateName: app2.studentName,
+      candidateAvatar: app2.studentAvatar,
+      candidateUniversity: app2.university,
+      driveTitle: drive1.title,
+      company: drive1.company,
+      companyLogo: drive1.companyLogo,
+      stageId: drive1Stages[2].id,
+      roundType: "TECHNICAL",
+      roundName: "Technical Architecture Round",
+      roundNumber: 1,
+      type: "VIDEO",
+      date: "2026-09-25",
+      time: "11:00 AM PST",
+      duration: "45 mins",
+      meetingLink: "https://meet.google.com/stripe-tech-round",
+      interviewerName: "Marcus Vance (Principal Architect)",
+      interviewerRole: "Principal Architect",
+      status: "SCHEDULED",
+      notes: "Focus on API design, idempotency, and Postgres schema partitioning.",
+      createdAt: "2026-09-21T09:00:00.000Z",
     },
   ]);
 
@@ -623,12 +797,22 @@ function loadRecruitmentStoreFromDisk(storeObj: RecruitmentStoreState): void {
     }
     if (data.assessments && Array.isArray(data.assessments)) {
       data.assessments.forEach(([id, records]: [string, CandidateAssessmentRecord[]]) => {
-        storeObj.assessments.set(id, records);
+        const existing = storeObj.assessments.get(id) || [];
+        const existingIds = new Set(existing.map((e) => e.id));
+        records.forEach((r) => {
+          if (!existingIds.has(r.id)) existing.push(r);
+        });
+        storeObj.assessments.set(id, existing);
       });
     }
     if (data.interviews && Array.isArray(data.interviews)) {
       data.interviews.forEach(([id, records]: [string, CandidateInterviewRecord[]]) => {
-        storeObj.interviews.set(id, records);
+        const existing = storeObj.interviews.get(id) || [];
+        const existingIds = new Set(existing.map((e) => e.id));
+        records.forEach((r) => {
+          if (!existingIds.has(r.id)) existing.push(r);
+        });
+        storeObj.interviews.set(id, existing);
       });
     }
     if (data.results && Array.isArray(data.results)) {
@@ -669,6 +853,177 @@ function persistRecruitmentStoreToDisk(): void {
 
 export const recruitmentStore: RecruitmentStoreState =
   globalThis.__STUDENTHUB_RECRUITMENT_STORE__ ?? initializeRecruitmentStore();
+
+function ensureCalendarSeedRecords(store: RecruitmentStoreState) {
+  const drive1Id = "drive_swe_2026";
+  const requiredAssessments: CandidateAssessmentRecord[] = [
+    {
+      id: `assess_${drive1Id}_tcs`,
+      driveId: drive1Id,
+      applicationId: "app_rec_001",
+      studentId: "student_01",
+      studentName: "Alex Rivera",
+      stageId: `stage_${drive1Id}_2`,
+      assessmentName: "TCS — Coding Assessment",
+      instructions: "60-minute online coding & aptitude challenge. Camera and screen sharing must remain enabled.",
+      date: "2026-09-17",
+      time: "07:00 PM",
+      duration: "60 mins",
+      maxScore: 100,
+      passingScore: 70,
+    },
+  ];
+
+  const requiredInterviews: CandidateInterviewRecord[] = [
+    {
+      id: "int_alex_google_tech",
+      driveId: drive1Id,
+      applicationId: "app_rec_001",
+      studentId: "student_01",
+      candidateName: "Alex Rivera",
+      candidateAvatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+      candidateUniversity: "Stanford University",
+      driveTitle: "Software Engineer Intern",
+      company: "Google",
+      companyLogo: "https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_2015_logo.svg",
+      stageId: `stage_${drive1Id}_3`,
+      roundType: "TECHNICAL",
+      roundName: "Technical Round",
+      roundNumber: 1,
+      instructions: "Live coding evaluation covering Algorithms, Complexity, and System Architecture.",
+      type: "VIDEO",
+      date: "2026-09-18",
+      time: "11:00 AM",
+      duration: "45 mins",
+      meetingLink: "https://meet.google.com/goog-tech-round",
+      interviewerName: "John Smith (Senior Tech Lead)",
+      interviewerRole: "Senior Tech Lead",
+      status: "SCHEDULED",
+      createdAt: "2026-09-16T10:00:00.000Z",
+    },
+    {
+      id: "int_alex_msft_final",
+      driveId: drive1Id,
+      applicationId: "app_rec_001",
+      studentId: "student_01",
+      candidateName: "Alex Rivera",
+      candidateAvatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+      candidateUniversity: "Stanford University",
+      driveTitle: "Software Engineer Intern",
+      company: "Microsoft",
+      companyLogo: "https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg",
+      stageId: `stage_${drive1Id}_4`,
+      roundType: "FINAL",
+      roundName: "Final Round",
+      roundNumber: 2,
+      instructions: "Executive leadership & culture round. Prepare to discuss distributed systems impact.",
+      type: "VIDEO",
+      date: "2026-09-28",
+      time: "03:00 PM",
+      duration: "60 mins",
+      meetingLink: "https://meet.google.com/msft-final-round",
+      interviewerName: "Satya M. (Partner Director)",
+      interviewerRole: "Partner Director",
+      status: "SCHEDULED",
+      createdAt: "2026-09-16T14:00:00.000Z",
+    },
+    {
+      id: "int_rec_today_rahul",
+      driveId: drive1Id,
+      applicationId: "app_rec_rahul",
+      studentId: "student_rahul",
+      candidateName: "Rahul Sharma",
+      candidateAvatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+      candidateUniversity: "IIT Delhi",
+      driveTitle: "Software Engineer Intern",
+      company: "Stripe",
+      companyLogo: "https://upload.wikimedia.org/wikipedia/commons/b/ba/Stripe_Logo%2C_revised_2016.svg",
+      stageId: `stage_${drive1Id}_3`,
+      roundType: "TECHNICAL",
+      roundName: "Technical Round",
+      roundNumber: 1,
+      type: "VIDEO",
+      date: "2026-09-17",
+      time: "10:00 AM",
+      duration: "45 mins",
+      meetingLink: "https://meet.google.com/stripe-tech-rahul",
+      interviewerName: "Sarah Chen",
+      interviewerRole: "Director of Engineering",
+      status: "SCHEDULED",
+      createdAt: "2026-09-16T08:00:00.000Z",
+    },
+    {
+      id: "int_rec_today_priya",
+      driveId: drive1Id,
+      applicationId: "app_rec_002",
+      studentId: "student_02",
+      candidateName: "Priya Patel",
+      candidateAvatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80",
+      candidateUniversity: "Stanford University",
+      driveTitle: "Software Engineer Intern",
+      company: "Stripe",
+      companyLogo: "https://upload.wikimedia.org/wikipedia/commons/b/ba/Stripe_Logo%2C_revised_2016.svg",
+      stageId: `stage_${drive1Id}_4`,
+      roundType: "FINAL",
+      roundName: "Final Round",
+      roundNumber: 2,
+      type: "VIDEO",
+      date: "2026-09-17",
+      time: "11:30 AM",
+      duration: "45 mins",
+      meetingLink: "https://meet.google.com/stripe-final-priya",
+      interviewerName: "Sarah Chen",
+      interviewerRole: "Director of Engineering",
+      status: "SCHEDULED",
+      createdAt: "2026-09-16T09:00:00.000Z",
+    },
+    {
+      id: "int_rec_today_aman",
+      driveId: drive1Id,
+      applicationId: "app_rec_aman",
+      studentId: "student_aman",
+      candidateName: "Aman Kumar",
+      candidateAvatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
+      candidateUniversity: "BITS Pilani",
+      driveTitle: "Frontend Intern",
+      company: "Stripe",
+      companyLogo: "https://upload.wikimedia.org/wikipedia/commons/b/ba/Stripe_Logo%2C_revised_2016.svg",
+      stageId: `stage_${drive1Id}_3`,
+      roundType: "HR",
+      roundName: "HR Round",
+      roundNumber: 1,
+      type: "VIDEO",
+      date: "2026-09-17",
+      time: "02:00 PM",
+      duration: "30 mins",
+      meetingLink: "https://meet.google.com/stripe-hr-aman",
+      interviewerName: "Sarah Chen",
+      interviewerRole: "Director of Engineering",
+      status: "SCHEDULED",
+      createdAt: "2026-09-16T11:00:00.000Z",
+    },
+  ];
+
+  const curAssessments = store.assessments.get(drive1Id) || [];
+  const assessIds = new Set(curAssessments.map((a) => a.id));
+  requiredAssessments.forEach((a) => {
+    if (!assessIds.has(a.id)) {
+      curAssessments.unshift(a);
+    }
+  });
+  store.assessments.set(drive1Id, curAssessments);
+
+  const curInterviews = store.interviews.get(drive1Id) || [];
+  const interviewIds = new Set(curInterviews.map((i) => i.id));
+  requiredInterviews.forEach((i) => {
+    if (!interviewIds.has(i.id)) {
+      curInterviews.unshift(i);
+    }
+  });
+  store.interviews.set(drive1Id, curInterviews);
+}
+
+ensureCalendarSeedRecords(recruitmentStore);
 
 if (process.env.NODE_ENV !== "production") {
   globalThis.__STUDENTHUB_RECRUITMENT_STORE__ = recruitmentStore;
@@ -1205,7 +1560,11 @@ export function getRecruiterOverviewMetrics() {
     activeDrives: activeDrives.slice(0, 4),
     recentApplications: applications.slice(0, 6),
     upcomingInterviews: allInterviews
-      .filter((i) => i.status === "SCHEDULED" || i.status === "COMPLETED")
+      .filter((i) => i.status === "SCHEDULED" && i.date >= "2026-09-17")
+      .sort((a, b) => {
+        if (a.date !== b.date) return a.date.localeCompare(b.date);
+        return a.time.localeCompare(b.time);
+      })
       .slice(0, 5),
     recentAuditLogs: recruitmentStore.auditLogs.slice(0, 6),
   };
@@ -1328,42 +1687,58 @@ export function getStudentOverviewMetrics(studentId: string) {
   const completedInterviews = interviews.filter((i) => i.status === "COMPLETED");
   const selectedApplications = studentApps.filter((a) => a.status === "SELECTED");
 
-  // Calculate upcoming events
+  // Calculate upcoming events strictly filtered to upcoming schedule
   const upcomingEvents: Array<{
     id: string;
-    type: "ASSESSMENT" | "INTERVIEW" | "DEADLINE";
+    type: "ASSESSMENT" | "INTERVIEW" | "MEETING";
     title: string;
     subtitle: string;
     date: string;
     time?: string;
     badge: string;
+    isFinalRound?: boolean;
+    meetingUrl?: string;
     link: string;
   }> = [];
 
-  assessments.forEach((ass) => {
-    upcomingEvents.push({
-      id: ass.id,
-      type: "ASSESSMENT",
-      title: ass.assessmentName,
-      subtitle: `Drive Assessment • Duration: ${ass.duration || "60 mins"}`,
-      date: ass.date,
-      time: ass.time,
-      badge: ass.passed !== undefined ? (ass.passed ? "Passed" : "Evaluated") : "Upcoming Test",
-      link: "/dashboard/assessments",
-    });
-  });
+  const todayStr = "2026-09-17";
 
-  upcomingInterviews.forEach((int) => {
-    upcomingEvents.push({
-      id: int.id,
-      type: "INTERVIEW",
-      title: `${int.type} Interview • ${int.driveTitle}`,
-      subtitle: `Interviewer: ${int.interviewerName}`,
-      date: int.date,
-      time: int.time,
-      badge: "Scheduled",
-      link: "/dashboard/interviews",
+  assessments
+    .filter((ass) => ass.passed === undefined && ass.date >= todayStr)
+    .forEach((ass) => {
+      upcomingEvents.push({
+        id: ass.id,
+        type: "ASSESSMENT",
+        title: `TCS — ${ass.assessmentName}`,
+        subtitle: `Drive Assessment • Duration: ${ass.duration || "60 mins"}`,
+        date: ass.date,
+        time: ass.time,
+        badge: "Assessment",
+        link: "/dashboard/assessments",
+      });
     });
+
+  upcomingInterviews
+    .filter((int) => int.date >= todayStr)
+    .forEach((int) => {
+      const isFinal = int.roundType === "FINAL" || (int.roundName || "").toLowerCase().includes("final");
+      upcomingEvents.push({
+        id: int.id,
+        type: "INTERVIEW",
+        title: `${int.company || "Company"} — ${int.roundName || "Interview Round"}`,
+        subtitle: `${int.driveTitle} • ${int.interviewerName || "Interviewer"}`,
+        date: int.date,
+        time: int.time,
+        badge: isFinal ? "Final Round" : (int.roundName || "Interview"),
+        isFinalRound: isFinal,
+        meetingUrl: int.meetingLink,
+        link: "/dashboard/calendar",
+      });
+    });
+
+  upcomingEvents.sort((a, b) => {
+    if (a.date !== b.date) return a.date.localeCompare(b.date);
+    return (a.time || "").localeCompare(b.time || "");
   });
 
   return {

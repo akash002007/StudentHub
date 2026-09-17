@@ -856,20 +856,259 @@ export interface Conversation {
   messages: Message[];
 }
 
-export interface CommunityPost {
+export type PostType =
+  | 'DISCUSSION'
+  | 'QUESTION'
+  | 'PROJECT'
+  | 'RESOURCE'
+  | 'INTERNSHIP'
+  | 'HACKATHON'
+  | 'ACHIEVEMENT'
+  | 'EVENT'
+  | 'POLL';
+
+export interface CommunityComment {
   id: string;
+  postId: string;
+  parentId?: string;
   author: {
     name: string;
     avatar: string;
     headline: string;
+    isVerifiedStudent?: boolean;
+    university?: string;
   };
+  content: string;
+  timestamp: string;
+  score: number;
+  userVote?: 1 | -1 | 0;
+  replies?: CommunityComment[];
+}
+
+export interface CommunityPost {
+  id: string;
+  communityId?: string;
+  communityName?: string;
+  communitySlug?: string;
+  communityIcon?: string;
+  author: {
+    name: string;
+    avatar: string;
+    headline: string;
+    isVerifiedStudent?: boolean;
+    university?: string;
+    careerDNASkills?: string[];
+  };
+  type?: PostType;
   title: string;
   content: string;
   timestamp: string;
   upvotes: number;
+  userVote?: 1 | -1 | 0;
   hasUpvoted?: boolean;
   commentCount: number;
+  comments?: CommunityComment[];
   tags: string[];
+  isSaved?: boolean;
+  isVerifiedProject?: boolean;
+  projectDetails?: {
+    name: string;
+    repoUrl?: string;
+    demoUrl?: string;
+    verifiedBy?: string;
+  };
+  isVerifiedOpportunity?: boolean;
+  opportunityDetails?: {
+    company: string;
+    stipend?: string;
+    role: string;
+    deadline?: string;
+    applyUrl?: string;
+  };
+}
+
+// ============================================================================
+// Structured RPSC-Style Community Hub Types
+// ============================================================================
+
+export type CommunityType =
+  | 'Technical Club'
+  | 'Developer Community'
+  | 'Campus Club'
+  | 'Student Society'
+  | 'Research Group'
+  | 'Founder Community'
+  | 'Competition Team'
+  | 'Professional Community';
+
+export type CommunityDomain =
+  | 'Software Development'
+  | 'AI / ML'
+  | 'Data Science'
+  | 'Cybersecurity'
+  | 'Web3'
+  | 'UI/UX Design'
+  | 'Product'
+  | 'Entrepreneurship'
+  | 'Research'
+  | 'Competitive Programming'
+  | 'Robotics'
+  | 'Electronics'
+  | 'Finance'
+  | 'Healthcare & Biotech'
+  | 'Law & Policy'
+  | 'General Tech';
+
+export type CommunityStatus =
+  | 'DRAFT'
+  | 'PENDING_VERIFICATION'
+  | 'VERIFIED'
+  | 'ACTIVE'
+  | 'SUSPENDED'
+  | 'ARCHIVED'
+  | 'REJECTED';
+
+export type CommunityMembershipType =
+  | 'OPEN'
+  | 'APPLICATION_REQUIRED'
+  | 'INVITE_ONLY';
+
+export type CommunityMembershipStatus =
+  | 'NOT_JOINED'
+  | 'ELIGIBLE'
+  | 'REQUESTED'
+  | 'PENDING_APPROVAL'
+  | 'MEMBER'
+  | 'REJECTED'
+  | 'SUSPENDED';
+
+export type CommunityRole =
+  | 'OWNER'
+  | 'ADMIN'
+  | 'MODERATOR'
+  | 'LEAD'
+  | 'ORGANIZER'
+  | 'MEMBER';
+
+export interface CommunityEligibilityCriteria {
+  allowedDegrees: string[];
+  allowedBranches: string[];
+  allowedYears: string[];
+  minCgpa?: number;
+  requiresInstitutionalVerification: boolean;
+  allowedUniversities?: string[];
+  requiredSkills?: string[];
+  summary: string;
+}
+
+export interface CommunityEvent {
+  id: string;
+  communityId: string;
+  communityName: string;
+  title: string;
+  description: string;
+  eventType:
+    | 'Hackathon'
+    | 'Workshop'
+    | 'Seminar'
+    | 'Mock Interview'
+    | 'Coding Contest'
+    | 'Project Showcase'
+    | 'Networking Session'
+    | 'Technical Session';
+  date: string;
+  time: string;
+  mode: 'Hybrid' | 'In-Person' | 'Virtual';
+  location: string;
+  eligibility: string;
+  capacity: number;
+  registeredCount: number;
+  isRegistered?: boolean;
+}
+
+export interface CommunityAnnouncement {
+  id: string;
+  communityId: string;
+  title: string;
+  content: string;
+  type: 'EVENT' | 'OPPORTUNITY' | 'GENERAL' | 'IMPORTANT';
+  postedAt: string;
+  postedBy: string;
+  pinned?: boolean;
+}
+
+export interface CommunityOpportunity {
+  id: string;
+  communityId: string;
+  communityName: string;
+  title: string;
+  type: 'INTERNSHIP' | 'PROJECT' | 'HACKATHON' | 'MENTORSHIP' | 'REFERRAL';
+  openPositions: number;
+  deadline: string;
+  company?: string;
+  description: string;
+  eligibility: string;
+  actionUrl?: string;
+}
+
+export interface CommunityLeader {
+  id: string;
+  name: string;
+  role: 'President' | 'Vice President' | 'Technical Lead' | 'Community Admin' | 'Faculty Advisor' | 'Founder';
+  avatar: string;
+  headline: string;
+}
+
+export interface CommunityAchievement {
+  id: string;
+  communityId: string;
+  communityName: string;
+  studentId?: string;
+  title: string;
+  type:
+    | 'HACKATHON_WINNER'
+    | 'WORKSHOP_ORGANIZER'
+    | 'TECH_LEAD'
+    | 'COMMUNITY_CONTRIBUTOR'
+    | 'PROJECT_MENTOR'
+    | 'EVENT_VOLUNTEER';
+  recipientName: string;
+  awardedAt: string;
+  evidenceSignal: string;
+  isClaimedToCareerDNA?: boolean;
+}
+
+export interface CommunityJoinRequest {
+  id: string;
+  communityId: string;
+  communityName: string;
+  studentId: string;
+  studentName: string;
+  studentEmail: string;
+  university: string;
+  degree: string;
+  branch: string;
+  year: string;
+  cgpa: string;
+  message: string;
+  skills: string[];
+  portfolioUrl?: string;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  createdAt: string;
+  reviewedAt?: string;
+  reviewedBy?: string;
+  rejectionReason?: string;
+}
+
+export interface CommunityAuditLog {
+  id: string;
+  communityId: string;
+  actor: string;
+  action: string;
+  timestamp: string;
+  target?: string;
+  reason?: string;
+  details?: string;
 }
 
 export interface Community {
@@ -896,7 +1135,43 @@ export interface Community {
   isJoined: boolean;
   featuredPost?: string;
   posts: CommunityPost[];
+
+  // Structured RPSC-Style Community Extensions
+  type?: CommunityType;
+  domain?: CommunityDomain;
+  institution?: string;
+  university?: string;
+  location?: string;
+  city?: string;
+  state?: string;
+  foundedYear?: number;
+  status?: CommunityStatus;
+  isVerified?: boolean;
+  verificationDetails?: {
+    verifiedBy: string;
+    verifiedAt: string;
+    verificationReason: string;
+  };
+  membershipType?: CommunityMembershipType;
+  myMembershipStatus?: CommunityMembershipStatus;
+  myRole?: CommunityRole;
+  eligibilityCriteria?: CommunityEligibilityCriteria;
+  activityMetrics?: {
+    activityLevel: 'VERY_ACTIVE' | 'ACTIVE' | 'MODERATE';
+    projectsThisMonth: number;
+    eventsThisMonth: number;
+    activeMembersCount: number;
+    opportunitiesCount: number;
+  };
+  events?: CommunityEvent[];
+  announcements?: CommunityAnnouncement[];
+  opportunities?: CommunityOpportunity[];
+  leadership?: CommunityLeader[];
+  achievements?: CommunityAchievement[];
+  joinRequests?: CommunityJoinRequest[];
+  auditTrail?: CommunityAuditLog[];
 }
+
 
 export interface NotificationItem {
   id: string;
@@ -1225,29 +1500,218 @@ export interface CompanyRecord {
   recruiterCount?: number;
   activeDrivesCount?: number;
   suspensionReason?: string;
+  isRestricted?: boolean;
+  restrictionReason?: string;
+  restrictedAt?: string;
+  warningsCount?: number;
+  violationsCount?: number;
 }
 
 export type ReportTargetType = 'USER' | 'DRIVE' | 'APPLICATION' | 'COMPANY';
 export type ReportStatus = 'PENDING' | 'INVESTIGATING' | 'RESOLVED' | 'DISMISSED';
+
+// ============================================================================
+// Trust & Safety System Types
+// ============================================================================
+
+export type TrustSafetyEntityType =
+  | 'RECRUITER'
+  | 'COMPANY'
+  | 'JOB'
+  | 'INTERNSHIP'
+  | 'OPPORTUNITY'
+  | 'STUDENT'
+  | 'PROFILE'
+  | 'MESSAGE'
+  | 'CERTIFICATE'
+  | 'REVIEW'
+  | 'OTHER';
+
+export type ReportPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+
+export type TrustSafetyStatus =
+  | 'SUBMITTED'
+  | 'TRIAGED'
+  | 'INVESTIGATION'
+  | 'DECISION'
+  | 'ACTION'
+  | 'RESOLVED'
+  | 'ESCALATED'
+  | 'DISMISSED'
+  | 'PENDING'
+  | 'INVESTIGATING';
+
+export type EnforcementActionType =
+  | 'NO_ACTION'
+  | 'WARNING'
+  | 'CONTENT_REMOVED'
+  | 'OPPORTUNITY_RESTRICTED'
+  | 'USER_RESTRICTED'
+  | 'RECRUITER_SUSPENDED'
+  | 'COMPANY_SUSPENDED'
+  | 'ACCOUNT_SUSPENDED'
+  | 'ACCOUNT_BANNED'
+  | 'ESCALATED';
+
+export type EnforcementDuration = '24_HOURS' | '7_DAYS' | '30_DAYS' | 'PERMANENT';
+
+export interface ReportEvidence {
+  id: string;
+  reportId: string;
+  type: 'SCREENSHOT' | 'DOCUMENT' | 'MESSAGE_LOG' | 'URL' | 'TEXT';
+  fileUrl?: string;
+  fileName?: string;
+  fileSize?: string;
+  description?: string;
+  uploadedBy: string;
+  createdAt: string;
+}
+
+export interface ReportInternalNote {
+  id: string;
+  authorId: string;
+  authorName: string;
+  authorRole: string;
+  note: string;
+  createdAt: string;
+}
+
+export interface TrustSafetyReport {
+  id: string;
+  caseNumber: string; // e.g. "TS-1042"
+  reporterId: string;
+  reporterName: string;
+  reporterEmail: string;
+  reporterRole?: string;
+
+  // Reported Entity
+  entityType: TrustSafetyEntityType;
+  targetId: string;
+  targetTitle: string;
+  reportedUserId?: string;
+  reportedUserName?: string;
+  reportedCompanyId?: string;
+  reportedCompanyName?: string;
+  reportedOpportunityId?: string;
+  reportedContentId?: string;
+
+  category: string;
+  description: string;
+  evidence: ReportEvidence[];
+  additionalInfo?: string;
+
+  priority: ReportPriority;
+  status: TrustSafetyStatus;
+
+  assignedModeratorId?: string;
+  assignedModeratorName?: string;
+  internalNotes: ReportInternalNote[];
+
+  enforcementAction?: EnforcementActionType;
+  enforcementDuration?: EnforcementDuration;
+  enforcementReason?: string;
+  enforcedAt?: string;
+  enforcedBy?: string;
+
+  resolutionNotes?: string;
+  resolvedAt?: string;
+  resolvedBy?: string;
+
+  // Extensibility Hooks for Phase 2 (Risk scoring, anomaly detection)
+  riskScore?: number;
+  anomalySignals?: string[];
+
+  // Backwards compatibility with basic ModerationReport
+  reason?: string;
+  details?: string;
+  targetType?: ReportTargetType;
+
+  createdAt: string;
+  updatedAt: string;
+}
 
 export interface ModerationReport {
   id: string;
   reporterId: string;
   reporterName: string;
   reporterEmail: string;
+  reporterRole?: string;
   targetType: ReportTargetType;
   targetId: string;
   targetTitle: string;
   reason: string;
   details: string;
-  status: ReportStatus;
+  status: ReportStatus | TrustSafetyStatus;
   resolutionNotes?: string;
   resolvedBy?: string;
   resolvedAt?: string;
   createdAt: string;
+
+  // Optional Trust & Safety fields for enriched reports
+  caseNumber?: string;
+  entityType?: TrustSafetyEntityType;
+  reportedUserId?: string;
+  reportedUserName?: string;
+  reportedCompanyId?: string;
+  reportedCompanyName?: string;
+  reportedOpportunityId?: string;
+  reportedContentId?: string;
+  category?: string;
+  description?: string;
+  evidence?: ReportEvidence[];
+  additionalInfo?: string;
+  priority?: ReportPriority;
+  assignedModeratorId?: string;
+  assignedModeratorName?: string;
+  internalNotes?: ReportInternalNote[];
+  enforcementAction?: EnforcementActionType;
+  enforcementDuration?: EnforcementDuration;
+  enforcementReason?: string;
+  enforcedAt?: string;
+  enforcedBy?: string;
+  riskScore?: number;
+  anomalySignals?: string[];
+  updatedAt?: string;
 }
 
-export type AdminUserStatus = 'ACTIVE' | 'SUSPENDED' | 'PENDING' | 'INACTIVE';
+export interface EntitySafetyHistory {
+  entityType: TrustSafetyEntityType | string;
+  entityId: string;
+  entityName: string;
+  verificationStatus?: string;
+  totalReports: number;
+  confirmedViolations: number;
+  activeInvestigations: number;
+  warningsCount: number;
+  currentRestrictions: string[];
+  recentReports: TrustSafetyReport[];
+}
+
+export interface CompanyRiskSignals {
+  companyId: string;
+  companyName: string;
+  recruitersReportedCount: number;
+  opportunitiesReportedCount: number;
+  totalReportsCount: number;
+  previousViolationsCount: number;
+  activeInvestigationsCount: number;
+  riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+}
+
+export interface TrustSafetyMetrics {
+  openReports: number;
+  criticalReports: number;
+  underInvestigation: number;
+  resolvedToday: number;
+  suspendedEntities: number;
+  resolutionRate: number;
+  reportsByCategory: Record<string, number>;
+  reportsByEntityType: Record<string, number>;
+  priorityDistribution: Record<string, number>;
+  statusDistribution: Record<string, number>;
+}
+
+export type AdminUserStatus = 'ACTIVE' | 'RESTRICTED' | 'SUSPENDED' | 'BANNED' | 'PENDING' | 'INACTIVE';
 
 export interface AdminUserRecord {
   id: string;
@@ -1343,17 +1807,6 @@ export type User = StudentProfile | RecruiterProfile | AdminProfile | CollegePro
 
 export type EmploymentType = 'INTERNSHIP' | 'FULL_TIME' | 'PART_TIME' | 'CONTRACT';
 export type WorkMode = 'ONSITE' | 'REMOTE' | 'HYBRID';
-export type DriveStatus =
-  | 'DRAFT'
-  | 'PUBLISHED'
-  | 'APPLICATIONS_OPEN'
-  | 'APPLICATIONS_CLOSED'
-  | 'SCREENING'
-  | 'SELECTION_IN_PROGRESS'
-  | 'RESULTS_PUBLISHED'
-  | 'CLOSED';
-
-export type StageType = 'SCREENING' | 'ASSESSMENT' | 'INTERVIEW' | 'FINAL_SELECTION';
 
 export type RecruitmentApplicationStatus =
   | 'SUBMITTED'
@@ -1368,6 +1821,19 @@ export type RecruitmentApplicationStatus =
   | 'REJECTED'
   | 'WITHDRAWN'
   | 'WAITLISTED';
+export type DriveStatus =
+  | 'DRAFT'
+  | 'PUBLISHED'
+  | 'APPLICATIONS_OPEN'
+  | 'APPLICATIONS_CLOSED'
+  | 'SCREENING'
+  | 'SELECTION_IN_PROGRESS'
+  | 'RESULTS_PUBLISHED'
+  | 'CLOSED'
+  | 'UNDER_REVIEW'
+  | 'RESTRICTED';
+
+export type StageType = 'SCREENING' | 'ASSESSMENT' | 'INTERVIEW' | 'FINAL_SELECTION';
 
 
 export interface EligibilityCriteria {
@@ -1451,6 +1917,10 @@ export interface RecruitmentDrive {
   createdAt: string;
   updatedAt: string;
   createdBy?: string;
+  isRestricted?: boolean;
+  restrictionReason?: string;
+  restrictedAt?: string;
+  restrictedBy?: string;
 }
 
 export interface CandidateApplicationHistoryEntry {
@@ -1502,7 +1972,10 @@ export interface RecruitmentApplication {
     timestamp: string;
   };
   history?: CandidateApplicationHistoryEntry[];
+  visibilityScope?: ApplicationVisibilityScope;
 }
+
+export type ApplicationVisibilityScope = 'PRIVATE' | 'STUDENTHUB' | 'COLLEGE_PLACEMENT';
 
 export interface CandidateAssessmentRecord {
   id: string;
@@ -1534,6 +2007,15 @@ export interface InterviewEvaluation {
   evaluatorName: string;
 }
 
+export type InterviewRoundType =
+  | 'SCREENING'
+  | 'TECHNICAL'
+  | 'CODING'
+  | 'HR'
+  | 'MANAGERIAL'
+  | 'FINAL'
+  | 'OTHER';
+
 export interface CandidateInterviewRecord {
   id: string;
   driveId: string;
@@ -1543,7 +2025,13 @@ export interface CandidateInterviewRecord {
   candidateAvatar: string;
   candidateUniversity: string;
   driveTitle: string;
+  company?: string;
+  companyLogo?: string;
   stageId: string;
+  roundType?: InterviewRoundType;
+  roundName?: string;
+  roundNumber?: number;
+  instructions?: string;
   type: 'ONLINE' | 'OFFLINE' | 'PHONE' | 'VIDEO';
   date: string;
   time: string;
@@ -1551,10 +2039,52 @@ export interface CandidateInterviewRecord {
   meetingLink?: string;
   location?: string;
   interviewerName: string;
-  status: 'SCHEDULED' | 'COMPLETED' | 'CANCELLED' | 'NO_SHOW';
+  interviewerRole?: string;
+  status: 'SCHEDULED' | 'RESCHEDULED' | 'COMPLETED' | 'CANCELLED' | 'NO_SHOW';
   notes?: string;
   evaluation?: InterviewEvaluation;
   createdAt: string;
+}
+
+export type CalendarEventType = 'INTERVIEW' | 'ASSESSMENT' | 'MEETING';
+export type CalendarEventStatus = 'SCHEDULED' | 'RESCHEDULED' | 'COMPLETED' | 'CANCELLED' | 'NO_SHOW';
+
+export interface CalendarEvent {
+  id: string;
+  type: CalendarEventType;
+  title: string;
+  subtitle: string;
+  description?: string;
+  company: string;
+  companyLogo?: string;
+  date: string; // YYYY-MM-DD
+  startTime: string; // e.g., "11:00 AM"
+  endTime?: string;
+  duration: string; // e.g., "45 mins"
+  status: CalendarEventStatus;
+  meetingUrl?: string;
+  location?: string;
+  sourceId: string;
+  sourceType: 'DRIVE_INTERVIEW' | 'RECRUITER_INTERVIEW' | 'ASSESSMENT' | 'CAREER_MEETING';
+  actionUrl: string;
+  metadata: {
+    roundType?: InterviewRoundType;
+    roundName?: string;
+    roundNumber?: number;
+    isFinalRound?: boolean;
+    interviewerName?: string;
+    interviewerRole?: string;
+    candidateId?: string;
+    candidateName?: string;
+    candidateAvatar?: string;
+    candidateUniversity?: string;
+    applicationId?: string;
+    driveId?: string;
+    position?: string;
+    instructions?: string;
+    passingScore?: number;
+    maxScore?: number;
+  };
 }
 
 export interface ResultCandidateItem {

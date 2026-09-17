@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
+import { usePathname } from "next/navigation";
 import { StudentHubSidebar } from "@/components/shared/StudentHubSidebar";
 import { TopHeader } from "@/components/dashboard/TopHeader";
 import { MobileNav } from "@/components/dashboard/MobileNav";
@@ -8,6 +9,7 @@ import { QuickActionsFab } from "@/components/dashboard/QuickActionsFab";
 import { AtmosphericBackground } from "@/components/ui/AtmosphericBackground";
 import { UserRole } from "@/types";
 import { cn } from "@/lib/utils";
+import { useSidebar } from "@/context/SidebarContext";
 
 export interface DashboardShellProps {
   children: React.ReactNode;
@@ -30,19 +32,35 @@ export function DashboardShell({
   showMobileNav = true,
   showFab = true,
 }: DashboardShellProps) {
-  const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
+  const pathname = usePathname();
+  const {
+    isSidebarCollapsed,
+    isMobileDrawerOpen,
+    openMobileDrawer,
+    closeMobileDrawer,
+  } = useSidebar();
+
+  const isCommunities = pathname === "/dashboard/communities";
 
   return (
-    <div className="min-h-screen bg-background text-foreground antialiased flex flex-col lg:grid lg:grid-cols-[auto_minmax(0,1fr)]">
+    <div
+      data-sidebar={isSidebarCollapsed ? "collapsed" : "expanded"}
+      className={cn(
+        "min-h-screen bg-background text-foreground antialiased flex flex-col lg:grid transition-[grid-template-columns] duration-200 ease-in-out",
+        isSidebarCollapsed
+          ? "lg:grid-cols-[72px_minmax(0,1fr)]"
+          : "lg:grid-cols-[280px_minmax(0,1fr)]"
+      )}
+    >
       {/* Desktop Sticky Sidebar & Mobile Navigation Drawer */}
       <StudentHubSidebar
         role={role}
         isMobileDrawerOpen={isMobileDrawerOpen}
-        onCloseMobileDrawer={() => setIsMobileDrawerOpen(false)}
+        onCloseMobileDrawer={closeMobileDrawer}
       />
 
-      {/* Main Workspace Area */}
-      <div className="flex-1 flex flex-col min-w-0 pb-20 lg:pb-0 relative overflow-hidden">
+      {/* Main Workspace Area (No overflow-x-clip to preserve position: sticky) */}
+      <div className="flex-1 flex flex-col min-w-0 pb-20 lg:pb-0 relative">
         {/* Global Dashboard Atmospheric Background Layer */}
         <AtmosphericBackground
           variant="dashboard"
@@ -51,21 +69,26 @@ export function DashboardShell({
           className="absolute inset-0 h-full -z-10"
         />
 
-        {/* Topbar Navigation (Sticky inside main column, never overlapping sidebar) */}
-        <TopHeader
-          onOpenMobileDrawer={() => setIsMobileDrawerOpen(true)}
-          title={title}
-          subtitle={subtitle}
-        />
+        {/* Topbar Navigation (Sticky inside main column, omitted on Communities page for top-0 Communities header) */}
+        {!isCommunities && (
+          <TopHeader
+            onOpenMobileDrawer={openMobileDrawer}
+            title={title}
+            subtitle={subtitle}
+          />
+        )}
 
         {/* Page Content Container */}
         <main
           className={cn(
-            "flex-1 p-4 sm:p-6 lg:p-8 max-w-[1600px] w-full mx-auto space-y-6",
+            "flex-1 min-w-0",
+            isCommunities
+              ? "w-full"
+              : "p-4 sm:p-6 lg:p-8 max-w-[1600px] w-full mx-auto space-y-6",
             contentClassName
           )}
         >
-          {banner}
+          {!isCommunities && banner}
           {children}
         </main>
       </div>
@@ -78,3 +101,4 @@ export function DashboardShell({
     </div>
   );
 }
+

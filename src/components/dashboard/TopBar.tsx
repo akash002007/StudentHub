@@ -18,6 +18,7 @@ import {
   Users2,
   Building2,
   BarChart3,
+  Calendar,
 } from "lucide-react";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
@@ -78,6 +79,8 @@ export function TopBar() {
 
   const notificationsPageUrl =
     isRecruiter ? "/dashboard/recruiter/notifications" : "/dashboard/notifications";
+  const calendarPageUrl =
+    isRecruiter ? "/dashboard/recruiter/calendar" : "/dashboard/calendar";
   const profilePageUrl =
     isRecruiter ? "/dashboard/recruiter/company" : "/dashboard/profile";
 
@@ -147,6 +150,17 @@ export function TopBar() {
               {unreadMessagesTotal > 99 ? "99+" : unreadMessagesTotal}
             </span>
           )}
+        </Link>
+        <Link
+          href={calendarPageUrl}
+          className={cn(
+            "relative p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted transition-colors",
+            pathname.includes("/calendar") && "bg-muted text-foreground font-semibold"
+          )}
+          aria-label="Calendar"
+          title="Calendar"
+        >
+          <Calendar className="w-4 h-4" />
         </Link>
 
         {/* Notifications Popover Trigger */}

@@ -89,19 +89,26 @@ export default function CareerDNAPage() {
     if (!user) return;
     setIsRefreshing(true);
     try {
-      const syncRes = await fetch("/api/integrations/github/sync", {
+      const res = await fetch("/api/student/career-dna", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId: user.id }),
       });
-      if (syncRes.ok) {
-        success("Career DNA refresh triggered!");
+      if (res.ok) {
+        const data = await res.json();
+        if (data.careerDNA) {
+          setCareerDNA(data.careerDNA);
+        }
+        if (data.githubConnection) {
+          setGithubConn(data.githubConnection);
+        }
+        success("Career DNA recalculated successfully!");
         fetchCareerDNA();
       } else {
-        toastError("Failed to trigger Career DNA refresh.");
+        toastError("Failed to recalculate Career DNA.");
       }
     } catch {
-      toastError("Error triggering refresh.");
+      toastError("Error recalculating Career DNA.");
     } finally {
       setIsRefreshing(false);
     }
@@ -123,23 +130,34 @@ export default function CareerDNAPage() {
     careerDNA?.summary ||
     "Your profile demonstrates strong full-stack development capability supported by verified GitHub projects, resume experience, and technical skills.";
 
-  const breakdown = careerDNA?.sourceBreakdown || {
-    resumeScore: 81,
-    githubScore: githubConn && githubConn.syncStatus === "SYNCED" ? 74 : null,
-    projectsScore: 86,
-    skillsScore: 84,
-    experienceScore: 76,
-    educationScore: 82,
+  const isGitHubSyncing =
+    githubConn?.syncStatus === "SYNCING" ||
+    careerDNA?.sourceStatuses?.github === "PROCESSING" ||
+    careerDNA?.sourceStatuses?.github === "ANALYZING";
+
+  const breakdown = {
+    resumeScore: careerDNA?.sourceBreakdown?.resumeScore ?? 81,
+    githubScore: careerDNA?.sourceBreakdown?.githubScore ?? (githubConn?.syncStatus === "SYNCED" ? (careerDNA?.overallScore ?? 74) : null),
+    projectsScore: careerDNA?.sourceBreakdown?.projectsScore ?? 86,
+    skillsScore: careerDNA?.sourceBreakdown?.skillsScore ?? 84,
+    experienceScore: careerDNA?.sourceBreakdown?.experienceScore ?? 76,
+    educationScore: careerDNA?.sourceBreakdown?.educationScore ?? 82,
   };
 
-  const statuses = careerDNA?.sourceStatuses || {
-    resume: "ANALYZED",
-    github: githubConn && githubConn.syncStatus === "SYNCED" ? "ANALYZED" : "NOT_CONNECTED",
-    projects: "ANALYZED",
-    skills: "ANALYZED",
-    experience: "ANALYZED",
-    education: "ANALYZED",
-    certifications: "NOT_CONNECTED",
+  const statuses = {
+    resume: careerDNA?.sourceStatuses?.resume || "ANALYZED",
+    github: isGitHubSyncing
+      ? "ANALYZING"
+      : (githubConn?.syncStatus === "SYNCED" || breakdown.githubScore !== null)
+      ? "ANALYZED"
+      : githubConn
+      ? "CONNECTED"
+      : "NOT_CONNECTED",
+    projects: careerDNA?.sourceStatuses?.projects || "ANALYZED",
+    skills: careerDNA?.sourceStatuses?.skills || "ANALYZED",
+    experience: careerDNA?.sourceStatuses?.experience || "ANALYZED",
+    education: careerDNA?.sourceStatuses?.education || "ANALYZED",
+    certifications: careerDNA?.sourceStatuses?.certifications || "NOT_CONNECTED",
   };
 
   const evidences = careerDNA?.evidences || [
@@ -377,6 +395,9 @@ export default function CareerDNAPage() {
               { label: "Education", score: breakdown.educationScore, icon: BookOpen, action: "/dashboard/profile" },
             ].map((cat) => {
               const Icon = cat.icon;
+              const isGithub = cat.label === "GitHub DNA";
+              const isAnalyzing = isGithub && statuses.github === "ANALYZING";
+
               return (
                 <Card key={cat.label} hoverEffect className="p-4 border-border/80 bg-card space-y-2 text-center flex flex-col justify-between">
                   <div className="space-y-1.5">
@@ -387,13 +408,29 @@ export default function CareerDNAPage() {
                   </div>
 
                   <div>
-                    {cat.score !== null && cat.score !== undefined ? (
-                      <div className="text-xl font-extrabold text-foreground">
-                        {cat.score} <span className="text-[10px] text-muted-foreground font-normal">/100</span>
+                    {isAnalyzing ? (
+                      <div className="space-y-1 pt-1">
+                        <span className="flex items-center justify-center gap-1 text-[11px] font-bold text-blue-500 animate-pulse">
+                          <RefreshCw className="w-3 h-3 animate-spin" /> Analyzing...
+                        </span>
+                        <span className="text-[9px] text-muted-foreground block">Syncing data</span>
+                      </div>
+                    ) : cat.score !== null && cat.score !== undefined ? (
+                      <div className="space-y-1">
+                        <div className="text-xl font-extrabold text-foreground">
+                          {cat.score} <span className="text-[10px] text-muted-foreground font-normal">/ 100</span>
+                        </div>
+                        {isGithub && (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
+                            Connected
+                          </span>
+                        )}
                       </div>
                     ) : (
                       <div className="space-y-1.5 pt-1">
-                        <span className="text-[10px] text-muted-foreground block italic">Not analyzed</span>
+                        <span className="text-[10px] text-muted-foreground block italic">
+                          {isGithub && !githubConn ? "Not connected" : "Not analyzed"}
+                        </span>
                         <Link href={cat.action}>
                           <Button variant="outline" size="sm" className="h-6 text-[10px] px-2 w-full font-semibold">
                             Connect
@@ -430,12 +467,26 @@ export default function CareerDNAPage() {
                 <div className="flex items-center gap-2 text-xs font-bold text-foreground">
                   <Github className="w-4 h-4 text-blue-500" /> GitHub
                 </div>
-                <Badge variant={statuses.github === "ANALYZED" ? "emerald" : "secondary"} size="sm" className="text-[10px]">
+                <Badge
+                  variant={
+                    statuses.github === "ANALYZED"
+                      ? "emerald"
+                      : statuses.github === "ANALYZING"
+                      ? "blue"
+                      : "secondary"
+                  }
+                  size="sm"
+                  className="text-[10px]"
+                >
                   {statuses.github}
                 </Badge>
               </div>
               <p className="text-xs text-muted-foreground">
-                {githubConn ? `${careerDNA?.githubStats?.totalRepos || 5} repositories analyzed` : "Not connected yet"}
+                {statuses.github === "ANALYZING"
+                  ? "Synchronizing repositories..."
+                  : githubConn || statuses.github === "ANALYZED"
+                  ? `${githubConn?.repositoriesCount ?? careerDNA?.githubStats?.totalRepos ?? 6} repositories analyzed`
+                  : "Not connected yet"}
               </p>
             </Card>
 

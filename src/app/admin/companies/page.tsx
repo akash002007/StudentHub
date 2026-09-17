@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+import Link from "next/link";
 import {
   Building2,
   Search,
@@ -14,6 +15,7 @@ import {
   Briefcase,
   X,
   ShieldCheck,
+  Shield,
 } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -300,18 +302,27 @@ export default function AdminCompaniesPage() {
                   )}
                 </div>
 
-                <div className="pt-2 border-t border-border flex items-center justify-end gap-2">
-                  {!isVerified && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="text-emerald-600 border-blue-500/30 hover:bg-emerald-500/10"
-                      onClick={() => handleOpenStatusModal(c, "VERIFIED")}
-                    >
-                      <CheckCircle2 className="w-3 h-3 mr-1" />
-                      Verify Company
-                    </Button>
-                  )}
+                <div className="pt-2 border-t border-border flex items-center justify-between gap-2">
+                  <Link
+                    href={`/admin/trust-safety/reports?search=${encodeURIComponent(c.name)}`}
+                    className="inline-flex items-center gap-1 text-[11px] text-indigo-400 hover:text-indigo-300 font-medium px-2 py-1 rounded bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/20 transition-colors"
+                  >
+                    <Shield className="w-3 h-3" />
+                    <span>T&S History</span>
+                  </Link>
+
+                  <div className="flex items-center gap-2">
+                    {!isVerified && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-emerald-600 border-blue-500/30 hover:bg-emerald-500/10"
+                        onClick={() => handleOpenStatusModal(c, "VERIFIED")}
+                      >
+                        <CheckCircle2 className="w-3 h-3 mr-1" />
+                        Verify Company
+                      </Button>
+                    )}
                   {isVerified && (
                     <Button
                       variant="outline"
@@ -333,6 +344,7 @@ export default function AdminCompaniesPage() {
                       Reactivate
                     </Button>
                   )}
+                  </div>
                 </div>
               </Card>
             );

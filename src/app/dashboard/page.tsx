@@ -399,7 +399,7 @@ export default function DashboardHomePage() {
 
         {/* Right Column: Upcoming Recruitment Events & Recent Applications (5 cols) */}
         <div className="lg:col-span-5 space-y-6">
-          {/* Upcoming Events Box */}
+          {/* Upcoming Events Box (Section 19: Unified Dashboard Upcoming Widget) */}
           {isLoading ? (
             <Card className="p-5 border border-border/80 bg-card rounded-2xl space-y-4 animate-pulse">
               <div className="w-48 h-4 bg-muted rounded-md" />
@@ -408,39 +408,98 @@ export default function DashboardHomePage() {
                 <div className="p-3 rounded-2xl bg-muted/40 border border-border/50 h-16" />
               </div>
             </Card>
-          ) : upcomingEvents.length > 0 ? (
+          ) : (
             <Card className="p-5 border border-border/80 bg-card rounded-2xl space-y-4 shadow-[0_1px_4px_rgba(0,0,0,0.02)] relative overflow-hidden z-0">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="font-bold text-sm text-foreground flex items-center gap-2">
-                    <Calendar className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                    Upcoming Recruitment Schedule
-                  </h3>
-                  <p className="text-xs text-muted-foreground">Assigned tests &amp; interview rounds</p>
+              <div className="flex items-center justify-between pb-1 border-b border-border/50">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-lg bg-indigo-500/10 text-indigo-600 flex items-center justify-center">
+                    <Calendar className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <span className="text-[10px] font-extrabold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 block">
+                      UPCOMING
+                    </span>
+                    <h3 className="font-bold text-xs text-foreground">
+                      Career Activities &amp; Timeline
+                    </h3>
+                  </div>
                 </div>
+                <Link
+                  href="/dashboard/calendar"
+                  className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline"
+                >
+                  View Calendar →
+                </Link>
               </div>
 
-              <div className="space-y-3">
-                {upcomingEvents.map((evt: any) => (
-                  <Link key={evt.id} href={evt.link}>
-                    <div className="p-3 rounded-2xl bg-muted/40 border border-border flex items-center justify-between text-xs hover:border-blue-500/40 transition-colors cursor-pointer">
-                      <div className="space-y-0.5">
-                        <div className="font-bold text-foreground">{evt.title}</div>
-                        <div className="text-[11px] text-muted-foreground">{evt.subtitle}</div>
-                        <div className="text-[10px] text-blue-600 dark:text-blue-400 font-semibold">
-                          {evt.date} {evt.time ? `• ${evt.time}` : ""}
-                        </div>
-                      </div>
+              {upcomingEvents.length === 0 ? (
+                <div className="py-6 text-center text-xs text-muted-foreground">
+                  <p className="font-semibold">No upcoming career activities.</p>
+                  <p className="text-[11px] opacity-75 mt-0.5">Explore open recruitment drives to schedule interviews.</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {upcomingEvents.slice(0, 3).map((evt: any) => {
+                    const isToday = evt.date === "2026-09-17";
+                    const isTomorrow = evt.date === "2026-09-18";
+                    const isFinal = evt.isFinalRound || (evt.badge || "").toLowerCase().includes("final");
+                    const dateHeader = isToday ? "Today" : isTomorrow ? "Tomorrow" : "28 Sept";
 
-                      <Badge variant="purple" size="sm" className="shrink-0 font-bold">
-                        {evt.badge}
-                      </Badge>
-                    </div>
-                  </Link>
-                ))}
+                    return (
+                      <div key={evt.id} className="space-y-1">
+                        <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide block">
+                          {dateHeader}
+                        </span>
+                        <Link href={evt.link || "/dashboard/calendar"}>
+                          <div
+                            className={`p-3 rounded-2xl border flex items-center justify-between text-xs transition-all hover:scale-[1.01] cursor-pointer ${
+                              isFinal
+                                ? "bg-rose-500/5 border-rose-500/30 ring-1 ring-rose-500/15"
+                                : evt.type === "INTERVIEW"
+                                ? "bg-muted/40 border-border hover:border-indigo-500/40"
+                                : "bg-muted/40 border-border hover:border-purple-500/40"
+                            }`}
+                          >
+                            <div className="flex items-center gap-2.5">
+                              <span className="text-base shrink-0">
+                                {evt.type === "INTERVIEW" ? "🎥" : evt.type === "ASSESSMENT" ? "📋" : "📅"}
+                              </span>
+                              <div className="space-y-0.5 min-w-0">
+                                <div className="font-bold text-foreground truncate flex items-center gap-1.5">
+                                  <span>{evt.title}</span>
+                                  {isFinal && (
+                                    <Badge variant="rose" className="text-[9px] px-1.5 py-0 font-extrabold">
+                                      Final Round
+                                    </Badge>
+                                  )}
+                                </div>
+                                <div className="text-[11px] text-muted-foreground truncate">{evt.subtitle}</div>
+                              </div>
+                            </div>
+
+                            <div className="text-right shrink-0 pl-2">
+                              <div className="text-xs font-bold text-indigo-600 dark:text-indigo-400">
+                                {evt.time || "10:00 AM"}
+                              </div>
+                              <span className="text-[9px] text-muted-foreground">Scheduled</span>
+                            </div>
+                          </div>
+                        </Link>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              <div className="pt-2 border-t border-border/40">
+                <Link href="/dashboard/calendar" className="w-full block">
+                  <Button variant="outline" size="sm" className="w-full text-xs h-8 font-semibold">
+                    View Calendar
+                  </Button>
+                </Link>
               </div>
             </Card>
-          ) : null}
+          )}
 
           {/* Active Applications Mini-Tracker */}
           <Card className="p-5 border border-border/80 bg-card rounded-2xl space-y-4 shadow-[0_1px_4px_rgba(0,0,0,0.02)] relative overflow-hidden z-0">

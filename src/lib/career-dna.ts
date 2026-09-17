@@ -8,6 +8,8 @@ import {
 import {
   saveCareerDNA,
   getCareerDNA,
+  getGitHubConnection,
+  getGitHubRepositories,
   getCodeforcesConnection,
   getCodeforcesDNA,
   getLeetCodeConnection,
@@ -168,7 +170,11 @@ export class CareerDNABuilder {
       : null;
 
     // 7. Source Statuses & Availability-Aware Breakdown Scores
-    const hasGithub = repositories.length > 0;
+    const ghConn = getGitHubConnection(userId);
+    const hasGithub = Boolean(repositories.length > 0 || (ghConn && (ghConn.syncStatus === "SYNCED" || Boolean(ghConn.syncCompletedAt))));
+    const isGhSyncing = Boolean(ghConn && ghConn.syncStatus === "SYNCING");
+    const githubScore = hasGithub ? overallScore : null;
+
     const hasProjects = projects.length > 0;
     const hasCodeforces = Boolean(isCfVerified && cfConn && cfConn.syncStatus === "SYNCED");
     const hasLeetCode = Boolean(isLcVerified && lcConn && lcConn.syncStatus === "SYNCED");
@@ -177,7 +183,7 @@ export class CareerDNABuilder {
 
     const sourceStatuses = {
       resume: "ANALYZED" as const,
-      github: hasGithub ? ("ANALYZED" as const) : ("NOT_CONNECTED" as const),
+      github: hasGithub ? ("ANALYZED" as const) : isGhSyncing ? ("PROCESSING" as const) : ("NOT_CONNECTED" as const),
       codeforces: hasCodeforces ? ("ANALYZED" as const) : ("NOT_CONNECTED" as const),
       leetcode: hasLeetCode ? ("ANALYZED" as const) : ("NOT_CONNECTED" as const),
       huggingface: hasHuggingFace ? ("ANALYZED" as const) : ("NOT_CONNECTED" as const),
@@ -204,18 +210,46 @@ export class CareerDNABuilder {
       (d) => d.documentType === "INTERNSHIP_CERTIFICATE"
     );
 
+    const resumeScore = 81;
+    const projectsScore = hasProjects ? Math.round(85 * 1.02) : 80;
+    const skillsScore = 84;
+    const experienceScore = hasVerifiedInternship ? 88 : 76;
+    const educationScore = hasVerifiedDegree ? 92 : 82;
+
     const sourceBreakdown = {
-      resumeScore: 81,
-      githubScore: hasGithub ? Math.round(80 * 0.95) : null,
+      resumeScore,
+      githubScore,
       codeforcesScore: hasCodeforces && cfDNA ? cfDNA.score : null,
       leetcodeScore: hasLeetCode && lcDNA ? lcDNA.score : null,
       huggingfaceScore: hasHuggingFace && hfDNA ? hfDNA.score : null,
       certificatesScore: hasCertificates && certDNA ? certDNA.score : null,
-      projectsScore: hasProjects ? Math.round(85 * 1.02) : null,
-      skillsScore: 82,
-      experienceScore: hasVerifiedInternship ? 88 : 76,
-      educationScore: hasVerifiedDegree ? 92 : 82,
+      projectsScore,
+      skillsScore,
+      experienceScore,
+      educationScore,
     };
+
+    // Calculate composite overall Career DNA score incorporating GitHub evidence alongside other sources:
+    // Resume + GitHub + Projects + Skills + Experience + Education -> Career DNA
+    let compositeOverallScore: number;
+    if (githubScore !== null) {
+      compositeOverallScore = Math.round(
+        resumeScore * 0.20 +
+        githubScore * 0.20 +
+        projectsScore * 0.20 +
+        skillsScore * 0.15 +
+        experienceScore * 0.15 +
+        educationScore * 0.10
+      );
+    } else {
+      compositeOverallScore = Math.round(
+        resumeScore * 0.25 +
+        projectsScore * 0.25 +
+        skillsScore * 0.20 +
+        experienceScore * 0.15 +
+        educationScore * 0.15
+      );
+    }
 
     // 8. Next Best Actions
     const nextBestActions = [
@@ -248,7 +282,7 @@ export class CareerDNABuilder {
     // 9. Historical Snapshot Progression Tracking
     const newSnapshot: CareerDNASnapshot = {
       snapshotId: `snap_${Date.now()}`,
-      overallScore,
+      overallScore: compositeOverallScore,
       analysisConfidence,
       dimensions,
       capturedAt: now,
@@ -260,7 +294,7 @@ export class CareerDNABuilder {
     const newDNA: CareerDNA = {
       id: `dna_${userId}`,
       userId,
-      overallScore,
+      overallScore: compositeOverallScore,
       analysisConfidence,
       dimensions,
       dimensionExplanations,
@@ -294,5 +328,18 @@ export class CareerDNABuilder {
 
     saveCareerDNA(userId, newDNA);
     return newDNA;
+  }
+
+  /**
+   * Recalculates and compiles fresh Career DNA for a student based on current GitHub repositories,
+   * resume evidence, documents, and platform connections.
+   */
+  static recalculateCareerDNA(userId: string): CareerDNA {
+    const repositories = getGitHubRepositories(userId);
+    const { ProjectIntelligenceEngine } = require("@/lib/project-intelligence");
+    const { SkillIntelligenceEngine } = require("@/lib/skill-intelligence");
+    const projects = ProjectIntelligenceEngine.extractProjects(repositories);
+    const skillEvidences = SkillIntelligenceEngine.extractSkillEvidences(userId, repositories);
+    return this.compileCareerDNA(userId, projects, skillEvidences, repositories);
   }
 }

@@ -30,8 +30,13 @@ export async function GET(request: NextRequest) {
 
     let allApps = getApplications();
 
-    // Filter to only this college's students
-    let collegeApps = allApps.filter((app) => studentMap.has(app.studentId));
+    // Filter to only this college's students and respect student privacy boundary
+    let collegeApps = allApps.filter((app) => {
+      if (!studentMap.has(app.studentId)) return false;
+      // Independent private applications are NOT visible to the college
+      if (app.visibilityScope === "PRIVATE") return false;
+      return true;
+    });
 
     if (driveId !== "ALL") {
       collegeApps = collegeApps.filter((a) => a.driveId === driveId);

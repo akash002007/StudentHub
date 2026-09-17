@@ -4240,7 +4240,27 @@ export function saveCareerDNA(userId: string, dna: CareerDNA): CareerDNA {
  * Retrieves Career DNA for a user
  */
 export function getCareerDNA(userId: string): CareerDNA | null {
-  return store.careerDNA.get(userId) || null;
+  let dna = store.careerDNA.get(userId) || null;
+  const repos = store.githubRepositories.get(userId) || [];
+  const ghConn = store.githubConnections.get(userId);
+
+  // Auto-recalculate if repositories exist or GitHub is synced but Career DNA is missing or has unanalyzed GitHub score
+  if (repos.length > 0 || (ghConn && (ghConn.syncStatus === "SYNCED" || Boolean(ghConn.syncCompletedAt)))) {
+    if (!dna || dna.sourceBreakdown?.githubScore === null || dna.sourceBreakdown?.githubScore === undefined) {
+      try {
+        const { ProjectIntelligenceEngine } = require("@/lib/project-intelligence");
+        const { SkillIntelligenceEngine } = require("@/lib/skill-intelligence");
+        const { CareerDNABuilder } = require("@/lib/career-dna");
+        const projects = ProjectIntelligenceEngine.extractProjects(repos);
+        const skills = SkillIntelligenceEngine.extractSkillEvidences(userId, repos);
+        dna = CareerDNABuilder.compileCareerDNA(userId, projects, skills, repos);
+      } catch (err) {
+        console.warn("[server-store] Could not auto-compile Career DNA:", err);
+      }
+    }
+  }
+
+  return dna;
 }
 
 /**

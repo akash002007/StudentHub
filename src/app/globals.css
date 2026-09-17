@@ -409,4 +409,42 @@
   animation: floatNode 8s ease-in-out infinite alternate;
 }
 
+/* Feature Showcase Micro-Animations */
+@keyframes shimmerBar {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+
+.animate-shimmer-bar {
+  animation: shimmerBar 3s ease-in-out infinite;
+}
+
+@keyframes subtlePulse {
+  0%, 100% { transform: scale(1); opacity: 0.9; }
+  50% { transform: scale(1.08); opacity: 1; }
+}
+
+.animate-subtle-pulse {
+  animation: subtlePulse 4s ease-in-out infinite;
+}
+
+@keyframes pipelineDrift {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(3px); }
+}
+
+.animate-pipeline-drift {
+  animation: pipelineDrift 3.5s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-shimmer-bar,
+  .animate-subtle-pulse,
+  .animate-pipeline-drift {
+    animation: none !important;
+    transform: none !important;
+  }
+}
+
+
 

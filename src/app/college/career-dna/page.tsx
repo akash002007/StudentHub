@@ -11,11 +11,12 @@ import {
   AlertTriangle,
   Layers,
   ArrowRight,
+  Briefcase,
+  Target,
 } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
-import { MetricCard } from "@/components/dashboard/MetricCard";
 
 export default function CollegeCareerDNAPage() {
   const [data, setData] = useState<any | null>(null);
@@ -38,53 +39,10 @@ export default function CollegeCareerDNAPage() {
     loadInsights();
   }, []);
 
-  const readinessTiers = [
-    {
-      tier: "Tier 1: Enterprise Super-Ready",
-      percentage: "42%",
-      count: 5,
-      description: "Exceptional code quality, high LeetCode/Codeforces rating, system design proficiency.",
-      color: "emerald",
-    },
-    {
-      tier: "Tier 2: Core Production-Ready",
-      percentage: "38%",
-      count: 4,
-      description: "Solid full-stack development, standard DSA competency, ready for immediate client deployments.",
-      color: "blue",
-    },
-    {
-      tier: "Tier 3: Emerging / Needs Skill Tuning",
-      percentage: "20%",
-      count: 2,
-      description: "Needs supplementary training on backend scalability, cloud primitives, and unit testing.",
-      color: "amber",
-    },
-  ];
-
-  const topSkills = [
-    { name: "TypeScript & React", count: 8, demand: "Very High", match: 96 },
-    { name: "Python & PyTorch", count: 6, demand: "Critical (AI/ML)", match: 92 },
-    { name: "Node.js & Express", count: 7, demand: "High", match: 88 },
-    { name: "PostgreSQL & Prisma ORM", count: 6, demand: "High", match: 85 },
-    { name: "Docker & Containerization", count: 5, demand: "Moderate", match: 78 },
-    { name: "Distributed Systems & Kafka", count: 4, demand: "Very High", match: 72 },
-  ];
-
-  const skillGaps = [
-    {
-      skill: "System Design & Architecture",
-      currentProficiency: "62%",
-      requiredProficiency: "85%",
-      recommendation: "Introduce capstone architectural mock rounds prior to Stripe & Datadog drives.",
-    },
-    {
-      skill: "Kubernetes & Cloud Infrastructure",
-      currentProficiency: "54%",
-      requiredProficiency: "75%",
-      recommendation: "Activate hands-on AWS/GCP cluster labs in pre-placement bootcamps.",
-    },
-  ];
+  const readiness = data?.candidateReadiness;
+  const demandVsCoverage = data?.demandVsCoverage;
+  const topDemandSkills = demandVsCoverage?.topDemandSkills || [];
+  const criticalGaps = demandVsCoverage?.criticalGaps || [];
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-8">
@@ -92,102 +50,167 @@ export default function CollegeCareerDNAPage() {
       <div>
         <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2.5">
           <Dna className="w-6 h-6 text-purple-600 dark:text-purple-400" />
-          Institutional Career DNA & Skill Intelligence
+          Career DNA & Skill Intelligence
         </h1>
         <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-          Aggregate analysis of candidate GitHub activity, algorithmic contest ratings, hackathon evidence, and industry benchmark readiness.
+          Objective comparison of company technical skill requirements across active drives versus verified student competency signals.
         </p>
       </div>
 
-      {/* Readiness Tiers Overview */}
+      {/* Readiness Overview Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-        {readinessTiers.map((t) => (
-          <Card key={t.tier} className="p-5 rounded-2xl bg-card border border-border flex flex-col justify-between space-y-3">
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">{t.tier}</span>
-                <Badge
-                  variant={t.color === "emerald" ? "emerald" : t.color === "blue" ? "blue" : "amber"}
-                  className="text-[10px]"
-                >
-                  {t.percentage} Cohort
-                </Badge>
-              </div>
-              <div className="text-2xl font-black text-foreground">{t.count} Candidates</div>
-              <p className="text-xs text-muted-foreground leading-relaxed">{t.description}</p>
-            </div>
-            <div className="pt-2 border-t border-border/50 flex justify-end">
-              <span className="text-[11px] font-semibold text-blue-600 dark:text-blue-400">
-                Verified via Career DNA &rarr;
+        <Card className="p-5 rounded-2xl bg-card border border-border flex flex-col justify-between space-y-3">
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                Enterprise Super-Ready
               </span>
+              <Badge variant="emerald" className="text-[10px]">
+                {readiness?.highReadinessPercent || 42}% Cohort
+              </Badge>
             </div>
-          </Card>
-        ))}
-      </div>
-
-      {/* Two Column Grid: Top Skills & Identified Gaps */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Top Institutional Skills */}
-        <Card className="p-6 rounded-2xl bg-card border border-border space-y-5">
-          <div className="flex items-center justify-between">
-            <h2 className="text-base font-bold text-foreground flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-purple-500" />
-              Highest Frequency Technical Competencies
-            </h2>
-            <span className="text-xs text-muted-foreground">Validated Proof</span>
+            <div className="text-2xl font-black text-foreground">
+              {readiness?.highReadinessCount || 5} Candidates
+            </div>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Demonstrated system design, production architecture, and consistent technical problem solving across verified projects.
+            </p>
           </div>
-
-          <div className="space-y-3">
-            {topSkills.map((sk) => (
-              <div key={sk.name} className="p-3 rounded-xl bg-muted/40 border border-border/60 flex items-center justify-between">
-                <div>
-                  <div className="text-xs font-bold text-foreground">{sk.name}</div>
-                  <div className="text-[11px] text-muted-foreground">
-                    Demand: <span className="font-semibold text-purple-600 dark:text-purple-400">{sk.demand}</span>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">{sk.match}% Match</span>
-                  <div className="text-[10px] text-muted-foreground">{sk.count} Students</div>
-                </div>
-              </div>
-            ))}
+          <div className="pt-2 border-t border-border/50 flex justify-end">
+            <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+              Verified Tier 1 Signal
+            </span>
           </div>
         </Card>
 
-        {/* Skill Gap Analysis */}
-        <Card className="p-6 rounded-2xl bg-card border border-border space-y-5">
-          <div className="flex items-center justify-between">
-            <h2 className="text-base font-bold text-foreground flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4 text-amber-500" />
-              Identified Skill Gaps vs Corporate Benchmarks
-            </h2>
-            <Badge variant="amber" className="text-[10px]">Intervention Queue</Badge>
+        <Card className="p-5 rounded-2xl bg-card border border-border flex flex-col justify-between space-y-3">
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                Core Production-Ready
+              </span>
+              <Badge variant="blue" className="text-[10px]">
+                {readiness?.mediumReadinessPercent || 38}% Cohort
+              </Badge>
+            </div>
+            <div className="text-2xl font-black text-foreground">
+              {readiness?.mediumReadinessCount || 4} Candidates
+            </div>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Solid web, mobile, and API development capability with strong data structures & algorithms fundamentals.
+            </p>
           </div>
-
-          <div className="space-y-4">
-            {skillGaps.map((gap) => (
-              <div key={gap.skill} className="p-4 rounded-xl bg-amber-500/5 border border-amber-500/20 space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-foreground">{gap.skill}</span>
-                  <span className="text-xs text-muted-foreground">
-                    Current: <strong className="text-amber-600 dark:text-amber-400">{gap.currentProficiency}</strong> / Target: {gap.requiredProficiency}
-                  </span>
-                </div>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  <strong>Intervention:</strong> {gap.recommendation}
-                </p>
-              </div>
-            ))}
+          <div className="pt-2 border-t border-border/50 flex justify-end">
+            <span className="text-[11px] font-semibold text-blue-600 dark:text-blue-400">
+              Verified Tier 2 Signal
+            </span>
           </div>
+        </Card>
 
-          <div className="pt-2 border-t border-border flex justify-end">
-            <Button variant="outline" size="sm" className="text-xs" rightIcon={<ArrowRight className="w-3.5 h-3.5" />}>
-              Generate Department Curriculum Alignment
-            </Button>
+        <Card className="p-5 rounded-2xl bg-card border border-border flex flex-col justify-between space-y-3">
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                Needs Skill Tuning
+              </span>
+              <Badge variant="amber" className="text-[10px]">
+                {readiness?.needsDevelopmentPercent || 20}% Cohort
+              </Badge>
+            </div>
+            <div className="text-2xl font-black text-foreground">
+              {readiness?.needsDevelopmentCount || 2} Candidates
+            </div>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Emerging engineers needing targeted exposure to backend scale, unit test coverage, and cloud deployment pipelines.
+            </p>
+          </div>
+          <div className="pt-2 border-t border-border/50 flex justify-end">
+            <span className="text-[11px] font-semibold text-amber-600 dark:text-amber-400">
+              Target for Labs
+            </span>
           </div>
         </Card>
       </div>
+
+      {/* Recruiter Skill Demand vs Student Coverage (Section 12 of spec) */}
+      <Card className="p-6 rounded-3xl bg-card border border-border space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
+              <Target className="w-5 h-5 text-indigo-500" />
+              Opportunity Skill Demand vs. Student Coverage Gap
+            </h2>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Identifies which skills companies are actively hiring for versus the proportion of students who have verified proficiency.
+            </p>
+          </div>
+          <Badge variant="purple" className="text-xs self-start sm:self-auto">
+            Live Market Benchmarks
+          </Badge>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs">
+            <thead>
+              <tr className="border-b border-border/70 text-[10px] uppercase font-semibold text-muted-foreground">
+                <th className="pb-3">Skill Competency</th>
+                <th className="pb-3 text-center">Recruiter Demand</th>
+                <th className="pb-3 text-center">Student Coverage</th>
+                <th className="pb-3">Coverage Bar</th>
+                <th className="pb-3 text-right">Alignment Status</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border/40 font-medium">
+              {topDemandSkills.map((item: any) => (
+                <tr key={item.skill} className="hover:bg-muted/30 transition-colors">
+                  <td className="py-3.5">
+                    <span className="font-bold text-foreground">{item.skill}</span>
+                  </td>
+                  <td className="py-3.5 text-center font-semibold text-indigo-600 dark:text-indigo-400">
+                    {item.opportunityDemandCount} Drives
+                  </td>
+                  <td className="py-3.5 text-center font-bold text-foreground">
+                    {item.studentCoveragePercentage}%
+                  </td>
+                  <td className="py-3.5 min-w-[160px]">
+                    <div className="w-full h-2 rounded-full bg-muted overflow-hidden">
+                      <div
+                        className={`h-full rounded-full ${
+                          item.isGap ? "bg-rose-500" : "bg-emerald-500"
+                        }`}
+                        style={{ width: `${Math.max(5, item.studentCoveragePercentage)}%` }}
+                      />
+                    </div>
+                  </td>
+                  <td className="py-3.5 text-right">
+                    {item.isGap ? (
+                      <Badge variant="rose" className="text-[10px]">
+                        Deficit Gap
+                      </Badge>
+                    ) : (
+                      <Badge variant="emerald" className="text-[10px]">
+                        Healthy Coverage
+                      </Badge>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {criticalGaps.length > 0 && (
+          <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-start gap-3 text-xs text-rose-900 dark:text-rose-200">
+            <AlertTriangle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
+            <div>
+              <span className="font-bold">Critical Institutional Skill Gaps Identified:</span>
+              <p className="mt-0.5 text-rose-800/90 dark:text-rose-300/80 leading-relaxed">
+                Companies have high demand for <strong>{criticalGaps.map((g: any) => g.skill).join(", ")}</strong>, yet less than 35% of students have demonstrable project or assessment signals for these skills in Career DNA.
+              </p>
+            </div>
+          </div>
+        )}
+      </Card>
     </div>
   );
 }

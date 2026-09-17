@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+import Link from "next/link";
 import {
   Flag,
   Search,
@@ -15,6 +16,7 @@ import {
   Briefcase,
   X,
   Layers,
+  Shield,
 } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -106,7 +108,7 @@ export default function AdminReportsPage() {
     }
   };
 
-  const getTargetIcon = (type: ReportTargetType) => {
+  const getTargetIcon = (type?: ReportTargetType | string) => {
     switch (type) {
       case "DRIVE":
         return <Layers className="w-4 h-4 text-blue-500" />;
@@ -119,21 +121,45 @@ export default function AdminReportsPage() {
     }
   };
 
-  const getStatusBadge = (status: ReportStatus) => {
+  const getStatusBadge = (status: ReportStatus | string) => {
     switch (status) {
       case "PENDING":
+      case "SUBMITTED":
         return <Badge variant="amber">Pending Investigation</Badge>;
       case "INVESTIGATING":
+      case "INVESTIGATION":
         return <Badge variant="blue">Under Review</Badge>;
       case "RESOLVED":
         return <Badge variant="emerald">Resolved</Badge>;
       case "DISMISSED":
         return <Badge variant="default">Dismissed</Badge>;
+      default:
+        return <Badge variant="purple">{status}</Badge>;
     }
   };
 
   return (
     <div className="space-y-6">
+      {/* Trust & Safety Command Center Banner */}
+      <div className="bg-rose-500/10 border border-rose-500/30 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-rose-200 shadow-sm">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center shrink-0">
+            <Shield className="w-5 h-5" />
+          </div>
+          <div>
+            <p className="text-sm font-bold text-white">Dedicated Trust & Safety Command Center</p>
+            <p className="text-xs text-slate-300">
+              New triage workspace, evidence gallery, opportunity restrictions, and immutable audit logs.
+            </p>
+          </div>
+        </div>
+        <Link href="/admin/trust-safety">
+          <Button size="sm" variant="primary" className="bg-rose-600 hover:bg-rose-500 text-white text-xs whitespace-nowrap">
+            Open Trust & Safety Hub →
+          </Button>
+        </Link>
+      </div>
+
       {/* Top Banner */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-2xl bg-card border border-border/80 shadow-xs">
         <div>
@@ -217,7 +243,8 @@ export default function AdminReportsPage() {
           </Card>
         ) : (
           reports.map((r) => {
-            const isPending = r.status === "PENDING" || r.status === "INVESTIGATING";
+            const statusStr = String(r.status);
+            const isPending = statusStr === "PENDING" || statusStr === "INVESTIGATING" || statusStr === "SUBMITTED" || statusStr === "INVESTIGATION";
 
             return (
               <Card key={r.id} className="p-5 border-border/80 bg-card space-y-3">
