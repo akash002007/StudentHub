@@ -123,7 +123,7 @@ export function CareerDNASummaryCard({ userId }: CareerDNASummaryCardProps) {
   // If student is not verified, render the authoritative locked/blurred CareerDNABanner (Section 1, 2, 10, 14, 15)
   // Evaluated after all hooks to strictly adhere to React Rules of Hooks
   if (!isStudentVerified(user)) {
-    return <CareerDNABanner user={user} summaryData={data} />;
+    return <CareerDNABanner user={user} summaryData={data} score={data?.score ?? (isLoading ? null : undefined)} />;
   }
 
   // 1. LOADING STATE
@@ -183,7 +183,7 @@ export function CareerDNASummaryCard({ userId }: CareerDNASummaryCardProps) {
 
   // 2. EMPTY STATE: GITHUB NOT CONNECTED
   if (!data || !data.connected) {
-    return <CareerDNABanner user={user} summaryData={data} />;
+    return <CareerDNABanner user={user} summaryData={data} score={data?.score ?? null} />;
   }
 
   // 3. CONNECTED BUT DATA PENDING / ZERO DATA
@@ -192,6 +192,7 @@ export function CareerDNASummaryCard({ userId }: CareerDNASummaryCardProps) {
       <CareerDNABanner
         user={user}
         summaryData={data}
+        score={data?.score ?? null}
         isPendingAnalysis
         onAnalyze={handleReanalyze}
         isAnalyzing={isRefreshing}
@@ -307,7 +308,7 @@ export function CareerDNASummaryCard({ userId }: CareerDNASummaryCardProps) {
       {/* Dynamic View: Scorecard vs Living Identity Graph */}
       {activeTab === "graph" ? (
         <div className="space-y-3">
-          <CareerDNAInteractiveGraph nodes={identityNodes} />
+          <CareerDNAInteractiveGraph nodes={identityNodes} score={data?.score ?? null} />
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">

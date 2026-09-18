@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { CareerDNANodeId, CareerDNANodeItem } from "./CareerDNAData";
 
 interface CareerDNAHelixProps {
@@ -8,6 +8,7 @@ interface CareerDNAHelixProps {
   isCenterHovered: boolean;
   reducedMotion?: boolean;
   nodes: CareerDNANodeItem[];
+  score?: number | null;
 }
 
 interface HelixRung {
@@ -24,6 +25,7 @@ export function CareerDNAHelix({
   isCenterHovered,
   reducedMotion = false,
   nodes,
+  score = null,
 }: CareerDNAHelixProps) {
   // Helix mathematical geometry
   // ViewBox: 1000 wide x 300 high, centered at y = 150
@@ -34,7 +36,7 @@ export function CareerDNAHelix({
   const k = (cycles * 2 * Math.PI) / width;
 
   // Generate smooth SVG paths for the two interwoven sinusoidal strands
-  const { pathA, pathB, rungs } = useMemo(() => {
+  const { pathA, pathB, rungs, pointsA, pointsB } = useMemo(() => {
     const pointsA: [number, number][] = [];
     const pointsB: [number, number][] = [];
     const generatedRungs: HelixRung[] = [];
@@ -88,8 +90,120 @@ export function CareerDNAHelix({
     const svgPathB = `M ${pointsB[0][0]} ${pointsB[0][1]} ` +
       pointsB.slice(1).map(([x, y]) => `L ${x.toFixed(1)} ${y.toFixed(1)}`).join(" ");
 
-    return { pathA: svgPathA, pathB: svgPathB, rungs: generatedRungs };
+    return { pathA: svgPathA, pathB: svgPathB, rungs: generatedRungs, pointsA, pointsB };
   }, [width, centerY, amplitude, k]);
+
+  // Smooth score interpolation (~600ms cubic easing) so particle activity transitions fluidly
+  const [animatedScore, setAnimatedScore] = useState<number | null>(score ?? null);
+
+  useEffect(() => {
+    if (score === null || score === undefined) {
+      setAnimatedScore(null);
+      return;
+    }
+
+    if (animatedScore === null) {
+      setAnimatedScore(score);
+      return;
+    }
+
+    const startScore = animatedScore;
+    const targetScore = Math.min(Math.max(score, 0), 100);
+    if (startScore === targetScore) return;
+
+    const startTime = performance.now();
+    const duration = 600;
+    let animationFrameId: number;
+
+    const animate = (currentTime: number) => {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      // easeInOutCubic
+      const ease =
+        progress < 0.5
+          ? 4 * progress * progress * progress
+          : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+
+      const current = Math.round(startScore + (targetScore - startScore) * ease);
+      setAnimatedScore(current);
+
+      if (progress < 1) {
+        animationFrameId = requestAnimationFrame(animate);
+      }
+    };
+
+    animationFrameId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(animationFrameId);
+  }, [score]);
+
+  // Generate dynamic particles based on the student's Career DNA Score
+  const { particlesA, particlesB, staticParticlesA, staticParticlesB } = useMemo(() => {
+    // Neutral fallback when score is not loaded yet (e.g. 50/100 equivalent)
+    const effectiveScore = animatedScore !== null ? Math.min(Math.max(animatedScore, 0), 100) : 50;
+
+    // Total particle count scales monotonically from 2 (at score 0) to 18 (at score 100)
+    // 0-20: 2-5 particles (subtle, calm)
+    // 21-40: 5-8 particles (low activity)
+    // 41-60: 8-11 particles (moderate activity)
+    // 61-80: 12-15 particles (high activity)
+    // 81-100: 15-18 particles (very high activity, controlled and premium)
+    const totalCount = Math.round(2 + (effectiveScore / 100) * 16);
+    const countA = Math.ceil(totalCount / 2);
+    const countB = Math.floor(totalCount / 2);
+
+    // Duration: 9.0s (score 0, gentle & serene) down to 5.5s (score 100, active & nimble)
+    const baseDur = 9.0 - (effectiveScore / 100) * 3.5;
+    const durA = baseDur;
+    const durB = baseDur * 1.18; // slight phase difference between strands for natural parallax
+
+    // Opacity: 0.70 at score 0 to 0.98 at score 100
+    const opacity = (0.7 + (effectiveScore / 100) * 0.28).toFixed(2);
+
+    // Build strand A particles with negative begin offset so particles are immediately spread across helix
+    const listA = [];
+    for (let i = 0; i < countA; i++) {
+      const beginOffset = -(i * (durA / countA)).toFixed(2);
+      const r = (2.2 + ((i % 3) * 0.45)).toFixed(1);
+      listA.push({
+        id: `pa-${i}`,
+        r,
+        dur: `${durA.toFixed(2)}s`,
+        begin: `${beginOffset}s`,
+        opacity,
+      });
+    }
+
+    // Build strand B particles (with a 35% phase offset to prevent lockstep mirroring)
+    const listB = [];
+    for (let i = 0; i < countB; i++) {
+      const beginOffset = -((i * (durB / Math.max(countB, 1))) + durB * 0.35).toFixed(2);
+      const r = (2.1 + (((i + 1) % 3) * 0.45)).toFixed(1);
+      listB.push({
+        id: `pb-${i}`,
+        r,
+        dur: `${durB.toFixed(2)}s`,
+        begin: `${beginOffset}s`,
+        opacity,
+      });
+    }
+
+    // Static points for reduced motion preference
+    const sA = [];
+    for (let i = 0; i < countA; i++) {
+      const idx = Math.floor(((i + 0.5) / countA) * (pointsA.length - 1));
+      const pt = pointsA[idx] || [0, 150];
+      sA.push({ id: `spa-${i}`, cx: pt[0], cy: pt[1], r: (2.3 + ((i % 3) * 0.4)).toFixed(1), opacity });
+    }
+
+    const sB = [];
+    for (let i = 0; i < countB; i++) {
+      const idx = Math.floor(((i + 0.5) / Math.max(countB, 1)) * (pointsB.length - 1));
+      const pt = pointsB[idx] || [0, 150];
+      sB.push({ id: `spb-${i}`, cx: pt[0], cy: pt[1], r: (2.2 + (((i + 1) % 3) * 0.4)).toFixed(1), opacity });
+    }
+
+    return { particlesA: listA, particlesB: listB, staticParticlesA: sA, staticParticlesB: sB };
+  }, [animatedScore, pointsA, pointsB]);
 
   return (
     <svg
@@ -220,16 +334,57 @@ export function CareerDNAHelix({
         className="dark:hidden inline transition-all duration-300 stroke-[2.5] opacity-95"
       />
 
-      {/* 4. Traveling Data Packets along the DNA strands */}
-      {!reducedMotion && (
-        <>
-          <circle r="3" className="fill-sky-400 dark:fill-cyan-300 shadow-md">
-            <animateMotion path={pathA} dur="6s" repeatCount="indefinite" />
-          </circle>
-          <circle r="2.8" className="fill-indigo-500 dark:fill-sky-400 shadow-md">
-            <animateMotion path={pathB} dur="8s" repeatCount="indefinite" />
-          </circle>
-        </>
+      {/* 4. Score-Driven Traveling Data Packets along the DNA Strands */}
+      {!reducedMotion ? (
+        <g className="data-packets-layer">
+          {particlesA.map((p) => (
+            <circle
+              key={p.id}
+              r={p.r}
+              className="fill-sky-400 dark:fill-cyan-300"
+              style={{ opacity: p.opacity }}
+              filter="url(#dnaGlowFilter)"
+            >
+              <animateMotion path={pathA} dur={p.dur} begin={p.begin} repeatCount="indefinite" />
+            </circle>
+          ))}
+          {particlesB.map((p) => (
+            <circle
+              key={p.id}
+              r={p.r}
+              className="fill-indigo-400 dark:fill-sky-300"
+              style={{ opacity: p.opacity }}
+              filter="url(#dnaGlowFilter)"
+            >
+              <animateMotion path={pathB} dur={p.dur} begin={p.begin} repeatCount="indefinite" />
+            </circle>
+          ))}
+        </g>
+      ) : (
+        <g className="static-data-packets-layer">
+          {staticParticlesA.map((p) => (
+            <circle
+              key={p.id}
+              cx={p.cx}
+              cy={p.cy}
+              r={p.r}
+              className="fill-sky-400 dark:fill-cyan-300"
+              style={{ opacity: p.opacity }}
+              filter="url(#dnaGlowFilter)"
+            />
+          ))}
+          {staticParticlesB.map((p) => (
+            <circle
+              key={p.id}
+              cx={p.cx}
+              cy={p.cy}
+              r={p.r}
+              className="fill-indigo-400 dark:fill-sky-300"
+              style={{ opacity: p.opacity }}
+              filter="url(#dnaGlowFilter)"
+            />
+          ))}
+        </g>
       )}
 
       {/* 5. Capability Capsule Connecting Rays into the DNA Helix */}

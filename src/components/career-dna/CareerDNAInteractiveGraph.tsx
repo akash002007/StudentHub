@@ -9,10 +9,12 @@ import { CareerDNAInsightPanel } from "./CareerDNAInsightCard";
 
 interface CareerDNAInteractiveGraphProps {
   nodes: CareerDNANodeItem[];
+  score?: number | null;
 }
 
 export function CareerDNAInteractiveGraph({
   nodes,
+  score = null,
 }: CareerDNAInteractiveGraphProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [hoveredNodeId, setHoveredNodeId] = useState<CareerDNANodeId | null>(null);
@@ -102,6 +104,7 @@ export function CareerDNAInteractiveGraph({
           focusedNodeId={focusedNodeId}
           isCenterHovered={isCenterHovered}
           reducedMotion={reducedMotion}
+          score={score}
         />
 
         {/* Central "CAREER DNA" Identity Core */}

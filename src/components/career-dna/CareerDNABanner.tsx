@@ -19,6 +19,7 @@ interface CareerDNABannerProps {
   user?: User | null;
   careerDNA?: any | null;
   summaryData?: any | null;
+  score?: number | null;
   isPendingAnalysis?: boolean;
   onAnalyze?: () => void;
   isAnalyzing?: boolean;
@@ -30,6 +31,7 @@ export function CareerDNABanner({
   user: propUser,
   careerDNA,
   summaryData,
+  score: propScore,
   isPendingAnalysis = false,
   onAnalyze,
   isAnalyzing = false,
@@ -39,6 +41,12 @@ export function CareerDNABanner({
   const router = useRouter();
   const auth = useAuth();
   const user = propUser || auth?.user;
+
+  // Resolve authoritative Career DNA score
+  const resolvedScore =
+    propScore !== undefined
+      ? propScore
+      : (careerDNA?.overallScore ?? summaryData?.overallScore ?? summaryData?.score ?? null);
 
   // Authoritative account verification check (Section 1, 14, 15)
   const isVerified = isStudentVerified(user);
@@ -120,7 +128,7 @@ export function CareerDNABanner({
           aria-hidden={isLocked}
           tabIndex={isLocked ? -1 : undefined}
         >
-          <CareerDNAInteractiveGraph nodes={nodes} />
+          <CareerDNAInteractiveGraph nodes={nodes} score={resolvedScore} />
         </div>
 
         {isLocked && !hideLockOverlay && <CareerDNALockOverlay />}

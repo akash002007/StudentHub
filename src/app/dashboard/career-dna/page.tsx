@@ -340,7 +340,12 @@ export default function CareerDNAPage() {
             tabIndex={isLocked ? -1 : undefined}
           >
             {/* 0. HERO DNA HELIX & LIVING CONSTELLATION GRAPH */}
-            <CareerDNABanner user={user} careerDNA={careerDNA} hideLockOverlay={true} />
+            <CareerDNABanner
+              user={user}
+              careerDNA={careerDNA}
+              score={careerDNA ? overallScore : null}
+              hideLockOverlay={true}
+            />
 
         {/* 1. HERO OVERALL CAREER DNA SCORE */}
         <Card hoverEffect className="p-6 sm:p-8 border-blue-500/20 bg-gradient-to-br from-card via-card to-blue-950/20 space-y-6 shadow-xl relative overflow-hidden">
