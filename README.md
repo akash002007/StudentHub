@@ -1192,15 +1192,4 @@ Your proof becomes your Career DNA.
 Learning → Building → Proving → Matching → Applying → Getting Hired
 
 
-### A couple of important recommendations
 
-Before committing this README, I would **replace the generic `<repository-url>` and environment-variable placeholders with your actual project details**. Also, don't mark a feature `[x]` unless it is genuinely implemented.
-
-For a polished GitHub repository, I'd also put a short project banner at the very top, followed by badges such as:
-
-```markdown
-![Next.js](https://img.shields.io/badge/Next.js-15-black?logo=next.js)
-![React](https://img.shields.io/badge/React-19-61DAFB?logo=react)
-![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3-06B6D4?logo=tailwindcss)
-![Status](https://img.shields.io/badge/Status-In%20Development-orange)
