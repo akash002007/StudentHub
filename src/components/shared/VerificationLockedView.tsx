@@ -132,7 +132,7 @@ export function VerificationLockedView({
             <div className="flex items-center justify-between text-xs">
               <span className="text-muted-foreground">Reviewer:</span>
               <span className="font-medium text-foreground">
-                StudentHub Verification Officer
+                CommandSkill Verification Officer
               </span>
             </div>
           </div>

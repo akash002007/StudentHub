@@ -333,7 +333,7 @@ export default function StudentDocumentsPage() {
         return (
           <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/30">
             <CheckCircle2 className="w-3 h-3" />
-            {method === "AUTOMATED" ? "Verified automatically" : "Verified by StudentHub Verification Officer"}
+            {method === "AUTOMATED" ? "Verified automatically" : "Verified by CommandSkill Verification Officer"}
           </span>
         );
       case "VERIFICATION_FAILED":

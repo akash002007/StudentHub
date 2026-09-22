@@ -133,7 +133,7 @@ export function VerificationBanner() {
             </div>
             <p className="text-xs sm:text-sm font-semibold text-foreground">
               {status === "under_review"
-                ? "A StudentHub verification officer is currently reviewing your document."
+                ? "A CommandSkill verification officer is currently reviewing your document."
                 : "Your manual review request has been submitted. A verification officer will review your document."}
             </p>
             <p className="text-xs text-muted-foreground">
@@ -208,7 +208,7 @@ export function VerificationBanner() {
               Pending Verification
             </span>
             <p className="text-xs sm:text-sm font-semibold text-foreground">
-              Your StudentHub account is awaiting verification.
+              Your CommandSkill account is awaiting verification.
             </p>
             <p className="text-xs text-muted-foreground">
               Submit your college fee receipt or university ID card to unlock verified internship access and fast-track recruiter applications.

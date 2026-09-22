@@ -183,7 +183,7 @@ export function ConnectCodeforcesModal({
 
       cleanupTimers();
 
-      // CASE F: StudentHub Authentication genuinely missing (HTTP 401)
+      // CASE F: CommandSkill Authentication genuinely missing (HTTP 401)
       if (res.status === 401) {
         updateVerificationState("FAILED");
         setErrorMessage("Session expired. Please sign in again.");

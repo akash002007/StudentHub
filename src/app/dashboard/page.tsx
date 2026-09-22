@@ -176,7 +176,7 @@ export default function DashboardHomePage() {
           <div className="p-4 rounded-xl bg-surface-container-low border border-amber-500/25 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
             <p className="text-muted-foreground leading-relaxed">
               <span className="font-semibold text-foreground">
-                Some StudentHub features are temporarily locked:
+                Some CommandSkill features are temporarily locked:
               </span>{" "}
               Career DNA, Connected Accounts, and Job/Internship Applications will
               automatically unlock once verified.

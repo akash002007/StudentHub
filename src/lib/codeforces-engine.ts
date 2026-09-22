@@ -40,8 +40,8 @@ export class CodeforcesEngine {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 15000); // 15s timeout for resilient public profile fetching
     const fetchOptions: RequestInit = bypassCache
-      ? { cache: "no-store", headers: { "User-Agent": "StudentHub-CareerDNA/1.0" } }
-      : { headers: { "User-Agent": "StudentHub-CareerDNA/1.0" }, next: { revalidate: 3600 } };
+      ? { cache: "no-store", headers: { "User-Agent": "CommandSkill-CareerDNA/1.0" } }
+      : { headers: { "User-Agent": "CommandSkill-CareerDNA/1.0" }, next: { revalidate: 3600 } };
 
     try {
       const res = await fetch(
@@ -96,7 +96,7 @@ export class CodeforcesEngine {
   static async fetchUserRating(handle: string): Promise<any[]> {
     try {
       const res = await fetch(`https://codeforces.com/api/user.rating?handle=${encodeURIComponent(handle)}`, {
-        headers: { "User-Agent": "StudentHub-CareerDNA/1.0" },
+        headers: { "User-Agent": "CommandSkill-CareerDNA/1.0" },
         next: { revalidate: 3600 },
       });
       if (!res.ok) return [];
@@ -113,7 +113,7 @@ export class CodeforcesEngine {
   static async fetchUserStatus(handle: string): Promise<any[]> {
     try {
       const res = await fetch(`https://codeforces.com/api/user.status?handle=${encodeURIComponent(handle)}`, {
-        headers: { "User-Agent": "StudentHub-CareerDNA/1.0" },
+        headers: { "User-Agent": "CommandSkill-CareerDNA/1.0" },
         next: { revalidate: 3600 },
       });
       if (!res.ok) return [];

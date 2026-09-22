@@ -35,10 +35,10 @@ export function LandingNav() {
         {/* Brand Logo */}
         <Link href="/" className="flex items-center gap-2.5 group">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-700 to-blue-800 via-blue-600 to-blue-600 flex items-center justify-center text-white shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform shrink-0">
-            <span className="font-black text-sm tracking-tight text-white select-none">SH</span>
+            <span className="font-black text-sm tracking-tight text-white select-none">CS</span>
           </div>
           <span className="font-bold text-lg tracking-tight text-foreground group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-            StudentHub
+            CommandSkill
           </span>
         </Link>
 

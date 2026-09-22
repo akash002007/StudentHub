@@ -22,7 +22,7 @@ export function middleware(request: NextRequest) {
   const isPublicPath = path === '/login' || path === '/signup' || path === '/'
 
   // Extract token
-  const token = request.cookies.get('studenthub_access_token')?.value || request.cookies.get('sb-access-token')?.value
+  const token = request.cookies.get('commandskill_access_token')?.value || request.cookies.get('sb-access-token')?.value
   
   let role = 'STUDENT'; // default fallback for unauthenticated edge cases in UI
   if (token) {

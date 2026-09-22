@@ -21,10 +21,10 @@ console.log("✓ ID normalization passed all cases.");
 
 // Test Token Matching in Profiles
 console.log("--- 2. Testing Ownership Token Matching ---");
-const token = "STUDENTHUB-A1B2-C3D4";
-const profileAboutMeValid = "Hi, I am a competitive programmer. Verification: STUDENTHUB-A1B2-C3D4. Let's code!";
-const profileAboutMeCase = "verification: studenthub-a1b2-c3d4";
-const profileAboutMeInvalid = "STUDENTHUB-XXXX-YYYY";
+const token = "COMMANDSKILL-A1B2-C3D4";
+const profileAboutMeValid = "Hi, I am a competitive programmer. Verification: COMMANDSKILL-A1B2-C3D4. Let's code!";
+const profileAboutMeCase = "verification: commandskill-a1b2-c3d4";
+const profileAboutMeInvalid = "COMMANDSKILL-XXXX-YYYY";
 
 function checkTokenMatch(text, expectedToken) {
   if (!text) return false;

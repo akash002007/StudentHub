@@ -99,7 +99,7 @@ export function ConnectAccountModal({ isOpen, onClose }: ConnectAccountModalProp
       isOpen={isOpen}
       onClose={onClose}
       title="Connect an Account"
-      description="Connect your external accounts to strengthen your StudentHub profile and Career DNA."
+      description="Connect your external accounts to strengthen your CommandSkill profile and Career DNA."
       maxWidth="lg"
     >
       <div className="space-y-4 pt-1">

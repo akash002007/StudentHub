@@ -44,14 +44,14 @@ export class CertificateVerificationEngine {
 
       if (recipientNorm === studentNameNorm || extractedTextLower.includes(studentNameNorm)) {
         identityMatchStatus = "MATCH";
-        evidenceStatements.push(`✓ Recipient name matches StudentHub profile (${studentProfile.name})`);
+        evidenceStatements.push(`✓ Recipient name matches CommandSkill profile (${studentProfile.name})`);
       } else {
         // Check partial name match (first or last name)
         const nameParts = studentNameNorm.split(" ").filter((p) => p.length > 2);
         const hasPartMatch = nameParts.some((part) => extractedTextLower.includes(part));
         if (hasPartMatch) {
           identityMatchStatus = "PARTIAL_MATCH";
-          evidenceStatements.push(`✓ Name partially matches StudentHub profile (${studentProfile.name})`);
+          evidenceStatements.push(`✓ Name partially matches CommandSkill profile (${studentProfile.name})`);
         } else {
           identityMatchStatus = "MISMATCH";
           evidenceStatements.push(`⚠ Recipient name could not be confidently matched to ${studentProfile.name}`);

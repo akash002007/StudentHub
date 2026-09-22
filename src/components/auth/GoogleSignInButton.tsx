@@ -98,7 +98,7 @@ export function GoogleSignInButton({
         if (result.success) {
           success(
             result.isNewUser
-              ? `Account created! Welcome to StudentHub.`
+              ? `Account created! Welcome to CommandSkill.`
               : `Welcome back, ${result.user?.name || "User"}!`
           );
           if (onSuccess) {
@@ -214,7 +214,7 @@ export function GoogleSignInButton({
       // Development mock fallback if no valid Google Client ID is configured
       const demoEmail =
         role === "admin" || (role as string) === "PLATFORM_ADMIN"
-          ? "priya.menon@studenthub.io"
+          ? "priya.menon@commandskill.io"
           : role === "recruiter" || (role as string) === "RECRUITER"
           ? "recruiter.google@stripe-careers.com"
           : role === "COLLEGE_ADMIN" || (role as string) === "college"
@@ -242,7 +242,7 @@ export function GoogleSignInButton({
         />
       )}
 
-      {/* Premium StudentHub Styled Google Button */}
+      {/* Premium CommandSkill Styled Google Button */}
       <button
         type="button"
         onClick={handleCustomButtonClick}

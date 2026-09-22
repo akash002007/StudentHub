@@ -42,7 +42,7 @@ export const defaultStudentUser: StudentProfile = {
     personalEmail: "alex.rivera.dev@gmail.com",
     submittedAt: "Jan 15, 2026, 10:30 AM",
     reviewedAt: "Jan 16, 2026, 02:15 PM",
-    reviewerName: "StudentHub Admin Team",
+    reviewerName: "CommandSkill Admin Team",
   },
   status: "Open to Summer 2026 Internships",
   skills: [
@@ -160,7 +160,7 @@ export const defaultRecruiterUser: RecruiterProfile = {
 export const defaultAdminUser: AdminProfile = {
   id: "admin_01",
   name: "Priya Menon",
-  email: "priya.menon@studenthub.io",
+  email: "priya.menon@commandskill.io",
   role: "admin",
   avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&auto=format&fit=crop&q=80",
   title: "Trust & Safety Administrator",

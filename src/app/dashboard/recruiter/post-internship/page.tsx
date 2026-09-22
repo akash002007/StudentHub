@@ -1047,7 +1047,7 @@ export default function PostInternshipPage() {
                   onClick={handlePublish}
                   rightIcon={<CheckCircle2 className="w-4 h-4" />}
                 >
-                  Publish Internship to StudentHub
+                  Publish Internship to CommandSkill
                 </Button>
               </div>
             </div>

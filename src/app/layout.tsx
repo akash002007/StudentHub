@@ -16,7 +16,7 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "StudentHub — The Professional Network Built For Ambitious Students",
+  title: "CommandSkill — The Professional Network Built For Ambitious Students",
   description:
     "Discover high-impact internships, showcase verified technical projects, connect with peer student communities, and track your applications in one unified workspace.",
   keywords: [
@@ -42,7 +42,7 @@ export default function RootLayout({
             __html: `
               (function() {
                 try {
-                  var stored = localStorage.getItem('studenthub-theme') || localStorage.getItem('studenthub_theme');
+                  var stored = localStorage.getItem('commandskill-theme') || localStorage.getItem('commandskill_theme');
                   var isDark = stored === 'dark' || ((!stored || stored === 'system') && window.matchMedia('(prefers-color-scheme: dark)').matches);
                   var root = document.documentElement;
                   if (isDark) {

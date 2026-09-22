@@ -51,7 +51,7 @@ export function CareerDNAComparison() {
           </div>
         </Card>
 
-        {/* StudentHub Career DNA Card (Emphasized) */}
+        {/* CommandSkill Career DNA Card (Emphasized) */}
         <Card hoverEffect className="p-6 border-blue-500/30 bg-gradient-to-br from-card via-card to-blue-950/20 space-y-4 shadow-md relative overflow-hidden">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -59,7 +59,7 @@ export function CareerDNAComparison() {
                 <ShieldCheck className="w-5 h-5" />
               </div>
               <div>
-                <h4 className="font-bold text-sm text-foreground">StudentHub Career DNA</h4>
+                <h4 className="font-bold text-sm text-foreground">CommandSkill Career DNA</h4>
                 <p className="text-[11px] text-blue-500 font-semibold">Evidence-backed intelligence</p>
               </div>
             </div>

@@ -49,7 +49,7 @@ interface AssessmentStoreState {
 
 declare global {
   // eslint-disable-next-line no-var
-  var __STUDENTHUB_ASSESSMENT_STORE__: AssessmentStoreState | undefined;
+  var __COMMANDSKILL_ASSESSMENT_STORE__: AssessmentStoreState | undefined;
 }
 
 // ---------------------------------------------------------------------------
@@ -64,14 +64,14 @@ function initializeAssessmentStore(): AssessmentStoreState {
   const authorizations = new Map<string, AssessmentAuthorization>();
   const importHistory = new Map<string, QuestionImportRecord>();
 
-  // 1. Seed StudentHub System Bank Questions (Created by Admin, read-only to recruiters)
+  // 1. Seed CommandSkill System Bank Questions (Created by Admin, read-only to recruiters)
   const systemQuestions: AssessmentQuestion[] = [
     {
       id: "q_sys_01",
       ownerType: "SYSTEM",
       ownerId: "system",
       createdById: "admin_platform",
-      createdByName: "StudentHub Content Team",
+      createdByName: "CommandSkill Content Team",
       type: "SINGLE_CHOICE",
       questionText: "What is the worst-case time complexity of searching for an element in a balanced Binary Search Tree (such as AVL or Red-Black Tree)?",
       options: ["O(1)", "O(log n)", "O(n)", "O(n log n)"],
@@ -93,7 +93,7 @@ function initializeAssessmentStore(): AssessmentStoreState {
       ownerType: "SYSTEM",
       ownerId: "system",
       createdById: "admin_platform",
-      createdByName: "StudentHub Content Team",
+      createdByName: "CommandSkill Content Team",
       type: "MULTIPLE_CHOICE",
       questionText: "Which of the following HTTP status codes indicate a client-side error? (Select all that apply)",
       options: [
@@ -121,7 +121,7 @@ function initializeAssessmentStore(): AssessmentStoreState {
       ownerType: "SYSTEM",
       ownerId: "system",
       createdById: "admin_platform",
-      createdByName: "StudentHub Content Team",
+      createdByName: "CommandSkill Content Team",
       type: "TRUE_FALSE",
       questionText: "In JavaScript, closures retain access to variables in their outer lexical scope even after the outer function has finished execution.",
       options: ["True", "False"],
@@ -143,7 +143,7 @@ function initializeAssessmentStore(): AssessmentStoreState {
       ownerType: "SYSTEM",
       ownerId: "system",
       createdById: "admin_platform",
-      createdByName: "StudentHub Content Team",
+      createdByName: "CommandSkill Content Team",
       type: "SINGLE_CHOICE",
       questionText: "In relational database transactions, which SQL standard isolation level guarantees complete prevention of dirty reads, non-repeatable reads, and phantom reads?",
       options: ["Read Committed", "Repeatable Read", "Serializable", "Read Uncommitted"],
@@ -165,7 +165,7 @@ function initializeAssessmentStore(): AssessmentStoreState {
       ownerType: "SYSTEM",
       ownerId: "system",
       createdById: "admin_platform",
-      createdByName: "StudentHub Content Team",
+      createdByName: "CommandSkill Content Team",
       type: "SHORT_ANSWER",
       questionText: "What software design pattern restricts class instantiation to a single instance and provides a global access point to that instance?",
       options: [],
@@ -187,7 +187,7 @@ function initializeAssessmentStore(): AssessmentStoreState {
       ownerType: "SYSTEM",
       ownerId: "system",
       createdById: "admin_platform",
-      createdByName: "StudentHub Content Team",
+      createdByName: "CommandSkill Content Team",
       type: "SINGLE_CHOICE",
       questionText: "A car travels 120 km at 60 km/h and then travels another 180 km at 90 km/h. What is the average speed of the car for the entire journey?",
       options: ["72 km/h", "75 km/h", "78 km/h", "80 km/h"],
@@ -209,7 +209,7 @@ function initializeAssessmentStore(): AssessmentStoreState {
       ownerType: "SYSTEM",
       ownerId: "system",
       createdById: "admin_platform",
-      createdByName: "StudentHub Content Team",
+      createdByName: "CommandSkill Content Team",
       type: "SINGLE_CHOICE",
       questionText: "In React 18+, which hook is specifically designed to store a mutable value across renders without triggering a component re-render when its value changes?",
       options: ["useState", "useMemo", "useRef", "useCallback"],
@@ -231,7 +231,7 @@ function initializeAssessmentStore(): AssessmentStoreState {
       ownerType: "SYSTEM",
       ownerId: "system",
       createdById: "admin_platform",
-      createdByName: "StudentHub Content Team",
+      createdByName: "CommandSkill Content Team",
       type: "SINGLE_CHOICE",
       questionText: "According to Eric Brewer's CAP Theorem, in the presence of a network partition (P), what trade-off must a distributed data system strictly choose between?",
       options: [
@@ -324,7 +324,7 @@ function initializeAssessmentStore(): AssessmentStoreState {
   companyQuestions.forEach((q) => questions.set(q.id, q));
 
   // 3. Seed Published Assessment for Drive 1 ("Software Engineer 2026")
-  const recStore = globalThis.__STUDENTHUB_RECRUITMENT_STORE__;
+  const recStore = globalThis.__COMMANDSKILL_RECRUITMENT_STORE__;
   const drive1 = recStore?.drives ? Array.from(recStore.drives.values())[0] : undefined;
   const drive1Id = drive1 ? drive1.id : "drive_stripe_sde_2026";
   const drive1Title = drive1 ? drive1.title : "Software Engineer 2026";
@@ -611,7 +611,7 @@ function persistAssessmentStoreToDisk(): void {
 }
 
 export const assessmentStore: AssessmentStoreState =
-  globalThis.__STUDENTHUB_ASSESSMENT_STORE__ ?? initializeAssessmentStore();
+  globalThis.__COMMANDSKILL_ASSESSMENT_STORE__ ?? initializeAssessmentStore();
 
 // Safeguard existing long-running global store if new maps were added
 if (!assessmentStore.questions) assessmentStore.questions = new Map();
@@ -623,7 +623,7 @@ if (!assessmentStore.authorizations) assessmentStore.authorizations = new Map();
 if (!assessmentStore.importHistory) assessmentStore.importHistory = new Map();
 
 if (process.env.NODE_ENV !== "production") {
-  globalThis.__STUDENTHUB_ASSESSMENT_STORE__ = assessmentStore;
+  globalThis.__COMMANDSKILL_ASSESSMENT_STORE__ = assessmentStore;
 }
 
 export function getAssessmentAttempt(assessmentId: string, studentId: string): AssessmentAttempt | null {
@@ -1279,7 +1279,7 @@ export function assignCandidatesToAssessmentConfig(
         applicationId: app ? app.id : `app_${studentId}`,
         candidateId: studentId,
         candidateName: studentName,
-        candidateEmail: app?.studentEmail || `${studentId}@studenthub.internal`,
+        candidateEmail: app?.studentEmail || `${studentId}@commandskill.internal`,
         examDate: assessment.schedule?.examDate || new Date().toISOString().slice(0, 10),
         examWindowStart: assessment.schedule?.windowStart || "09:00",
         examWindowEnd: assessment.schedule?.windowEnd || "23:59",

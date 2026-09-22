@@ -74,7 +74,7 @@ export default function AdminCollegeApprovalsPage() {
           University Onboarding & Verification Approvals
         </h1>
         <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-          Review institutional applications from universities seeking to participate in StudentHub corporate placement drives.
+          Review institutional applications from universities seeking to participate in CommandSkill corporate placement drives.
         </p>
       </div>
 

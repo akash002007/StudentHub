@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
-import { StudentHubSidebar } from "@/components/shared/StudentHubSidebar";
+import { CommandSkillSidebar } from "@/components/shared/CommandSkillSidebar";
 import { useAuth } from "@/context/AuthContext";
 import { AdminNotificationItem } from "@/types";
 import { cn } from "@/lib/utils";
@@ -26,7 +26,7 @@ export function AdminSidebar({
   onCloseMobileDrawer?: () => void;
 }) {
   return (
-    <StudentHubSidebar
+    <CommandSkillSidebar
       role="admin"
       isMobileDrawerOpen={isMobileDrawerOpen}
       onCloseMobileDrawer={onCloseMobileDrawer}

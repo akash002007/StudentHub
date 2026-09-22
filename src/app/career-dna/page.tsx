@@ -4,7 +4,7 @@ import { CareerDNASection } from "@/components/career-dna/CareerDNASection";
 import { Footer } from "@/components/landing/Footer";
 
 export const metadata: Metadata = {
-  title: "Career DNA Intelligence Layer — StudentHub",
+  title: "Career DNA Intelligence Layer — CommandSkill",
   description:
     "Your verified student career profile built from real evidence, technical repositories, coursework, and validated achievements.",
 };

@@ -65,7 +65,7 @@ export function HeroSection() {
               className="w-full sm:w-auto text-base shadow-lg shadow-blue-600/20"
               onClick={() => router.push("/signup")}
             >
-              Join StudentHub Free <ArrowRight className="w-4 h-4" />
+              Join CommandSkill Free <ArrowRight className="w-4 h-4" />
             </ShinyCTA>
             <Button
               variant="secondary"

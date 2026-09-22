@@ -1975,7 +1975,7 @@ export interface RecruitmentApplication {
   visibilityScope?: ApplicationVisibilityScope;
 }
 
-export type ApplicationVisibilityScope = 'PRIVATE' | 'STUDENTHUB' | 'COLLEGE_PLACEMENT';
+export type ApplicationVisibilityScope = 'PRIVATE' | 'COMMANDSKILL' | 'COLLEGE_PLACEMENT';
 
 export interface CandidateAssessmentRecord {
   id: string;

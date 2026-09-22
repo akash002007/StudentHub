@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json().catch(() => ({}));
     const authUser = await getAuthenticatedUser(request, body.userId);
 
-    // Genuine Authentication check — ONLY return 401 when StudentHub session is invalid
+    // Genuine Authentication check — ONLY return 401 when CommandSkill session is invalid
     if (!authUser) {
       console.warn("[Codeforces Verification] authenticated: false, verificationStatus: AUTHENTICATION_REQUIRED");
       return unauthorizedResponse();

@@ -109,7 +109,7 @@ export interface GitHubConnectionRecord {
 // Global declaration to maintain single memory store during Next.js dev hot-reloads
 declare global {
   // eslint-disable-next-line no-var
-  var __STUDENTHUB_SERVER_STORE__: StoreState | undefined;
+  var __COMMANDSKILL_SERVER_STORE__: StoreState | undefined;
 }
 
 function initializeStore(): StoreState {
@@ -256,7 +256,7 @@ function initializeStore(): StoreState {
           id: `notif_${req.studentId}_1`,
           type: "system",
           title: "Account Created",
-          description: "Welcome to StudentHub! Verification process is underway.",
+          description: "Welcome to CommandSkill! Verification process is underway.",
           timestamp: req.student.accountCreatedAt || "Recently",
           isRead: true,
         },
@@ -1520,7 +1520,7 @@ export function persistStoreToDisk(): void {
   }
 }
 
-const store: StoreState = global.__STUDENTHUB_SERVER_STORE__ || (global.__STUDENTHUB_SERVER_STORE__ = initializeStore());
+const store: StoreState = global.__COMMANDSKILL_SERVER_STORE__ || (global.__COMMANDSKILL_SERVER_STORE__ = initializeStore());
 
 export function ensureCollegeStore(): void {
   if (!store.colleges || store.colleges.size === 0 || !store.collegeParticipation) {
@@ -2251,7 +2251,7 @@ export class ServerStore {
       timestamp: nowStr,
       title: "Approved by Admin",
       actor: adminName,
-      description: adminNotes || "Student account verified for full StudentHub platform access.",
+      description: adminNotes || "Student account verified for full CommandSkill platform access.",
     });
 
     // Update Student Profile
@@ -2274,8 +2274,8 @@ export class ServerStore {
       studentNotifs.unshift({
         id: `notif_${Date.now()}`,
         type: "system",
-        title: "Your StudentHub Account Has Been Verified",
-        description: "Your student verification has been approved. You now have access to the full StudentHub experience including Fast-Track applications, messaging, and communities.",
+        title: "Your CommandSkill Account Has Been Verified",
+        description: "Your student verification has been approved. You now have access to the full CommandSkill experience including Fast-Track applications, messaging, and communities.",
         timestamp: "Just now",
         isRead: false,
         actionUrl: "/dashboard",
@@ -2353,7 +2353,7 @@ export class ServerStore {
         id: `notif_${Date.now()}`,
         type: "system",
         title: "Student Verification Notice",
-        description: `Your StudentHub verification could not be approved: ${reason}. Please review your document and resubmit.`,
+        description: `Your CommandSkill verification could not be approved: ${reason}. Please review your document and resubmit.`,
         timestamp: "Just now",
         isRead: false,
         actionUrl: "/onboarding?step=verification",
@@ -2882,7 +2882,7 @@ export class ServerStore {
       id: `notif_${Date.now()}`,
       type: "system",
       title: "Manual Review Requested",
-      description: `Your ${doc.documentType.replace(/_/g, " ")} has been submitted for manual verification. A StudentHub verification officer will review your document.`,
+      description: `Your ${doc.documentType.replace(/_/g, " ")} has been submitted for manual verification. A CommandSkill verification officer will review your document.`,
       timestamp: "Just now",
       isRead: false,
       actionUrl: "/dashboard/documents",
@@ -2937,7 +2937,7 @@ export class ServerStore {
       doc.verificationMethod = "VERIFICATION_OFFICER";
       doc.verifiedBy = adminName;
       doc.verifiedAt = nowStr;
-      doc.decisionReason = notes || "Verified by StudentHub Verification Officer";
+      doc.decisionReason = notes || "Verified by CommandSkill Verification Officer";
     } else if (action === "REJECT") {
       doc.verificationStatus = "REJECTED";
       doc.rejectionReason = reason || "Document failed verification standards.";
@@ -2980,7 +2980,7 @@ export class ServerStore {
           req.status = "Approved";
           req.reviewedAt = nowStr;
           req.reviewedBy = adminName;
-          req.adminNotes = notes || "Approved by StudentHub Verification Officer";
+          req.adminNotes = notes || "Approved by CommandSkill Verification Officer";
         }
 
         this.addAuditLog({
@@ -3499,7 +3499,7 @@ export class ServerStore {
     // 3. New User Registration Flow
     // Admin Security Rule: Public users CANNOT self-select Admin role on signup
     if (role === "admin") {
-      const authorizedAdmins = ["priya.menon@studenthub.io", "admin@studenthub.io", "admin@studenthub.com"];
+      const authorizedAdmins = ["priya.menon@commandskill.io", "admin@commandskill.io", "admin@commandskill.com"];
       const isAuthorized =
         authorizedAdmins.includes(normalizedEmail) ||
         Array.from(store.adminProfiles.values()).some((a) => a.email.toLowerCase() === normalizedEmail);
@@ -3567,7 +3567,7 @@ export class ServerStore {
       isUniversityEmail: isUni,
       personalEmail: normalizedEmail,
       accountStatus: isUni ? "profile_complete" : "account_created",
-      // Non-university emails MUST go through StudentHub verification!
+      // Non-university emails MUST go through CommandSkill verification!
       verificationStatus: isUni ? "approved" : "not_submitted",
       onboardingCompleted: isUni,
       verificationRequest: null,
@@ -3595,7 +3595,7 @@ export class ServerStore {
       {
         id: `notif_${newStudentId}_1`,
         type: "system",
-        title: "Welcome to StudentHub!",
+        title: "Welcome to CommandSkill!",
         description: isUni
           ? "Your institutional email was automatically verified. Complete your profile to get discovered!"
           : "Your Google account is connected. Please submit your student verification to unlock full student perks.",

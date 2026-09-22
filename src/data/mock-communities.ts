@@ -19,7 +19,7 @@ export const initialMockCommunities: Community[] = [
     status: "ACTIVE",
     isVerified: true,
     verificationDetails: {
-      verifiedBy: "StudentHub Design Council",
+      verifiedBy: "CommandSkill Design Council",
       verifiedAt: "2026-02-10T10:00:00Z",
       verificationReason: "Affiliated with university design lab and portfolio critique network.",
     },
@@ -107,7 +107,7 @@ export const initialMockCommunities: Community[] = [
     status: "ACTIVE",
     isVerified: true,
     verificationDetails: {
-      verifiedBy: "StudentHub Financial Markets Division",
+      verifiedBy: "CommandSkill Financial Markets Division",
       verifiedAt: "2026-01-18T10:00:00Z",
       verificationReason: "Associated with university student investment funds.",
     },
@@ -169,7 +169,7 @@ export const initialMockCommunities: Community[] = [
     status: "ACTIVE",
     isVerified: true,
     verificationDetails: {
-      verifiedBy: "StudentHub Medical Sciences Registry",
+      verifiedBy: "CommandSkill Medical Sciences Registry",
       verifiedAt: "2026-02-12T10:00:00Z",
       verificationReason: "Chartered student medical research society.",
     },
@@ -230,7 +230,7 @@ export const initialMockCommunities: Community[] = [
     status: "ACTIVE",
     isVerified: true,
     verificationDetails: {
-      verifiedBy: "StudentHub Legal Affairs Division",
+      verifiedBy: "CommandSkill Legal Affairs Division",
       verifiedAt: "2026-01-25T10:00:00Z",
       verificationReason: "Moot court and student legal clinic association.",
     },

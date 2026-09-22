@@ -197,7 +197,7 @@ export default function StudentResultsPage() {
                         </div>
                       ) : (
                         <div className="p-4 rounded-2xl bg-muted/40 border border-border text-muted-foreground">
-                          Thank you for your time and dedication throughout the recruitment process. While your application was not selected for this particular drive, we encourage you to explore other matching opportunities on StudentHub.
+                          Thank you for your time and dedication throughout the recruitment process. While your application was not selected for this particular drive, we encourage you to explore other matching opportunities on CommandSkill.
                         </div>
                       )}
                     </div>

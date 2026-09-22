@@ -415,7 +415,7 @@ export function CandidateProfileModal({
               </div>
               <div className="flex items-center gap-1.5 pt-0.5 text-[10px] text-muted-foreground">
                 <Lock className="w-3 h-3 text-muted-foreground shrink-0" />
-                <span>Raw sensitive identity proofs (Government ID, College ID cards) are securely guarded under StudentHub RBAC.</span>
+                <span>Raw sensitive identity proofs (Government ID, College ID cards) are securely guarded under CommandSkill RBAC.</span>
               </div>
             </div>
 

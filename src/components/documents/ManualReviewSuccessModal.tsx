@@ -35,7 +35,7 @@ export function ManualReviewSuccessModal({
             Your document has been submitted for manual verification.
           </p>
           <p className="text-xs text-muted-foreground max-w-xs mx-auto leading-relaxed">
-            A StudentHub verification officer will review your document. You will be notified when the review is completed.
+            A CommandSkill verification officer will review your document. You will be notified when the review is completed.
           </p>
           {documentName && (
             <p className="text-[11px] font-mono text-muted-foreground pt-1">

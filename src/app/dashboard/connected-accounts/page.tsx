@@ -178,7 +178,7 @@ export default function ConnectedAccountsPage() {
       } else if (errorParam === "invalid_state") {
         toastError("GitHub connection failed. Please try again.");
       } else if (errorParam === "account_already_linked") {
-        toastError("Your GitHub account is already connected to another StudentHub user.");
+        toastError("Your GitHub account is already connected to another CommandSkill user.");
       } else {
         toastError("GitHub connection failed. Please try again.");
       }
@@ -199,7 +199,7 @@ export default function ConnectedAccountsPage() {
     console.log("Connect GitHub clicked");
     if (!user) {
       console.error("Connect GitHub failed: No authenticated user session found.");
-      toastError("Unable to connect GitHub. StudentHub session expired. Please sign in again.");
+      toastError("Unable to connect GitHub. CommandSkill session expired. Please sign in again.");
       return;
     }
     setIsConnecting(true);
@@ -518,7 +518,7 @@ export default function ConnectedAccountsPage() {
                     : githubConnection.syncStatus === "FAILED"
                     ? githubConnection.syncError || "Background synchronization encountered an error."
                     : `Connected as @${githubConnection.githubUsername}. Repositories, skills, and Career DNA synchronized.`
-                  : "Connect your GitHub account to automatically power your StudentHub Career DNA."}
+                  : "Connect your GitHub account to automatically power your CommandSkill Career DNA."}
               </p>
 
               {githubConnection && (
@@ -1112,7 +1112,7 @@ export default function ConnectedAccountsPage() {
                 <h3 className="font-bold text-lg text-foreground">Disconnect GitHub Account?</h3>
               </div>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                Your GitHub repositories, synchronization data, and GitHub connection will be disconnected from StudentHub. You can connect another GitHub account later.
+                Your GitHub repositories, synchronization data, and GitHub connection will be disconnected from CommandSkill. You can connect another GitHub account later.
               </p>
 
               <div className="flex items-center justify-end gap-3 pt-2">
@@ -1147,7 +1147,7 @@ export default function ConnectedAccountsPage() {
                 <h3 className="font-bold text-lg text-foreground">Disconnect Codeforces Account?</h3>
               </div>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                Your Codeforces account will be disconnected from StudentHub. Your existing Career DNA data can remain available until the next recalculation.
+                Your Codeforces account will be disconnected from CommandSkill. Your existing Career DNA data can remain available until the next recalculation.
               </p>
 
               <div className="flex items-center justify-end gap-3 pt-2">
@@ -1217,7 +1217,7 @@ export default function ConnectedAccountsPage() {
                 <h3 className="font-bold text-lg text-foreground">Disconnect Hugging Face?</h3>
               </div>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                Your Hugging Face repositories, models, datasets, and spaces will be disconnected from StudentHub. Your Hugging Face data will no longer be synchronized with Career DNA.
+                Your Hugging Face repositories, models, datasets, and spaces will be disconnected from CommandSkill. Your Hugging Face data will no longer be synchronized with Career DNA.
               </p>
 
               <div className="flex items-center justify-end gap-3 pt-2">

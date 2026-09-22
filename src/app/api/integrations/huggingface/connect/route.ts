@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
   const response = NextResponse.redirect(hfAuthUrl);
 
   // 3. Store state token in secure HTTP-only cookie for state verification (10 minutes max age)
-  response.cookies.set("studenthub_hf_state", state, {
+  response.cookies.set("commandskill_hf_state", state, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",

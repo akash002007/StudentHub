@@ -457,13 +457,13 @@ export class DocumentVerificationService {
     const extractedId = extracted.institutionalId || extracted.registrationNumber || extracted.rollNumber;
     const normExtractedId = extractedId ? this.normalizeId(extractedId) : "";
 
-    // Candidate search in StudentHub pool
+    // Candidate search in CommandSkill pool
     const currentStudentId = currentStudent?.studentId || currentStudent?.enrollmentNumber || currentStudent?.rollNumber || currentStudent?.institutionalId;
     const normCurrentStudentId = currentStudentId ? this.normalizeId(currentStudentId) : "";
 
     // 1. UNIQUE IDENTIFIER RULE (Section 12 & 13)
     if (normExtractedId) {
-      // Find all students in StudentHub matching the extracted ID
+      // Find all students in CommandSkill matching the extracted ID
       const matchingStudents = allStudents.filter((s) => {
         const sId = s.studentId || s.enrollmentNumber || s.rollNumber || s.institutionalId;
         return sId && this.normalizeId(sId) === normExtractedId;
@@ -480,7 +480,7 @@ export class DocumentVerificationService {
             isMismatch: true,
             isAmbiguous: false,
             extractedInstitutionalId: extractedId,
-            reason: "The institutional identifier on this document does not match your StudentHub profile.",
+            reason: "The institutional identifier on this document does not match your CommandSkill profile.",
           };
         }
 
@@ -501,7 +501,7 @@ export class DocumentVerificationService {
           isMismatch: true,
           isAmbiguous: false,
           extractedInstitutionalId: extractedId,
-          reason: "The institutional identifier on this document does not match your StudentHub profile.",
+          reason: "The institutional identifier on this document does not match your CommandSkill profile.",
         };
       }
 
@@ -607,8 +607,8 @@ export class DocumentVerificationService {
         extractedData: extracted,
         matchedFields,
         failedChecks,
-        warnings: [identity.reason || "Institutional identifier does not match your StudentHub profile."],
-        reason: identity.reason || "The institutional identifier on this document does not match your StudentHub profile.",
+        warnings: [identity.reason || "Institutional identifier does not match your CommandSkill profile."],
+        reason: identity.reason || "The institutional identifier on this document does not match your CommandSkill profile.",
       };
     }
 
@@ -737,7 +737,7 @@ export class DocumentVerificationService {
         // Required: student identity
         if (!matchedFields.includes("name")) {
           docSpecificRulesPassed = false;
-          docRuleFailureReason = "Identity name on Government ID does not match StudentHub profile.";
+          docRuleFailureReason = "Identity name on Government ID does not match CommandSkill profile.";
           failedChecks.push("govid_name_mismatch");
         }
         break;
@@ -746,7 +746,7 @@ export class DocumentVerificationService {
         // Required: student identity
         if (!matchedFields.includes("name")) {
           docSpecificRulesPassed = false;
-          docRuleFailureReason = "Candidate name on Resume does not match StudentHub profile.";
+          docRuleFailureReason = "Candidate name on Resume does not match CommandSkill profile.";
           failedChecks.push("resume_name_mismatch");
         }
         break;

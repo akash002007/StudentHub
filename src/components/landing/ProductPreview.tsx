@@ -30,7 +30,7 @@ export function ProductPreview() {
             <span className="w-3 h-3 rounded-full bg-emerald-500/80 inline-block" />
             <div className="ml-3 hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-md bg-background/80 border border-border/60 text-xs text-muted-foreground font-mono">
               <span className="text-blue-500 font-semibold">https://</span>
-              studenthub.app/dashboard
+              commandskill.app/dashboard
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -48,10 +48,10 @@ export function ProductPreview() {
             <div className="space-y-4">
               <div className="flex items-center gap-2.5 px-2 py-1.5">
                 <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white">
-                  <span className="font-black text-xs tracking-tight text-white select-none">SH</span>
+                  <span className="font-black text-xs tracking-tight text-white select-none">CS</span>
                 </div>
                 <div>
-                  <div className="text-xs font-bold leading-none">StudentHub</div>
+                  <div className="text-xs font-bold leading-none">CommandSkill</div>
                   <div className="text-[10px] text-muted-foreground mt-0.5">Career Suite</div>
                 </div>
               </div>

@@ -1,279 +1,171 @@
-🚀 StudentHub
-
-Your work becomes your proof. Your proof becomes your Career DNA.
-
-StudentHub is an intelligent, evidence-driven student career, recruitment, placement, and trust ecosystem designed to connect students, colleges, recruiters, companies, internships, communities, and real-world career opportunities in one platform.
-
-Instead of relying only on resumes and self-declared skills, StudentHub is designed around a continuously evolving career profile built from projects, repositories, technical skills, coursework, certifications, coding activity, verified achievements, internships, applications, assessments, and other career signals.
-
-The platform combines career development with structured recruitment, eligibility, matching, verification, trust & safety, and placement workflows.
-
-📌 Table of Contents
-
-Overview
-
-Problem Statement
-
-Vision
-
-Core Philosophy
-
-Current Product Scope
-
-Key Features
-
-Platform Modules
-
-Student Experience
-
-Recruitment System
-
-Eligibility & Matching
-
-Career DNA
-
-Verification System
-
-Trust & Safety
-
-Document Management
-
-College & Placement System
-
-Assessment & Interview System
-
-Offer & Joining Lifecycle
-
-Communities
-
-Application Tracking
-
-Notification System
-
-Audit & Event System
-
-User Roles
-
-Organization & Multi-Tenancy
-
-System Architecture
-
-Technology Stack
-
-Project Structure
-
-Theme System
-
-Security & Access Control
-
-Core Data Flow
-
-Recruitment Workflow
-
-Career Intelligence Workflow
-
-Evidence-Based Profiles
-
-Product Architecture Priorities
-
-Roadmap
-
-Current Status
-
-Installation
-
-Environment Variables
-
-Running the Project
-
-Production Build
-
-Troubleshooting
-
-Development Guidelines
-
-Future Enhancements
-
-Contributing
-
-Security
-
-License
-
-🌐 Overview
-
-StudentHub is intended to become a centralized ecosystem for the complete student-to-career lifecycle.
-
-Traditional student portals often keep the following disconnected:
-
-internships
-
-placements
-
-resumes
-
-projects
-
-certifications
-
-communities
-
-applications
-
-career guidance
-
-verification
-
-recruitment
-
-placement outcomes
-
-StudentHub brings these concepts into one architecture.
-
-The core idea is a living career profile rather than a static resume.
+# 🚀 CommandSkill
+
+> **Your work becomes your proof. Your proof becomes your Career DNA.**
+
+CommandSkill is an intelligent, evidence-driven student career and recruitment platform designed to bridge the gap between **students, educational institutions, recruiters, internships, communities, and real-world career opportunities**.
+
+Instead of relying entirely on resumes and self-declared skills, CommandSkill aims to build a continuously evolving career profile from a student's **projects, repositories, technical skills, coursework, certifications, coding activity, verified achievements, internships, applications, and other career signals**.
+
+The platform combines:
+
+- 🎓 Student Career Management
+- 💼 Internship & Opportunity Discovery
+- 🧠 Career Intelligence / Career DNA
+- 🤝 Student Communities
+- 🏢 Recruiter & Company Management
+- 🎯 Eligibility & Candidate Matching
+- 📋 Structured Recruitment Workflows
+- 🔐 Identity & Profile Verification
+- 🛡️ Manual Verification
+- 📊 Application Tracking
+- 📈 Career Analytics
+- 🏆 Evidence-Based Candidate Profiles
+
+---
+
+## 📌 Table of Contents
+
+- [Overview](#-overview)
+- [Problem Statement](#-problem-statement)
+- [Vision](#-vision)
+- [Core Philosophy](#-core-philosophy)
+- [Key Features](#-key-features)
+- [Platform Modules](#-platform-modules)
+- [Student Experience](#-student-experience)
+- [Recruitment System](#-recruitment-system)
+- [Eligibility & Matching](#-eligibility--matching)
+- [Career DNA](#-career-dna)
+- [Verification System](#-verification-system)
+- [Internship System](#-internship-system)
+- [Communities](#-communities)
+- [Application Tracking](#-application-tracking)
+- [User Roles](#-user-roles)
+- [System Architecture](#-system-architecture)
+- [Technology Stack](#-technology-stack)
+- [Project Structure](#-project-structure)
+- [Theme System](#-theme-system)
+- [Security & Access Control](#-security--access-control)
+- [Data Flow](#-data-flow)
+- [Recruitment Workflow](#-recruitment-workflow)
+- [Career Intelligence Workflow](#-career-intelligence-workflow)
+- [Roadmap](#-roadmap)
+- [Current Status](#-current-status)
+- [Installation](#-installation)
+- [Environment Variables](#-environment-variables)
+- [Running the Project](#-running-the-project)
+- [Development Guidelines](#-development-guidelines)
+- [Future Enhancements](#-future-enhancements)
+- [Contributing](#-contributing)
+- [License](#-license)
+
+---
+
+# 🌐 Overview
+
+CommandSkill is designed as a centralized ecosystem where students can manage their complete career journey from one platform.
+
+Traditional student portals usually separate:
+
+- internships
+- placements
+- resumes
+- projects
+- certifications
+- communities
+- applications
+- career guidance
+- verification
+
+CommandSkill attempts to bring these areas together.
+
+The platform focuses on creating a **living career profile** rather than a static resume.
 
 A student's profile can evolve as they:
 
-build projects
+- build projects
+- contribute to repositories
+- complete courses
+- earn certifications
+- gain internship experience
+- participate in communities
+- develop technical skills
+- apply for opportunities
+- receive verified achievements
 
-contribute to repositories
+---
 
-complete courses
+# ❗ Problem Statement
 
-earn certifications
+Students often face several problems while building their careers.
 
-gain internship experience
+### Students struggle with:
 
-participate in communities
+- Maintaining multiple resumes
+- Finding relevant internships
+- Understanding eligibility requirements
+- Tracking applications
+- Proving claimed skills
+- Discovering suitable career paths
+- Understanding their skill gaps
+- Finding relevant communities
+- Managing certificates and achievements
+- Knowing whether they are actually qualified for an opportunity
 
-develop technical skills
+### Recruiters struggle with:
 
-complete assessments
+- Large numbers of applications
+- Inconsistent resumes
+- Difficulty validating claimed skills
+- Identifying genuinely suitable candidates
+- Manual eligibility checking
+- Filtering candidates efficiently
+- Managing recruitment stages
 
-apply for opportunities
+### Institutions struggle with:
 
-receive verified achievements
+- Student verification
+- Recruitment coordination
+- Candidate management
+- Monitoring student opportunities
+- Maintaining structured student records
 
-progress through recruitment
+CommandSkill aims to provide a unified solution for these problems.
 
-receive and accept offers
+---
 
-❗ Problem Statement
+# 🎯 Vision
 
-Students struggle with
-
-Maintaining multiple resumes
-
-Finding relevant internships and opportunities
-
-Understanding eligibility requirements
-
-Tracking applications
-
-Proving claimed skills
-
-Discovering relevant career paths
-
-Understanding skill gaps
-
-Finding useful communities
-
-Managing certificates and achievements
-
-Knowing whether they are actually qualified for an opportunity
-
-Recruiters struggle with
-
-Large application volumes
-
-Inconsistent resumes
-
-Difficulty validating claimed skills
-
-Manual eligibility checking
-
-Identifying suitable candidates
-
-Filtering candidates efficiently
-
-Managing recruitment stages
-
-Coordinating assessments and interviews
-
-Tracking offers and joining outcomes
-
-Colleges and institutions struggle with
-
-Student verification
-
-Recruitment coordination
-
-Placement-drive management
-
-Candidate eligibility
-
-Student opportunity tracking
-
-Maintaining structured placement records
-
-Measuring recruitment outcomes
-
-Platform-level risks
-
-A career platform also needs to address:
-
-Fake companies
-
-Fake internships
-
-Fraudulent credentials
-
-Duplicate or abusive accounts
-
-Recruiter abuse
-
-Student abuse
-
-Spam
-
-Privacy and access-control problems
-
-Lack of auditability
-
-StudentHub therefore treats career intelligence, recruitment, verification, and trust & safety as connected platform capabilities.
-
-🎯 Vision
-
-The long-term vision of StudentHub is to become an evidence-driven career operating system for students.
+The long-term vision of CommandSkill is to become an **evidence-driven career operating system for students**.
 
 Instead of:
 
-"I know React."
+> "I know React."
 
-StudentHub aims to provide:
+CommandSkill aims to provide:
 
-"Here is the evidence of your React experience."
+> "Here is the evidence of your React experience."
 
 Instead of:
 
-"I am suitable for this internship."
+> "I am suitable for this internship."
 
-StudentHub aims to provide:
+CommandSkill aims to determine:
 
-"Here is how your verified profile relates to this opportunity's requirements."
+> "Here is how closely your verified profile matches this opportunity."
 
-The platform is intended to help students:
+---
 
-Understand → Prove → Improve → Match → Apply → Get Hired → Grow
+# 🧠 Core Philosophy
 
-🧠 Core Philosophy
+CommandSkill follows a simple principle:
 
-StudentHub follows a simple principle:
+## "Your work becomes your proof."
 
-Your work becomes your proof.
+The platform focuses on evidence rather than only claims.
 
-The platform focuses on evidence rather than claims.
+### Career Signal → Evidence → Intelligence → Opportunity
 
+```text
 Student Activity
       ↓
 Projects / Repositories / Skills / Courses
@@ -288,297 +180,103 @@ Skill & Eligibility Analysis
       ↓
 Opportunity Matching
       ↓
-Recruitment
-      ↓
-Career Growth
-
-🧭 Current Product Scope
-
-StudentHub is no longer treated as only an internship portal.
-
-The architecture is being expanded around these major pillars:
-
-                         STUDENTHUB
-                             │
-       ┌─────────────┬───────┴────────┬──────────────┐
-       ↓             ↓                ↓              ↓
-   STUDENTS      RECRUITERS        COLLEGES       ADMIN
-       │             │                │              │
-       └─────────────┴────────────────┴──────────────┘
-                             │
-                             ↓
-                    IDENTITY / TRUST
-                             │
-                             ↓
-                     CAREER PROFILE
-                             │
-              ┌──────────────┴──────────────┐
-              ↓                             ↓
-       CAREER SYSTEM                  RECRUITMENT SYSTEM
-              │                             │
-       Career DNA                    Opportunities
-       Skill Evidence                Eligibility
-       Skill Gaps                    Matching
-       Recommendations               Applications
-                                     Shortlisting
-                                     Assessment
-                                     Interview
-                                     Offer
-                                     Joining
-              │                             │
-              └──────────────┬──────────────┘
-                             ↓
-                       PLACEMENT DATA
-                             ↓
-                         ANALYTICS
-
-Cross-platform infrastructure supports all of these areas:
-
-Authentication
-Authorization
-Organizations
-Notifications
-Documents
-Audit Logs
-Search
-Security
-Trust & Safety
-Data / Analytics
-Admin Operations
-
+Better Career Decisions
 ✨ Key Features
-
 👨‍🎓 Student Career Profile
 
 Students can maintain a centralized career profile containing:
 
 Personal information
-
 Academic information
-
 Technical skills
-
 Projects
-
 Certifications
-
 Coursework
-
 Experience
-
 Achievements
-
-GitHub / repository activity
-
+GitHub/repository activity
 Internship history
-
 Career interests
-
 Application history
-
-Recruitment progress
-
-Verified evidence
-
 🧠 Career DNA
 
-Career DNA is the intelligence layer of StudentHub.
+Career DNA is the intelligence layer of CommandSkill.
 
-It is intended to understand a student's capabilities using multiple evidence sources.
+It attempts to understand a student's capabilities based on actual evidence.
 
 Potential inputs include:
 
 Projects
-
 GitHub repositories
-
 Programming languages
-
 Technical skills
-
 Coursework
-
 Certifications
-
 Coding activity
-
 Internship experience
-
 Verified achievements
 
-Assessments
+The resulting profile can be used to:
 
-Career DNA can support:
+Identify strengths
+Identify skill gaps
+Understand career direction
+Recommend relevant opportunities
+Improve candidate matching
+💼 Internship Discovery
 
-Strength identification
-
-Skill-gap identification
-
-Career direction
-
-Opportunity matching
-
-Candidate profiles
-
-Career recommendations
-
-Evidence-backed skill representation
-
-💼 Internship & Opportunity Discovery
-
-Students can discover opportunities based on:
+Students can discover internships based on their:
 
 Skills
-
 Academic background
-
 Experience
-
 Eligibility
-
 Interests
-
 Career direction
 
-Location
-
-Work mode
-
-Opportunity records can contain:
+Internship listings can contain:
 
 Company
-
 Role
-
 Description
-
 Required skills
-
-Preferred skills
-
 Eligibility criteria
-
 Location
-
 Work mode
-
 Compensation
-
 Deadline
-
 Application process
-
-Recruitment stages
-
-🏢 Recruitment System
-
-StudentHub is being expanded into a structured recruitment platform using an RPSC-style recruitment architecture.
-
-Important: RPSC-style here refers to the structured recruitment architecture and workflow concept, not the Rajasthan Public Service Commission itself.
-
-The recruitment system is designed around:
-
-Organization
-      ↓
-Recruitment Opportunity
-      ↓
-Eligibility Rules
-      ↓
-Application Window
-      ↓
-Candidate Applications
-      ↓
-Screening
-      ↓
-Shortlisting
-      ↓
-Assessment
-      ↓
-Interview
-      ↓
-Selection
-      ↓
-Offer
-      ↓
-Joining
-
-Recruiters can manage:
-
-Company profile
-
-Recruitment opportunities
-
-Eligibility rules
-
-Application windows
-
-Candidate applications
-
-Candidate filtering
-
-Shortlisting
-
-Recruitment stages
-
-Assessments
-
-Interviews
-
-Selection
-
-Offers
-
-Recruitment analytics
-
 🎯 Eligibility & Matching
 
-StudentHub uses structured eligibility rather than relying only on keyword searches.
+CommandSkill introduces structured eligibility evaluation.
 
 An opportunity can define requirements such as:
 
 Academic
-
 Minimum CGPA
-
 Degree
-
 Branch
-
 Graduation year
-
 Backlogs
-
 Technical
-
 Required skills
-
 Preferred skills
-
 Programming languages
-
 Tools
-
 Frameworks
-
 Experience
-
 Internship experience
-
 Project experience
-
 Previous roles
-
 Other
-
 Location
-
 Work authorization
-
 Availability
-
 Additional requirements
 
-Conceptually:
+The system can evaluate a student's profile against these requirements.
+
+Example:
 
 Opportunity
       ↓
@@ -590,806 +288,328 @@ Rule Evaluation
       ↓
 Eligible / Not Eligible
       ↓
-Match Analysis
+Match Score
+🏢 Recruitment Platform
 
-A future rules engine should make these requirements configurable instead of hardcoding them across the application.
+CommandSkill is being expanded toward an RPSC-style structured recruitment workflow.
 
-🧬 Career DNA
+This does NOT refer to the Rajasthan Public Service Commission itself.
 
-Career DNA is intended to move StudentHub beyond a traditional resume.
+The concept refers to a structured recruitment architecture where organizations can define:
 
-Career Intelligence Inputs
+Recruitment opportunities
+Eligibility rules
+Candidate requirements
+Application windows
+Selection stages
+Candidate filtering
+Shortlisting
+Recruitment status
+Interview rounds
+Final selection
+📋 Recruitment Lifecycle
 
-Projects
-Repositories
-Coursework
-Certifications
-Skills
-Coding Activity
-Internships
-Achievements
-Assessments
-Verified Evidence
-        │
-        ▼
-Evidence Collection
-        │
-        ▼
-Evidence Analysis
-        │
-        ▼
-Skill Identification
-        │
-        ▼
-Career Profile
-        │
-        ▼
-Career DNA
-        │
-        ├───────────────┐
-        ↓               ↓
-   Skill Gaps      Opportunity Match
-        ↓               ↓
-Recommendations   Better Applications
+A typical recruitment flow can be:
 
-The Career DNA model should evolve as the student's evidence changes.
+Company
+   ↓
+Create Opportunity
+   ↓
+Define Eligibility
+   ↓
+Publish Opportunity
+   ↓
+Students Discover
+   ↓
+Eligibility Check
+   ↓
+Application
+   ↓
+Screening
+   ↓
+Shortlisting
+   ↓
+Interview / Assessment
+   ↓
+Selection
+   ↓
+Offer
+   ↓
+Application Closed
+📊 Application Tracking
+
+Students can track applications through structured stages.
+
+Example:
+
+Saved
+  ↓
+Applied
+  ↓
+Under Review
+  ↓
+Shortlisted
+  ↓
+Assessment
+  ↓
+Interview
+  ↓
+Offer
+  ↓
+Selected / Rejected
+
+This provides students with a centralized view of their recruitment activity.
 
 🔐 Verification System
 
-Verification answers:
+Verification is an important part of the CommandSkill architecture.
 
-"Is this person, company, document, or evidence legitimate?"
-
-StudentHub can support verification of:
+The platform can support verification of:
 
 Student identity
-
 Academic information
-
 Certificates
-
 Projects
-
 Achievements
-
 Career evidence
-
-Company information
-
 Other submitted information
 
-Verification can include:
+Verification can include both:
 
 Automated Verification
 
-Information validated through supported integrations or automated checks.
+Where information can be validated automatically.
 
 Manual Verification
 
-Evidence reviewed by authorized verification personnel.
+Where a designated verification team reviews submitted evidence.
 
-🛡️ Trust & Safety
+🛡️ Manual Verification Portal
 
-Trust & Safety is separate from verification.
+CommandSkill can maintain a separate verification interface for authorized verification personnel.
 
-Verification asks:
+The verification portal is intentionally separated from the normal student/recruiter experience.
 
-"Is this legitimate?"
-
-Trust & Safety asks:
-
-"Is the platform being abused?"
-
-Core workflow:
-
-Report
-  ↓
-Investigation
-  ↓
-Decision
-  ↓
-Action
-
-Potential cases include:
-
-Fake companies
-
-Fake internships
-
-Scam recruiters
-
-Fake certificates
-
-Duplicate accounts
-
-Spam
-
-Harassment
-
-Candidate fraud
-
-Recruiter abuse
-
-Suspicious opportunities
-
-A platform-level reporting system should include:
-
-Report
- ├── Reporter
- ├── Reported Entity
- ├── Reason
- ├── Evidence
- ├── Status
- ├── Investigator
- ├── Decision
- └── Action
-
-Examples of actions can include:
-
-Warning
-
-Content restriction
-
-Opportunity restriction
-
-Account restriction
-
-Escalation
-
-Removal
-
-Advanced fraud detection can be added later.
-
-📄 Document Management
-
-Documents should be treated as a first-class platform subsystem.
-
-Potential document types:
-
-Documents
- ├── Resume
- ├── Identity Proof
- ├── Degree Certificate
- ├── Marksheet
- ├── College ID
- ├── Internship Certificate
- ├── Project Certificate
- └── Other
-
-Each document should have structured metadata such as:
-
-document_id
-owner
-document_type
-storage_location
-uploaded_at
-verification_status
-verified_by
-verified_at
-expiry
-
-Typical states:
-
-PENDING
-UNDER_REVIEW
-VERIFIED
-REJECTED
-EXPIRED
-
-Sensitive documents must not automatically become visible to recruiters.
-
-For example:
-
+Verification workflow
 Student
    ↓
-Identity document
+Submit Verification Request
    ↓
-Verification team
+Verification Queue
    ↓
-Verified identity ✓
+Authorized Verifier
    ↓
-Recruiter sees verification status
+Review Evidence
+   ↓
+Approve / Reject / Request Changes
+   ↓
+Verification Status Updated
+   ↓
+Student Profile Updated
 
-rather than exposing the original identity document unnecessarily.
+The verification portal should have:
 
-🏫 College & Placement System
+Restricted access
+Dedicated authentication
+Verification queue
+Request details
+Evidence viewer
+Approval/rejection actions
+Review notes
+Verification history
+Status tracking
 
-StudentHub can support colleges and placement cells as first-class organizations.
+Students and recruiters should not have access to internal verification operations.
 
-Conceptually:
+🧑‍💼 Recruiter Experience
 
-College
-   ↓
-Placement Cell
-   ↓
-Students
-   ↓
-Recruitment Drives
-   ↓
-Applications
-   ↓
+Recruiters can manage opportunities and candidates through a dedicated workflow.
+
+Potential recruiter capabilities include:
+
+Company profile
+Opportunity creation
+Eligibility configuration
+Candidate discovery
+Application management
+Candidate filtering
 Shortlisting
-   ↓
-Selection
-   ↓
-Placement Outcomes
-
-Potential placement-cell capabilities:
-
-Student management
-
-Student verification
-
-Recruitment drives
-
-Eligibility management
-
-Application monitoring
-
-Shortlisting
-
-Placement statistics
-
-Company management
-
-Placement analytics
-
-Example institutional dashboard:
-
-Students:              2,340
-Eligible:              1,820
-Applied:               1,420
-Shortlisted:             630
-Interviewed:             280
-Selected:                 94
-Offers:                  101
-Joined:                   82
-
-🧪 Assessment & Interview System
-
-Recruitment should support a structured progression beyond application review.
-
-Apply
- ↓
-Eligibility
- ↓
-Shortlist
- ↓
-Assessment
- ↓
-Interview
- ↓
-Selection
-
-Assessment
-
-Potential assessment types:
-
-Aptitude
-
-MCQ
-
-Technical
-
-Coding
-
-Subjective
-
-Company-specific
-
-Assessment architecture should support:
-
-Assessment
- ├── Opportunity
- ├── Candidate
- ├── Questions
- ├── Attempt
- ├── Result
- ├── Score
- ├── Status
- └── Evaluation
-
-Interview
-
-Potential interview records:
-
-Interview
- ├── Candidate
- ├── Recruiter
- ├── Interviewer
- ├── Round
- ├── Date / Time
- ├── Mode
- ├── Meeting Link
- ├── Status
- └── Evaluation
-
-Possible rounds:
-
-Technical Round
-      ↓
-Managerial Round
-      ↓
-HR Round
-      ↓
-Final Decision
-
-📑 Offer & Joining Lifecycle
-
-Selection should not be treated as the final recruitment state.
-
-A complete lifecycle can be:
-
-SELECTED
-   ↓
-OFFER_GENERATED
-   ↓
-OFFER_SENT
-   ↓
-ACCEPTED
-   ↓
-JOINING
-   ↓
-JOINED
-
-For internships:
-
-SELECTED
-   ↓
-OFFERED
-   ↓
-ACCEPTED
-   ↓
-JOINED
-   ↓
-INTERNSHIP_COMPLETED
-
-Tracking outcomes allows StudentHub to move beyond application counts and understand actual career outcomes.
-
-📊 Application Tracking
-
-Students can track applications through structured states.
-
-Example:
-
-SAVED
-  ↓
-APPLIED
-  ↓
-UNDER_REVIEW
-  ↓
-SHORTLISTED
-  ↓
-ASSESSMENT
-  ↓
-INTERVIEW
-  ↓
-SELECTED
-  ↓
-OFFERED
-  ↓
-ACCEPTED
-  ↓
-JOINED
-
-Rejected or withdrawn applications should retain their historical record rather than disappearing.
-
-Application history should capture:
-
-Current status
-
-Previous status
-
-Status timestamps
-
-Recruitment stage
-
-Relevant actions
-
-Outcome
-
-🔔 Notification System
-
-Notifications should be implemented as a centralized platform service rather than independently inside each feature.
-
-Conceptually:
-
-Platform Event
-      ↓
-Notification Service
-      ↓
- ┌─────────┬──────────┬──────────┐
- ↓         ↓          ↓
-In-App    Email      Push
-
-Potential events:
-
-Application submitted
-
-Application shortlisted
-
-Assessment assigned
-
-Interview scheduled
-
-Interview updated
-
-Verification approved
-
-Verification rejected
-
-Additional evidence requested
-
-Offer received
-
-Offer deadline approaching
-
-Joining reminder
-
-A notification architecture should support:
-
-notifications
-notification_preferences
-notification_templates
-notification_events
-
-🧾 Audit & Event System
-
-StudentHub should maintain a reliable record of important platform actions.
-
-The fundamental question is:
-
-WHO did WHAT to WHAT and WHEN?
-
-Example:
-
-Actor: Recruiter
-Action: STATUS_CHANGED
-Application: #1827
-From: UNDER_REVIEW
-To: SHORTLISTED
-Timestamp: 2026-09-18 10:23
-
-Another example:
-
-Actor: Verification Officer
-Action: DOCUMENT_VERIFIED
-Document: #9271
-Timestamp: 2026-09-18 11:10
-
-Application history vs audit history
-
-These are different.
-
-Application history:
-
-SUBMITTED
-   ↓
-SHORTLISTED
-   ↓
-INTERVIEW
-
-Audit history:
-
-Who changed it?
-When?
-What exactly changed?
-Which actor performed the action?
-
-Important actions should be auditable.
-
+Interview management
+Selection management
+Recruitment analytics
+🏢 Company Management
+
+Companies can maintain structured information such as:
+
+Company name
+Industry
+Description
+Website
+Location
+Company size
+Hiring information
+Available opportunities
+🤝 Student Communities
+
+CommandSkill also provides a community layer.
+
+Students can:
+
+Discover communities
+Participate in discussions
+Share knowledge
+Ask questions
+Discuss technologies
+Discover peers
+Follow technical topics
+
+Example categories:
+
+AI / ML
+Web Development
+App Development
+Cybersecurity
+Data Science
+Cloud
+Competitive Programming
+Open Source
+Career Preparation
+📈 Career Analytics
+
+The platform can provide students with career-oriented insights such as:
+
+Profile strength
+Skill coverage
+Application activity
+Internship activity
+Recruitment progress
+Profile views
+Career growth
+Skill gaps
+Opportunity matches
 👤 User Roles
 
-StudentHub is designed around role-based access.
+CommandSkill is designed around role-based access.
 
 🎓 Student
 
 Students can:
 
 Create profiles
-
 Manage career information
-
 Discover opportunities
-
 Check eligibility
-
 Apply
-
 Track applications
-
 Build Career DNA
-
 Manage projects
-
 Manage certifications
-
 Participate in communities
-
-Submit verification requests
-
 🏢 Recruiter
 
 Recruiters can:
 
 Manage company information
-
 Create opportunities
-
 Define eligibility
-
 Review candidates
-
 Manage applications
-
 Shortlist candidates
-
 Manage recruitment stages
-
-Schedule assessments/interviews
-
-Manage offers
-
-🏢 Company Admin
-
-Company administrators can:
-
-Manage company identity
-
-Manage recruiters
-
-Manage organization settings
-
-Control recruitment access
-
-Review company-level analytics
-
-🏫 College Admin / Placement Officer
-
-College users can:
-
-Manage institutional information
-
-Manage students
-
-Coordinate placement drives
-
-Monitor applications
-
-View placement analytics
-
-Support verification
-
-🛡️ Verification Officer
+🛡️ Verifier
 
 Authorized verification personnel can:
 
 View verification requests
-
 Review submitted evidence
-
 Approve requests
-
 Reject requests
-
 Request additional information
-
 Maintain verification history
-
-🛡️ Moderator / Trust & Safety Officer
-
-Authorized moderation personnel can:
-
-Review reports
-
-Investigate abuse
-
-Restrict content
-
-Escalate cases
-
-Maintain moderation records
-
-👑 Platform Administrator
+👑 Administrator
 
 Administrators can manage:
 
 Users
-
 Companies
-
-Colleges
-
 Opportunities
-
 Verification
-
-Reports
-
-Moderation
-
 Platform configuration
-
+Reports
+Moderation
 Access control
-
-Analytics
-
-🔑 Super Administrator
-
-The highest-privilege role should be tightly restricted and used only for platform-level administration.
-
-🏢 Organization & Multi-Tenancy
-
-StudentHub is evolving from a simple:
-
-User → Opportunity
-
-model toward:
-
-User
- ↓
-Organization
- ↓
-Opportunity
- ↓
-Candidates
-
-Organizations may include:
-
-COMPANY
-COLLEGE
-INSTITUTION
-
-Example company:
-
-ABC Technologies
- ├── Recruiter A
- ├── Recruiter B
- ├── Hiring Manager
- └── Recruitment Opportunities
-
-Example college:
-
-XYZ University
- ├── Placement Officer
- ├── Departments
- └── Students
-
-The backend must enforce organization boundaries.
-
-A recruiter belonging to Company A must not be able to access private recruitment records belonging to Company B.
-
-This is a foundational security requirement for the platform.
-
 🏗️ System Architecture
+
+CommandSkill follows a modular architecture designed to support future expansion.
 
 Conceptually:
 
-                         ┌──────────────────────┐
-                         │      StudentHub      │
-                         └──────────┬───────────┘
-                                    │
-          ┌─────────────────────────┼─────────────────────────┐
-          │                         │                         │
-          ▼                         ▼                         ▼
-     Student Portal           Recruiter Portal        College Portal
-          │                         │                         │
-          ▼                         ▼                         ▼
-    Career Profile            Recruitment             Placement
-    Career DNA                Eligibility             Management
-    Internships               Matching                Analytics
-    Communities               Candidates
-    Applications              Applications
-          │                         │
-          └─────────────────────────┼─────────────────────────┐
-                                    │                         │
-                                    ▼                         ▼
-                              Trust & Safety            Verification
-                                    │                         │
-                                    └────────────┬────────────┘
-                                                 ▼
-                                         Backend / APIs
-                                                 │
-                     ┌───────────────────────────┼─────────────────────────┐
-                     ▼                           ▼                         ▼
-                Rules Engine              Notification Service        Audit/Event System
-                     │                           │                         │
-                     └───────────────────────────┼─────────────────────────┘
-                                                 ▼
-                                             Database
-                                                 │
-                                                 ▼
-                                         Storage / Integrations
-
+                    ┌──────────────────────┐
+                    │      CommandSkill      │
+                    └──────────┬───────────┘
+                               │
+          ┌────────────────────┼────────────────────┐
+          │                    │                    │
+          ▼                    ▼                    ▼
+     Student Portal      Recruiter Portal    Verification Portal
+          │                    │                    │
+          ▼                    ▼                    ▼
+    Career Profile       Recruitment          Verification
+    Career DNA           Management            Workflow
+    Internships          Eligibility           Evidence
+    Communities          Matching              Review
+    Applications         Candidates            Approval
+          │                    │                    │
+          └────────────────────┼────────────────────┘
+                               │
+                               ▼
+                        Backend / APIs
+                               │
+                               ▼
+                           Database
 🛠️ Technology Stack
 
 The exact technologies may evolve as the project develops, but the current application is built around modern web technologies.
 
 Frontend
-
 Next.js
-
 React
-
 TypeScript
-
 Tailwind CSS
-
-Responsive component-based UI
-
+Modern responsive UI
+Component-based architecture
 Backend
-
 API-based architecture
-
 Authentication
-
 Server-side business logic
-
 Data validation
-
-Role-based authorization
-
-Workflow/state management
-
+Role-based access control
 Database
 
-Database-backed architecture suitable for managing:
+The project currently uses a database-backed architecture suitable for managing:
 
 Users
-
-Organizations
-
 Profiles
-
 Companies
-
-Colleges
-
 Opportunities
-
 Applications
-
-Recruitment stages
-
 Verification requests
-
-Documents
-
-Career evidence
-
-Career DNA data
-
+Career data
 Community data
-
-Notifications
-
-Audit events
-
-Reports
-
 External Integrations
 
-Architecture can support:
+The architecture can support integrations such as:
 
 GitHub
-
-Authentication providers
-
+Career platforms
 External verification systems
-
+Authentication providers
 AI services
-
-Email providers
-
-Cloud storage
-
-Other career/education systems
-
 📁 Project Structure
 
-A simplified structure:
+A simplified project structure:
 
-StudentHub/
+CommandSkill/
 │
 ├── src/
 │   ├── app/
@@ -1402,10 +622,6 @@ StudentHub/
 │   │   ├── communities/
 │   │   ├── career/
 │   │   ├── profile/
-│   │   ├── recruiter/
-│   │   ├── college/
-│   │   ├── verification/
-│   │   ├── admin/
 │   │   └── ...
 │   │
 │   ├── components/
@@ -1414,8 +630,6 @@ StudentHub/
 │   │   ├── sidebar/
 │   │   ├── dashboard/
 │   │   ├── career/
-│   │   ├── recruitment/
-│   │   ├── verification/
 │   │   └── ...
 │   │
 │   ├── context/
@@ -1425,9 +639,6 @@ StudentHub/
 │   │
 │   ├── lib/
 │   │   ├── api/
-│   │   ├── auth/
-│   │   ├── matching/
-│   │   ├── verification/
 │   │   ├── utilities/
 │   │   └── ...
 │   │
@@ -1440,72 +651,74 @@ StudentHub/
 ├── tsconfig.json
 └── README.md
 
-The actual structure may differ depending on implementation.
+The actual structure may differ depending on the current implementation.
 
 🎨 Theme System
 
-StudentHub supports:
+CommandSkill supports three appearance preferences:
 
 ☀️ Light
-
 🌙 Dark
-
 💻 System
-
 Default
 
 The default preference is:
 
 System
 
-StudentHub follows the user's operating-system/browser appearance unless the user explicitly chooses Light or Dark.
+This means CommandSkill follows the user's operating-system/browser appearance.
+
+Manual Override
+
+Users can later choose:
+
+Light
+
+or:
+
+Dark
+
+Their manually selected preference is persisted.
+
+Returning to System
+
+If the user selects:
+
+System
+
+CommandSkill once again follows the operating system/browser preference.
 
 Theme Architecture
+                Theme Preference
+                       │
+        ┌──────────────┼──────────────┐
+        │              │              │
+      Light          Dark          System
+        │              │              │
+        ▼              ▼              ▼
+     Light UI       Dark UI      OS Preference
 
-Theme Preference
-       │
- ┌─────┼─────┐
- ↓     ↓     ↓
-Light Dark  System
- ↓     ↓     ↓
-Light Dark OS Preference
-UI     UI
-
-The portal's appearance settings provide the theme selection.
+The theme selector is available through the portal's Appearance settings.
 
 The duplicate theme toggle in the main portal navbar is intentionally removed to keep the interface clean.
 
 🔒 Security & Access Control
 
-Security is a core platform concern.
+Security is a core part of the platform architecture.
 
 Important areas include:
 
 Authentication
-
 Authorization
-
-RBAC
-
-Organization-level access control
-
+Role-based access
 Protected routes
-
 Protected APIs
-
-Input validation
-
-Secure session handling
-
-Document access restrictions
-
 Verification access restrictions
+Input validation
+Secure session handling
+Restricted administrative functionality
 
-Administrative permissions
-
-Audit logging
-
-Security-sensitive operations must never rely solely on frontend visibility.
+Sensitive operations should never rely solely on frontend visibility.
 
 For example:
 
@@ -1514,18 +727,11 @@ Frontend restriction
 Backend authorization
         +
 Role validation
-        +
-Organization/resource ownership
         =
 Secure access control
+🔄 Data Flow
 
-A recruiter being hidden from an admin page is not security.
-
-The backend must also reject unauthorized requests.
-
-🔄 Core Data Flow
-
-Student Opportunity Flow
+A simplified student opportunity flow:
 
 Student Profile
       ↓
@@ -1546,112 +752,9 @@ Application Record
 Recruitment Workflow
       ↓
 Selection / Rejection
-
-Verification Flow
-
-Student
-   ↓
-Submit Evidence
-   ↓
-Verification Request
-   ↓
-Verification Queue
-   ↓
-Authorized Verifier
-   ↓
-Review Evidence
-   ↓
-Approve / Reject / Request Changes
-   ↓
-Verification Status Updated
-   ↓
-Career Profile Updated
-
-Trust & Safety Flow
-
-User Report
-    ↓
-Investigation Queue
-    ↓
-Moderator / Trust Officer
-    ↓
-Evidence Review
-    ↓
-Decision
-    ↓
-Action
-    ↓
-Audit Record
-
-🔄 Recruitment Workflow
-
-A complete recruitment lifecycle can be represented as:
-
-Company
-   ↓
-Create Opportunity
-   ↓
-Configure Eligibility
-   ↓
-Publish Opportunity
-   ↓
-Students Discover
-   ↓
-Eligibility Check
-   ↓
-Application
-   ↓
-Screening
-   ↓
-Shortlisting
-   ↓
-Assessment
-   ↓
-Interview
-   ↓
-Selection
-   ↓
-Offer
-   ↓
-Offer Acceptance
-   ↓
-Joining
-   ↓
-Placement Outcome
-
-Opportunity state:
-
-DRAFT
-  ↓
-PUBLISHED
-  ↓
-OPEN
-  ↓
-CLOSED
-
-Application state:
-
-SUBMITTED
-  ↓
-UNDER_REVIEW
-  ↓
-SHORTLISTED
-  ↓
-ASSESSMENT
-  ↓
-INTERVIEW
-  ↓
-SELECTED
-  ↓
-OFFERED
-  ↓
-ACCEPTED
-  ↓
-JOINED
-
-Not every opportunity must use every stage; the workflow should eventually be configurable.
-
 🧠 Career Intelligence Workflow
+
+Career intelligence follows an evidence-oriented approach.
 
 Projects
 Repositories
@@ -1661,8 +764,6 @@ Skills
 Coding Activity
 Internships
 Achievements
-Assessments
-Verified Evidence
       │
       ▼
 Evidence Collection
@@ -1679,47 +780,15 @@ Career Profile
       ▼
 Career DNA
       │
-      ├─────────────────┐
-      ▼                 ▼
-Skill Gaps        Opportunity Match
-      │                 │
-      ▼                 ▼
-Recommendations    Applications
-
-🏆 Evidence-Based Profiles
-
-A key differentiator of StudentHub is evidence-backed career representation.
-
-Instead of only storing:
-
-Skill:
-React
-
-the system can associate evidence:
-
-React
- ├── Project A
- ├── Project B
- ├── Repository
- ├── Coursework
- ├── Assessment
- └── Internship
-
-Likewise:
-
-CGPA: 8.4
-   ↓
-Verified Marksheet
-   ↓
-Verification Record
-   ↓
-Verified Academic Evidence
-
-This creates a stronger representation of a student's actual experience.
-
+      ├───────────────┐
+      ▼               ▼
+Skill Gaps       Opportunity Match
+      │               │
+      ▼               ▼
+Recommendations    Better Applications
 🎯 Opportunity Matching
 
-A future/active matching system can consider:
+A future/active matching system can consider multiple dimensions:
 
 Candidate
     │
@@ -1729,8 +798,7 @@ Candidate
     ├── Projects
     ├── Certifications
     ├── Location
-    ├── Preferences
-    └── Verified Evidence
+    └── Preferences
              │
              ▼
       Opportunity Rules
@@ -1742,715 +810,130 @@ Candidate
         Match Analysis
              │
              ▼
-       Match Result
+      Match Score / Result
 
-The objective is to move beyond simple keyword matching.
+The objective is to move beyond simple keyword matching and provide more meaningful candidate-opportunity relationships.
 
-Eligibility and matching should remain separate concepts:
+🏆 Evidence-Based Profiles
 
-Eligibility
-    ↓
-"Can this candidate apply?"
+A key differentiator of CommandSkill is the idea of evidence-backed career profiles.
 
-Matching
-    ↓
-"How closely does this candidate relate to the opportunity?"
+Instead of only storing:
 
-🧩 Core Platform Modules
+Skill:
+React
 
-Module
+the system can associate evidence such as:
 
-Purpose
+React
+ ├── Project A
+ ├── Project B
+ ├── Repository
+ ├── Coursework
+ └── Internship
 
-Priority
-
-Student Profile
-
-Centralized career identity
-
-🔴 Core
-
-Authentication
-
-Identity and login
-
-🔴 Core
-
-RBAC
-
-Role-based authorization
-
-🔴 Core
-
-Organizations
-
-Company/college boundaries
-
-🔴 Core
-
-Career DNA
-
-Evidence-based career intelligence
-
-🔴 Core
-
-Internships
-
-Opportunity discovery
-
-🔴 Core
-
-Opportunities
-
-Recruitment opportunities
-
-🔴 Core
-
-Eligibility
-
-Rule-based candidate evaluation
-
-🔴 Core
-
-Matching
-
-Candidate-opportunity relationship
-
-🔴 Core
-
-Applications
-
-Application tracking
-
-🔴 Core
-
-Recruitment
-
-Structured hiring workflow
-
-🔴 Core
-
-Verification
-
-Identity/evidence validation
-
-🔴 Core
-
-Documents
-
-Secure evidence storage
-
-🔴 Core
-
-Trust & Safety
-
-Abuse/report management
-
-🔴 Core
-
-Notifications
-
-Cross-platform event delivery
-
-🔴 Core
-
-Audit Logs
-
-Platform accountability
-
-🔴 Core
-
-Search
-
-Discovery and filtering
-
-🟠 Important
-
-Assessments
-
-Recruitment evaluation
-
-🟠 Phase 2
-
-Interviews
-
-Interview workflow
-
-🟠 Phase 2
-
-Offers
-
-Offer lifecycle
-
-🟠 Phase 2
-
-Joining
-
-Recruitment outcome tracking
-
-🟠 Phase 2
-
-College Portal
-
-Institutional management
-
-🟠 Phase 2/3
-
-Placement Analytics
-
-Institutional outcomes
-
-🟠 Phase 3
-
-Advanced Career Intelligence
-
-Skill-gap/recommendation layer
-
-🟡 Phase 3/4
-
-Messaging
-
-Controlled communication
-
-🟡 Later
-
-AI Assistant
-
-Personalized assistance
-
-🟡 Later
-
-Fraud Intelligence
-
-Advanced abuse detection
-
-🟡 Later
-
-🏛️ Product Architecture Priorities
-
-The most important distinction is between platform foundations and feature additions.
-
-Tier 1 — Foundational
-
-These should be stable before aggressive feature expansion:
-
-Authentication
-Authorization
-RBAC
-Organizations
-Resource ownership
-Student profiles
-Company profiles
-Opportunity architecture
-Eligibility
-Application workflow
-Verification
-Documents
-Trust & Safety
-Notifications
-Audit logs
-
-Tier 2 — Recruitment
-
-Recruitment Drives
-Shortlisting
-Assessments
-Interviews
-Selection
-Offers
-Joining
-
-Tier 3 — Institutional
-
-College Portal
-Placement Cell
-Student Cohorts
-Recruitment Drives
-Placement Analytics
-
-Tier 4 — Intelligence
-
-Career DNA
-Skill Graph
-Skill Gap Analysis
-Semantic Matching
-Recommendations
-Career Pathways
-
-Tier 5 — Scale
-
-Search Infrastructure
-Background Jobs
-Advanced Analytics
-External Integrations
-Communication Infrastructure
-Fraud Intelligence
-AI Services
-
-🗺️ Roadmap
-
-Phase 1 — Core Platform
-
-Completed / Established
-
-Student authentication foundation
-
-Student dashboard
-
-Student profile foundation
-
-Responsive navigation
-
-Theme system
-
-Internship / opportunity foundation
-
-Application management foundation
-
-Recruiter/company foundation
-
-Structured recruitment architecture
-
-Eligibility architecture
-
-Candidate matching foundation
-
-Verification architecture
-
-Manual verification workflow
-
-Career DNA foundation
-
-Remaining / Hardening
-
-Complete RBAC enforcement
-
-Organization-level authorization
-
-Secure document management
-
-Central notification service
-
-Audit/event infrastructure
-
-Trust & Safety/reporting
-
-Workflow/state-machine hardening
-
-Phase 2 — Full Recruitment
-
-Recruitment drives
-
-Advanced eligibility rules
-
-Configurable rules engine
-
-Candidate shortlisting
-
-Assessment system
-
-Interview management
-
-Interview evaluation
-
-Selection workflow
-
-Offer management
-
-Offer acceptance
-
-Joining tracking
-
-Recruitment analytics
-
-Phase 3 — Institutional Platform
-
-College portal
-
-Placement cell dashboard
-
-College/student management
-
-Placement drives
-
-Institution-level eligibility
-
-Placement analytics
-
-Company relationship management
-
-Institutional verification
-
-Phase 4 — Career Intelligence
-
-GitHub integration
-
-Repository analysis
-
-Skill extraction
-
-Skill graph
-
-Skill-gap analysis
-
-Evidence quality
-
-Career recommendations
-
-Learning recommendations
-
-Project recommendations
-
-Career pathway support
-
-Advanced matching
-
-Phase 5 — Ecosystem & Scale
-
-Advanced communities
-
-Mentor ecosystem
-
-Controlled messaging
-
-Background job infrastructure
-
-Advanced search
-
-AI career assistant
-
-Fraud intelligence
-
-External verification integrations
-
-Institutional integrations
-
-Advanced analytics
-
-Large-scale platform optimization
-
-📊 Current Status
-
-StudentHub is under active development.
-
-The project has progressed beyond a basic student portal toward a broader career and recruitment ecosystem.
-
-Current development focus
-
-Student Experience
-       ↓
-Career Profile
-       ↓
-Career DNA
-       ↓
-Recruitment
-       ↓
-Eligibility
-       ↓
-Matching
-       ↓
-Verification
-       ↓
-Trust & Safety
-       ↓
-Institutional / Placement Layer
-
-Current state classification
-
-Area
-
-Status
-
-Student experience
-
-🟢 Active
-
-Dashboard / navigation
-
-🟢 Active
-
-Theme system
-
-🟢 Implemented
-
-Internship / opportunities
-
-🟢 Active
-
-Application tracking
-
-🟢 Active foundation
-
-Recruiter/company architecture
-
-🟢 Active
-
-RPSC-style recruitment architecture
-
-🟢 Added
-
-Eligibility architecture
-
-🟢 Added / expanding
-
-Matching foundation
-
-🟢 Added / expanding
-
-Career DNA
-
-🟢 Active / expanding
-
-Verification
-
-🟢 Active / expanding
-
-Manual verification
-
-🟢 Active architecture
-
-Trust & Safety
-
-🟠 Planned / expanding
-
-Secure document subsystem
-
-🟠 Required hardening
-
-RBAC / multi-tenancy
-
-🟠 Required hardening
-
-Central notifications
-
-🟠 Required
-
-Audit/event infrastructure
-
-🟠 Required
-
-Assessments
-
-🟠 Next recruitment layer
-
-Interviews
-
-🟠 Next recruitment layer
-
-Offers / joining
-
-🟠 Next recruitment layer
-
-College placement portal
-
-🟠 Next major module
-
-Advanced Career Intelligence
-
-🟡 Future
-
-AI career assistant
-
-🟡 Future
-
-Advanced fraud intelligence
-
-🟡 Future
-
-Note: "Added" or "active" describes the product architecture/current development direction. Individual capabilities may still require production hardening, backend enforcement, testing, and integration work.
+This creates a stronger representation of actual experience.
 
 📱 Responsive Design
 
-StudentHub is designed to support:
+CommandSkill is designed to support:
 
 Desktop
-
 Laptop
-
 Tablet
-
 Mobile
 
-Important interfaces should adapt across:
+Important interfaces are designed to adapt across screen sizes, including:
 
 Landing page
-
 Navbar
-
 Sidebar
-
 Dashboard
-
 Internship listings
-
-Opportunity pages
-
 Application tracking
-
-Career profile
-
-Career DNA
-
+Profile
 Community interfaces
+🧩 Core Modules
+Module	Purpose
+Student Profile	Centralized career identity
+Career DNA	Evidence-based career intelligence
+Internships	Opportunity discovery
+Recruitment	Structured hiring workflows
+Eligibility	Rule-based candidate evaluation
+Matching	Candidate-opportunity matching
+Applications	Application tracking
+Communities	Student networking and discussions
+Verification	Evidence and identity validation
+Recruiter Portal	Company and candidate management
+Admin	Platform administration
+Analytics	Career and recruitment insights
+🗺️ Roadmap
+Phase 1 — Core Platform
+ Student authentication
+ Student dashboard
+ Student profile
+ Responsive navigation
+ Theme system
+ Internship discovery
+ Application management
+ Core opportunity architecture
+Phase 2 — Recruitment Intelligence
+ Structured opportunity requirements
+ Eligibility architecture
+ Advanced matching engine
+ Candidate scoring
+ Recruiter candidate filtering
+ Recruitment analytics
+ Advanced selection workflows
+Phase 3 — Career DNA
+ Career profile foundation
+ Project-based career evidence
+ GitHub integration
+ Automated repository analysis
+ Skill extraction
+ Skill gap analysis
+ Career recommendations
+ Career progression insights
+Phase 4 — Verification
+ Verification architecture
+ Manual verification workflow
+ Dedicated verification portal
+ Advanced evidence validation
+ Verification audit trail
+ Automated verification integrations
+Phase 5 — Ecosystem
+ Advanced communities
+ Mentor ecosystem
+ Institution integration
+ Advanced recruiter tools
+ AI-powered recommendations
+ Career pathway recommendations
+ Advanced analytics
+📊 Current Status
 
-Recruiter dashboards
+CommandSkill is currently under active development.
 
-Verification interfaces
+The platform is being developed incrementally, with emphasis on:
 
-Admin interfaces
+Stable core architecture
+Student experience
+Internship discovery
+Recruitment workflows
+Eligibility and matching
+Career intelligence
+Verification
+Scalability and security
 
-🔎 Search & Filtering
-
-As the platform grows, discovery must work across multiple entities.
-
-Student discovery
-
-Students should eventually be able to filter by:
-
-Role
-
-Skill
-
-Location
-
-Salary/compensation
-
-Company
-
-Work mode
-
-Experience
-
-Eligibility
-
-Recruiter discovery
-
-Recruiters should eventually be able to filter candidates by:
-
-Skills
-
-CGPA
-
-Branch
-
-College
-
-Graduation year
-
-Experience
-
-Verification status
-
-Match result
-
-Projects
-
-Assessments
-
-Admin discovery
-
-Administrators should be able to search:
-
-Users
-
-Companies
-
-Colleges
-
-Opportunities
-
-Applications
-
-Verification requests
-
-Reports
-
-Audit events
-
-Initial implementations can use database queries. Dedicated search infrastructure can be introduced when scale requires it.
-
-⚙️ Background Processing
-
-Some platform tasks should eventually run asynchronously.
-
-Example:
-
-Application Submitted
-        ↓
-Event / Queue
-        ↓
- ┌─────────────┬─────────────┬──────────────┐
- ↓             ↓             ↓
-Notification  Matching     Analytics
- ↓             ↓             ↓
-Email         Recompute     Event
-
-Long-running operations such as repository analysis, bulk matching, document processing, email delivery, and analytics aggregation should not unnecessarily block user-facing requests.
-
-📈 Analytics
-
-StudentHub can eventually track a complete recruitment funnel:
-
-Registered
-    ↓
-Profile Completed
-    ↓
-Verified
-    ↓
-Opportunity Viewed
-    ↓
-Applied
-    ↓
-Shortlisted
-    ↓
-Assessment
-    ↓
-Interview
-    ↓
-Selected
-    ↓
-Offer Accepted
-    ↓
-Joined
-
-Potential metrics include:
-
-Profile completion
-
-Verification rate
-
-Opportunity engagement
-
-Application conversion
-
-Shortlisting rate
-
-Interview conversion
-
-Offer acceptance
-
-Joining rate
-
-Placement outcomes
-
-Skill-gap trends
-
-Recruitment-drive performance
-
-Analytics should be based on structured events rather than only dashboard-specific queries.
+Some advanced Career DNA, AI, automated verification, and recruitment intelligence capabilities may remain under development.
 
 ⚙️ Installation
-
 Prerequisites
 
-Make sure you have:
+Make sure you have installed:
 
 Node.js
-
 npm / pnpm / yarn
-
 Git
-
 A supported database
 
 Check Node:
@@ -2460,19 +943,16 @@ node --version
 Check npm:
 
 npm --version
-
-Clone the repository
-
+Clone the Repository
 git clone <repository-url>
 
 Navigate into the project:
 
-cd StudentHub
+cd CommandSkill
 
 Install dependencies:
 
 npm install
-
 🔐 Environment Variables
 
 Create a .env.local file in the project root.
@@ -2490,19 +970,7 @@ GITHUB_CLIENT_SECRET=
 
 # Add other project-specific variables here
 
-Do not commit:
-
-API keys
-
-Passwords
-
-Database credentials
-
-Authentication secrets
-
-Private tokens
-
-Service credentials
+Do not commit secrets or credentials to Git.
 
 ▶️ Running the Project
 
@@ -2513,7 +981,6 @@ npm run dev
 Then open:
 
 http://localhost:3000
-
 🏗️ Production Build
 
 Create a production build:
@@ -2523,26 +990,22 @@ npm run build
 Start the production server:
 
 npm run start
-
 🧹 Troubleshooting
 
-If Next.js development chunks become stale or corrupted, stop the development server and remove .next.
-
-macOS / Linux
+If Next.js development chunks become stale or corrupted, stop the development server and remove the .next directory.
 
 rm -rf .next
 
-Windows PowerShell
+On Windows PowerShell:
 
 Remove-Item -Recurse -Force .next
 
 Then restart:
 
 npm run dev
-
 🧪 Development Guidelines
 
-When modifying StudentHub:
+When modifying CommandSkill:
 
 1. Preserve Existing Functionality
 
@@ -2550,9 +1013,9 @@ Do not unnecessarily rewrite working modules.
 
 2. Keep Components Modular
 
-Prefer reusable components over duplicated UI.
+Prefer reusable components instead of duplicating UI.
 
-3. Maintain Server / Client Boundaries
+3. Maintain Server/Client Boundaries
 
 Do not import server-only functionality into client components.
 
@@ -2562,145 +1025,69 @@ Never rely exclusively on frontend validation for security-sensitive operations.
 
 5. Protect Sensitive Routes
 
-Admin, verification, company, college, and trust/safety functionality must have proper authorization.
+Admin and verification functionality must have proper authorization.
 
-6. Enforce Resource Ownership
-
-A user should only access records they are authorized to access.
-
-7. Maintain Responsive Design
+6. Maintain Responsive Design
 
 Every new UI feature should be tested on:
 
 Desktop
-
 Tablet
-
 Mobile
-
-8. Test Theme Behavior
+7. Test Theme Behavior
 
 Always test:
 
 Light
-
 Dark
-
 System
-
-9. Use Explicit Workflows
-
-Avoid scattering arbitrary status strings across the codebase.
-
-Prefer explicit state transitions for:
-
-Opportunities
-
-Applications
-
-Verification
-
-Assessments
-
-Interviews
-
-Offers
-
-10. Maintain Auditability
-
-Important state-changing operations should generate appropriate audit events.
-
 🔮 Future Enhancements
+
+CommandSkill has significant potential for expansion.
+
+Possible future capabilities include:
 
 🤖 AI Career Assistant
 
-A personalized assistant could help students:
+A personalized AI assistant that can help students:
 
 Understand skill gaps
-
 Improve profiles
-
 Discover opportunities
-
 Prepare for interviews
-
 Generate learning plans
-
 Recommend projects
-
-Explain eligibility
-
-Understand Career DNA
-
 🧠 Advanced Career Intelligence
 
-Potential future capabilities:
+Future Career DNA capabilities could include:
 
 Skill graphs
-
-Career trajectory analysis
-
-Skill confidence
-
-Evidence quality
-
+Career trajectory prediction
+Skill confidence scoring
+Evidence quality scoring
 Personalized career paths
-
 Industry benchmarking
-
-Career progression insights
-
 🎯 Intelligent Matching
 
 Future matching can incorporate:
 
 Semantic skill matching
-
 Experience relevance
-
 Project similarity
-
 Career interests
-
 Company preferences
-
 Historical application outcomes
-
-Verified evidence
-
 🏢 Institutional Integration
 
-Potential college integrations:
+CommandSkill could integrate with colleges and universities for:
 
 Student verification
-
 Placement management
-
 Internship management
-
 Academic verification
-
 Recruitment drives
-
 Institution-level analytics
-
-🛡️ Advanced Trust & Safety
-
-Potential future capabilities:
-
-Fraud pattern detection
-
-Duplicate identity detection
-
-Suspicious recruiter detection
-
-Opportunity risk signals
-
-Abuse prevention
-
-Automated moderation assistance
-
-🌎 Long-Term Career Ecosystem
+🌎 Large-Scale Career Ecosystem
 
 The long-term vision is to connect:
 
@@ -2715,40 +1102,16 @@ Companies
 Mentors
    ↕
 Communities
-   ↕
-Career Intelligence
 
 into one unified career ecosystem.
 
-StudentHub should remain useful beyond the initial placement event.
-
-The career journey can become:
-
-Learning
-   ↓
-Building
-   ↓
-Proving
-   ↓
-Matching
-   ↓
-Applying
-   ↓
-Interviewing
-   ↓
-Getting Hired
-   ↓
-Joining
-   ↓
-Growing
-
-🌟 What Makes StudentHub Different?
+🌟 What Makes CommandSkill Different?
 
 Traditional platforms often focus primarily on:
 
 Resume → Job
 
-StudentHub aims to build:
+CommandSkill aims to build:
 
 Student Activity
        ↓
@@ -2764,15 +1127,11 @@ Opportunity Matching
        ↓
 Recruitment
        ↓
-Placement
-       ↓
 Career Growth
 
 The goal is not simply to help students find jobs.
 
-The goal is to help students:
-
-Understand → Prove → Improve → Match → Apply → Grow
+The goal is to help students understand, prove, improve, and use their capabilities.
 
 🤝 Contributing
 
@@ -2781,23 +1140,11 @@ Contributions are welcome as the project evolves.
 Before making major changes:
 
 Understand the existing architecture.
-
 Create a dedicated branch.
-
 Implement changes modularly.
-
-Preserve existing functionality.
-
-Test authentication and authorization.
-
-Test responsive behavior.
-
-Test role-specific access.
-
-Test important workflow transitions.
-
 Test existing functionality.
-
+Test responsive behavior.
+Test authentication and authorization.
 Submit a pull request with a clear description.
 
 Example:
@@ -2812,7 +1159,6 @@ git commit -m "feat: improve career matching"
 Push:
 
 git push origin feature/career-matching
-
 🔐 Security
 
 If you discover a security vulnerability, do not publicly disclose sensitive details.
@@ -2827,38 +1173,34 @@ Database credentials
 Authentication secrets
 Private tokens
 User personal data
-
-Security-sensitive changes should be reviewed carefully because StudentHub may handle:
-
-Identity information
-
-Academic information
-
-Career records
-
-Documents
-
-Recruitment information
-
-Company data
-
-Verification evidence
-
 📜 License
 
 This project is currently maintained as a private/academic development project.
 
-Add the appropriate license when the project is released publicly.
+Add the appropriate license here when the project is released publicly.
 
 👨‍💻 Project
+CommandSkill
 
-StudentHub
-
-An evidence-driven career, recruitment, and placement ecosystem for students.
+An evidence-driven career and recruitment ecosystem for students.
 
 Your work becomes your proof.
 Your proof becomes your Career DNA.
 
 🚀 Built to help students move from
 
-Learning → Building → Proving → Matching → Applying → Getting Hired → Growing
+Learning → Building → Proving → Matching → Applying → Getting Hired
+
+
+### A couple of important recommendations
+
+Before committing this README, I would **replace the generic `<repository-url>` and environment-variable placeholders with your actual project details**. Also, don't mark a feature `[x]` unless it is genuinely implemented.
+
+For a polished GitHub repository, I'd also put a short project banner at the very top, followed by badges such as:
+
+```markdown
+![Next.js](https://img.shields.io/badge/Next.js-15-black?logo=next.js)
+![React](https://img.shields.io/badge/React-19-61DAFB?logo=react)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3-06B6D4?logo=tailwindcss)
+![Status](https://img.shields.io/badge/Status-In%20Development-orange)

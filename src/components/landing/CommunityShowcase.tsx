@@ -25,7 +25,7 @@ export function CommunityShowcase() {
             Connect With The Brightest Student Builders
           </h2>
           <p className="mt-4 text-base text-muted-foreground">
-            Don&apos;t build or prep alone. Join specialized student hubs to share hackathon wins, review code architectures, and find mentors.
+            Don&apos;t build or prep alone. Join specialized commandskill hubs to share hackathon wins, review code architectures, and find mentors.
           </p>
         </div>
 
@@ -73,7 +73,7 @@ export function CommunityShowcase() {
         <div className="mt-12 text-center">
           <Link href="/login">
             <Button variant="outline" rightIcon={<ArrowRight className="w-4 h-4" />}>
-              Explore All Student Hubs
+              Explore All CommandSkill Hubs
             </Button>
           </Link>
         </div>

@@ -23,7 +23,7 @@ interface MessagingStoreState {
 
 declare global {
   // eslint-disable-next-line no-var
-  var __STUDENTHUB_MESSAGING_STORE__: MessagingStoreState | undefined;
+  var __COMMANDSKILL_MESSAGING_STORE__: MessagingStoreState | undefined;
 }
 
 // Default initial admin conversations for platform safety and support
@@ -54,7 +54,7 @@ const initialAdminConversations: UnifiedConversationItem[] = [
         senderId: "student_02",
         senderName: "Priya Sharma",
         senderAvatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80",
-        content: "Hello Trust & Safety team! My college email domain was recently migrated. I have re-uploaded my official enrollment certificate for the StudentHub verified badge.",
+        content: "Hello Trust & Safety team! My college email domain was recently migrated. I have re-uploaded my official enrollment certificate for the CommandSkill verified badge.",
         timestamp: "12m ago",
         isSelf: false,
       },
@@ -86,7 +86,7 @@ const initialAdminConversations: UnifiedConversationItem[] = [
         senderId: "recruiter_01",
         senderName: "Sarah Chen",
         senderAvatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80",
-        content: "Hi StudentHub Trust & Safety! We are ramping up our 2026 University Drives. Could you verify our recruitment drive quotas for CalHacks participants?",
+        content: "Hi CommandSkill Trust & Safety! We are ramping up our 2026 University Drives. Could you verify our recruitment drive quotas for CalHacks participants?",
         timestamp: "Yesterday, 3:00 PM",
         isSelf: false,
       },
@@ -94,7 +94,7 @@ const initialAdminConversations: UnifiedConversationItem[] = [
         id: "msg_adm_2_2",
         conversationId: "admin_conv_2",
         senderId: "admin_user",
-        senderName: "StudentHub Trust & Safety",
+        senderName: "CommandSkill Trust & Safety",
         senderAvatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
         content: "Hi Sarah! Your enterprise quota has been elevated to 500 candidate fast-track screenings. All set!",
         timestamp: "Yesterday, 4:15 PM",
@@ -148,8 +148,8 @@ function seedDefaultConversations(): Map<string, UnifiedConversationItem> {
 }
 
 function getStore(): MessagingStoreState {
-  if (global.__STUDENTHUB_MESSAGING_STORE__) {
-    return global.__STUDENTHUB_MESSAGING_STORE__;
+  if (global.__COMMANDSKILL_MESSAGING_STORE__) {
+    return global.__COMMANDSKILL_MESSAGING_STORE__;
   }
 
   const state: MessagingStoreState = {
@@ -175,7 +175,7 @@ function getStore(): MessagingStoreState {
     saveStoreToDisk(state);
   }
 
-  global.__STUDENTHUB_MESSAGING_STORE__ = state;
+  global.__COMMANDSKILL_MESSAGING_STORE__ = state;
   return state;
 }
 

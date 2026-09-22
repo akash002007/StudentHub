@@ -62,7 +62,7 @@ export function RejectedAccountScreen() {
             Verification Failed
           </h1>
           <p className="text-sm text-muted-foreground max-w-md mx-auto">
-            Your StudentHub verification request was not approved by the verification team.
+            Your CommandSkill verification request was not approved by the verification team.
           </p>
         </div>
 
@@ -80,7 +80,7 @@ export function RejectedAccountScreen() {
         {/* Status Explanation */}
         <div className="text-xs sm:text-sm text-muted-foreground space-y-1.5 text-center px-4">
           <p className="font-semibold text-foreground">
-            Your StudentHub account features are currently restricted.
+            Your CommandSkill account features are currently restricted.
           </p>
           <p>
             You can submit a new verification request with a valid document (such as a clear semester fee receipt or official student ID card).

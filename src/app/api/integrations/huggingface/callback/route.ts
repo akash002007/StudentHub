@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
   }
 
   // 2. Validate OAuth state parameter against HTTP-only cookie
-  const savedStateCookie = request.cookies.get("studenthub_hf_state")?.value;
+  const savedStateCookie = request.cookies.get("commandskill_hf_state")?.value;
   if (!savedStateCookie || savedStateCookie !== state) {
     console.error("[Hugging Face OAuth Callback] state mismatch error");
     return NextResponse.redirect(
@@ -126,7 +126,7 @@ export async function GET(request: NextRequest) {
     );
 
     // Single-use state token cleanup
-    response.cookies.delete("studenthub_hf_state");
+    response.cookies.delete("commandskill_hf_state");
 
     return response;
   } catch (err: any) {

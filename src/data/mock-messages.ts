@@ -24,7 +24,7 @@ export const initialMockConversations: Conversation[] = [
         senderId: "part_1",
         senderName: "Sarah Chen",
         senderAvatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80",
-        content: "Hi Alex! I saw your profile and your PulseFlow canvas project on StudentHub. Our Frontend Infrastructure team is looking for interns with strong TypeScript and real-time systems skills.",
+        content: "Hi Alex! I saw your profile and your PulseFlow canvas project on CommandSkill. Our Frontend Infrastructure team is looking for interns with strong TypeScript and real-time systems skills.",
         timestamp: "Yesterday, 4:15 PM",
         isSelf: false,
       },

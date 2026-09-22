@@ -121,7 +121,7 @@ export default function StudentAssessmentResultPage({
             <div className="space-y-1">
               <div className="flex items-center gap-2 text-xs font-semibold text-purple-600 dark:text-purple-400">
                 <Building2 className="w-3.5 h-3.5" />
-                <span>{assessment.companyName || "StudentHub Partner"}</span>
+                <span>{assessment.companyName || "CommandSkill Partner"}</span>
                 <span>•</span>
                 <span>{assessment.driveTitle || "Recruitment Drive"}</span>
               </div>
@@ -129,7 +129,7 @@ export default function StudentAssessmentResultPage({
                 {assessment.title} — Official Result
               </h1>
               <p className="text-xs text-muted-foreground">
-                Evaluated server-side via StudentHub Automated Assessment Engine.
+                Evaluated server-side via CommandSkill Automated Assessment Engine.
               </p>
             </div>
 

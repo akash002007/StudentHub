@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verifyAccessToken, StudentHubTokenPayload } from "@/lib/auth-jwt";
+import { verifyAccessToken, CommandSkillTokenPayload } from "@/lib/auth-jwt";
 import { ServerStore, getStudentProfile } from "@/lib/server-store";
 
 export interface AuthenticatedUser {
@@ -28,7 +28,7 @@ export async function getAuthenticatedUser(
     if (authHeader && authHeader.startsWith("Bearer ")) {
       const token = authHeader.substring(7).trim();
       if (token) {
-        const payload: StudentHubTokenPayload | null = await verifyAccessToken(token);
+        const payload: CommandSkillTokenPayload | null = await verifyAccessToken(token);
         if (payload && payload.userId) {
           return {
             userId: payload.userId,
@@ -42,10 +42,10 @@ export async function getAuthenticatedUser(
 
     // 2. Check JWT Cookies
     const tokenCookie =
-      request.cookies.get("studenthub_access_token")?.value ||
-      request.cookies.get("studenthub_token")?.value;
+      request.cookies.get("commandskill_access_token")?.value ||
+      request.cookies.get("commandskill_token")?.value;
     if (tokenCookie) {
-      const payload: StudentHubTokenPayload | null = await verifyAccessToken(tokenCookie);
+      const payload: CommandSkillTokenPayload | null = await verifyAccessToken(tokenCookie);
       if (payload && payload.userId) {
         return {
           userId: payload.userId,

@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 3. Generate Single-Use Ownership Verification Token (15-min TTL)
-    const verificationToken = `STUDENTHUB-${randomBytes(3).toString("hex").toUpperCase()}-${randomBytes(3).toString("hex").toUpperCase()}`;
+    const verificationToken = `COMMANDSKILL-${randomBytes(3).toString("hex").toUpperCase()}-${randomBytes(3).toString("hex").toUpperCase()}`;
     const now = new Date();
     const expiresAt = new Date(now.getTime() + 15 * 60 * 1000).toISOString();
 

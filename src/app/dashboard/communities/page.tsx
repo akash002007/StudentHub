@@ -550,7 +550,7 @@ export default function CommunitiesPage() {
               name: newPostProjectName.trim(),
               repoUrl: newPostRepoUrl.trim() || "https://github.com",
               demoUrl: newPostDemoUrl.trim() || undefined,
-              verifiedBy: "StudentHub Evidence Engine (GitHub Commit Verified)",
+              verifiedBy: "CommandSkill Evidence Engine (GitHub Commit Verified)",
             }
           : undefined,
       isVerifiedOpportunity:
@@ -582,7 +582,7 @@ export default function CommunitiesPage() {
     setNewPostStipend("");
     setNewPostApplyUrl("");
 
-    success("Your post has been published to StudentHub!");
+    success("Your post has been published to CommandSkill!");
   };
 
   // Submit New Community
@@ -598,8 +598,8 @@ export default function CommunitiesPage() {
       category: newCommCategory,
       type: "Student Society",
       domain: (newCommCategory === "AI & ML" ? "AI / ML" : "Software Development") as CommunityDomain,
-      institution: newCommInstitution.trim() || "StudentHub Campus Network",
-      university: newCommInstitution.trim() || "StudentHub Campus Network",
+      institution: newCommInstitution.trim() || "CommandSkill Campus Network",
+      university: newCommInstitution.trim() || "CommandSkill Campus Network",
       status: "ACTIVE",
       isVerified: true,
       membershipType: "OPEN",
@@ -739,7 +739,7 @@ export default function CommunitiesPage() {
               <div className="min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
                   <h1 className="text-lg sm:text-xl font-bold text-foreground tracking-tight truncate">
-                    StudentHub Communities
+                    CommandSkill Communities
                   </h1>
                   <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 text-xs font-semibold shrink-0">
                     <ShieldCheck className="w-3 h-3 mr-1 text-primary" />
@@ -998,7 +998,7 @@ export default function CommunitiesPage() {
               <div className="bg-gradient-to-br from-blue-500/10 via-indigo-500/5 to-card rounded-2xl border border-blue-500/20 p-3.5 text-xs text-muted-foreground shadow-xs">
                 <div className="flex items-center gap-2 font-bold text-foreground mb-1.5">
                   <ShieldCheck className="w-4 h-4 text-primary" />
-                  <span>StudentHub Trust Layer</span>
+                  <span>CommandSkill Trust Layer</span>
                 </div>
                 <p className="text-[11px] text-muted-foreground leading-relaxed">
                   Every poster carries a <span className="font-semibold text-emerald-600 dark:text-emerald-400">✓ Verified Student</span> badge. Project showcases require verified GitHub evidence to prevent ghost claims.
@@ -1943,7 +1943,7 @@ export default function CommunitiesPage() {
             {/* ---------------------------------------------------------------- */}
             <div className="hidden lg:block w-full space-y-4 lg:sticky lg:top-[calc(var(--communities-header-height,64px)+16px)] lg:self-start z-10 max-h-[calc(100vh-96px)] overflow-y-auto no-scrollbar">
               
-              {/* About Community Card (if active) OR StudentHub Overview Card */}
+              {/* About Community Card (if active) OR CommandSkill Overview Card */}
               {activeCommunity ? (
                 <div className="bg-card rounded-2xl border border-border/80 p-4 shadow-xs space-y-3">
                   <div className="flex items-center justify-between">
@@ -2097,7 +2097,7 @@ export default function CommunitiesPage() {
               <div className="bg-card rounded-2xl border border-border/80 p-4 shadow-xs space-y-2.5">
                 <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-foreground">
                   <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                  <span>StudentHub Standards</span>
+                  <span>CommandSkill Standards</span>
                 </div>
                 <div className="space-y-2 text-xs text-muted-foreground">
                   {communityRules.map((r, i) => (
@@ -2125,7 +2125,7 @@ export default function CommunitiesPage() {
                   <span>•</span>
                   <a href="#" className="hover:underline">Honor Code</a>
                 </div>
-                <div>© 2026 StudentHub Career Intelligence, Inc.</div>
+                <div>© 2026 CommandSkill Career Intelligence, Inc.</div>
               </div>
 
             </div>
@@ -2433,7 +2433,7 @@ export default function CommunitiesPage() {
         >
           <div className="space-y-4 text-xs text-muted-foreground">
             <p className="text-muted-foreground">
-              StudentHub Communities follow strict proof-of-work standards to maintain high-signal technical and career discourse.
+              CommandSkill Communities follow strict proof-of-work standards to maintain high-signal technical and career discourse.
             </p>
 
             <div className="space-y-3">

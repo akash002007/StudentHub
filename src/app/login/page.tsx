@@ -29,7 +29,7 @@ export default function LoginPage() {
     setRole(fillRole);
     if (fillRole === "student") {
       setEmail("alex.rivera@stanford.edu");
-      setPassword("studenthub123");
+      setPassword("commandskill123");
     } else if (fillRole === "recruiter") {
       setEmail("sarah.chen@stripe-careers.com");
       setPassword("recruiter123");
@@ -37,7 +37,7 @@ export default function LoginPage() {
       setEmail("placement@stanford.edu");
       setPassword("college123");
     } else {
-      setEmail("priya.menon@studenthub.io");
+      setEmail("priya.menon@commandskill.io");
       setPassword("admin123");
     }
   };
@@ -106,10 +106,10 @@ export default function LoginPage() {
           <div className="text-center space-y-2">
             <Link href="/" className="inline-flex items-center gap-2 mb-2">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-700 to-blue-800 to-blue-600 flex items-center justify-center text-white shadow-md shadow-blue-500/20">
-                <span className="font-black text-base tracking-tight text-white select-none">SH</span>
+                <span className="font-black text-base tracking-tight text-white select-none">CS</span>
               </div>
               <span className="font-bold text-xl tracking-tight text-foreground">
-                StudentHub
+                CommandSkill
               </span>
             </Link>
             <h1 className="text-2xl font-bold tracking-tight text-foreground">
@@ -294,7 +294,7 @@ export default function LoginPage() {
 
       {/* Footer minimal */}
       <footer className="p-4 text-center text-xs text-muted-foreground">
-        &copy; {new Date().getFullYear()} StudentHub Platform
+        &copy; {new Date().getFullYear()} CommandSkill Platform
       </footer>
     </div>
   );

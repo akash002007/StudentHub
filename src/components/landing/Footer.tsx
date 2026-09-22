@@ -13,17 +13,17 @@ export function Footer() {
           <div className="col-span-2 space-y-4">
             <Link href="/" className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-700 to-blue-800 to-blue-600 flex items-center justify-center text-white shadow-sm">
-                <span className="font-black text-xs tracking-tight text-white select-none">SH</span>
+                <span className="font-black text-xs tracking-tight text-white select-none">CS</span>
               </div>
               <span className="font-bold text-lg text-foreground tracking-tight">
-                StudentHub
+                CommandSkill
               </span>
             </Link>
             <p className="text-xs sm:text-sm text-muted-foreground max-w-sm leading-relaxed">
               The professional networking and career acceleration platform built specifically for university students, campus builders, and tech innovators.
             </p>
             <div className="text-xs text-muted-foreground">
-              &copy; {new Date().getFullYear()} StudentHub. All rights reserved.
+              &copy; {new Date().getFullYear()} CommandSkill. All rights reserved.
             </div>
           </div>
 

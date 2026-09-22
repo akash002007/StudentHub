@@ -95,12 +95,12 @@ assert.strictEqual(t4.isRetryable, false);
 assert.strictEqual(t4.errorMessage, "Verification code was not found on your Codeforces profile. Please save the profile changes and try again.");
 console.log("✓ Test 4 passed: Genuine failure returns FAILED with clear guidance.");
 
-// TEST 5: StudentHub Authentication Genuinely Missing (401)
-console.log("Test 5: StudentHub Authentication Genuinely Missing (401)");
+// TEST 5: CommandSkill Authentication Genuinely Missing (401)
+console.log("Test 5: CommandSkill Authentication Genuinely Missing (401)");
 const t5 = parseVerificationResponse(401, { success: false, error: "Authentication required" });
 assert.strictEqual(t5.state, "FAILED");
 assert.strictEqual(t5.errorMessage, "Session expired. Please sign in again.");
-console.log("✓ Test 5 passed: 401 is ONLY returned for genuine StudentHub auth failures.");
+console.log("✓ Test 5 passed: 401 is ONLY returned for genuine CommandSkill auth failures.");
 
 // TEST 6: Double-Click Prevention
 console.log("Test 6: Double-Click Prevention");

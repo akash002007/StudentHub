@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
 
     const result = postMessage(conversationId, content, {
       id: user.id || "usr_anon",
-      name: user.name || "StudentHub User",
+      name: user.name || "CommandSkill User",
       avatar: user.avatar,
       role: user.role || "STUDENT",
     });

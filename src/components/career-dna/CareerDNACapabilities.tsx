@@ -18,7 +18,7 @@ export function CareerDNACapabilities() {
       title: "1. CAREER SCORE",
       icon: Trophy,
       description:
-        "A data-driven score representing the strength of your current career profile based on the evidence StudentHub can verify.",
+        "A data-driven score representing the strength of your current career profile based on the evidence CommandSkill can verify.",
     },
     {
       id: "skill",
@@ -64,7 +64,7 @@ export function CareerDNACapabilities() {
           From scattered achievements to one intelligent career profile.
         </h3>
         <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-          StudentHub transforms unverified resume bullet points into an auditable evidence network.
+          CommandSkill transforms unverified resume bullet points into an auditable evidence network.
         </p>
       </div>
 

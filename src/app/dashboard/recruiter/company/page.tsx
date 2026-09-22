@@ -181,7 +181,7 @@ export default function RecruiterCompanyProfilePage() {
                     Active Internship Listings ({activeListings.length})
                   </h3>
                   <p className="text-xs text-muted-foreground">
-                    Currently published on StudentHub
+                    Currently published on CommandSkill
                   </p>
                 </div>
                 <Link href="/dashboard/recruiter/post-internship">

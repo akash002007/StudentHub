@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
   const response = NextResponse.redirect(githubAuthUrl);
 
   // 3. Store state token in secure HTTP-only cookie for callback verification (10 minutes max age)
-  response.cookies.set("studenthub_gh_state", state, {
+  response.cookies.set("commandskill_gh_state", state, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",

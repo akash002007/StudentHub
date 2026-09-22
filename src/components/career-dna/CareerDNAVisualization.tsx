@@ -206,7 +206,7 @@ export function CareerDNAVisualization() {
             <span className="flex items-center gap-1">
               <CheckCircle2 className="w-3 h-3 text-emerald-500" /> Evidence Audit Trail Verified
             </span>
-            <span className="font-semibold text-blue-500">StudentHub Engine</span>
+            <span className="font-semibold text-blue-500">CommandSkill Engine</span>
           </div>
         </div>
       </div>

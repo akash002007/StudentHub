@@ -76,7 +76,7 @@ export function DocumentComparisonModal({
   const handleApproveSubmit = async () => {
     setIsSubmitting(true);
     try {
-      await onApprove(document, "Verified by StudentHub Verification Officer after manual comparative review.");
+      await onApprove(document, "Verified by CommandSkill Verification Officer after manual comparative review.");
       onClose();
     } finally {
       setIsSubmitting(false);
@@ -118,7 +118,7 @@ export function DocumentComparisonModal({
                 Document Verification Review
               </h2>
               <p className="text-xs text-muted-foreground">
-                Compare extracted document attributes against trusted StudentHub profile data.
+                Compare extracted document attributes against trusted CommandSkill profile data.
               </p>
             </div>
           </div>
@@ -261,12 +261,12 @@ export function DocumentComparisonModal({
             </div>
           </div>
 
-          {/* RIGHT: Trusted StudentHub Profile */}
+          {/* RIGHT: Trusted CommandSkill Profile */}
           <div className="p-4 rounded-xl border border-border bg-card space-y-3">
             <div className="flex items-center justify-between pb-2 border-b border-border">
               <span className="text-xs font-extrabold text-foreground flex items-center gap-1.5">
                 <User className="w-4 h-4 text-blue-500" />
-                TRUSTED STUDENTHUB PROFILE
+                TRUSTED COMMANDSKILL PROFILE
               </span>
               <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">System Verified</span>
             </div>

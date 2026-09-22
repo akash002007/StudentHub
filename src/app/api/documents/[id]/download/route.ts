@@ -38,7 +38,7 @@ export async function GET(
     // Retrieve file buffer or fallback sample representation
     let buffer = ServerStore.getDocumentBuffer(id);
     if (!buffer) {
-      const fallbackContent = `%PDF-1.4\n% StudentHub Official Verified Document\n% Document ID: ${doc.id}\n% Candidate: ${doc.studentName || doc.userId}\n% Type: ${doc.documentType}\n% Verification: ${doc.verificationStatus} (${doc.confidenceScore || 90}% confidence)\n% Verified by: ${doc.verifiedBy || "StudentHub Verification Center"}\n\nCandidate verified credential document stream.`;
+      const fallbackContent = `%PDF-1.4\n% CommandSkill Official Verified Document\n% Document ID: ${doc.id}\n% Candidate: ${doc.studentName || doc.userId}\n% Type: ${doc.documentType}\n% Verification: ${doc.verificationStatus} (${doc.confidenceScore || 90}% confidence)\n% Verified by: ${doc.verifiedBy || "CommandSkill Verification Center"}\n\nCandidate verified credential document stream.`;
       buffer = Buffer.from(fallbackContent, "utf-8");
     }
 

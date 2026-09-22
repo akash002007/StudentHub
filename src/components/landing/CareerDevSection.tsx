@@ -38,7 +38,7 @@ export function CareerDevSection() {
             From First-Year Student to Top-Tier Engineer
           </h2>
           <p className="mt-4 text-base text-muted-foreground">
-            StudentHub replaces cold outreach and confusing job portals with a clear, guided roadmap.
+            CommandSkill replaces cold outreach and confusing job portals with a clear, guided roadmap.
           </p>
         </div>
 

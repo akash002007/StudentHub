@@ -1174,7 +1174,7 @@ export default function NewAssessmentPage() {
                   <div>
                     <h2 className="text-lg font-bold text-neutral-900 dark:text-white">Step 6: Question Bank & Selection</h2>
                     <p className="text-xs text-neutral-500">
-                      Search, preview, and attach questions from StudentHub System Bank, Company Bank, or create custom questions.
+                      Search, preview, and attach questions from CommandSkill System Bank, Company Bank, or create custom questions.
                     </p>
                   </div>
 
@@ -1183,7 +1183,7 @@ export default function NewAssessmentPage() {
                     <div className="flex items-center gap-2">
                       {[
                         { key: "all", label: "All Questions" },
-                        { key: "system", label: "StudentHub System" },
+                        { key: "system", label: "CommandSkill System" },
                         { key: "company", label: "Company Bank" },
                         { key: "recruiter", label: "My Questions" },
                         { key: "create", label: "+ Add Question" },
@@ -1316,7 +1316,7 @@ export default function NewAssessmentPage() {
                                 <div className="space-y-1">
                                   <div className="flex items-center gap-2">
                                     <Badge variant="outline" className="text-[10px]">
-                                      {q.ownerType === "SYSTEM" ? "StudentHub" : q.ownerType}
+                                      {q.ownerType === "SYSTEM" ? "CommandSkill" : q.ownerType}
                                     </Badge>
                                     <Badge
                                       variant="outline"
@@ -1725,7 +1725,7 @@ export default function NewAssessmentPage() {
                   <div className="p-5 rounded-2xl bg-neutral-900 text-white space-y-4">
                     <div className="flex items-center justify-between border-b border-neutral-800 pb-3">
                       <div>
-                        <span className="text-xs text-neutral-400 font-mono">STUDENTHUB OFFICIAL RECRUITMENT EXAMINATION</span>
+                        <span className="text-xs text-neutral-400 font-mono">COMMANDSKILL OFFICIAL RECRUITMENT EXAMINATION</span>
                         <h3 className="text-lg font-bold">{title}</h3>
                       </div>
                       <Badge className="bg-primary-600 text-white border-none">{examinationType}</Badge>

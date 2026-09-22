@@ -51,7 +51,7 @@ import { cn } from "@/lib/utils";
 import { isStudentVerified } from "@/lib/student-access-policy";
 import { useSidebar } from "@/context/SidebarContext";
 
-export interface StudentHubSidebarProps {
+export interface CommandSkillSidebarProps {
   role?: UserRole;
   className?: string;
   isMobileDrawerOpen?: boolean;
@@ -75,14 +75,14 @@ interface NavGroup {
   items: NavItem[];
 }
 
-export function StudentHubSidebar({
+export function CommandSkillSidebar({
   role: overrideRole,
   className,
   isMobileDrawerOpen: propIsMobileDrawerOpen,
   onCloseMobileDrawer: propOnCloseMobileDrawer,
   isCollapsed: propIsCollapsed,
   onToggleCollapse: propOnToggleCollapse,
-}: StudentHubSidebarProps) {
+}: CommandSkillSidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, role: authRole, logout, switchRole } = useAuth();
@@ -108,7 +108,7 @@ export function StudentHubSidebar({
   // Load saved group collapse states on mount
   useEffect(() => {
     try {
-      const savedGroups = localStorage.getItem("studenthub_sidebar_groups_collapsed");
+      const savedGroups = localStorage.getItem("commandskill_sidebar_groups_collapsed");
       if (savedGroups !== null) {
         setCollapsedGroups(JSON.parse(savedGroups));
       }
@@ -121,7 +121,7 @@ export function StudentHubSidebar({
     setCollapsedGroups((prev) => {
       const next = { ...prev, [key]: !prev[key] };
       try {
-        localStorage.setItem("studenthub_sidebar_groups_collapsed", JSON.stringify(next));
+        localStorage.setItem("commandskill_sidebar_groups_collapsed", JSON.stringify(next));
       } catch {
         // Ignore localStorage error
       }
@@ -582,12 +582,12 @@ export function StudentHubSidebar({
         >
           <Link href={brandHref} className="flex items-center gap-2.5 min-w-0 group">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-700 to-blue-800 to-blue-600 flex items-center justify-center text-white shadow-md shadow-blue-500/20 shrink-0 group-hover:scale-105 transition-transform">
-              <span className="font-black text-sm tracking-tight text-white select-none">SH</span>
+              <span className="font-black text-sm tracking-tight text-white select-none">CS</span>
             </div>
             {!isCollapsed && (
               <div className="flex flex-col min-w-0">
                 <span className="text-base font-extrabold tracking-tight text-foreground">
-                  StudentHub
+                  CommandSkill
                 </span>
                 <span className="px-1.5 py-0.2 rounded bg-blue-500/10 text-blue-600 dark:text-blue-400 font-bold text-[10px] uppercase tracking-wider mt-0.5 w-max">
                   {brandRoleSubtitle === "Admin Console"
@@ -815,7 +815,7 @@ export function StudentHubSidebar({
             {!isCollapsed && (
               <div className="flex flex-col min-w-0 flex-1">
                 <span className="font-bold text-xs text-foreground truncate">
-                  {user?.name || "StudentHub User"}
+                  {user?.name || "CommandSkill User"}
                 </span>
                 <span className="text-[10px] text-muted-foreground truncate font-medium">
                   {isCollegeWorkspace
@@ -844,7 +844,7 @@ export function StudentHubSidebar({
               <button
                 onClick={handleLogout}
                 className="inline-flex items-center gap-1 font-semibold text-rose-600 dark:text-rose-400 hover:text-rose-700 transition-colors cursor-pointer"
-                title="Sign out of StudentHub"
+                title="Sign out of CommandSkill"
               >
                 <LogOut className="w-3 h-3" />
                 <span>Logout</span>
@@ -886,4 +886,4 @@ export function StudentHubSidebar({
 }
 
 // Re-export as Sidebar for complete backward compatibility with all imports
-export const Sidebar = StudentHubSidebar;
+export const Sidebar = CommandSkillSidebar;

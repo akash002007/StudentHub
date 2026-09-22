@@ -19,7 +19,7 @@ export class HuggingFaceEngine {
     const res = await fetch("https://huggingface.co/api/whoami-v2", {
       headers: {
         Authorization: `Bearer ${accessToken}`,
-        "User-Agent": "StudentHub-OAuth",
+        "User-Agent": "CommandSkill-OAuth",
       },
       cache: "no-store",
     });
@@ -29,7 +29,7 @@ export class HuggingFaceEngine {
       const userinfoRes = await fetch("https://huggingface.co/oauth/userinfo", {
         headers: {
           Authorization: `Bearer ${accessToken}`,
-          "User-Agent": "StudentHub-OAuth",
+          "User-Agent": "CommandSkill-OAuth",
         },
         cache: "no-store",
       });
@@ -60,7 +60,7 @@ export class HuggingFaceEngine {
    * Fetches public models, datasets, and spaces for a Hugging Face username using public API endpoints.
    */
   static async fetchUserPublicData(username: string): Promise<HuggingFaceRawData> {
-    const headers = { "User-Agent": "StudentHub-OAuth" };
+    const headers = { "User-Agent": "CommandSkill-OAuth" };
 
     try {
       const [modelsRes, datasetsRes, spacesRes] = await Promise.all([

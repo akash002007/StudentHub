@@ -105,8 +105,8 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const AUTH_STORAGE_KEY = "studenthub_auth_user_v1";
-const ROLE_STORAGE_KEY = "studenthub_auth_role_v1";
+const AUTH_STORAGE_KEY = "commandskill_auth_user_v1";
+const ROLE_STORAGE_KEY = "commandskill_auth_role_v1";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -313,10 +313,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         try {
           if (data.token) {
-            localStorage.setItem("studenthub_access_token", data.token);
+            localStorage.setItem("commandskill_access_token", data.token);
           }
           if (data.refreshToken) {
-            localStorage.setItem("studenthub_refresh_token", data.refreshToken);
+            localStorage.setItem("commandskill_refresh_token", data.refreshToken);
           }
         } catch {
           console.warn("Could not save auth tokens to localStorage");
@@ -514,8 +514,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setRole("STUDENT");
     persistSession(null, "STUDENT");
     try {
-      localStorage.removeItem("studenthub_access_token");
-      localStorage.removeItem("studenthub_refresh_token");
+      localStorage.removeItem("commandskill_access_token");
+      localStorage.removeItem("commandskill_refresh_token");
     } catch {
       // ignore
     }
@@ -811,7 +811,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         await fetch(`/api/admin/verification/${encodeURIComponent(verId)}/approve`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ adminName: "StudentHub Admin Team" }),
+          body: JSON.stringify({ adminName: "CommandSkill Admin Team" }),
         });
       } else {
         await fetch(`/api/admin/verification/${encodeURIComponent(verId)}/reject`, {
@@ -819,7 +819,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             reason: rejectionReason || "Uploaded document was unreadable or expired.",
-            adminName: "StudentHub Admin Team",
+            adminName: "CommandSkill Admin Team",
           }),
         });
       }
@@ -838,7 +838,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             hour: "2-digit",
             minute: "2-digit",
           }),
-          reviewerName: "StudentHub Administration Team",
+          reviewerName: "CommandSkill Administration Team",
           rejectionReason:
             status === "rejected"
               ? rejectionReason || "The uploaded document is unreadable, expired, or invalid. Please upload a clear valid copy."

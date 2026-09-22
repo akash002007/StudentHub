@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
   const newReport = ServerStore.createModerationReport({
     reporterId: reporterId || "anonymous",
     reporterName: reporterName || "Anonymous User",
-    reporterEmail: reporterEmail || "anonymous@studenthub.io",
+    reporterEmail: reporterEmail || "anonymous@commandskill.io",
     targetType: targetType as ReportTargetType,
     targetId,
     targetTitle: targetTitle || `Target ${targetId}`,

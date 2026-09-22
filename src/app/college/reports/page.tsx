@@ -83,7 +83,7 @@ export default function CollegeReportsPage() {
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `StudentHub_${reportType}_${academicYear}.csv`);
+    link.setAttribute("download", `CommandSkill_${reportType}_${academicYear}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -178,7 +178,7 @@ export default function CollegeReportsPage() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-border">
           <div>
             <span className="text-[10px] font-bold uppercase tracking-widest text-indigo-600 dark:text-indigo-400">
-              StudentHub Placement Intelligence System
+              CommandSkill Placement Intelligence System
             </span>
             <h2 className="text-xl font-black text-foreground mt-0.5">
               {reportType.replace(/_/g, " ")}
@@ -324,7 +324,7 @@ export default function CollegeReportsPage() {
 
         {/* Institutional Signoff Footer */}
         <div className="pt-6 border-t border-border flex items-center justify-between text-[11px] text-muted-foreground">
-          <span>StudentHub Institutional Analytics &bull; Observer Layer</span>
+          <span>CommandSkill Institutional Analytics &bull; Observer Layer</span>
           <span>Confidential — For Internal Academic & Placement Governance Only</span>
         </div>
       </Card>

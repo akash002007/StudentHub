@@ -163,7 +163,7 @@ export default function CareerDNAPage() {
   const evidences = careerDNA?.evidences || [
     {
       id: "ev_1",
-      repositoryName: "StudentHub Platform",
+      repositoryName: "CommandSkill Platform",
       type: "PROJECT",
       language: "TypeScript",
       confidence: 95,

@@ -100,7 +100,7 @@ export default function StudentMyReportsPage() {
       <div className="bg-slate-900/60 border border-white/10 rounded-2xl p-4 flex items-start gap-3 text-xs text-slate-300">
         <Shield className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
         <p className="leading-relaxed">
-          StudentHub takes community integrity seriously. Your identity is kept strictly confidential
+          CommandSkill takes community integrity seriously. Your identity is kept strictly confidential
           and will never be shared with reported recruiters, companies, or peers.
         </p>
       </div>

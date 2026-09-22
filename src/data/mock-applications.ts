@@ -68,6 +68,6 @@ export const initialMockApplications: Application[] = [
     location: "Remote (Global)",
     workType: "Remote",
     stipend: "$42/hr",
-    nextStep: "Application submitted via StudentHub Fast-Track",
+    nextStep: "Application submitted via CommandSkill Fast-Track",
   },
 ];

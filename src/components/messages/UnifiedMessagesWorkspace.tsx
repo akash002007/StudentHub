@@ -84,7 +84,7 @@ export function UnifiedMessagesWorkspace({ forcedRole }: UnifiedMessagesWorkspac
           senderId: "student_02",
           senderName: "Priya Sharma",
           senderAvatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80",
-          content: "Hello Trust & Safety team! My college email domain was recently migrated. I have re-uploaded my official enrollment certificate for the StudentHub verified badge.",
+          content: "Hello Trust & Safety team! My college email domain was recently migrated. I have re-uploaded my official enrollment certificate for the CommandSkill verified badge.",
           timestamp: "12m ago",
           isSelf: false,
         },
@@ -113,7 +113,7 @@ export function UnifiedMessagesWorkspace({ forcedRole }: UnifiedMessagesWorkspac
           senderId: "recruiter_01",
           senderName: "Sarah Chen",
           senderAvatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80",
-          content: "Hi StudentHub Trust & Safety! We are ramping up our 2026 University Drives. Could you verify our recruitment drive quotas for CalHacks participants?",
+          content: "Hi CommandSkill Trust & Safety! We are ramping up our 2026 University Drives. Could you verify our recruitment drive quotas for CalHacks participants?",
           timestamp: "Yesterday, 3:00 PM",
           isSelf: false,
         },
@@ -121,7 +121,7 @@ export function UnifiedMessagesWorkspace({ forcedRole }: UnifiedMessagesWorkspac
           id: "msg_adm_2_2",
           conversationId: "admin_conv_2",
           senderId: "admin_user",
-          senderName: "StudentHub Trust & Safety",
+          senderName: "CommandSkill Trust & Safety",
           senderAvatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
           content: "Hi Sarah! Your enterprise quota has been elevated to 500 candidate fast-track screenings. All set!",
           timestamp: "Yesterday, 4:15 PM",
@@ -199,7 +199,7 @@ export function UnifiedMessagesWorkspace({ forcedRole }: UnifiedMessagesWorkspac
         id: `msg_adm_${Date.now()}`,
         conversationId: activeConversation.id,
         senderId: "admin_user",
-        senderName: user?.name || "StudentHub Admin",
+        senderName: user?.name || "CommandSkill Admin",
         senderAvatar: user?.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
         content: text,
         timestamp: "Just now",
@@ -264,7 +264,7 @@ export function UnifiedMessagesWorkspace({ forcedRole }: UnifiedMessagesWorkspac
             size="sm"
             className="text-[11px] font-bold px-2.5 py-1"
           >
-            {isAdmin ? "Trust & Safety Workspace" : isRecruiter ? "Recruiter Portal" : "Student Hub"}
+            {isAdmin ? "Trust & Safety Workspace" : isRecruiter ? "Recruiter Portal" : "CommandSkill"}
           </Badge>
         </div>
       </div>
@@ -490,7 +490,7 @@ export function UnifiedMessagesWorkspace({ forcedRole }: UnifiedMessagesWorkspac
                   <div className="flex justify-center my-2">
                     <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-muted/70 border border-border text-[11px] text-muted-foreground">
                       <Shield className="w-3 h-3 text-purple-500" />
-                      Encrypted and verified direct messaging via StudentHub Trust Layer
+                      Encrypted and verified direct messaging via CommandSkill Trust Layer
                     </span>
                   </div>
 
@@ -556,7 +556,7 @@ export function UnifiedMessagesWorkspace({ forcedRole }: UnifiedMessagesWorkspac
                         </span>
                         <div className="flex items-center gap-1.5 mt-1 text-emerald-600 dark:text-emerald-400 font-semibold">
                           <CheckCircle2 className="w-3.5 h-3.5" />
-                          StudentHub Verified Identity
+                          CommandSkill Verified Identity
                         </div>
                       </div>
 
@@ -578,7 +578,7 @@ export function UnifiedMessagesWorkspace({ forcedRole }: UnifiedMessagesWorkspac
                           Safety & Moderation
                         </span>
                         <p className="text-muted-foreground text-[11px] mt-0.5 leading-relaxed">
-                          All communications adhere to StudentHub Community Guidelines and Recruitment Privacy policies.
+                          All communications adhere to CommandSkill Community Guidelines and Recruitment Privacy policies.
                         </p>
                       </div>
                     </div>

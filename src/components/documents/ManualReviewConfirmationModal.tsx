@@ -54,7 +54,7 @@ export function ManualReviewConfirmationModal({
         {/* Informative Explanation (Only shown after choosing Request Manual Review) */}
         <div className="p-4 rounded-xl bg-muted/40 border border-border space-y-3">
           <p className="text-sm text-foreground leading-relaxed">
-            Your document will be reviewed by a StudentHub verification officer.
+            Your document will be reviewed by a CommandSkill verification officer.
           </p>
           <p className="text-xs text-muted-foreground leading-relaxed">
             You will be notified once the review is completed.

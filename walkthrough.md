@@ -1,38 +1,38 @@
-# StudentHub — RPSC-Style Recruiter Assessment System Walkthrough
+# CommandSkill — RPSC-Style Recruiter Assessment System Walkthrough
 
-This walkthrough details the formal transformation of StudentHub's Recruiter Assessment module into an **RPSC-Style Recruitment Examination System**, adhering to rigorous paper pattern blueprints, controlled scoring, negative marking, qualifying benchmarks vs. shortlisting cutoffs, multi-tier merit lists, tie-breaking rules, answer objection/re-evaluation workflows, and version immutability.
+This walkthrough details the formal transformation of CommandSkill's Recruiter Assessment module into an **RPSC-Style Recruitment Examination System**, adhering to rigorous paper pattern blueprints, controlled scoring, negative marking, qualifying benchmarks vs. shortlisting cutoffs, multi-tier merit lists, tie-breaking rules, answer objection/re-evaluation workflows, and version immutability.
 
 ---
 
 ## 1. Files Changed & Added
 
 ### Types & Data Modeling
-* [src/types/index.ts](file:///c:/Users/AKASH/Downloads/StudentHub-main/StudentHub-main/src/types/index.ts):
+* [src/types/index.ts](file:///c:/Users/AKASH/Downloads/CommandSkill-main/CommandSkill-main/src/types/index.ts):
   - Added `AssessmentSection`, `CutoffType`, `AssessmentCutoffConfig`, `MeritCriterion`, `AssessmentMeritConfig`, `SectionScoreSummary`, `QuestionObjection`, `AssessmentAuthorization`.
   - Extended `AssessmentRecord` with `version`, `sections`, `cutoffConfig`, `meritConfig`, `negativeMarkingRate`, `negativeMarkingType`, `examinationType`, `isVersionLocked`, and `schedule`.
   - Extended `AssessmentAttempt` with `sectionScores`, `cutoffCleared`, `meritRank`, `shortlistStatus`.
 
 ### Core Examination Engine
-* [src/lib/assessment-engine.ts](file:///c:/Users/AKASH/Downloads/StudentHub-main/StudentHub-main/src/lib/assessment-engine.ts):
+* [src/lib/assessment-engine.ts](file:///c:/Users/AKASH/Downloads/CommandSkill-main/CommandSkill-main/src/lib/assessment-engine.ts):
   - Updated store persistence (`.data/assessment-store-db.json`) for `objections` and `authorizations`.
   - Upgraded `saveAssessmentConfig` & `publishAssessmentConfig` to handle sections, negative rates, and version immutability locking (`isVersionLocked = true`).
   - Upgraded `submitAssessmentAttempt` to compute per-section score breakdowns, verify sectional minimum cutoffs, and calculate overall qualification.
   - Implemented `computeMeritList`, `shortlistCandidates`, `createNewAssessmentVersion`, `generatePaperFromBlueprint`, `submitQuestionObjection`, `getQuestionObjections`, `resolveQuestionObjection`, `reevaluateAssessment`, `getAssessmentAuthorizations`.
 
 ### Recruiter & Student API Endpoints
-* [src/app/api/recruiter/assessments/[id]/merit/route.ts](file:///c:/Users/AKASH/Downloads/StudentHub-main/StudentHub-main/src/app/api/recruiter/assessments/[id]/merit/route.ts) `[NEW]` (GET merit list, ranks, cutoff qualification)
-* [src/app/api/recruiter/assessments/[id]/shortlist/route.ts](file:///c:/Users/AKASH/Downloads/StudentHub-main/StudentHub-main/src/app/api/recruiter/assessments/[id]/shortlist/route.ts) `[NEW]` (POST bulk shortlist/reject/interview action)
-* [src/app/api/recruiter/assessments/[id]/version/route.ts](file:///c:/Users/AKASH/Downloads/StudentHub-main/StudentHub-main/src/app/api/recruiter/assessments/[id]/version/route.ts) `[NEW]` (POST create immutable version clone)
-* [src/app/api/recruiter/assessments/[id]/reevaluate/route.ts](file:///c:/Users/AKASH/Downloads/StudentHub-main/StudentHub-main/src/app/api/recruiter/assessments/[id]/reevaluate/route.ts) `[NEW]` (POST automated re-evaluation from corrected answer key)
-* [src/app/api/recruiter/assessments/[id]/objections/route.ts](file:///c:/Users/AKASH/Downloads/StudentHub-main/StudentHub-main/src/app/api/recruiter/assessments/[id]/objections/route.ts) `[NEW]` (GET list objections, POST resolve objection)
-* [src/app/api/recruiter/assessments/[id]/authorizations/route.ts](file:///c:/Users/AKASH/Downloads/StudentHub-main/StudentHub-main/src/app/api/recruiter/assessments/[id]/authorizations/route.ts) `[NEW]` (GET candidate exam authorizations)
-* [src/app/api/recruiter/assessments/blueprint/generate/route.ts](file:///c:/Users/AKASH/Downloads/StudentHub-main/StudentHub-main/src/app/api/recruiter/assessments/blueprint/generate/route.ts) `[NEW]` (POST generate question paper from blueprint)
-* [src/app/api/student/assessments/[id]/objection/route.ts](file:///c:/Users/AKASH/Downloads/StudentHub-main/StudentHub-main/src/app/api/student/assessments/[id]/objection/route.ts) `[NEW]` (POST candidate question objection submission)
+* [src/app/api/recruiter/assessments/[id]/merit/route.ts](file:///c:/Users/AKASH/Downloads/CommandSkill-main/CommandSkill-main/src/app/api/recruiter/assessments/[id]/merit/route.ts) `[NEW]` (GET merit list, ranks, cutoff qualification)
+* [src/app/api/recruiter/assessments/[id]/shortlist/route.ts](file:///c:/Users/AKASH/Downloads/CommandSkill-main/CommandSkill-main/src/app/api/recruiter/assessments/[id]/shortlist/route.ts) `[NEW]` (POST bulk shortlist/reject/interview action)
+* [src/app/api/recruiter/assessments/[id]/version/route.ts](file:///c:/Users/AKASH/Downloads/CommandSkill-main/CommandSkill-main/src/app/api/recruiter/assessments/[id]/version/route.ts) `[NEW]` (POST create immutable version clone)
+* [src/app/api/recruiter/assessments/[id]/reevaluate/route.ts](file:///c:/Users/AKASH/Downloads/CommandSkill-main/CommandSkill-main/src/app/api/recruiter/assessments/[id]/reevaluate/route.ts) `[NEW]` (POST automated re-evaluation from corrected answer key)
+* [src/app/api/recruiter/assessments/[id]/objections/route.ts](file:///c:/Users/AKASH/Downloads/CommandSkill-main/CommandSkill-main/src/app/api/recruiter/assessments/[id]/objections/route.ts) `[NEW]` (GET list objections, POST resolve objection)
+* [src/app/api/recruiter/assessments/[id]/authorizations/route.ts](file:///c:/Users/AKASH/Downloads/CommandSkill-main/CommandSkill-main/src/app/api/recruiter/assessments/[id]/authorizations/route.ts) `[NEW]` (GET candidate exam authorizations)
+* [src/app/api/recruiter/assessments/blueprint/generate/route.ts](file:///c:/Users/AKASH/Downloads/CommandSkill-main/CommandSkill-main/src/app/api/recruiter/assessments/blueprint/generate/route.ts) `[NEW]` (POST generate question paper from blueprint)
+* [src/app/api/student/assessments/[id]/objection/route.ts](file:///c:/Users/AKASH/Downloads/CommandSkill-main/CommandSkill-main/src/app/api/student/assessments/[id]/objection/route.ts) `[NEW]` (POST candidate question objection submission)
 
 ### Recruiter UI & Workspaces
-* [src/app/dashboard/recruiter/assessments/new/page.tsx](file:///c:/Users/AKASH/Downloads/StudentHub-main/StudentHub-main/src/app/dashboard/recruiter/assessments/new/page.tsx):
+* [src/app/dashboard/recruiter/assessments/new/page.tsx](file:///c:/Users/AKASH/Downloads/CommandSkill-main/CommandSkill-main/src/app/dashboard/recruiter/assessments/new/page.tsx):
   - 15-step structured RPSC examination wizard (Basic Details, Drive, Pattern, Sections Builder, Question Blueprint, Embedded Question Bank, Scoring, Negative Marking, Cutoff, Merit & Ranking, Proctoring, Schedule, Candidate Rules, Preview, Readiness Checklist & Publish).
-* [src/app/dashboard/recruiter/assessments/[id]/page.tsx](file:///c:/Users/AKASH/Downloads/StudentHub-main/StudentHub-main/src/app/dashboard/recruiter/assessments/[id]/page.tsx):
+* [src/app/dashboard/recruiter/assessments/[id]/page.tsx](file:///c:/Users/AKASH/Downloads/CommandSkill-main/CommandSkill-main/src/app/dashboard/recruiter/assessments/[id]/page.tsx):
   - Upgraded workspace with dedicated tabs for Overview, Blueprint & Pattern, Merit List (with rank, score, section breakdown, cutoff qualification, bulk shortlisting), Authorizations, Questions, Results, Objections & Re-evaluation, Analytics, Integrity Timeline, Versioning & Audit.
 
 ---
@@ -96,7 +96,7 @@ Bulk Shortlist / Move to Interview
 
 * Recruiter defines question counts for **Easy**, **Medium**, and **Hard** for every section.
 * The generator validates available active questions across:
-  1. StudentHub System Question Bank (Read-only)
+  1. CommandSkill System Question Bank (Read-only)
   2. Authorized Company Question Bank
   3. Recruiter Private Question Bank
 * **Pool Check**: If a section requires 10 Hard questions but only 6 exist, generation halts with a descriptive error before publishing.

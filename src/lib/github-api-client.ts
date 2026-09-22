@@ -37,7 +37,7 @@ export class GitHubAPIClient {
   private get headers(): Record<string, string> {
     return {
       Authorization: `Bearer ${this.accessToken}`,
-      "User-Agent": "StudentHub-SyncWorker/1.0",
+      "User-Agent": "CommandSkill-SyncWorker/1.0",
       Accept: "application/vnd.github.v3+json",
     };
   }
@@ -116,7 +116,7 @@ export class GitHubAPIClient {
   }
 
   /**
-   * Normalizes raw GitHub API response objects into StudentHub GitHubRepository records
+   * Normalizes raw GitHub API response objects into CommandSkill GitHubRepository records
    */
   async fetchAndNormalizeAll(userId: string): Promise<GitHubRepository[]> {
     const rawRepos = await this.fetchRepositories();

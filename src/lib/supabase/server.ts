@@ -152,7 +152,7 @@ export async function getAuthenticatedUser(
 
       if (cookieStore) {
         const tokenCookie =
-          cookieStore.get("studenthub_access_token")?.value ||
+          cookieStore.get("commandskill_access_token")?.value ||
           cookieStore.get("sb-access-token")?.value;
           
         if (tokenCookie) {
@@ -208,7 +208,7 @@ export async function getAuthenticatedUser(
         userRole = "PLATFORM_ADMIN";
         authenticatedUser = {
           id: defaultAdminUser.id,
-          email: defaultAdminUser.email || "admin@studenthub.io",
+          email: defaultAdminUser.email || "admin@commandskill.io",
           role: "PLATFORM_ADMIN",
           name: defaultAdminUser.name || "Platform Admin",
         };

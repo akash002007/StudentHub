@@ -1,7 +1,7 @@
 import crypto from "crypto";
 import { DocumentRecord, UserRole } from "@/types";
 
-const TOKEN_SECRET = process.env.DOCUMENT_SIGNING_SECRET || "studenthub_doc_sec_key_2026_x89a1";
+const TOKEN_SECRET = process.env.DOCUMENT_SIGNING_SECRET || "commandskill_doc_sec_key_2026_x89a1";
 
 export interface PolicyUser {
   id: string;

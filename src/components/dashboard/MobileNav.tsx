@@ -322,7 +322,7 @@ export function MobileNav() {
                 className="w-full p-3 rounded-xl bg-primary/10 text-rose-600 dark:text-rose-400 font-semibold text-xs flex items-center justify-center gap-2 border border-rose-500/20 hover:bg-primary/20 transition-colors"
               >
                 <LogOut className="w-4 h-4" />
-                <span>Sign Out of StudentHub</span>
+                <span>Sign Out of CommandSkill</span>
               </button>
             </div>
           </div>

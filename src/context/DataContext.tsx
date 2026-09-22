@@ -153,7 +153,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   // Sync to local storage where helpful
   useEffect(() => {
     try {
-      const storedSaved = localStorage.getItem("studenthub_saved_internships");
+      const storedSaved = localStorage.getItem("commandskill_saved_internships");
       if (storedSaved) {
         setSavedInternshipIds(JSON.parse(storedSaved));
       }
@@ -168,7 +168,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       const isSaved = prev.includes(id);
       const updated = isSaved ? prev.filter((item) => item !== id) : [...prev, id];
       try {
-        localStorage.setItem("studenthub_saved_internships", JSON.stringify(updated));
+        localStorage.setItem("commandskill_saved_internships", JSON.stringify(updated));
       } catch {
         // ignore
       }
@@ -208,7 +208,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       location: internship.location,
       workType: internship.workType,
       stipend: internship.stipend,
-      nextStep: "Application submitted via StudentHub Fast-Track",
+      nextStep: "Application submitted via CommandSkill Fast-Track",
       notes: note || undefined,
     };
 
@@ -659,7 +659,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
           senderId: "recruiter_01",
           senderName: "Sarah Chen",
           senderAvatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80",
-          content: `Hi ${candidate.name}! I noticed your impressive background on StudentHub and wanted to reach out regarding our 2026 internship openings at Stripe.`,
+          content: `Hi ${candidate.name}! I noticed your impressive background on CommandSkill and wanted to reach out regarding our 2026 internship openings at Stripe.`,
           timestamp: "Just now",
           isSelf: true,
         },

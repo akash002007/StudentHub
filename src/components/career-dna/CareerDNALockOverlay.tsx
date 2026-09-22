@@ -70,7 +70,7 @@ export function CareerDNALockOverlay({ className = "" }: CareerDNALockOverlayPro
     case "UNDER_REVIEW":
       title = "Career DNA Locked";
       message =
-        "Your student verification is being reviewed by a StudentHub verification officer. Career DNA will automatically unlock once verification is approved.";
+        "Your student verification is being reviewed by a CommandSkill verification officer. Career DNA will automatically unlock once verification is approved.";
       badgeVariant = "purple";
       badgeText = "OFFICER REVIEW IN PROGRESS";
       showViewStatus = true;

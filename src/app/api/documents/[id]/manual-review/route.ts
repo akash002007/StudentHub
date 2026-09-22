@@ -43,7 +43,7 @@ export async function POST(
 
     return NextResponse.json({
       success: true,
-      message: "Your document has been submitted for manual verification. A StudentHub verification officer will review your document.",
+      message: "Your document has been submitted for manual verification. A CommandSkill verification officer will review your document.",
       document: result.document,
     });
   } catch (err: any) {

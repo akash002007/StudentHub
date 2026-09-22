@@ -235,7 +235,7 @@ export default function SignupPage() {
         recruiterRole,
         recruiterUsage,
       });
-      success(`Welcome to StudentHub Employer Suite, ${name}!`);
+      success(`Welcome to CommandSkill Employer Suite, ${name}!`);
       router.push("/dashboard/recruiter");
     }, 700);
   };
@@ -271,10 +271,10 @@ export default function SignupPage() {
           <div className="text-center space-y-2">
             <Link href="/" className="inline-flex items-center gap-2 mb-1">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-700 to-blue-800 to-blue-600 flex items-center justify-center text-white shadow-md shadow-blue-500/20">
-                <span className="font-black text-base tracking-tight text-white select-none">SH</span>
+                <span className="font-black text-base tracking-tight text-white select-none">CS</span>
               </div>
               <span className="font-bold text-xl tracking-tight text-foreground">
-                StudentHub
+                CommandSkill
               </span>
             </Link>
             <h1 className="text-2xl font-bold tracking-tight text-foreground">
@@ -495,7 +495,7 @@ export default function SignupPage() {
                         <span>1. Personal & Contact Information</span>
                       </h2>
                       <p className="text-xs text-muted-foreground">
-                        Tell us who you are and how candidates or StudentHub can contact you.
+                        Tell us who you are and how candidates or CommandSkill can contact you.
                       </p>
                     </div>
 
@@ -690,7 +690,7 @@ export default function SignupPage() {
                         <span>3. Recruiter Role & Platform Usage</span>
                       </h2>
                       <p className="text-xs text-muted-foreground">
-                        Tell us how you will use StudentHub.
+                        Tell us how you will use CommandSkill.
                       </p>
                     </div>
 
@@ -726,7 +726,7 @@ export default function SignupPage() {
 
                     <div>
                       <label className="block text-xs font-medium text-foreground mb-2">
-                        Primary Goals on StudentHub * (Select all that apply)
+                        Primary Goals on CommandSkill * (Select all that apply)
                       </label>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                         {[
@@ -878,7 +878,7 @@ export default function SignupPage() {
                         <span>5. Review & Create Account</span>
                       </h2>
                       <p className="text-xs text-muted-foreground">
-                        Review your recruiter information before creating your StudentHub account.
+                        Review your recruiter information before creating your CommandSkill account.
                       </p>
                     </div>
 
@@ -1094,7 +1094,7 @@ export default function SignupPage() {
       </main>
 
       <footer className="p-4 text-center text-xs text-muted-foreground">
-        &copy; {new Date().getFullYear()} StudentHub Platform
+        &copy; {new Date().getFullYear()} CommandSkill Platform
       </footer>
     </div>
   );

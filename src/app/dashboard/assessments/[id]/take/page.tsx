@@ -600,7 +600,7 @@ export default function CandidateTakeAssessmentPage({
       <RoleGuard allowedRole="student">
         <div className="min-h-screen w-full flex flex-col items-center justify-center bg-background text-foreground">
           <div className="w-10 h-10 border-3 border-purple-600 border-t-transparent rounded-full animate-spin mb-4" />
-          <p className="text-sm font-semibold text-muted-foreground">Initializing StudentHub Secure Assessment Engine...</p>
+          <p className="text-sm font-semibold text-muted-foreground">Initializing CommandSkill Secure Assessment Engine...</p>
         </div>
       </RoleGuard>
     );
@@ -896,7 +896,7 @@ export default function CandidateTakeAssessmentPage({
         /* 
           =======================================================================
           VIEW 4: DEDICATED FULL-SCREEN SECURE EXAM MODE
-          (100vw, 100vh, Pure Viewport Takeover, Zero StudentHub Chrome)
+          (100vw, 100vh, Pure Viewport Takeover, Zero CommandSkill Chrome)
           =======================================================================
         */
         <div className="fixed inset-0 z-50 bg-background text-foreground flex flex-col justify-between overflow-hidden select-none">

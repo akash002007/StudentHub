@@ -2,7 +2,7 @@
 
 import React from "react";
 import { usePathname } from "next/navigation";
-import { StudentHubSidebar } from "@/components/shared/StudentHubSidebar";
+import { CommandSkillSidebar } from "@/components/shared/CommandSkillSidebar";
 import { TopHeader } from "@/components/dashboard/TopHeader";
 import { MobileNav } from "@/components/dashboard/MobileNav";
 import { QuickActionsFab } from "@/components/dashboard/QuickActionsFab";
@@ -53,7 +53,7 @@ export function DashboardShell({
       )}
     >
       {/* Desktop Sticky Sidebar & Mobile Navigation Drawer */}
-      <StudentHubSidebar
+      <CommandSkillSidebar
         role={role}
         isMobileDrawerOpen={isMobileDrawerOpen}
         onCloseMobileDrawer={closeMobileDrawer}

@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
   }
 
   // 2. Validate OAuth state parameter against HTTP-only cookie (CSRF & state replay protection)
-  const savedStateCookie = request.cookies.get("studenthub_gh_state")?.value;
+  const savedStateCookie = request.cookies.get("commandskill_gh_state")?.value;
   if (!savedStateCookie || savedStateCookie !== state) {
     console.error("[GitHub OAuth Callback] state mismatch error");
     return NextResponse.redirect(
@@ -79,7 +79,7 @@ export async function GET(request: NextRequest) {
     const userRes = await fetch("https://api.github.com/user", {
       headers: {
         Authorization: `Bearer ${accessToken}`,
-        "User-Agent": "StudentHub-OAuth",
+        "User-Agent": "CommandSkill-OAuth",
         Accept: "application/vnd.github.v3+json",
       },
     });
@@ -97,13 +97,13 @@ export async function GET(request: NextRequest) {
     const githubAvatarUrl = githubUser.avatar_url || null;
     const githubProfileUrl = githubUser.html_url || `https://github.com/${githubUsername}`;
 
-    // 5. Prevent linking the same numeric GitHub account to multiple different StudentHub users
+    // 5. Prevent linking the same numeric GitHub account to multiple different CommandSkill users
     const existingConn = getGitHubConnectionByGithubId(githubUserId);
     if (existingConn && existingConn.userId !== userId) {
       const response = NextResponse.redirect(
         `${appUrl}/dashboard/connected-accounts?error=account_already_linked`
       );
-      response.cookies.delete("studenthub_gh_state");
+      response.cookies.delete("commandskill_gh_state");
       return response;
     }
 
@@ -135,7 +135,7 @@ export async function GET(request: NextRequest) {
     );
 
     // Single-use state cleanup
-    response.cookies.delete("studenthub_gh_state");
+    response.cookies.delete("commandskill_gh_state");
 
     return response;
   } catch (err: unknown) {

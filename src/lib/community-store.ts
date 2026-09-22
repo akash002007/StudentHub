@@ -31,7 +31,7 @@ export const structuredMockCommunities: Community[] = [
     status: "ACTIVE",
     isVerified: true,
     verificationDetails: {
-      verifiedBy: "StudentHub Institutional Registrar",
+      verifiedBy: "CommandSkill Institutional Registrar",
       verifiedAt: "2026-01-15T10:00:00Z",
       verificationReason: "Official recognized student technical society chartered by Stanford School of Engineering.",
     },
@@ -169,7 +169,7 @@ export const structuredMockCommunities: Community[] = [
       {
         id: "aud_ai_1",
         communityId: "comm_stanford_ai",
-        actor: "StudentHub Institutional Registrar",
+        actor: "CommandSkill Institutional Registrar",
         action: "Community Verified & Chartered",
         timestamp: "2026-01-15T10:00:00Z",
         details: "Verified faculty charter and university authorization.",
@@ -193,7 +193,7 @@ export const structuredMockCommunities: Community[] = [
     status: "ACTIVE",
     isVerified: true,
     verificationDetails: {
-      verifiedBy: "StudentHub Engineering Verification",
+      verifiedBy: "CommandSkill Engineering Verification",
       verifiedAt: "2026-01-20T14:30:00Z",
       verificationReason: "Associated with ASUC and student engineering governance.",
     },
@@ -261,7 +261,7 @@ export const structuredMockCommunities: Community[] = [
         deadline: "Oct 15, 2026",
         company: "Vercel / Supabase Ecosystem",
         description: "Fast-tracked interview slot for top contributors to guild open-source projects.",
-        eligibility: "Verified StudentHub student with Next.js skills",
+        eligibility: "Verified CommandSkill student with Next.js skills",
       },
     ],
     leadership: [
@@ -306,7 +306,7 @@ export const structuredMockCommunities: Community[] = [
     status: "ACTIVE",
     isVerified: true,
     verificationDetails: {
-      verifiedBy: "StudentHub Competitive Division",
+      verifiedBy: "CommandSkill Competitive Division",
       verifiedAt: "2026-02-01T09:00:00Z",
       verificationReason: "Official ICPC Regional training society.",
     },
@@ -415,7 +415,7 @@ export const structuredMockCommunities: Community[] = [
     status: "ACTIVE",
     isVerified: true,
     verificationDetails: {
-      verifiedBy: "StudentHub Regional Academic Council",
+      verifiedBy: "CommandSkill Regional Academic Council",
       verifiedAt: "2026-01-10T12:00:00Z",
       verificationReason: "Institute verified laboratory with sponsored industry testing projects.",
     },
@@ -504,7 +504,7 @@ export const structuredMockCommunities: Community[] = [
     status: "ACTIVE",
     isVerified: true,
     verificationDetails: {
-      verifiedBy: "StudentHub Security Council",
+      verifiedBy: "CommandSkill Security Council",
       verifiedAt: "2026-03-01T11:00:00Z",
       verificationReason: "Affiliated with university computing department and National Cyber League.",
     },
@@ -605,7 +605,7 @@ export const structuredMockCommunities: Community[] = [
     status: "ACTIVE",
     isVerified: true,
     verificationDetails: {
-      verifiedBy: "StudentHub Venture Partners",
+      verifiedBy: "CommandSkill Venture Partners",
       verifiedAt: "2026-01-05T08:00:00Z",
       verificationReason: "Backed by university incubator programs and student alumni angel investors.",
     },
@@ -674,7 +674,7 @@ export const structuredMockCommunities: Community[] = [
         deadline: "Oct 30, 2026",
         company: "Stealth FinTech (Backed by YC Alumni)",
         description: "Equity-compensated founding engineer role building low-latency automated portfolio auditing agents.",
-        eligibility: "Verified StudentHub student with Next.js/Python experience",
+        eligibility: "Verified CommandSkill student with Next.js/Python experience",
       },
     ],
     leadership: [
@@ -754,7 +754,7 @@ export function evaluateCommunityEligibility(
     checklist.push({
       label: "Institutional Identity",
       passed,
-      required: "StudentHub Verified Student ✓",
+      required: "CommandSkill Verified Student ✓",
       candidateValue: isVerified ? "Verified Student" : "Unverified / Pending",
       details: passed ? "Academic email & credentials verified" : "Student account verification required",
     });
@@ -1063,7 +1063,7 @@ export const initialRedditPosts: CommunityPost[] = [
       name: "CanvasSync",
       repoUrl: "https://github.com/liamoconnor/canvassync",
       demoUrl: "https://canvassync-demo.vercel.app",
-      verifiedBy: "StudentHub Evidence Engine (GitHub Commit Verified)",
+      verifiedBy: "CommandSkill Evidence Engine (GitHub Commit Verified)",
     },
     comments: [
       {
@@ -1139,7 +1139,7 @@ export const initialRedditPosts: CommunityPost[] = [
     type: "INTERNSHIP",
     title: "Linear is hiring SWE Interns for Fall/Spring (Remote / SF) — Verified Opportunity",
     content:
-      "Linear just opened applications for their engineering internship cohort. The role focuses on real-time sync engines, keyboard accessibility, and custom canvas UI components.\n\nStipend: $52/hr + housing stipend • Remote eligible\n\nI have 5 direct referral slots available for verified StudentHub engineers who have open-source evidence or high-match Career DNA projects. Drop your portfolio link or message me directly!",
+      "Linear just opened applications for their engineering internship cohort. The role focuses on real-time sync engines, keyboard accessibility, and custom canvas UI components.\n\nStipend: $52/hr + housing stipend • Remote eligible\n\nI have 5 direct referral slots available for verified CommandSkill engineers who have open-source evidence or high-match Career DNA projects. Drop your portfolio link or message me directly!",
     timestamp: "8 hours ago",
     upvotes: 278,
     userVote: 0,
@@ -1171,7 +1171,7 @@ export const initialRedditPosts: CommunityPost[] = [
     type: "ACHIEVEMENT",
     title: "How my roommate and I raised our first $100k pre-seed round while in sophomore year",
     content:
-      "A quick breakdown of what actually worked for us as 19-year-old student founders:\n\n1. Do not pitch decks in cold DMs. Build a clickable prototype, record a 60-second Loom showing real user workflow, and share it on Twitter and StudentHub.\n2. Do customer discovery interviews with 50+ real users before writing a single line of backend logic.\n3. Be careful with university IP policies: make sure you use personal laptops and personal Wi-Fi when building proprietary commercial IP.\n4. Avoid predatory SAFE notes with 2x liquidation preferences from vanity incubators.",
+      "A quick breakdown of what actually worked for us as 19-year-old student founders:\n\n1. Do not pitch decks in cold DMs. Build a clickable prototype, record a 60-second Loom showing real user workflow, and share it on Twitter and CommandSkill.\n2. Do customer discovery interviews with 50+ real users before writing a single line of backend logic.\n3. Be careful with university IP policies: make sure you use personal laptops and personal Wi-Fi when building proprietary commercial IP.\n4. Avoid predatory SAFE notes with 2x liquidation preferences from vanity incubators.",
     timestamp: "12 hours ago",
     upvotes: 320,
     userVote: 0,

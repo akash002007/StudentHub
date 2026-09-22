@@ -21,7 +21,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   // Read stored preference on mount
   useEffect(() => {
     try {
-      const storedTheme = (localStorage.getItem("studenthub-theme") || localStorage.getItem("studenthub_theme")) as Theme | null;
+      const storedTheme = (localStorage.getItem("commandskill-theme") || localStorage.getItem("commandskill_theme")) as Theme | null;
       if (storedTheme && (storedTheme === "light" || storedTheme === "dark" || storedTheme === "system")) {
         setThemeState(storedTheme);
       } else {
@@ -75,7 +75,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   // Sync across tabs
   useEffect(() => {
     const handleStorage = (e: StorageEvent) => {
-      if (e.key === "studenthub-theme" || e.key === "studenthub_theme") {
+      if (e.key === "commandskill-theme" || e.key === "commandskill_theme") {
         const val = e.newValue as Theme | null;
         if (val === "light" || val === "dark" || val === "system") {
           setThemeState(val);
@@ -89,8 +89,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const setTheme = useCallback((newTheme: Theme) => {
     setThemeState(newTheme);
     try {
-      localStorage.setItem("studenthub-theme", newTheme);
-      localStorage.setItem("studenthub_theme", newTheme);
+      localStorage.setItem("commandskill-theme", newTheme);
+      localStorage.setItem("commandskill_theme", newTheme);
     } catch {
       // ignore
     }

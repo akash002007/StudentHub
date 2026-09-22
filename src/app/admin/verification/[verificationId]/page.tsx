@@ -92,7 +92,7 @@ export default function VerificationReviewPage({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           adminName: "Priya Menon",
-          adminNotes: "Approved student for verified StudentHub access.",
+          adminNotes: "Approved student for verified CommandSkill access.",
         }),
       });
       if (res.ok) {
@@ -253,7 +253,7 @@ export default function VerificationReviewPage({
       {/* Confirmation Modal for Approve */}
       <ConfirmationModal
         isOpen={isApproveOpen}
-        title="Approve this student for verified StudentHub access?"
+        title="Approve this student for verified CommandSkill access?"
         description={`This will set ${request.student.fullName}'s account to VERIFIED, unlock verified-only features (internship applications, communities, messaging), and send a live verification notification.`}
         actionLabel="Approve Student"
         onCancel={() => setIsApproveOpen(false)}

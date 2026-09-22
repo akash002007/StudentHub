@@ -14,7 +14,7 @@ export default function DashboardLayout({
   const pathname = usePathname();
   const isTakeAssessmentMode = pathname.includes("/assessments/") && pathname.endsWith("/take");
 
-  // In Secure Exam Mode, render pure full-viewport children with zero StudentHub navigation
+  // In Secure Exam Mode, render pure full-viewport children with zero CommandSkill navigation
   if (isTakeAssessmentMode) {
     return (
       <OnboardingGuard>

@@ -571,10 +571,10 @@ function OnboardingContent() {
         <div className="flex items-center gap-3">
           <Link href="/" className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-700 to-blue-800 to-blue-600 flex items-center justify-center text-white shadow-md shadow-blue-500/20">
-              <span className="font-black text-xs tracking-tight text-white select-none">SH</span>
+              <span className="font-black text-xs tracking-tight text-white select-none">CS</span>
             </div>
             <span className="font-bold text-lg tracking-tight text-foreground">
-              StudentHub
+              CommandSkill
             </span>
           </Link>
           <span className="hidden sm:inline-block text-border">|</span>
@@ -1098,7 +1098,7 @@ function OnboardingContent() {
                       Manual Review Requested
                     </p>
                     <p className="text-muted-foreground">
-                      Your document has been submitted for review by a StudentHub verification officer. Please complete your
+                      Your document has been submitted for review by a CommandSkill verification officer. Please complete your
                       profile details below to finalize your account.
                     </p>
                   </div>
@@ -1508,7 +1508,7 @@ function OnboardingContent() {
                       </h3>
                       <p className="text-xs sm:text-sm text-muted-foreground max-w-lg mx-auto">
                         Your student profile has been verified. You have full verified candidate status
-                        on StudentHub.
+                        on CommandSkill.
                       </p>
                     </div>
                   </>
@@ -1530,7 +1530,7 @@ function OnboardingContent() {
                         Document Under Manual Administrative Review
                       </h3>
                       <p className="text-xs sm:text-sm text-muted-foreground max-w-lg mx-auto">
-                        Your document has been submitted for manual review by a StudentHub verification officer.
+                        Your document has been submitted for manual review by a CommandSkill verification officer.
                         You will be notified as soon as the review is complete. You can now access your workspace.
                       </p>
                     </div>
@@ -1734,7 +1734,7 @@ function OnboardingContent() {
                       Admin Manual Verification Simulator:
                     </p>
                     <p className="text-[11px] text-muted-foreground">
-                      Simulate how the StudentHub administration team reviews and resolves this manual
+                      Simulate how the CommandSkill administration team reviews and resolves this manual
                       verification request.
                     </p>
 
@@ -1809,7 +1809,7 @@ function OnboardingContent() {
 
       {/* Footer */}
       <footer className="p-4 text-center text-xs text-muted-foreground border-t border-border mt-auto">
-        &copy; {new Date().getFullYear()} StudentHub Platform • Secure Student Verification
+        &copy; {new Date().getFullYear()} CommandSkill Platform • Secure Student Verification
       </footer>
 
       {/* SECTION 11: Failure Modal with [Upload Again] and [Request Manual Review] */}

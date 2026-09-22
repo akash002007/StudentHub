@@ -1,5 +1,5 @@
 -- ==============================================================================
--- StudentHub: Supabase PostgreSQL Database Schema & Seed Data
+-- CommandSkill: Supabase PostgreSQL Database Schema & Seed Data
 -- Module: Student Internship Discovery
 -- ==============================================================================
 

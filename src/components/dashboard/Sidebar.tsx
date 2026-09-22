@@ -1,4 +1,4 @@
 "use client";
 
-export { StudentHubSidebar as Sidebar, StudentHubSidebar } from "@/components/shared/StudentHubSidebar";
-export type { StudentHubSidebarProps as SidebarProps } from "@/components/shared/StudentHubSidebar";
+export { CommandSkillSidebar as Sidebar, CommandSkillSidebar } from "@/components/shared/CommandSkillSidebar";
+export type { CommandSkillSidebarProps as SidebarProps } from "@/components/shared/CommandSkillSidebar";

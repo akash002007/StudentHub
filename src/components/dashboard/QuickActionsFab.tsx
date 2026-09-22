@@ -51,7 +51,7 @@ export function QuickActionsFab() {
   const [aiMessages, setAiMessages] = useState<Array<{ role: "user" | "ai"; text: string }>>([
     {
       role: "ai",
-      text: "Hi Alex! I'm your StudentHub Career Advisor. Ask me anything about interview prep, resume tailoring, or finding the right internship and career opportunities across your field.",
+      text: "Hi Alex! I'm your CommandSkill Career Advisor. Ask me anything about interview prep, resume tailoring, or finding the right internship and career opportunities across your field.",
     },
   ]);
   const [isAiTyping, setIsAiTyping] = useState(false);
@@ -69,7 +69,7 @@ export function QuickActionsFab() {
   const studentActions = [
     {
       id: "ai",
-      label: "Ask StudentHub AI",
+      label: "Ask CommandSkill AI",
       icon: Bot,
       color: "from-blue-600 to-blue-600",
       onClick: () => {
@@ -313,7 +313,7 @@ export function QuickActionsFab() {
       <Modal
         isOpen={isAiModalOpen}
         onClose={() => setIsAiModalOpen(false)}
-        title="StudentHub Career Advisor"
+        title="CommandSkill Career Advisor"
         description="Instant guidance for resume bullet points, interview questions, and tech internships."
         maxWidth="xl"
       >

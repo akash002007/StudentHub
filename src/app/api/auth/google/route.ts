@@ -192,7 +192,7 @@ export async function POST(req: NextRequest) {
 
     const { user, isNewUser, redirectUrl } = authResult;
 
-    // 4. Issue StudentHub JWT Access and Refresh Tokens
+    // 4. Issue CommandSkill JWT Access and Refresh Tokens
     const accessToken = await signAccessToken({
       userId: user.id,
       email: user.email,
@@ -221,7 +221,7 @@ export async function POST(req: NextRequest) {
         isNewUser,
         redirectUrl,
         message: isNewUser
-          ? `Welcome to StudentHub, ${user.name}!`
+          ? `Welcome to CommandSkill, ${user.name}!`
           : `Welcome back, ${user.name}!`,
       },
       { status: 200 }

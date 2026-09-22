@@ -248,7 +248,7 @@ export default function VerificationCenterPage() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", `studenthub_verification_center_${new Date().toISOString().slice(0, 10)}.csv`);
+    link.setAttribute("download", `commandskill_verification_center_${new Date().toISOString().slice(0, 10)}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -675,7 +675,7 @@ export default function VerificationCenterPage() {
       <ConfirmationModal
         isOpen={!!selectedReqForApprove}
         title={`Approve ${selectedReqForApprove?.student.fullName}?`}
-        description={`This will verify ${selectedReqForApprove?.student.fullName}'s StudentHub account, award the Verified Student badge, and grant full candidate access.`}
+        description={`This will verify ${selectedReqForApprove?.student.fullName}'s CommandSkill account, award the Verified Student badge, and grant full candidate access.`}
         actionLabel="Approve Student"
         onCancel={() => setSelectedReqForApprove(null)}
         onConfirm={handleQuickApproveRequest}

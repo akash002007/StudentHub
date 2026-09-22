@@ -43,7 +43,7 @@ async function runCareerDNALockTests() {
       isVerified: false,
       shouldLock: true,
       expectedTitle: "Career DNA Locked",
-      expectedMsgPart: "reviewed by a StudentHub verification officer",
+      expectedMsgPart: "reviewed by a CommandSkill verification officer",
       expectedButton: "View Verification Status",
     },
     {

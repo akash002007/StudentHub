@@ -32,7 +32,7 @@ export function CareerDNACTA() {
         <div className="pt-2 text-xs sm:text-sm italic text-blue-600 dark:text-blue-300 font-semibold space-y-1">
           <p>"Don't just list what you've done. Show what it proves."</p>
           <p className="text-muted-foreground font-normal text-xs">
-            StudentHub Career DNA turns your work into evidence, your evidence into insight, and your insight into your next opportunity.
+            CommandSkill Career DNA turns your work into evidence, your evidence into insight, and your insight into your next opportunity.
           </p>
         </div>
       </div>

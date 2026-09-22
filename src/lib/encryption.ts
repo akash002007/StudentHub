@@ -3,7 +3,7 @@ import crypto from "crypto";
 const ENCRYPTION_SECRET =
   process.env.ENCRYPTION_KEY ||
   process.env.JWT_SECRET ||
-  "studenthub_secure_encryption_key_32bytes_long_2026!";
+  "commandskill_secure_encryption_key_32bytes_long_2026!";
 
 function getDerivedKey(secret: string): Buffer {
   return crypto.createHash("sha256").update(secret).digest();

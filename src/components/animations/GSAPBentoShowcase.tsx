@@ -101,7 +101,7 @@ export function GSAPBentoShowcase() {
         { label: "Daily Topics", value: "1,800+" },
         { label: "Hackathon Squads", value: "620+" },
       ],
-      ctaText: "Join Student Hubs",
+      ctaText: "Join CommandSkill Hubs",
       ctaLink: "/signup",
       secondaryCtaText: "Browse Communities",
       secondaryCtaLink: "/dashboard/communities",
@@ -133,7 +133,7 @@ export function GSAPBentoShowcase() {
       title: "Your Gateway To",
       titleHighlight: "High-Growth Careers",
       description:
-        "Skip the black hole of cold applications. Campus hiring managers search verified StudentHub talent pipelines to extend direct interview invitations and fast-track internship offers.",
+        "Skip the black hole of cold applications. Campus hiring managers search verified CommandSkill talent pipelines to extend direct interview invitations and fast-track internship offers.",
       metrics: [
         { label: "Partner Companies", value: "350+" },
         { label: "Direct Offers", value: "2,400+" },
@@ -459,7 +459,7 @@ export function GSAPBentoShowcase() {
       ref={triggerRef}
       id="experience"
       className="relative w-full bg-background select-none"
-      aria-label="StudentHub Interactive Platform Journey"
+      aria-label="CommandSkill Interactive Platform Journey"
     >
       {/* Pinned Showcase Viewport */}
       <section
@@ -738,7 +738,7 @@ export function GSAPBentoShowcase() {
         {/* Bottom Scroll-Driven Interaction Hint */}
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 text-[11px] font-semibold text-muted-foreground/70 bg-card/60 backdrop-blur-sm px-3.5 py-1 rounded-full border border-border/40">
           <span className="inline-block w-1.5 h-1.5 rounded-full bg-blue-500 animate-ping" />
-          <span>Scroll to scrub through StudentHub story • Use right indicators anytime</span>
+          <span>Scroll to scrub through CommandSkill story • Use right indicators anytime</span>
         </div>
       </section>
     </div>

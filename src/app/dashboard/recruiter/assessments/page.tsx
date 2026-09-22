@@ -306,7 +306,7 @@ function RecruiterAssessmentsContent() {
 
   const openEditModal = (q: AssessmentQuestion) => {
     if (q.ownerType === "SYSTEM") {
-      toastError("System bank questions are maintained by StudentHub and cannot be modified.");
+      toastError("System bank questions are maintained by CommandSkill and cannot be modified.");
       return;
     }
     setEditingQuestion(q);
@@ -875,7 +875,7 @@ function RecruiterAssessmentsContent() {
                       SH
                     </div>
                     <div>
-                      <h4 className="font-bold text-xs text-foreground">Verified StudentHub Bank</h4>
+                      <h4 className="font-bold text-xs text-foreground">Verified CommandSkill Bank</h4>
                       <p className="text-[10px] text-muted-foreground">Curated & Verified by Admin</p>
                     </div>
                   </div>

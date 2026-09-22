@@ -95,7 +95,7 @@ export default function RecruiterTrustSafetyPage() {
             <span className="text-lg font-bold text-white">Verified Employer</span>
           </div>
           <p className="text-[11px] text-slate-400 leading-snug">
-            Domain and corporate identity verified by StudentHub Trust Team.
+            Domain and corporate identity verified by CommandSkill Trust Team.
           </p>
         </div>
 
@@ -117,7 +117,7 @@ export default function RecruiterTrustSafetyPage() {
       <div className="bg-slate-900/60 border border-white/10 rounded-2xl p-6 space-y-4">
         <h3 className="text-base font-bold text-white flex items-center gap-2">
           <Info className="w-4 h-4 text-indigo-400" />
-          <span>StudentHub Zero-Abuse Recruitment Standards</span>
+          <span>CommandSkill Zero-Abuse Recruitment Standards</span>
         </h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-slate-300">

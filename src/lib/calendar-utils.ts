@@ -1,7 +1,7 @@
 import { CalendarEvent } from "@/types";
 
 /**
- * Generates a standard Google Calendar template URL for adding a StudentHub event.
+ * Generates a standard Google Calendar template URL for adding a CommandSkill event.
  * Client-safe helper with no Node.js/server dependencies.
  */
 export function generateGoogleCalendarUrl(event: CalendarEvent): string {

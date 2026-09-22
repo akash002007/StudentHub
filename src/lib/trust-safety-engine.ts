@@ -147,7 +147,7 @@ function initializeTrustSafetyStore(): TrustSafetyStoreState {
           authorId: "admin_02",
           authorName: "Admin Lead Taylor",
           authorRole: "PLATFORM_ADMIN",
-          note: "Contract bond clause violates StudentHub recruitment guidelines section 4.2 (Zero Student Financial Liability). Sent warning to Acme HR.",
+          note: "Contract bond clause violates CommandSkill recruitment guidelines section 4.2 (Zero Student Financial Liability). Sent warning to Acme HR.",
           createdAt: "2026-03-16T12:00:00.000Z",
         }
       ],
@@ -351,12 +351,12 @@ function persistToDisk(): void {
 
 // Global singleton declaration
 declare global {
-  var __STUDENTHUB_TRUST_SAFETY_STORE__: TrustSafetyStoreState | undefined;
+  var __COMMANDSKILL_TRUST_SAFETY_STORE__: TrustSafetyStoreState | undefined;
 }
 
 const tsStore: TrustSafetyStoreState =
-  globalThis.__STUDENTHUB_TRUST_SAFETY_STORE__ ||
-  (globalThis.__STUDENTHUB_TRUST_SAFETY_STORE__ = initializeTrustSafetyStore());
+  globalThis.__COMMANDSKILL_TRUST_SAFETY_STORE__ ||
+  (globalThis.__COMMANDSKILL_TRUST_SAFETY_STORE__ = initializeTrustSafetyStore());
 
 // ============================================================================
 // Core Trust & Safety Engine
@@ -609,7 +609,7 @@ export class TrustSafetyEngine {
       if (updates.status === "RESOLVED" || updates.status === "DISMISSED") {
         this.sendNotificationToUser(report.reporterId, {
           title: `Report Update: ${report.caseNumber}`,
-          message: `Your report regarding "${report.targetTitle}" has been reviewed and concluded (${updates.status}). Thank you for helping keep StudentHub safe.`,
+          message: `Your report regarding "${report.targetTitle}" has been reviewed and concluded (${updates.status}). Thank you for helping keep CommandSkill safe.`,
           type: "system",
         });
       }

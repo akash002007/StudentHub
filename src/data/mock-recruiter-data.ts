@@ -1645,7 +1645,7 @@ export const initialMockRecruiterNotifications: RecruiterNotificationItem[] = [
     id: "rec_notif_4",
     type: "system",
     title: "Your internship received 250 new views",
-    description: "Core Infrastructure SWE reached #2 trending on StudentHub engineering feed.",
+    description: "Core Infrastructure SWE reached #2 trending on CommandSkill engineering feed.",
     timestamp: "2 days ago",
     isRead: true,
     actionUrl: "/dashboard/recruiter/analytics",

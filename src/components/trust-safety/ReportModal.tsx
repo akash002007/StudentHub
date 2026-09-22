@@ -147,7 +147,7 @@ export function ReportModal({
                 Submit Trust & Safety Report
               </h2>
               <p className="text-xs text-slate-400 mt-0.5">
-                Help protect the StudentHub community against abuse and fraud
+                Help protect the CommandSkill community against abuse and fraud
               </p>
             </div>
           </div>
@@ -328,7 +328,7 @@ export function ReportModal({
             <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3 flex items-start gap-2.5 text-xs text-amber-300">
               <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-amber-400" />
               <span>
-                Filing false or fraudulent reports is a violation of StudentHub guidelines. Your
+                Filing false or fraudulent reports is a violation of CommandSkill guidelines. Your
                 identity remains confidential and is protected from the reported party.
               </span>
             </div>

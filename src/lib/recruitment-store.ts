@@ -30,7 +30,7 @@ interface RecruitmentStoreState {
 
 declare global {
   // eslint-disable-next-line no-var
-  var __STUDENTHUB_RECRUITMENT_STORE__: RecruitmentStoreState | undefined;
+  var __COMMANDSKILL_RECRUITMENT_STORE__: RecruitmentStoreState | undefined;
 }
 
 const defaultCriteria: EligibilityCriteria = {
@@ -720,7 +720,7 @@ function initializeRecruitmentStore(): RecruitmentStoreState {
       targetName: drive1.title,
       previousState: "DRAFT",
       newState: "APPLICATIONS_OPEN",
-      details: "Published recruitment drive to StudentHub talent network.",
+      details: "Published recruitment drive to CommandSkill talent network.",
       timestamp: "2026-03-01T09:15:00.000Z",
       ipSessionRef: "192.168.1.45 (Chrome / macOS)",
     },
@@ -852,7 +852,7 @@ function persistRecruitmentStoreToDisk(): void {
 }
 
 export const recruitmentStore: RecruitmentStoreState =
-  globalThis.__STUDENTHUB_RECRUITMENT_STORE__ ?? initializeRecruitmentStore();
+  globalThis.__COMMANDSKILL_RECRUITMENT_STORE__ ?? initializeRecruitmentStore();
 
 function ensureCalendarSeedRecords(store: RecruitmentStoreState) {
   const drive1Id = "drive_swe_2026";
@@ -1026,7 +1026,7 @@ function ensureCalendarSeedRecords(store: RecruitmentStoreState) {
 ensureCalendarSeedRecords(recruitmentStore);
 
 if (process.env.NODE_ENV !== "production") {
-  globalThis.__STUDENTHUB_RECRUITMENT_STORE__ = recruitmentStore;
+  globalThis.__COMMANDSKILL_RECRUITMENT_STORE__ = recruitmentStore;
 }
 
 // ============================================================================

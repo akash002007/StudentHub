@@ -2,7 +2,7 @@ import { GitHubRepository, Project, ProjectType } from "@/types";
 
 export class ProjectIntelligenceEngine {
   /**
-   * Filters and transforms raw GitHub repositories into structured StudentHub Projects
+   * Filters and transforms raw GitHub repositories into structured CommandSkill Projects
    */
   static extractProjects(repositories: GitHubRepository[]): Project[] {
     // 1. Filter relevant repositories (exclude non-featured forks without stars)

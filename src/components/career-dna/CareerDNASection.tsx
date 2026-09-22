@@ -88,7 +88,7 @@ export function CareerDNASection() {
               Career DNA AI analyzes your projects, repositories, technical skills, coursework, certifications, coding activity, and other verified career signals to build a continuously evolving picture of your capabilities.
             </p>
             <p>
-              Instead of relying only on what you claim on a resume, StudentHub evaluates real evidence of your work to generate a personalized Career Score, identify your strongest skills, uncover gaps, and recommend the next steps that can make you a stronger candidate.
+              Instead of relying only on what you claim on a resume, CommandSkill evaluates real evidence of your work to generate a personalized Career Score, identify your strongest skills, uncover gaps, and recommend the next steps that can make you a stronger candidate.
             </p>
           </div>
 

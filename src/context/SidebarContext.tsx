@@ -28,7 +28,7 @@ export function SidebarProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     try {
-      const saved = localStorage.getItem("studenthub_sidebar_collapsed");
+      const saved = localStorage.getItem("commandskill_sidebar_collapsed");
       if (saved !== null) {
         setIsSidebarCollapsed(saved === "true");
       }
@@ -41,7 +41,7 @@ export function SidebarProvider({ children }: { children: React.ReactNode }) {
     setIsSidebarCollapsed((prev) => {
       const next = !prev;
       try {
-        localStorage.setItem("studenthub_sidebar_collapsed", String(next));
+        localStorage.setItem("commandskill_sidebar_collapsed", String(next));
       } catch {
         // Ignore localStorage errors
       }
@@ -52,7 +52,7 @@ export function SidebarProvider({ children }: { children: React.ReactNode }) {
   const setSidebarCollapsed = (val: boolean) => {
     setIsSidebarCollapsed(val);
     try {
-      localStorage.setItem("studenthub_sidebar_collapsed", String(val));
+      localStorage.setItem("commandskill_sidebar_collapsed", String(val));
     } catch {
       // Ignore localStorage errors
     }
